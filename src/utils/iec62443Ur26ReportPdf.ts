@@ -3,7 +3,7 @@
  * Uses PdfDoc from pdfCore.ts for consistent, premium layout
  */
 import type { IecThreat, IecReq, IecIntakeData } from '@/data/iec62443Ur26Data';
-import { threatId, FR_CATEGORIES, computeCbsScores } from '@/data/iec62443Ur26Data';
+import { threatId, FR_CATEGORIES, computeCbsScores, controlAppliesToCbs } from '@/data/iec62443Ur26Data';
 import type { ReviewSummary } from '@/data/iec62443Data';
 import type { QaCheck } from '@/utils/iec62443Ur26QualityCheck';
 import { createPdfDoc, LAYOUT, C, humanizeEvidence, evidenceProcedure } from '@/utils/pdfCore';
@@ -362,6 +362,53 @@ export async function generateIec62443Ur26Report(data: Iec62443ReportData): Prom
         const plain = c.label.replace(/[^\x20-\x7E]/g, '').trim();
         pdf.dataTableRow(`${pad(plain, 30)}${pad(c.score + '%', 8)}${pad(String(c.applicable), 7)}${pad(String(c.pass), 6)}${pad(String(c.partial), 6)}${pad(String(c.fail), 6)}`);
       });
+
+      /* CBS Risk Ranking — Highest / Lowest Risk Systems */
+      if (cbsScores.length >= 2) {
+        const byScore = [...cbsScores].sort((a, b) => a.score - b.score);
+        const n = Math.min(3, Math.floor(byScore.length / 2) || 1);
+        const highest = byScore.slice(0, n);
+        const lowest = [...byScore].reverse().slice(0, n);
+        const clean = (s: string) => s.replace(/[^\x20-\x7E]/g, '').trim();
+
+        pdf.heading(lang === 'de' ? 'Systeme mit höchstem Risiko' : lang === 'fr' ? 'Systèmes à risque le plus élevé' : 'Highest Risk Systems', 2);
+        pdf.introText(lang === 'de'
+          ? 'Systeme mit der geringsten Reife — vorrangiger Handlungsbedarf vor dem Klassebesuch.'
+          : lang === 'fr'
+            ? 'Systèmes à la plus faible maturité — action prioritaire avant la visite de classe.'
+            : 'Systems with the lowest readiness — priority action required before class survey.');
+        highest.forEach((c, i) => pdf.bodyText(`${i + 1}. ${clean(c.label)} — ${c.score}% (${c.fail} fail, ${c.partial} partial)`, 4));
+
+        pdf.heading(lang === 'de' ? 'Systeme mit niedrigstem Risiko' : lang === 'fr' ? 'Systèmes à risque le plus faible' : 'Lowest Risk Systems', 2);
+        pdf.introText(lang === 'de'
+          ? 'Systeme mit der höchsten Reife — am besten auf den Klassebesuch vorbereitet.'
+          : lang === 'fr'
+            ? 'Systèmes à la plus haute maturité — les mieux préparés à la visite de classe.'
+            : 'Systems with the highest readiness — best positioned for class survey.');
+        lowest.forEach((c, i) => pdf.bodyText(`${i + 1}. ${clean(c.label)} — ${c.score}% (${c.pass} pass)`, 4));
+      }
+
+      /* CBS-grouped findings — system-specific recommendations */
+      const cbsFindings = cbsScores
+        .map(c => ({ ...c, controls: reqs.filter(r => r.status !== 'pass' && controlAppliesToCbs(r.id, c.id)) }))
+        .filter(c => c.controls.length > 0);
+      if (cbsFindings.length > 0) {
+        pdf.heading(lang === 'de' ? 'CBS-spezifische Befunde & Empfehlungen' : lang === 'fr' ? 'Constatations & recommandations par CBS' : 'CBS-Specific Findings & Recommendations', 2);
+        pdf.introText(lang === 'de'
+          ? 'Offene Befunde je System mit der jeweiligen systemspezifischen Empfehlung.'
+          : lang === 'fr'
+            ? 'Constatations ouvertes par système avec la recommandation spécifique correspondante.'
+            : 'Open findings grouped per system, with the system-specific recommendation for each relevant control.');
+        cbsFindings.forEach(c => {
+          pdf.checkSpace(30);
+          pdf.heading(`${c.label.replace(/[^\x20-\x7E]/g, '').trim()} — ${c.score}% (${c.controls.length} open)`, 3);
+          c.controls.forEach(r => {
+            pdf.checkSpace(16);
+            pdf.field(r.id, r.name);
+            if (r.measure) pdf.fieldInline(lang === 'de' ? 'Empfehlung' : lang === 'fr' ? 'Recommandation' : 'Recommendation', r.measure, 4);
+          });
+        });
+      }
     }
   }
 
