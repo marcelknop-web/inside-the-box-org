@@ -1278,7 +1278,7 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
   }, [setStep]);
 
   const effectiveReqs = useMemo<IecReq[]>(() => {
-    const baseReqs = getReqs(intakeData?.extendedMatrix);
+    const baseReqs = getReqs(intakeData?.assessmentType);
     if (!docAssessments) return baseReqs;
     const byId = new Map(docAssessments.map(a => [a.id, a]));
     const basisLabel: Record<string, string> = {
