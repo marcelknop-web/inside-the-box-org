@@ -554,6 +554,46 @@ export function computeCbsScores(reqs: IecReq[], systemTypeIds: string[]): CbsSc
   }).sort((a, b) => b.score - a.score);
 }
 
+// ── Threats derived from a real assessment (no invented findings) ────────────
+// In a real, post-intake document assessment the static demo threat catalogue
+// (IEC_THREATS) must not be presented as this vessel's threats. Instead the
+// Threat Landscape / Risk Matrix is derived purely from the assessed controls:
+// each non-compliant control becomes one threat. Evidence/rationale come from
+// the real assessment; likelihood/impact use the same transparent status
+// methodology as the rest of the tool (fail = high, partial = medium). No
+// attacker/path/source specifics are fabricated (Data Integrity Policy).
+const STATUS_LI: Record<IecReq['status'], { likelihood: number; impact: number }> = {
+  fail: { likelihood: 4, impact: 4 },
+  partial: { likelihood: 3, impact: 2 },
+  pass: { likelihood: 1, impact: 1 },
+};
+
+export function deriveThreatsFromReqs(reqs: IecReq[]): IecThreat[] {
+  return reqs
+    .filter(r => r.status !== 'pass')
+    .map((r, i) => {
+      const li = STATUS_LI[r.status];
+      return {
+        id: i + 1,
+        fr: r.id.split('-')[0],
+        name: r.name,
+        component: r.article,
+        attacker: '—',
+        path: '—',
+        iecRef: r.article,
+        likelihood: li.likelihood,
+        impact: li.impact,
+        evidence: r.evidence || '',
+        rationale: r.rationale || '',
+        sources: [],
+        evidenceQuality: 3,
+        reproducibility: 'medium',
+      } as IecThreat;
+    });
+}
+
+
+
 
 
 

@@ -16,7 +16,7 @@ import {
   getSystemTypes, getSecurityLevels, getZoneConduits,
   PROTOCOL_OPTS, getSecurityMeasures, getSecurityCategories,
   getAttachTypes, IEC_THREATS, getReqs, FR_CATEGORIES, threatId,
-  DEMO_SCENARIOS, computeCbsScores,
+  DEMO_SCENARIOS, computeCbsScores, deriveThreatsFromReqs,
   type IecThreat, type IecReq, type IecIntakeData, type MeasureEntry, EMPTY_INTAKE,
 } from '@/data/iec62443Ur26Data';
 import { extractDocumentText } from '@/lib/documentExtraction';
@@ -952,7 +952,7 @@ function VerdictBadge({ verdict }: { verdict: IecVerdict }) {
   return <span className={`px-2 py-0.5 rounded text-xs font-bold whitespace-nowrap ${s.badge}`}>{VERDICT_LABELS[verdict].en}</span>;
 }
 
-function ReportView({ intakeData, threats, reqs, reviewSummary }: { intakeData: IecIntakeData; threats: IecThreat[]; reqs: IecReq[]; reviewSummary: ReviewSummaryResult | null }) {
+function ReportView({ intakeData, threats, reqs, reviewSummary, docBased }: { intakeData: IecIntakeData; threats: IecThreat[]; reqs: IecReq[]; reviewSummary: ReviewSummaryResult | null; docBased?: boolean }) {
   const [localThreats, setLocalThreats] = useState<IecThreat[]>(() => threats.map(th => ({ ...th, sources: [...th.sources] })));
   const [localReqs, setLocalReqs] = useState<IecReq[]>(() => reqs.map(r => ({ ...r, criteria: [...r.criteria] })));
   const [qaResult, setQaResult] = useState<QaResult | null>(null);
@@ -1001,7 +1001,9 @@ function ReportView({ intakeData, threats, reqs, reviewSummary }: { intakeData: 
       let finalThreats = localThreats;
       let finalReqs = localReqs;
       let fixLogs: string[] = [];
-      if (initialQa.failed > 0) {
+      // In a real (document-based) run, never auto-fix: the assessment is the
+      // single source of truth and must not be mutated with derived content.
+      if (!docBased && initialQa.failed > 0) {
         const result = applyAuditFixes(localThreats, localReqs, initialQa.checks.filter(c => !c.passed), 'en', intakeData);
         finalThreats = result.threats; finalReqs = result.reqs; fixLogs = result.fixes;
         setLocalThreats(finalThreats); setLocalReqs(finalReqs); setAllFixLogs(fixLogs);
@@ -1009,7 +1011,7 @@ function ReportView({ intakeData, threats, reqs, reviewSummary }: { intakeData: 
       const postFixQa = runQualityCheck(finalThreats, finalReqs, 'en', intakeData);
       setQaResult(postFixQa); setQaRunning(false); setQaExpanded(true);
     }, 1500);
-  }, [localThreats, localReqs, intakeData]);
+  }, [localThreats, localReqs, intakeData, docBased]);
 
   const qaVerdict = qaResult?.verdict;
 
@@ -1359,6 +1361,16 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
     });
   }, [docAssessments, intakeData?.assessmentType]);
 
+  // In a real run (documents analysed) threats are derived from the real control
+  // assessment; otherwise the demo threat catalogue is shown (accepted demo data).
+  const docBased = docAssessments !== null;
+  const activeThreats = useMemo<IecThreat[]>(
+    () => (docBased ? deriveThreatsFromReqs(effectiveReqs) : IEC_THREATS),
+    [docBased, effectiveReqs],
+  );
+
+
+
 
   const reset = useCallback(() => { setStep(0); setIntakeData(EMPTY_INTAKE); setDocAssessments(null); setReviewSummary(null); setDocsAnalyzed([]); }, [setStep]);
 
@@ -1406,10 +1418,10 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
               </div>
             )}
             {step === 0 && <IntakeWizard onFinish={handleIntakeFinish} />}
-            {step === 1 && <ThreatModel threats={IEC_THREATS} onNext={() => setStep(2)} />}
-            {step === 2 && <RiskAssessment threats={IEC_THREATS} onNext={() => setStep(3)} />}
+            {step === 1 && <ThreatModel threats={activeThreats} onNext={() => setStep(2)} />}
+            {step === 2 && <RiskAssessment threats={activeThreats} onNext={() => setStep(3)} />}
             {step === 3 && <IecMapping reqs={effectiveReqs} onNext={() => setStep(4)} />}
-            {step === 4 && <ReportView intakeData={intakeData} threats={IEC_THREATS} reqs={effectiveReqs} reviewSummary={reviewSummary} />}
+            {step === 4 && <ReportView intakeData={intakeData} threats={activeThreats} reqs={effectiveReqs} reviewSummary={reviewSummary} docBased={docBased} />}
           </div>
 
         )}
