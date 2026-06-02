@@ -1099,6 +1099,31 @@ function ReportView({ intakeData, threats, reqs, reviewSummary }: { intakeData: 
         <Iec62443Ur26AuditCharts threats={localThreats} reqs={localReqs} />
       </SectionCard>
 
+      {/* CBS Deep Dive — per-system readiness matrix */}
+      {intakeData.assessmentType === 'deepdive' && cbsScores.length > 0 && (
+        <SectionCard title={`CBS Deep Dive — System-by-System Readiness (${cbsScores.length})`} icon="⚓">
+          <p className="text-xs text-muted-foreground mb-3">Per-CBS readiness derived from the assessed status of the controls relevant to each system (Pass 100 · Partial 50 · Fail 0). Higher is better.</p>
+          <div className="space-y-2">
+            {cbsScores.map(c => {
+              const band = c.score >= 80 ? 'bg-green-500' : c.score >= 60 ? 'bg-yellow-500' : c.score >= 40 ? 'bg-orange-500' : 'bg-destructive';
+              const txt = c.score >= 80 ? 'text-green-500' : c.score >= 60 ? 'text-yellow-500' : c.score >= 40 ? 'text-orange-500' : 'text-destructive';
+              return (
+                <div key={c.id} className="border border-border rounded-lg px-3 py-2.5">
+                  <div className="flex items-center justify-between gap-3 mb-1.5">
+                    <div className="text-sm font-medium text-foreground min-w-0 truncate">{c.icon} {c.label}</div>
+                    <div className={`text-sm font-bold font-mono flex-shrink-0 ${txt}`}>{c.score}%</div>
+                  </div>
+                  <div className="h-2 rounded-full bg-secondary overflow-hidden">
+                    <div className={`h-full ${band} rounded-full transition-all`} style={{ width: `${c.score}%` }} />
+                  </div>
+                  <div className="text-[11px] text-muted-foreground mt-1 font-mono">{c.applicable} controls · {c.pass} pass · {c.partial} partial · {c.fail} fail</div>
+                </div>
+              );
+            })}
+          </div>
+        </SectionCard>
+      )}
+
       {/* 4. Individual Findings */}
       {findings.length > 0 && (
         <SectionCard title={`Individual Findings (${findings.length})`} icon="🔍">
