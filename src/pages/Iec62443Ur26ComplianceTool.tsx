@@ -1359,6 +1359,16 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
     });
   }, [docAssessments, intakeData?.assessmentType]);
 
+  // In a real run (documents analysed) threats are derived from the real control
+  // assessment; otherwise the demo threat catalogue is shown (accepted demo data).
+  const docBased = docAssessments !== null;
+  const activeThreats = useMemo<IecThreat[]>(
+    () => (docBased ? deriveThreatsFromReqs(effectiveReqs) : IEC_THREATS),
+    [docBased, effectiveReqs],
+  );
+
+
+
 
   const reset = useCallback(() => { setStep(0); setIntakeData(EMPTY_INTAKE); setDocAssessments(null); setReviewSummary(null); setDocsAnalyzed([]); }, [setStep]);
 
