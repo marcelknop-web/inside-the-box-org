@@ -275,6 +275,25 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
     }
   }, [sub]);
 
+  const loadScenario = useCallback((idx: number) => {
+    const scenario = DEMO_SCENARIOS[idx];
+    if (!scenario) return;
+    scenarioRef.current = idx;
+    setD(prev => ({
+      ...prev,
+      facilityName: scenario.facility.name,
+      systemTypes: scenario.facility.types,
+      securityLevel: scenario.securityLevel,
+      description: scenario.description,
+      zones: scenario.zones,
+      protocols: scenario.protocols,
+      roles: scenario.roles,
+      measures: scenario.measures,
+      knownIssues: scenario.knownIssues,
+      files: scenario.files.map((f) => ({ ...f, id: crypto.randomUUID() })),
+    }));
+  }, []);
+
   const prevSubRef = useRef(0);
   if (sub === 0 && prevSubRef.current > 0) {
     scenarioRef.current = Math.floor(Math.random() * DEMO_SCENARIOS.length);
