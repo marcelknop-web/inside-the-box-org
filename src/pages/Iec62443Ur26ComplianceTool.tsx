@@ -1148,6 +1148,65 @@ function ReportView({ intakeData, threats, reqs, reviewSummary, docBased }: { in
         </SectionCard>
       )}
 
+      {/* CBS Risk Ranking — Highest / Lowest Risk Systems */}
+      {intakeData.assessmentType === 'deepdive' && riskRanking.highest.length > 0 && (
+        <SectionCard title="CBS Risk Ranking" icon="📊">
+          <p className="text-xs text-muted-foreground mb-3">Systems ranked by readiness. Highest-risk systems carry the lowest readiness score and demand priority action; lowest-risk systems are best positioned for class survey.</p>
+          <div className="grid sm:grid-cols-2 gap-3">
+            <div className="border border-destructive/30 bg-destructive/5 rounded-lg p-3">
+              <div className="text-xs font-semibold uppercase tracking-wide text-destructive mb-2">🔴 Highest Risk Systems</div>
+              <div className="space-y-1.5">
+                {riskRanking.highest.map((c, i) => (
+                  <div key={c.id} className="flex items-center justify-between gap-2 text-sm">
+                    <span className="text-foreground min-w-0 truncate">{i + 1}. {c.icon} {c.label}</span>
+                    <span className="font-mono font-bold text-destructive flex-shrink-0">{c.score}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="border border-green-500/30 bg-green-500/5 rounded-lg p-3">
+              <div className="text-xs font-semibold uppercase tracking-wide text-green-500 mb-2">🟢 Lowest Risk Systems</div>
+              <div className="space-y-1.5">
+                {riskRanking.lowest.map((c, i) => (
+                  <div key={c.id} className="flex items-center justify-between gap-2 text-sm">
+                    <span className="text-foreground min-w-0 truncate">{i + 1}. {c.icon} {c.label}</span>
+                    <span className="font-mono font-bold text-green-500 flex-shrink-0">{c.score}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </SectionCard>
+      )}
+
+      {/* CBS-Grouped Findings — system-specific recommendations */}
+      {intakeData.assessmentType === 'deepdive' && cbsFindings.length > 0 && (
+        <SectionCard title={`CBS-Specific Findings & Recommendations (${cbsFindings.length})`} icon="🛠️">
+          <p className="text-xs text-muted-foreground mb-3">Open findings grouped per system, with the system-specific recommendation for each relevant control.</p>
+          <div className="space-y-3">
+            {cbsFindings.map(c => (
+              <div key={c.id} className="border border-border rounded-lg p-3">
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <div className="text-sm font-semibold text-foreground min-w-0 truncate">{c.icon} {c.label}</div>
+                  <div className="text-[11px] font-mono text-muted-foreground flex-shrink-0">{c.score}% · {c.controls.length} open</div>
+                </div>
+                <div className="space-y-2">
+                  {c.controls.map(r => (
+                    <div key={r.id} className="text-xs border-l-2 border-border pl-3">
+                      <div className="font-medium text-foreground">
+                        <span className="font-mono text-muted-foreground">{r.id}</span> {r.name}
+                        <VerdictBadge verdict={verdictFromStatus(r.status)} />
+                      </div>
+                      {r.measure && <div className="text-muted-foreground mt-0.5"><span className="font-semibold">Recommendation: </span>{r.measure}</div>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </SectionCard>
+      )}
+
       {/* 4. Individual Findings */}
       {findings.length > 0 && (
         <SectionCard title={`Individual Findings (${findings.length})`} icon="🔍">
