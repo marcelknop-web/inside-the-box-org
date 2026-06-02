@@ -65,6 +65,14 @@ export const FR_CATEGORIES: Record<string, { label: Record<string, string>; dot:
   AL: { label: { de: 'Monitoring & Tests (Kap. 15, 16)', en: 'Monitoring & Testing (Ch. 15, 16)', fr: 'Surveillance & tests (Ch. 15, 16)' }, dot: 'bg-yellow-500', badge: 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' },
   RA: { label: { de: 'Recovery & manueller Betrieb (Kap. 13, 14)', en: 'Recovery & Manual Ops (Ch. 13, 14)', fr: 'Récupération & ops manuelles (Ch. 13, 14)' }, dot: 'bg-red-500', badge: 'bg-red-500/10 text-red-400 border border-red-500/20' },
   UTN: { label: { de: 'Netzwerk, WLAN & Remote (Kap. 7, 10, 11)', en: 'Network, Wireless, Remote (Ch. 7, 10, 11)', fr: 'Réseau, sans-fil, distant (Ch. 7, 10, 11)' }, dot: 'bg-rose-500', badge: 'bg-rose-500/10 text-rose-400 border border-rose-500/20' },
+  // ── Extended UR E26 Matrix — organizational & lifecycle controls ──
+  GOV: { label: { de: 'Governance & Verantwortlichkeiten', en: 'Security Governance', fr: 'Gouvernance de sécurité' }, dot: 'bg-indigo-500', badge: 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' },
+  RM: { label: { de: 'Risikomanagement', en: 'Risk Management', fr: 'Gestion des risques' }, dot: 'bg-cyan-500', badge: 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' },
+  CM: { label: { de: 'Konfigurations- & Änderungsmanagement', en: 'Configuration & Change Mgmt', fr: 'Gestion des configurations & changements' }, dot: 'bg-teal-500', badge: 'bg-teal-500/10 text-teal-400 border border-teal-500/20' },
+  VM: { label: { de: 'Schwachstellen- & Patch-Management', en: 'Vulnerability & Patch Mgmt', fr: 'Gestion des vulnérabilités & correctifs' }, dot: 'bg-lime-500', badge: 'bg-lime-500/10 text-lime-400 border border-lime-500/20' },
+  TP: { label: { de: 'Lieferanten- & Drittparteisicherheit', en: 'Supplier & Third-Party Security', fr: 'Sécurité fournisseurs & tiers' }, dot: 'bg-amber-500', badge: 'bg-amber-500/10 text-amber-400 border border-amber-500/20' },
+  IR: { label: { de: 'Incident-Management', en: 'Incident Management', fr: 'Gestion des incidents' }, dot: 'bg-pink-500', badge: 'bg-pink-500/10 text-pink-400 border border-pink-500/20' },
+  AT: { label: { de: 'Awareness & Schulung', en: 'Awareness & Training', fr: 'Sensibilisation & formation' }, dot: 'bg-violet-500', badge: 'bg-violet-500/10 text-violet-400 border border-violet-500/20' },
 };
 
 // ── UR E26 Demo Threats (ship-level integration view) ───────────────────────
