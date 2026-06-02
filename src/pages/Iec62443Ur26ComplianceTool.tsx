@@ -1308,32 +1308,53 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
 
   const effectiveReqs = useMemo<IecReq[]>(() => {
     const baseReqs = getReqs(intakeData?.assessmentType);
+    // No document assessment performed → demo/sample baseline (intentional).
     if (!docAssessments) return baseReqs;
+    // A real, post-intake assessment ran: every finding MUST be grounded in the
+    // assessment output only. Hardcoded demo evidence/gap/findings are NEVER used
+    // as fallback here, so nothing is invented after the intake (Data Integrity Policy).
     const byId = new Map(docAssessments.map(a => [a.id, a]));
     const basisLabel: Record<string, string> = {
       declared: 'Self-declared (intake)',
       document: 'Document-verified',
       declared_document: 'Self-declared & document-verified',
-      none: '',
+      none: 'Not assessed',
     };
     return baseReqs.map(r => {
       const a = byId.get(r.id);
-      if (!a) return r;
-      const label = basisLabel[a.basis] || '';
+      // No assessment result for this control → present as not assessed, no demo content.
+      if (!a) {
+        return {
+          ...r,
+          status: 'fail' as const,
+          evidence: '[Not assessed] No documented evidence found in the analysed documents.',
+          rationale: 'No supporting evidence for this control was found in the uploaded documents.',
+          gap: '',
+          generalisedFinding: '',
+          clientResponse: '',
+          residualScopeNote: '',
+        };
+      }
+      const label = basisLabel[a.basis] || 'Not assessed';
       const docEvidence = a.evidence
         ? `${a.evidence}${a.sourceDoc ? ` (source: ${a.sourceDoc})` : ''}`
         : '';
-      const evidence = label
-        ? `[${label}] ${docEvidence || (a.basis === 'declared' ? 'Based on intake self-declaration; no supporting document quote available.' : r.evidence)}`
-        : (docEvidence || r.evidence);
+      const fallbackEvidence = a.basis === 'declared'
+        ? 'Based on intake self-declaration; no supporting document quote available.'
+        : 'No documented evidence found in the analysed documents.';
+      const evidence = `[${label}] ${docEvidence || fallbackEvidence}`;
       return {
         ...r,
         status: a.status,
         evidence,
-        rationale: a.rationale || r.rationale,
-        generalisedFinding: a.generalisedFinding || r.generalisedFinding,
-        clientResponse: a.clientResponse || r.clientResponse,
-        residualScopeNote: a.residualScopeNote || r.residualScopeNote,
+        // Use assessment output only — no demo fallback for findings.
+        rationale: a.rationale || '',
+        // The AI assessment does not emit a vessel-specific gap; clear the demo gap
+        // so no fabricated deficiency text appears in a document-based report.
+        gap: '',
+        generalisedFinding: a.generalisedFinding || '',
+        clientResponse: a.clientResponse || '',
+        residualScopeNote: a.residualScopeNote || '',
       };
     });
   }, [docAssessments, intakeData?.assessmentType]);
