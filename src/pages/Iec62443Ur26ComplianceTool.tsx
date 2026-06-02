@@ -952,7 +952,7 @@ function VerdictBadge({ verdict }: { verdict: IecVerdict }) {
   return <span className={`px-2 py-0.5 rounded text-xs font-bold whitespace-nowrap ${s.badge}`}>{VERDICT_LABELS[verdict].en}</span>;
 }
 
-function ReportView({ intakeData, threats, reqs, reviewSummary }: { intakeData: IecIntakeData; threats: IecThreat[]; reqs: IecReq[]; reviewSummary: ReviewSummaryResult | null }) {
+function ReportView({ intakeData, threats, reqs, reviewSummary, docBased }: { intakeData: IecIntakeData; threats: IecThreat[]; reqs: IecReq[]; reviewSummary: ReviewSummaryResult | null; docBased?: boolean }) {
   const [localThreats, setLocalThreats] = useState<IecThreat[]>(() => threats.map(th => ({ ...th, sources: [...th.sources] })));
   const [localReqs, setLocalReqs] = useState<IecReq[]>(() => reqs.map(r => ({ ...r, criteria: [...r.criteria] })));
   const [qaResult, setQaResult] = useState<QaResult | null>(null);
