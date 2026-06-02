@@ -65,6 +65,14 @@ export const FR_CATEGORIES: Record<string, { label: Record<string, string>; dot:
   AL: { label: { de: 'Monitoring & Tests (Kap. 15, 16)', en: 'Monitoring & Testing (Ch. 15, 16)', fr: 'Surveillance & tests (Ch. 15, 16)' }, dot: 'bg-yellow-500', badge: 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' },
   RA: { label: { de: 'Recovery & manueller Betrieb (Kap. 13, 14)', en: 'Recovery & Manual Ops (Ch. 13, 14)', fr: 'Récupération & ops manuelles (Ch. 13, 14)' }, dot: 'bg-red-500', badge: 'bg-red-500/10 text-red-400 border border-red-500/20' },
   UTN: { label: { de: 'Netzwerk, WLAN & Remote (Kap. 7, 10, 11)', en: 'Network, Wireless, Remote (Ch. 7, 10, 11)', fr: 'Réseau, sans-fil, distant (Ch. 7, 10, 11)' }, dot: 'bg-rose-500', badge: 'bg-rose-500/10 text-rose-400 border border-rose-500/20' },
+  // ── Extended UR E26 Matrix — organizational & lifecycle controls ──
+  GOV: { label: { de: 'Governance & Verantwortlichkeiten', en: 'Security Governance', fr: 'Gouvernance de sécurité' }, dot: 'bg-indigo-500', badge: 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' },
+  RM: { label: { de: 'Risikomanagement', en: 'Risk Management', fr: 'Gestion des risques' }, dot: 'bg-cyan-500', badge: 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' },
+  CM: { label: { de: 'Konfigurations- & Änderungsmanagement', en: 'Configuration & Change Mgmt', fr: 'Gestion des configurations & changements' }, dot: 'bg-teal-500', badge: 'bg-teal-500/10 text-teal-400 border border-teal-500/20' },
+  VM: { label: { de: 'Schwachstellen- & Patch-Management', en: 'Vulnerability & Patch Mgmt', fr: 'Gestion des vulnérabilités & correctifs' }, dot: 'bg-lime-500', badge: 'bg-lime-500/10 text-lime-400 border border-lime-500/20' },
+  TP: { label: { de: 'Lieferanten- & Drittparteisicherheit', en: 'Supplier & Third-Party Security', fr: 'Sécurité fournisseurs & tiers' }, dot: 'bg-amber-500', badge: 'bg-amber-500/10 text-amber-400 border border-amber-500/20' },
+  IR: { label: { de: 'Incident-Management', en: 'Incident Management', fr: 'Gestion des incidents' }, dot: 'bg-pink-500', badge: 'bg-pink-500/10 text-pink-400 border border-pink-500/20' },
+  AT: { label: { de: 'Awareness & Schulung', en: 'Awareness & Training', fr: 'Sensibilisation & formation' }, dot: 'bg-violet-500', badge: 'bg-violet-500/10 text-violet-400 border border-violet-500/20' },
 };
 
 // ── UR E26 Demo Threats (ship-level integration view) ───────────────────────
@@ -292,7 +300,176 @@ export const IEC_REQS: IecReq[] = [
     measure: '', criteria: [], effort: '', priority: '' },
 ];
 
-// ── Demo Scenarios (Maritime, owner / newbuild perspective) ────────────────
+// ── Extended UR E26 Matrix — Governance & Lifecycle Controls (20) ────────────
+// These complement the 15 technical controls above with the organizational and
+// lifecycle controls a classification-society auditor expects for a full UR E26
+// readiness review: governance, risk management, change management, vulnerability
+// management, supplier security, incident response and awareness.
+export const IEC_REQS_GOVERNANCE: IecReq[] = [
+  // GOV — Security Governance
+  { id: 'GOV-1', article: 'E26 §3 (Goal & Functional Requirements) / IEC 62443-2-1', name: 'Cybersecurity Roles & Responsibilities Defined', status: 'fail',
+    gap: 'No documented assignment of cyber-resilience responsibilities across master, chief engineer, ETO and shore office',
+    evidence: 'The safety-management system contains no defined cybersecurity roles. No single accountable owner for vessel cyber resilience is named on board or ashore. Responsibilities are assumed informally by the ETO.',
+    rationale: 'UR E26 is goal-based and places explicit responsibility for the ship-wide cyber-resilience framework on the owner. Without a documented RACI, requirements cannot be reliably owned, executed or evidenced at survey.',
+    measure: '1. Define and document cybersecurity roles for ship and shore (accountable owner, on-board lead, deputy). 2. Embed the RACI in the SMS. 3. Brief all named role-holders against their responsibilities.',
+    criteria: ['Cyber roles documented in the SMS with named accountable owner', 'On-board cyber lead and deputy designated in writing', 'Role-holders briefed and acknowledgement recorded'],
+    effort: '24-40h', priority: 'P0' },
+  { id: 'GOV-2', article: 'E26 §3 (Owner/Yard responsibilities) / IACS Rec. 166', name: 'Owner / Yard / Supplier Security Responsibilities', status: 'fail',
+    gap: 'Division of cyber responsibilities between owner, yard and CBS suppliers is undocumented for the newbuild/retrofit',
+    evidence: 'No responsibility matrix exists defining who delivers, integrates, tests and maintains the cyber-resilience measures across owner, building yard and CBS suppliers. Handover documentation does not allocate residual security tasks.',
+    rationale: 'UR E26 explicitly distributes duties across owner, yard and supplier. Undocumented boundaries lead to security gaps at integration and at delivery handover.',
+    measure: '1. Produce an owner/yard/supplier responsibility matrix for all cyber-resilience measures. 2. Reference it in build/retrofit contracts. 3. Confirm residual tasks at handover acceptance.',
+    criteria: ['Responsibility matrix agreed and signed by owner and yard', 'Supplier security duties referenced in contracts', 'Residual tasks confirmed at handover'],
+    effort: '24-40h', priority: 'P1' },
+  { id: 'GOV-3', article: 'E26 §3 (Management Framework) / IEC 62443-2-1', name: 'Cybersecurity Policy & Management Commitment', status: 'partial',
+    gap: 'A high-level company cyber policy exists but is not vessel-specific and lacks evidence of management review',
+    evidence: 'A generic company IT security policy is on file but does not address OT/CBS, ship-specific scope, or review cadence. No record of management review of cyber resilience in the past 12 months.',
+    rationale: 'UR E26 expects a managed framework with demonstrable top-management commitment. A generic, unreviewed policy does not provide the governance baseline the requirement assumes.',
+    measure: '1. Extend the policy to cover OT/CBS and vessel scope. 2. Establish an annual management review of cyber resilience. 3. Record management endorsement.',
+    criteria: ['Policy covers OT/CBS and is vessel-applicable', 'Annual management review scheduled and minuted', 'Documented top-management endorsement'],
+    effort: '16-24h', priority: 'P1' },
+
+  // RM — Risk Management
+  { id: 'RM-1', article: 'E26 §4 (Risk Assessment) / IEC 62443-3-2', name: 'Cyber Risk Assessment for CBS', status: 'fail',
+    gap: 'No documented cyber risk assessment covering the vessel\'s CBS and zones/conduits',
+    evidence: 'No structured cyber risk assessment is on file. Security measures appear to have been selected ad hoc rather than derived from an assessed risk to each CBS and zone.',
+    rationale: 'UR E26 requires that security measures be commensurate with assessed risk. Without a documented CBS risk assessment, the adequacy of the chosen measures cannot be demonstrated to a surveyor.',
+    measure: '1. Conduct an IEC 62443-3-2 style risk assessment across all CBS and zones. 2. Document threat scenarios, likelihood/impact and residual risk. 3. Have the owner formally accept residual risk.',
+    criteria: ['Risk assessment documented for all CBS and zones', 'Residual risk formally accepted by the owner', 'Assessment dated within the last 12 months'],
+    effort: '60-100h', priority: 'P0' },
+  { id: 'RM-2', article: 'E26 §4 (Risk-based selection) / IEC 62443-3-2', name: 'Risk-Based Security Measures Selection', status: 'fail',
+    gap: 'Security measures not traceable to assessed risk or target security level',
+    evidence: 'There is no traceability matrix linking implemented measures to specific risks or to the target security level (SL-T). Measure selection cannot be justified against the risk picture.',
+    rationale: 'UR E26 expects measures to be derived from risk and the target security level. Lack of traceability prevents demonstration that the protection is proportionate.',
+    measure: '1. Build a traceability matrix mapping each measure to risk(s) and SL-T. 2. Identify and close coverage gaps. 3. Review the matrix when the risk assessment changes.',
+    criteria: ['Traceability matrix measure→risk→SL-T maintained', 'No uncovered high/critical risks', 'Matrix reviewed on each risk-assessment update'],
+    effort: '40-60h', priority: 'P1' },
+  { id: 'RM-3', article: 'E26 §4 (Change-driven review) / IEC 62443-2-1', name: 'Risk Review During System Changes', status: 'fail',
+    gap: 'No requirement to re-assess cyber risk when CBS are modified, added or integrated',
+    evidence: 'Recent CBS modifications (VSAT upgrade, additional engineering laptop) proceeded without any cyber risk review. No trigger in the change process mandates re-assessment.',
+    rationale: 'UR E26 treats cyber resilience as lifecycle-managed; changes can invalidate prior risk decisions. A missing re-assessment trigger allows risk to drift undetected.',
+    measure: '1. Add a mandatory cyber-risk review gate to the change process. 2. Record the review outcome for each change. 3. Update the master risk assessment accordingly.',
+    criteria: ['Change process includes a cyber-risk review gate', 'Each CBS change has a recorded risk review', 'Master risk assessment updated after changes'],
+    effort: '16-24h', priority: 'P1' },
+
+  // CM — Configuration & Change Management
+  { id: 'CM-1', article: 'E26 §5 (Configuration control) / IEC 62443-2-1', name: 'Controlled Configuration Baseline', status: 'fail',
+    gap: 'No maintained secure configuration baseline for CBS; current state not documented',
+    evidence: 'No approved configuration baseline (firmware versions, services, accounts, network settings) exists for the CBS. Drift cannot be detected because there is no reference state.',
+    rationale: 'UR E26 expects CBS configurations to be controlled so that the secure state is known and maintainable. Without a baseline, hardening and integrity cannot be assured.',
+    measure: '1. Capture an approved secure baseline per CBS class. 2. Store baselines under version control. 3. Periodically compare live configuration against the baseline.',
+    criteria: ['Approved baseline exists per CBS class', 'Baselines version-controlled', 'Quarterly baseline comparison performed and logged'],
+    effort: '40-60h', priority: 'P0' },
+  { id: 'CM-2', article: 'E26 §5 (Change approval) / IEC 62443-2-1', name: 'Change Approval Process', status: 'fail',
+    gap: 'CBS changes performed without documented approval or record',
+    evidence: 'Engine OEM and integrator changes are applied on board without a formal approval step or change log. There is no record of who approved, applied or verified recent modifications.',
+    rationale: 'UR E26 requires changes to be controlled. Unapproved, unrecorded changes undermine baseline integrity and prevent post-incident reconstruction.',
+    measure: '1. Introduce a documented change-approval workflow for all CBS. 2. Require duty-officer authorisation before changes. 3. Maintain a change log with approver, date and verification.',
+    criteria: ['Documented change-approval workflow in use', 'All CBS changes authorised before execution', 'Change log maintained with verification step'],
+    effort: '24-40h', priority: 'P1' },
+  { id: 'CM-3', article: 'E26 §5 (Security review of changes) / IEC 62443-2-1', name: 'Security Review of System Changes', status: 'partial',
+    gap: 'Functional changes are tested but not reviewed for security impact',
+    evidence: 'Changes are validated for functional correctness during commissioning but no security review (new ports, services, accounts, trust paths) is performed or recorded.',
+    rationale: 'UR E26 expects that changes do not erode the established security posture. A functional-only review can silently reopen attack paths.',
+    measure: '1. Add a security-impact checklist to the change process. 2. Verify hardening, segmentation and accounts after each change. 3. Record the security review outcome.',
+    criteria: ['Security-impact checklist applied to each change', 'Post-change hardening/segmentation verified', 'Security review outcome recorded'],
+    effort: '16-24h', priority: 'P2' },
+
+  // VM — Vulnerability & Patch Management
+  { id: 'VM-1', article: 'E26 §6 (Vulnerability monitoring) / IEC 62443-2-3', name: 'Vulnerability Monitoring Process', status: 'fail',
+    gap: 'No process to identify vulnerabilities affecting the vessel\'s CBS',
+    evidence: 'There is no routine review of vulnerability sources (CISA ICS advisories, vendor bulletins) against the CBS inventory. The crew is unaware of known exposures affecting on-board systems.',
+    rationale: 'UR E26 expects exposures to be known and managed over the lifecycle. Without monitoring, exploitable vulnerabilities persist indefinitely.',
+    measure: '1. Establish a recurring vulnerability-monitoring routine mapped to the CBS inventory. 2. Subscribe to ICS-CERT and vendor advisories. 3. Triage and log relevant findings.',
+    criteria: ['Recurring vulnerability review against CBS inventory', 'ICS-CERT/vendor advisory subscriptions active', 'Triage decisions logged'],
+    effort: '24-40h', priority: 'P0' },
+  { id: 'VM-2', article: 'E26 §6 (Patch management) / IEC 62443-2-3', name: 'Security Patch Management', status: 'fail',
+    gap: 'No managed patching regime for CBS and supporting endpoints',
+    evidence: 'Operating systems on several CBS and service laptops are over 12 months behind. There is no patch schedule, test step, or approval path for OT-relevant updates.',
+    rationale: 'UR E26 expects patches to be managed in a controlled, risk-aware manner (including vendor-approved windows). Unmanaged patching leaves known exploits open.',
+    measure: '1. Define a patch policy with risk-based timelines and vendor-approval requirements. 2. Test patches before OT deployment. 3. Record applied patches per CBS.',
+    criteria: ['Patch policy with risk-based timelines documented', 'Patches tested before OT deployment', 'Patch records maintained per CBS'],
+    effort: '40-60h', priority: 'P1' },
+  { id: 'VM-3', article: 'E26 §6 (Advisory tracking) / IEC 62443-2-3', name: 'Vendor Security Advisory Tracking', status: 'partial',
+    gap: 'Vendor advisories received informally and not tracked to resolution',
+    evidence: 'Some OEM security advisories reach the ETO by email but are not logged or tracked to a remediation decision. No closure evidence exists for past advisories.',
+    rationale: 'UR E26 expects supplier security information to be acted upon. Untracked advisories result in inconsistent and unverifiable remediation.',
+    measure: '1. Maintain an advisory register per supplier/CBS. 2. Assign owner and due date to each advisory. 3. Record remediation or accepted-risk decision.',
+    criteria: ['Advisory register maintained per supplier/CBS', 'Each advisory has owner and due date', 'Resolution/accepted-risk recorded'],
+    effort: '16-24h', priority: 'P2' },
+
+  // TP — Supplier & Third-Party Security
+  { id: 'TP-1', article: 'E26 §3 (Supplier requirements) / IACS Rec. 166', name: 'Security Requirements for Vendors', status: 'fail',
+    gap: 'No cybersecurity requirements imposed on CBS suppliers in procurement',
+    evidence: 'Purchase specifications and contracts for CBS do not include cybersecurity requirements (e.g. UR E27 type approval, hardening, secure defaults, support for patching).',
+    rationale: 'UR E26 relies on suppliers delivering secure CBS. Absent contractual security requirements, the owner inherits unmanaged risk at delivery.',
+    measure: '1. Add cybersecurity clauses (UR E27 alignment, secure defaults, patch support) to CBS procurement. 2. Require security documentation as a deliverable. 3. Verify at acceptance.',
+    criteria: ['Security clauses in CBS procurement documents', 'Security documentation required as deliverable', 'Compliance verified at acceptance'],
+    effort: '24-40h', priority: 'P1' },
+  { id: 'TP-2', article: 'E26 §10 (Secure vendor access) / IEC 62443-3-3', name: 'Secure Remote Vendor Access', status: 'fail',
+    gap: 'Vendor remote access not governed by an agreement or technical controls beyond the existing always-on tunnel',
+    evidence: 'OEM remote access operates without a vendor access agreement, defined approval path, MFA, or session recording. Access scope is not least-privilege.',
+    rationale: 'UR E26 requires remote access — including vendor access — to be controlled, approved and auditable. Ungoverned vendor access is a primary supply-chain attack path.',
+    measure: '1. Establish a vendor remote-access agreement and least-privilege scope. 2. Enforce on-board approval, MFA and session logging. 3. Review vendor access quarterly.',
+    criteria: ['Vendor remote-access agreement signed', 'On-board approval, MFA and session logging enforced', 'Quarterly vendor access review performed'],
+    effort: '40-60h', priority: 'P0' },
+  { id: 'TP-3', article: 'E26 §11 (Verification of CBS) / IACS UR E27', name: 'Security Verification of Delivered CBS', status: 'fail',
+    gap: 'Delivered CBS accepted without security verification against requirements',
+    evidence: 'Acceptance of integrated CBS does not include verification of hardening, default-credential removal, or supplier security claims. No security acceptance test record exists.',
+    rationale: 'UR E26 expects the owner to verify that delivered CBS meet the agreed security requirements. Unverified delivery propagates supplier weaknesses into operation.',
+    measure: '1. Define a security acceptance test (SAT) for delivered CBS. 2. Verify hardening, credentials and supplier claims. 3. Record SAT results before acceptance.',
+    criteria: ['Security acceptance test defined for delivered CBS', 'Default credentials and hardening verified', 'SAT results recorded before acceptance'],
+    effort: '24-40h', priority: 'P1' },
+
+  // IR — Incident Management
+  { id: 'IR-1', article: 'E26 §9 (Incident response) / IEC 62443-2-1', name: 'Cyber Incident Response Process', status: 'fail',
+    gap: 'No cyber incident response plan covering on-board CBS',
+    evidence: 'The contingency documentation addresses safety emergencies but contains no cyber incident response procedure. Crew has no defined first actions for a suspected cyber event.',
+    rationale: 'UR E26 expects the ship to respond to cyber incidents in a structured way. Without a plan, response is improvised and recovery is delayed.',
+    measure: '1. Develop a cyber incident response plan with roles, first actions and isolation steps. 2. Integrate it into the SMS. 3. Exercise it at least annually.',
+    criteria: ['Cyber incident response plan documented in SMS', 'Defined first actions and isolation steps', 'Annual incident exercise performed and logged'],
+    effort: '40-60h', priority: 'P0' },
+  { id: 'IR-2', article: 'E26 §9 (Reporting & escalation) / IMO MSC-FAL.1/Circ.3', name: 'Incident Reporting & Escalation', status: 'fail',
+    gap: 'No defined ship-to-shore cyber incident reporting and escalation path',
+    evidence: 'There is no procedure or contact chain for reporting a cyber incident to the company DPA/CISO, flag, or class. Reporting thresholds and timelines are undefined.',
+    rationale: 'UR E26 and the company SMS expect timely escalation. An undefined path delays containment, notification and regulatory reporting.',
+    measure: '1. Define reporting thresholds and a ship-to-shore escalation contact chain. 2. Document timelines and external notification duties. 3. Brief the crew.',
+    criteria: ['Escalation contact chain documented', 'Reporting thresholds and timelines defined', 'Crew briefed on reporting duties'],
+    effort: '16-24h', priority: 'P1' },
+  { id: 'IR-3', article: 'E26 §9 (Lessons learned) / IEC 62443-2-1', name: 'Lessons Learned Process', status: 'partial',
+    gap: 'No structured post-incident review feeding back into measures',
+    evidence: 'Past minor IT disruptions were resolved reactively with no documented post-incident review or resulting corrective actions.',
+    rationale: 'UR E26 treats resilience as continuously improving. Without lessons-learned, the same weaknesses recur and measures are never tuned.',
+    measure: '1. Add a post-incident review step to the response plan. 2. Capture root cause and corrective actions. 3. Track actions to closure and update measures.',
+    criteria: ['Post-incident review step defined', 'Root cause and corrective actions captured', 'Corrective actions tracked to closure'],
+    effort: '8-16h', priority: 'P2' },
+
+  // AT — Awareness & Training
+  { id: 'AT-1', article: 'E26 §3 (Personnel awareness) / IMO Res. MSC.428(98)', name: 'Crew Cybersecurity Awareness', status: 'fail',
+    gap: 'No recurring cybersecurity awareness for crew',
+    evidence: 'No cyber awareness training is delivered to crew on joining or periodically. Phishing, USB hygiene and BYOD risks are not covered in onboarding.',
+    rationale: 'UR E26 recognises that the crew is a primary line of defence. Untrained crew materially increase the likelihood of malware introduction and social-engineering success.',
+    measure: '1. Deliver cyber awareness at onboarding and at defined intervals. 2. Cover phishing, USB/BYOD hygiene and reporting. 3. Record completion.',
+    criteria: ['Awareness training delivered at onboarding', 'Periodic refresher scheduled', 'Completion records maintained'],
+    effort: '16-24h', priority: 'P1' },
+  { id: 'AT-2', article: 'E26 §3 (Role-specific training) / IEC 62443-2-1', name: 'Role-Specific Security Training', status: 'fail',
+    gap: 'No targeted training for roles with elevated CBS responsibilities (ETO, engineers, DPO)',
+    evidence: 'Personnel with privileged CBS access receive no role-specific security training (secure configuration, remote-access approval, incident first response).',
+    rationale: 'UR E26 expects competence commensurate with responsibility. Role-holders without targeted training cannot execute the assigned measures reliably.',
+    measure: '1. Define role-specific training for ETO, engineers and DPO. 2. Deliver it before privileged duties commence. 3. Track competence and refreshers.',
+    criteria: ['Role-specific training defined for key roles', 'Training completed before privileged duties', 'Competence and refreshers tracked'],
+    effort: '16-24h', priority: 'P2' },
+];
+
+// Full extended matrix = 15 technical baseline controls + 20 governance/lifecycle controls.
+export const IEC_REQS_EXTENDED: IecReq[] = [...IEC_REQS, ...IEC_REQS_GOVERNANCE];
+
+// Returns the active requirement set for the assessment depth chosen in intake.
+export function getReqs(extended: boolean | undefined): IecReq[] {
+  return extended ? IEC_REQS_EXTENDED : IEC_REQS;
+}
+
+
 
 export interface DemoScenario {
   facility: { name: string; types: string[] };

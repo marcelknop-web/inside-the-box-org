@@ -15,7 +15,7 @@ import { StaggerReveal } from '@/components/StaggerReveal';
 import {
   getSystemTypes, getSecurityLevels, getZoneConduits,
   PROTOCOL_OPTS, getSecurityMeasures, getSecurityCategories,
-  getAttachTypes, IEC_THREATS, IEC_REQS, FR_CATEGORIES, threatId,
+  getAttachTypes, IEC_THREATS, getReqs, FR_CATEGORIES, threatId,
   DEMO_SCENARIOS,
   type IecThreat, type IecReq, type IecIntakeData, type MeasureEntry, EMPTY_INTAKE,
 } from '@/data/iec62443Ur26Data';
@@ -300,6 +300,29 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
               {systemTypes.map(st => <Chip key={st.id} label={st.label} icon={st.icon} desc={st.desc} selected={d.systemTypes.includes(st.id)} onClick={() => toggleArray('systemTypes', st.id)} />)}
             </div>
           </div>
+          <div>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Assessment Depth</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <button onClick={() => setField('extendedMatrix', false)} className={`text-left border-2 rounded-xl px-4 py-3 transition-all ${!d.extendedMatrix ? 'border-primary bg-primary/10 shadow' : 'border-border bg-card hover:border-muted-foreground/30'}`}>
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="font-semibold text-sm text-foreground">⚡ Rapid Assessment</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">15 core technical controls — quick UR E26 readiness scan.</div>
+                  </div>
+                  {!d.extendedMatrix && <span className="text-primary flex-shrink-0">✓</span>}
+                </div>
+              </button>
+              <button onClick={() => setField('extendedMatrix', true)} className={`text-left border-2 rounded-xl px-4 py-3 transition-all ${d.extendedMatrix ? 'border-primary bg-primary/10 shadow' : 'border-border bg-card hover:border-muted-foreground/30'}`}>
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="font-semibold text-sm text-foreground">🛡️ Extended Assessment</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">35 controls — adds governance, risk, change, vulnerability, supplier, incident & awareness.</div>
+                  </div>
+                  {d.extendedMatrix && <span className="text-primary flex-shrink-0">✓</span>}
+                </div>
+              </button>
+            </div>
+          </div>
         </StaggerReveal>
       );
       break;
@@ -557,6 +580,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
           <SubStepHeader current={5} total={INTAKE_STEPS} title="Summary" subtitle="Review your inputs before starting the assessment." />
           {[
             { label: 'Vessel/System', val: d.facilityName || '—' },
+            { label: 'Assessment Depth', val: d.extendedMatrix ? 'Extended (35 controls)' : 'Rapid (15 controls)' },
             { label: 'CBS Types', val: d.systemTypes.map(id => systemTypes.find(st => st.id === id)?.label).join(', ') || '—' },
             { label: 'Security Level', val: securityLevels.find(sl => sl.id === d.securityLevel)?.label || '—' },
             { label: 'Zones', val: d.zones.map(id => zoneConduits.find(zc => zc.id === id)?.label).join(', ') || '—' },
@@ -683,7 +707,7 @@ function ThreatModel({ threats, onNext }: { threats: IecThreat[]; onNext: () => 
       <InfoBox icon="🔍" title="Maritime Threat Landscape" color="blue">The threat analysis is based on the chapter structure of IACS UR E26 and identifies vulnerabilities in the Computer Based Systems (CBS) on board.</InfoBox>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {Object.entries(FR_CATEGORIES).map(([key, meta]) => (
+        {Object.entries(FR_CATEGORIES).filter(([key]) => (frCounts[key] || 0) > 0).map(([key, meta]) => (
           <div key={key} className="bg-card border border-border rounded-xl p-3.5 text-center hover:border-primary/30 transition-colors">
             <div className={`w-2.5 h-2.5 rounded-full ${meta.dot} mx-auto mb-2`} />
             <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide leading-tight">{meta.label.en}</div>
@@ -1222,7 +1246,7 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
         });
       const result = await assessDocuments(
         'E26',
-        IEC_REQS.map(r => ({ id: r.id, article: r.article, name: r.name, criteria: r.criteria })),
+        getReqs(data.extendedMatrix).map(r => ({ id: r.id, article: r.article, name: r.name, criteria: r.criteria })),
         readableDocs.map(f => ({ name: f.name, type: f.type, text: f.text || '' })),
         lang,
         {
@@ -1250,7 +1274,8 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
   }, [setStep]);
 
   const effectiveReqs = useMemo<IecReq[]>(() => {
-    if (!docAssessments) return IEC_REQS;
+    const baseReqs = getReqs(intakeData?.extendedMatrix);
+    if (!docAssessments) return baseReqs;
     const byId = new Map(docAssessments.map(a => [a.id, a]));
     const basisLabel: Record<string, string> = {
       declared: 'Self-declared (intake)',
@@ -1258,7 +1283,7 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
       declared_document: 'Self-declared & document-verified',
       none: '',
     };
-    return IEC_REQS.map(r => {
+    return baseReqs.map(r => {
       const a = byId.get(r.id);
       if (!a) return r;
       const label = basisLabel[a.basis] || '';
@@ -1278,7 +1303,7 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
         residualScopeNote: a.residualScopeNote || r.residualScopeNote,
       };
     });
-  }, [docAssessments]);
+  }, [docAssessments, intakeData?.extendedMatrix]);
 
 
   const reset = useCallback(() => { setStep(0); setIntakeData(EMPTY_INTAKE); setDocAssessments(null); setReviewSummary(null); setDocsAnalyzed([]); }, [setStep]);
