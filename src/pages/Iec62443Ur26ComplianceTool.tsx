@@ -677,6 +677,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
               </select>
             </>
           )}
+        </div>
         {sub < 7 ? (
           <Button onClick={() => setSub(sub + 1)} disabled={!canNext[sub]} className="font-semibold">
             {sub === 6 ? 'Review Summary' : 'Next'}
