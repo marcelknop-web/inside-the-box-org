@@ -979,6 +979,10 @@ function ReportView({ intakeData, threats, reqs, reviewSummary }: { intakeData: 
 
   // Individual findings: controls that are applicable or partially applicable.
   const findings = useMemo(() => localReqs.filter(r => r.status !== 'pass'), [localReqs]);
+  const cbsScores = useMemo(
+    () => intakeData.assessmentType === 'deepdive' ? computeCbsScores(localReqs, intakeData.systemTypes) : [],
+    [localReqs, intakeData.assessmentType, intakeData.systemTypes],
+  );
   const today = useMemo(() => new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }), []);
 
   const securityLevels = useMemo(() => getSecurityLevels((k: string) => k), []);
