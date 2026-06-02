@@ -15,7 +15,7 @@ import { StaggerReveal } from '@/components/StaggerReveal';
 import {
   getSystemTypes, getSecurityLevels, getZoneConduits,
   PROTOCOL_OPTS, getSecurityMeasures, getSecurityCategories,
-  getAttachTypes, IEC_THREATS, IEC_REQS, FR_CATEGORIES, threatId,
+  getAttachTypes, IEC_THREATS, IEC_REQS, getReqs, FR_CATEGORIES, threatId,
   DEMO_SCENARIOS,
   type IecThreat, type IecReq, type IecIntakeData, type MeasureEntry, EMPTY_INTAKE,
 } from '@/data/iec62443Ur26Data';
