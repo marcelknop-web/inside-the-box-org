@@ -1011,7 +1011,7 @@ function ReportView({ intakeData, threats, reqs, reviewSummary, docBased }: { in
       const postFixQa = runQualityCheck(finalThreats, finalReqs, 'en', intakeData);
       setQaResult(postFixQa); setQaRunning(false); setQaExpanded(true);
     }, 1500);
-  }, [localThreats, localReqs, intakeData]);
+  }, [localThreats, localReqs, intakeData, docBased]);
 
   const qaVerdict = qaResult?.verdict;
 
