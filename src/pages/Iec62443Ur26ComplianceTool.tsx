@@ -275,6 +275,25 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
     }
   }, [sub]);
 
+  const loadScenario = useCallback((idx: number) => {
+    const scenario = DEMO_SCENARIOS[idx];
+    if (!scenario) return;
+    scenarioRef.current = idx;
+    setD(prev => ({
+      ...prev,
+      facilityName: scenario.facility.name,
+      systemTypes: scenario.facility.types,
+      securityLevel: scenario.securityLevel,
+      description: scenario.description,
+      zones: scenario.zones,
+      protocols: scenario.protocols,
+      roles: scenario.roles,
+      measures: scenario.measures,
+      knownIssues: scenario.knownIssues,
+      files: scenario.files.map((f) => ({ ...f, id: crypto.randomUUID() })),
+    }));
+  }, []);
+
   const prevSubRef = useRef(0);
   if (sub === 0 && prevSubRef.current > 0) {
     scenarioRef.current = Math.floor(Math.random() * DEMO_SCENARIOS.length);
@@ -643,7 +662,21 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
       <div className="flex items-center justify-between mt-6 pt-4 border-t border-border/50">
         <div className="flex items-center gap-2">
           {sub > 0 && <Button variant="outline" onClick={() => setSub(sub - 1)}>Back</Button>}
-          {sub <= 6 && <Button variant="ghost" size="sm" onClick={handleDemo} className="text-xs text-muted-foreground">Demo</Button>}
+          {sub <= 6 && (
+            <>
+              <Button variant="ghost" size="sm" onClick={handleDemo} className="text-xs text-muted-foreground">Demo</Button>
+              <select
+                value=""
+                onChange={(e) => { if (e.target.value !== '') loadScenario(Number(e.target.value)); }}
+                className="border border-border rounded-md px-2 py-1 text-xs bg-background text-foreground focus:ring-2 focus:ring-primary outline-none max-w-[14rem]"
+              >
+                <option value="">Load test case…</option>
+                {DEMO_SCENARIOS.map((s, i) => (
+                  <option key={i} value={i}>{s.facility.name}</option>
+                ))}
+              </select>
+            </>
+          )}
         </div>
         {sub < 7 ? (
           <Button onClick={() => setSub(sub + 1)} disabled={!canNext[sub]} className="font-semibold">
