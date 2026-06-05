@@ -34,6 +34,7 @@ const PrivacyDataflow = lazy(() => import("./pages/PrivacyDataflow"));
 const Iec62443Ur26ComplianceTool = lazy(() => import("./pages/Iec62443Ur26ComplianceTool"));
 const Iec62443ComplianceTool = lazy(() => import("./pages/Iec62443ComplianceTool"));
 const BlindSpotSimulator = lazy(() => import("./pages/BlindSpotSimulator"));
+const AssessmentTools = lazy(() => import("./pages/AssessmentTools"));
 
 const queryClient = new QueryClient();
 
@@ -64,6 +65,8 @@ const App = () => (
               <Route path="/iacs-ur26" element={<Suspense fallback={<RouteSkeleton />}><PasswordGate storageKey="iec62443-ur26" label="IACS UR E26 Compliance Tool"><Iec62443Ur26ComplianceTool /></PasswordGate></Suspense>} />
               <Route path="/iacs-ur27" element={<Suspense fallback={<RouteSkeleton />}><PasswordGate storageKey="iec62443" label="IACS UR E27 Compliance Tool"><Iec62443ComplianceTool /></PasswordGate></Suspense>} />
               <Route path="/blind-spot" element={<Suspense fallback={<RouteSkeleton />}><BlindSpotSimulator /></Suspense>} />
+              <Route path="/assessment-tools" element={<Suspense fallback={<RouteSkeleton />}><AssessmentTools /></Suspense>} />
+              <Route path="/tools" element={<Suspense fallback={<RouteSkeleton />}><AssessmentTools /></Suspense>} />
 
               {/* Catch-all: every Journey service id (nis2-dora, virtual-ciso, …) renders ChatView */}
               <Route path="/:serviceId" element={<ChatView />} />
