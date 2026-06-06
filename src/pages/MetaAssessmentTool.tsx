@@ -120,6 +120,28 @@ const STATUS_STYLE: Record<ReqStatus, { cls: string; label: Record<Lang, string>
   fail: { cls: 'bg-destructive/10 text-destructive border-destructive/20', label: { de: 'Lücke', en: 'Gap', fr: 'Lacune' } },
 };
 
+// ── Architecture explanation (engine separation) ────────────────
+function ArchitectureNote({ u }: { u: ReturnType<typeof ui> }) {
+  return (
+    <div className="mb-8 bg-background/40 border border-primary/15 rounded-lg p-5">
+      <h2 className="font-mono text-xs tracking-[0.25em] uppercase text-highlight mb-3">{u.archTitle}</h2>
+      <div className="flex flex-col sm:flex-row sm:items-stretch gap-2 sm:gap-0">
+        {u.archEngines.map((label, i) => (
+          <div key={label} className="flex items-center gap-2 sm:flex-1">
+            <div className="flex-1 bg-secondary/40 border border-border rounded-md px-3 py-2 text-xs text-foreground leading-snug">
+              {label}
+            </div>
+            {i < u.archEngines.length - 1 && (
+              <span className="text-primary font-mono hidden sm:inline">→</span>
+            )}
+          </div>
+        ))}
+      </div>
+      <p className="text-xs text-muted-foreground mt-3 leading-relaxed">{u.archNote}</p>
+    </div>
+  );
+}
+
 // ── Standard selector ───────────────────────────────────────────
 function StandardSelect({ lang, onPick }: { lang: Lang; onPick: (p: StandardProfile) => void }) {
   const u = ui(lang);
