@@ -10,7 +10,7 @@ import { LucideIcon } from 'lucide-react';
 import { SiteChrome } from '@/components/SiteChrome';
 import { PasswordGate } from '@/components/PasswordGate';
 import { PageMeta } from '@/components/PageMeta';
-import { useLanguage } from '@/i18n/LanguageContext';
+
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { STANDARD_PROFILES, getProfile, tr, assess, MATURITY_LEVELS, maturityKey } from '@/data/metaAssessment';
