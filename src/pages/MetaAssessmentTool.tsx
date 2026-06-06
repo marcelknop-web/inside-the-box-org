@@ -349,6 +349,202 @@ function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
   );
 }
 
+// ── AI advisory insights panel ──────────────────────────────────
+function InsightChips({ title, items }: { title: string; items: string[] }) {
+  if (!items?.length) return null;
+  return (
+    <div>
+      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">{title}</div>
+      <ul className="space-y-1">
+        {items.map((it, i) => (
+          <li key={i} className="text-sm text-foreground leading-relaxed flex gap-2">
+            <span className="text-primary flex-shrink-0">•</span><span>{it}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function InsightSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="border-t border-border/60 pt-4">
+      <h3 className="font-mono text-[11px] tracking-[0.2em] uppercase text-primary mb-3">{title}</h3>
+      {children}
+    </div>
+  );
+}
+
+const RATING_CLS: Record<string, string> = {
+  low: 'bg-green-500/10 text-green-400 border-green-500/20',
+  medium: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
+  high: 'bg-destructive/10 text-destructive border-destructive/20',
+};
+
+function InsightsPanel({ insights, computed, lang, u, reqMeta }: {
+  insights: InsightResult; computed: ComputedAssessment; lang: Lang;
+  u: ReturnType<typeof ui>; reqMeta: Map<string, StandardProfile['requirements'][number]>;
+}) {
+  const ei = insights.executiveInsights;
+  const ratingLabel = (r: string) => r === 'low' ? u.low ?? r : r === 'high' ? (lang === 'de' ? 'Hoch' : r) : (lang === 'de' ? 'Mittel' : r);
+  return (
+    <div className="mt-5 space-y-5">
+      {insights.executiveNarrative && (
+        <InsightSection title={u.execNarrative}>
+          <p className="text-sm text-foreground leading-relaxed">{insights.executiveNarrative}</p>
+        </InsightSection>
+      )}
+
+      {ei && (ei.topWeaknesses.length || ei.topStrengths.length || ei.managementFocus.length) ? (
+        <InsightSection title={u.execInsights}>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <InsightChips title={u.topWeaknesses} items={ei.topWeaknesses} />
+            <InsightChips title={u.topStrengths} items={ei.topStrengths} />
+            <InsightChips title={u.highestBusinessRisks} items={ei.highestBusinessRisks} />
+            <InsightChips title={u.multiRegulatory} items={ei.multiRegulatoryIssues} />
+            <InsightChips title={u.managementFocus} items={ei.managementFocus} />
+          </div>
+        </InsightSection>
+      ) : null}
+
+      {insights.rootCauses?.length > 0 && (
+        <InsightSection title={u.rootCauses}>
+          <div className="space-y-2">
+            {insights.rootCauses.map((rc, i) => (
+              <div key={i} className="text-sm leading-relaxed">
+                <span className="text-muted-foreground">{rc.symptom}</span>
+                <span className="text-primary mx-1.5">→</span>
+                <span className="text-foreground">{rc.cause}</span>
+              </div>
+            ))}
+          </div>
+        </InsightSection>
+      )}
+
+      {insights.gapClusters?.length > 0 && (
+        <InsightSection title={u.gapClusters}>
+          <div className="space-y-3">
+            {insights.gapClusters.map((gc, i) => (
+              <div key={i} className="bg-background/50 border border-border rounded-md px-3 py-2.5">
+                <div className="text-sm font-semibold text-foreground">{gc.title}</div>
+                {gc.summary && <p className="text-sm text-muted-foreground mt-0.5">{gc.summary}</p>}
+                {gc.businessImpact && <p className="text-xs text-foreground mt-1.5"><span className="font-semibold">{u.businessImpact}: </span>{gc.businessImpact}</p>}
+                {gc.regulatoryImpact && <p className="text-xs text-foreground mt-0.5"><span className="font-semibold">{u.multiRegulatory}: </span>{gc.regulatoryImpact}</p>}
+                {gc.controlIds?.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {gc.controlIds.map((id) => (
+                      <span key={id} className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-secondary text-muted-foreground">{id}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </InsightSection>
+      )}
+
+      {insights.managementThemes?.length > 0 && (
+        <InsightSection title={u.managementThemes}>
+          <div className="space-y-3">
+            {insights.managementThemes.map((m, i) => (
+              <div key={i} className="bg-background/50 border border-border rounded-md px-3 py-2.5">
+                <div className="text-sm font-semibold text-foreground">{m.title}</div>
+                <div className="grid sm:grid-cols-3 gap-2 mt-2 text-xs">
+                  {m.currentState && <div><span className="font-semibold text-muted-foreground uppercase tracking-wide">{u.currentState}</span><p className="text-foreground mt-0.5">{m.currentState}</p></div>}
+                  {m.riskExposure && <div><span className="font-semibold text-muted-foreground uppercase tracking-wide">{u.riskExposure}</span><p className="text-foreground mt-0.5">{m.riskExposure}</p></div>}
+                  {m.improvementOpportunity && <div><span className="font-semibold text-muted-foreground uppercase tracking-wide">{u.improvementOpp}</span><p className="text-foreground mt-0.5">{m.improvementOpportunity}</p></div>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </InsightSection>
+      )}
+
+      {insights.transformationPrograms?.length > 0 && (
+        <InsightSection title={u.transformationPrograms}>
+          <div className="space-y-3">
+            {insights.transformationPrograms.map((p, i) => (
+              <div key={i} className="bg-background/50 border border-border rounded-md px-3 py-2.5">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <div className="text-sm font-semibold text-foreground">{p.title}</div>
+                  <div className="flex gap-1.5">
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded border ${RATING_CLS[p.complexity]}`}>{u.complexity}: {ratingLabel(p.complexity)}</span>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded border ${RATING_CLS[p.businessValue]}`}>{u.businessValue}: {ratingLabel(p.businessValue)}</span>
+                  </div>
+                </div>
+                {p.objectives && <p className="text-xs text-foreground mt-1.5"><span className="font-semibold">{u.objectives}: </span>{p.objectives}</p>}
+                {p.expectedBenefits && <p className="text-xs text-foreground mt-0.5"><span className="font-semibold">{u.expectedBenefits}: </span>{p.expectedBenefits}</p>}
+                {p.relatedControlIds?.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {p.relatedControlIds.map((id) => (
+                      <span key={id} className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-secondary text-muted-foreground">{id}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </InsightSection>
+      )}
+
+      {insights.businessImpact?.length > 0 && (
+        <InsightSection title={u.businessImpact}>
+          <div className="space-y-1.5">
+            {insights.businessImpact.map((b, i) => (
+              <div key={i} className="text-sm leading-relaxed">
+                <span className="font-semibold text-foreground">{b.area}: </span>
+                <span className="text-muted-foreground">{b.consequence}</span>
+              </div>
+            ))}
+          </div>
+        </InsightSection>
+      )}
+
+      {computed.maturity?.enabled && insights.maturityNarrative && (
+        <InsightSection title={u.maturityInsights}>
+          <p className="text-sm text-foreground leading-relaxed">{insights.maturityNarrative}</p>
+        </InsightSection>
+      )}
+
+      {insights.managementRoadmap?.length > 0 && (
+        <InsightSection title={u.managementRoadmap}>
+          <div className="space-y-3">
+            {insights.managementRoadmap.map((r, i) => (
+              <div key={i} className="bg-background/50 border border-border rounded-md px-3 py-2.5">
+                <div className="font-mono text-xs text-primary font-bold">{r.phase} {u.roadmap === 'Roadmap' ? 'months' : ''}</div>
+                <ul className="mt-1.5 space-y-1">
+                  {r.activities.map((a, j) => (
+                    <li key={j} className="text-sm text-foreground flex gap-2"><span className="text-primary flex-shrink-0">•</span><span>{a}</span></li>
+                  ))}
+                </ul>
+                {r.rationale && <p className="text-xs text-muted-foreground mt-1.5 italic">{r.rationale}</p>}
+              </div>
+            ))}
+          </div>
+        </InsightSection>
+      )}
+
+      {insights.crossControlInsights?.length > 0 && (
+        <InsightSection title={u.crossControl}>
+          <InsightChips title="" items={insights.crossControlInsights} />
+        </InsightSection>
+      )}
+
+      {insights.roadmapRationale && (
+        <InsightSection title={u.roadmapRationale}>
+          <p className="text-sm text-foreground leading-relaxed">{insights.roadmapRationale}</p>
+        </InsightSection>
+      )}
+
+      {insights.auditorQuestions?.length > 0 && (
+        <InsightSection title={u.auditorQuestions}>
+          <InsightChips title="" items={insights.auditorQuestions} />
+        </InsightSection>
+      )}
+    </div>
+  );
+}
+
 // ── Report ──────────────────────────────────────────────────────
 function Report({ profile, lang, result, computed, answers, onRestart }: {
   profile: StandardProfile; lang: Lang; result: AssessmentResult;
