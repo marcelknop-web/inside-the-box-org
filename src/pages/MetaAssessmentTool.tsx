@@ -486,7 +486,7 @@ function InsightsPanel({ insights, computed, lang, u, reqMeta }: {
       )}
 
       {ei && (ei.topWeaknesses.length || ei.topStrengths.length || ei.managementFocus.length) ? (
-        <InsightSection title={u.execInsights}>
+        <InsightSection title={u.execInsights} layer="insight" confidence={insights.confidence?.executiveInsights}>
           <div className="grid sm:grid-cols-2 gap-4">
             <InsightChips title={u.topWeaknesses} items={ei.topWeaknesses} />
             <InsightChips title={u.topStrengths} items={ei.topStrengths} />
@@ -498,13 +498,16 @@ function InsightsPanel({ insights, computed, lang, u, reqMeta }: {
       ) : null}
 
       {insights.rootCauses?.length > 0 && (
-        <InsightSection title={u.rootCauses}>
+        <InsightSection title={u.rootCauses} layer="insight" confidence={insights.confidence?.rootCauses}>
           <div className="space-y-2">
             {insights.rootCauses.map((rc, i) => (
-              <div key={i} className="text-sm leading-relaxed">
-                <span className="text-muted-foreground">{rc.symptom}</span>
-                <span className="text-primary mx-1.5">→</span>
-                <span className="text-foreground">{rc.cause}</span>
+              <div key={i} className="text-sm leading-relaxed flex items-start gap-2 flex-wrap">
+                <span className="flex-1 min-w-[60%]">
+                  <span className="text-muted-foreground">{rc.symptom}</span>
+                  <span className="text-primary mx-1.5">→</span>
+                  <span className="text-foreground">{rc.cause}</span>
+                </span>
+                <ConfidenceBadge level={rc.confidence} />
               </div>
             ))}
           </div>
