@@ -861,6 +861,12 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
         <div className="mb-3">
           <h2 className="font-mono text-xs tracking-[0.25em] uppercase text-highlight">{u.aiAnalysis}</h2>
           <p className="text-xs text-muted-foreground mt-1.5 max-w-xl leading-relaxed">{u.aiNote}</p>
+          <div className="flex flex-wrap items-center gap-2 mt-3">
+            <LayerBadge kind="fact" />
+            <LayerBadge kind="insight" />
+            <LayerBadge kind="recommendation" />
+            <span className="text-[10px] text-muted-foreground">FACT = deterministic · INSIGHT = AI interpretation · RECOMMENDATION = AI advisory</span>
+          </div>
         </div>
 
         {insightsBusy && (
