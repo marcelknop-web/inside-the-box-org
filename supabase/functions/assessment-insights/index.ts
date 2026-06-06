@@ -93,7 +93,7 @@ Return ONLY valid JSON (no markdown) with this exact shape:
 {
   "executiveNarrative": "...",
   "executiveInsights": { "topWeaknesses": ["..."], "topStrengths": ["..."], "highestBusinessRisks": ["..."], "multiRegulatoryIssues": ["..."], "managementFocus": ["..."] },
-  "rootCauses": [ { "symptom": "...", "cause": "...", "confidence": "medium" } ],
+  "rootCauses": [ { "symptom": "...", "cause": "...", "confidence": "medium", "validationActivities": ["Interview process owners", "Review policies"] } ],
   "gapClusters": [ { "title": "...", "summary": "...", "controlIds": ["A21-1"], "businessImpact": "...", "regulatoryImpact": "..." } ],
   "crossControlInsights": ["..."],
   "managementThemes": [ { "title": "...", "currentState": "...", "riskExposure": "...", "improvementOpportunity": "...", "confidence": "medium" } ],
@@ -103,7 +103,8 @@ Return ONLY valid JSON (no markdown) with this exact shape:
   "businessImpact": [ { "area": "...", "consequence": "..." } ],
   "roadmapRationale": "...",
   "auditorQuestions": ["..."],
-  "systemicWeaknesses": [ { "area": "...", "pattern": "...", "relatedControlIds": ["A21-1"], "confidence": "medium" } ],
+  "systemicWeaknesses": [ { "area": "...", "pattern": "...", "relatedControlIds": ["A21-1"], "confidence": "medium", "validationActivities": ["Review risk registers"] } ],
+  "hypotheses": [ { "statement": "...", "confidence": "medium", "validationActivities": ["Procurement interviews", "Contract reviews"], "relatedControlIds": ["A21-1"] } ],
   "confidence": { "executiveInsights": "medium", "rootCauses": "medium", "managementThemes": "medium", "crossControlInsights": "medium", "transformationPrograms": "medium", "systemicWeaknesses": "medium" }
 }`;
 }
