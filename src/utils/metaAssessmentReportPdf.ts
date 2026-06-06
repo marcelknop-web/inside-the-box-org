@@ -345,6 +345,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   pdf.newPage();
   pdf.heading(t('sec6', lang), 1);
   pdf.addBookmark(t('sec6', lang), 1);
+  pdf.metaLine(ORIGIN.risk);
   pdf.introText(t('riskIntro', lang));
 
   const risks = computed.risks;
