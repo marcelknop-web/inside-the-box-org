@@ -136,6 +136,16 @@ const T: Record<string, Record<Lang, string>> = {
   managementRoadmap: { de: 'Management-Roadmap', en: 'Management Roadmap', fr: 'Feuille de route direction' },
   maturityInsights: { de: 'Reifegrad-Analyse', en: 'Maturity Insights', fr: 'Analyse de maturité' },
   businessImpactLbl: { de: 'Business-Impact-Analyse', en: 'Business Impact Analysis', fr: 'Analyse impact métier' },
+  systemicWeaknesses: { de: 'Potential Systemic Weaknesses', en: 'Potential Systemic Weaknesses', fr: 'Potential Systemic Weaknesses' },
+  confidenceSummary: { de: 'Management Confidence Summary', en: 'Management Confidence Summary', fr: 'Management Confidence Summary' },
+  insightLimitations: { de: 'AI Insight Limitations', en: 'AI Insight Limitations', fr: 'AI Insight Limitations' },
+  assessmentFindingsLbl: { de: 'Assessment Findings', en: 'Assessment Findings', fr: 'Assessment Findings' },
+  riskRatingsLbl: { de: 'Risk Ratings', en: 'Risk Ratings', fr: 'Risk Ratings' },
+  labelLegend: {
+    de: 'Each item below is labelled FACT (deterministic assessment logic), INSIGHT (AI interpretation) or RECOMMENDATION (AI advisory). Confidence ratings apply only to AI interpretations, never to deterministic findings.',
+    en: 'Each item below is labelled FACT (deterministic assessment logic), INSIGHT (AI interpretation) or RECOMMENDATION (AI advisory). Confidence ratings apply only to AI interpretations, never to deterministic findings.',
+    fr: 'Each item below is labelled FACT (deterministic assessment logic), INSIGHT (AI interpretation) or RECOMMENDATION (AI advisory). Confidence ratings apply only to AI interpretations, never to deterministic findings.',
+  },
   disclaimer: {
     de: 'Dieser Bericht stellt keine formale Zertifizierung dar und ersetzt nicht die Bewertung durch eine anerkannte Prüfstelle. Die Konformitätsbewertung beruht auf den im Intake gemachten Angaben.',
     en: 'This report does not constitute a formal certification and does not replace assessment by a recognised authority. The compliance assessment is based on the information provided during intake.',
@@ -152,6 +162,14 @@ function ratingLabel(r: string, _lang: Lang): string {
   if (r === 'high') return 'High';
   return 'Medium';
 }
+
+function confLabel(c?: string): string {
+  const v = (c ?? '').toLowerCase();
+  if (v === 'high') return 'High';
+  if (v === 'low') return 'Low';
+  return 'Medium';
+}
+
 
 const VERDICT_LABEL: Record<string, Record<Lang, string>> = {
   pass: { de: 'Erfüllt', en: 'Pass', fr: 'Conforme' },
