@@ -150,6 +150,10 @@ const T: Record<string, Record<Lang, string>> = {
   insightLimitations: { de: 'AI Insight Limitations', en: 'AI Insight Limitations', fr: 'AI Insight Limitations' },
   assessmentFindingsLbl: { de: 'Assessment Findings', en: 'Assessment Findings', fr: 'Assessment Findings' },
   riskRatingsLbl: { de: 'Risk Ratings', en: 'Risk Ratings', fr: 'Risk Ratings' },
+  evidenceStrength: { de: 'Evidence Strength Overview', en: 'Evidence Strength Overview', fr: 'Evidence Strength Overview' },
+  consultantObservations: { de: 'Consultant Observations', en: 'Consultant Observations', fr: 'Consultant Observations' },
+  implication: { de: 'Implication', en: 'Implication', fr: 'Implication' },
+  recommendationLbl: { de: 'Recommendation', en: 'Recommendation', fr: 'Recommendation' },
   labelLegend: {
     de: 'Each item below is labelled FACT (deterministic assessment logic), INSIGHT (AI interpretation) or RECOMMENDATION (AI advisory). Confidence ratings apply only to AI interpretations, never to deterministic findings.',
     en: 'Each item below is labelled FACT (deterministic assessment logic), INSIGHT (AI interpretation) or RECOMMENDATION (AI advisory). Confidence ratings apply only to AI interpretations, never to deterministic findings.',
@@ -366,6 +370,24 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     );
   });
 
+  // ── Evidence Strength Overview (deterministic, informational) ──
+  const ev = computed.evidence;
+  const evTotal = merged.length || 1;
+  pdf.heading(t('evidenceStrength', lang), 2);
+  pdf.metaLine(ORIGIN.assessment);
+  pdf.introText('Informational overview of the strength of evidence supporting the assessment. It does not affect scoring or compliance status.');
+  ([
+    ['Very high', ev.byStrength.very_high],
+    ['High', ev.byStrength.high],
+    ['Medium', ev.byStrength.medium],
+    ['Low', ev.byStrength.low],
+    ['No evidence', ev.missing.length],
+  ] as [string, number][]).forEach(([label, count]) => {
+    pdf.fieldInline(label, `${count}  (${Math.round((count / evTotal) * 100)}%)`);
+  });
+
+
+
   // ── 6 Risk Landscape ────────────────────────────────────────
   pdf.newPage();
   pdf.heading(t('sec6', lang), 1);
@@ -557,6 +579,20 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
       pdf.metaLine('INSIGHT — AI interpretation');
       insights.auditorQuestions.forEach((q) => pdf.bulletItem(q));
     }
+    if (insights.consultantObservations?.length) {
+      pdf.heading(t('consultantObservations', lang), 2);
+      pdf.metaLine('RECOMMENDATION — AI advisory');
+      pdf.introText('Senior-consultant / virtual-CISO commentary on the overall posture.');
+      insights.consultantObservations.forEach((o) => {
+        pdf.checkSpace(24);
+        pdf.bodyText(o.observation);
+        if (o.implication) { pdf.sectionLabel(t('implication', lang)); pdf.bodyText(o.implication); }
+        if (o.recommendation) { pdf.sectionLabel(t('recommendationLbl', lang)); pdf.bodyText(o.recommendation); }
+        pdf.metaLine(`Confidence: ${confLabel(o.confidence)}`);
+      });
+    }
+
+
 
     // ── Management Confidence Summary (facts vs interpretation) ──
     pdf.heading(t('confidenceSummary', lang), 2);
