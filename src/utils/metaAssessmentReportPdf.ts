@@ -549,5 +549,16 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   pdf.verdictBox(result.summary || `${entityName}: ${pct}% — ${pass} ${t('passed', lang)}, ${partial} ${t('partial', lang)}, ${fail} ${t('gaps', lang)}.`);
   pdf.bodyParagraph(t('disclaimer', lang));
 
+  // ── Report Metadata (traceability / auditability) ───────────
+  if (reportMeta) {
+    pdf.sectionLabel(t('reportMetaTitle', lang));
+    pdf.fieldInline('Assessment ID', reportMeta.assessmentId);
+    pdf.fieldInline('Report Title', reportMeta.title);
+    pdf.fieldInline('Report Version', reportMeta.reportVersion);
+    pdf.fieldInline('Generated', new Date(reportMeta.generatedAt).toLocaleString('en-GB'));
+    pdf.fieldInline('Assessment Engine', reportMeta.assessmentEngineVersion);
+    pdf.fieldInline('AI Insight Engine', reportMeta.aiInsightEngineVersion);
+  }
+
   pdf.save(`${profile.id}-assessment-${entityName.replace(/[^a-z0-9]/gi, '_').slice(0, 30)}.pdf`);
 }
