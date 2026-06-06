@@ -3,8 +3,9 @@ import { Helmet } from 'react-helmet-async';
 import {
   ArrowRight, ArrowLeft, Loader2, Sparkles, ShieldCheck, Network, Car,
   CreditCard, Factory, Server, RotateCcw, Lock, AlertTriangle, CheckCircle2,
-  Download,
+  Download, FileText,
 } from 'lucide-react';
+import { generateMetaAssessmentPdf } from '@/utils/metaAssessmentReportPdf';
 import { LucideIcon } from 'lucide-react';
 import { SiteChrome } from '@/components/SiteChrome';
 import { PasswordGate } from '@/components/PasswordGate';
