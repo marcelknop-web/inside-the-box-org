@@ -463,6 +463,19 @@ export interface BusinessImpactItem {
   consequence: string;
 }
 
+/**
+ * A senior-consultant / virtual-CISO observation: a professional remark on
+ * the posture, its implication and a vendor-neutral recommendation. Advisory
+ * interpretation only — never a deterministic finding.
+ */
+export interface ConsultantObservation {
+  observation: string;
+  implication: string;
+  recommendation: string;
+  confidence?: Confidence;
+}
+
+
 export interface InsightResult {
   /** Layer 3 — management situation narrative */
   executiveNarrative: string;
