@@ -500,6 +500,36 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
         </div>
       )}
 
+      {/* AI advisory layer — virtual internal auditor / compliance advisor */}
+      <div className="bg-background/40 border border-primary/15 rounded-lg p-5">
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <div className="min-w-0">
+            <h2 className="font-mono text-xs tracking-[0.25em] uppercase text-highlight">{u.aiAnalysis}</h2>
+            <p className="text-xs text-muted-foreground mt-1.5 max-w-xl leading-relaxed">{u.aiNote}</p>
+          </div>
+          {!insights && (
+            <button onClick={loadInsights} disabled={insightsBusy}
+              className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60 flex-shrink-0">
+              {insightsBusy ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+              {insightsBusy ? u.loadingInsights : u.loadInsights}
+            </button>
+          )}
+          {insights && (
+            <button onClick={() => setConsultantView((v) => !v)}
+              className={`inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors flex-shrink-0 ${
+                consultantView ? 'border-primary bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:border-primary/40'
+              }`}>
+              <Sparkles size={13} /> {u.consultantView}
+            </button>
+          )}
+        </div>
+
+        {insights && consultantView && (
+          <InsightsPanel insights={insights} computed={computed} lang={lang} u={u} reqMeta={reqMeta} />
+        )}
+      </div>
+
+
       <div className="flex flex-wrap gap-3 pt-2">
         <button onClick={exportPdf} disabled={pdfBusy} className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
           {pdfBusy ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />} {u.exportPdf}
