@@ -128,6 +128,11 @@ function ui(_lang: Lang) {
     validationActivities: 'Recommended validation activities',
     hypotheses: 'Hypotheses (require validation)',
     hypothesesHint: 'Explicit AI assumptions not directly evidenced — confirm before acting.',
+    auditReadiness: 'Audit readiness',
+    auditReadinessHint: 'Deterministic readiness ratings across documentation, operational, governance and evidence dimensions.',
+    attentionIndex: 'Management attention index',
+    attentionIndexHint: 'Overall level of management attention required, derived from risks and mandatory gaps.',
+    attentionDrivers: 'Key drivers',
   };
 }
 
