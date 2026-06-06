@@ -846,7 +846,8 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
 
       {/* Findings */}
       <div>
-        <h2 className="font-mono text-xs tracking-[0.25em] uppercase text-highlight mb-3">{u.findings}</h2>
+        <h2 className="font-mono text-xs tracking-[0.25em] uppercase text-highlight mb-1">{u.findings}</h2>
+        <div className="text-[10px] text-muted-foreground font-mono mb-3">{ORIGIN.assessment}</div>
         <div className="space-y-1.5">
           {merged.map((r) => {
             const st = STATUS_STYLE[r.status];
