@@ -431,7 +431,10 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     if (insights.rootCauses?.length) {
       pdf.sectionLabel(t('rootCauses', lang));
       pdf.metaLine(`INSIGHT — AI interpretation · Confidence: ${confLabel(insights.confidence?.rootCauses)}`);
-      insights.rootCauses.forEach((rc) => pdf.bulletItem(`${rc.symptom} → ${rc.cause} [Confidence: ${confLabel(rc.confidence)}]`));
+      insights.rootCauses.forEach((rc) => {
+        pdf.bulletItem(`${rc.symptom} → ${rc.cause} [Confidence: ${confLabel(rc.confidence)}]`);
+        if (rc.validationActivities?.length) pdf.metaLine(`Recommended validation: ${rc.validationActivities.join('; ')}`);
+      });
     }
     if (insights.gapClusters?.length) {
       pdf.heading(t('gapClusters', lang), 2);
