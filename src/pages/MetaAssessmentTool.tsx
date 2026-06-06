@@ -272,8 +272,9 @@ function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
 }
 
 // ── Report ──────────────────────────────────────────────────────
-function Report({ profile, lang, result, answers, onRestart }: {
+function Report({ profile, lang, result, computed, answers, onRestart }: {
   profile: StandardProfile; lang: Lang; result: AssessmentResult;
+  computed: ComputedAssessment;
   answers: IntakeAnswers; onRestart: () => void;
 }) {
   const u = ui(lang);
