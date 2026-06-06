@@ -472,6 +472,135 @@ export function computeMaturity(profile: StandardProfile, score: ScoreResult, la
 }
 
 // ════════════════════════════════════════════════════════════════
+// AUDIT READINESS ENGINE  (deterministic — Documentation / Operational
+// / Governance / Evidence). Never produced by the AI.
+// ════════════════════════════════════════════════════════════════
+import type { ReadinessRating, AuditReadiness, AuditReadinessDimension, AttentionLevel, ManagementAttentionIndex } from './types';
+
+const READINESS_RATING_LABEL: Record<ReadinessRating, L> = {
+  strong: { de: 'Stark', en: 'Strong', fr: 'Fort' },
+  substantial: { de: 'Substanziell', en: 'Substantial', fr: 'Substantiel' },
+  developing: { de: 'In Entwicklung', en: 'Developing', fr: 'En développement' },
+  limited: { de: 'Begrenzt', en: 'Limited', fr: 'Limité' },
+};
+
+export const readinessRatingLabel = (r: ReadinessRating, lang: Lang) => t(READINESS_RATING_LABEL[r], lang);
+
+function readinessRatingOf(pct: number): ReadinessRating {
+  if (pct >= 80) return 'strong';
+  if (pct >= 60) return 'substantial';
+  if (pct >= 35) return 'developing';
+  return 'limited';
+}
+
+const GOVERNANCE_RE = /govern|leitung|polic|richtlin|politiq|risk|risiko|organis|management|aufsicht|oversight|account/i;
+
+const EVIDENCE_WEIGHT: Record<string, number> = { low: 25, medium: 50, high: 75, very_high: 100 };
+
+export function computeAuditReadiness(
+  profile: StandardProfile,
+  findings: AssessedRequirement[],
+  score: ScoreResult,
+  evidence: EvidenceSummary,
+  lang: Lang,
+): AuditReadiness {
+  const total = findings.length || 1;
+
+  // Documentation readiness — share of controls backed by documented
+  // artefacts (policy / procedure / document / audit report).
+  const documented = evidence.byStrength.high + evidence.byStrength.very_high;
+  const docPct = Math.round((documented / total) * 100);
+
+  // Evidence readiness — coverage of controls by any evidence, weighted by
+  // the strength of that evidence.
+  const evWeight = evidence.items.reduce((s, it) => s + (EVIDENCE_WEIGHT[it.strength] ?? 0), 0);
+  const evPct = Math.round(evWeight / total);
+
+  // Operational readiness — effectiveness of implemented controls
+  // (the weighted compliance score).
+  const opPct = score.weighted;
+
+  // Governance readiness — average score of governance-related categories;
+  // falls back to the overall score when no such category exists.
+  const govCats = score.categories.filter((c) => GOVERNANCE_RE.test(c.id) || GOVERNANCE_RE.test(c.name));
+  const govPct = govCats.length
+    ? Math.round(govCats.reduce((s, c) => s + c.pct, 0) / govCats.length)
+    : score.overall;
+
+  const mk = (id: AuditReadinessDimension['id'], label: L, pct: number, basis: L): AuditReadinessDimension => ({
+    id, label: t(label, lang), pct: Math.max(0, Math.min(100, pct)), rating: readinessRatingOf(pct), basis: t(basis, lang),
+  });
+
+  const dimensions: AuditReadinessDimension[] = [
+    mk('documentation',
+      { de: 'Dokumentation', en: 'Documentation', fr: 'Documentation' },
+      docPct,
+      { de: `${documented}/${total} Kontrollen mit dokumentierten Nachweisen (Richtlinie/Verfahren/Dokument/Auditbericht).`,
+        en: `${documented}/${total} controls backed by documented evidence (policy/procedure/document/audit report).`,
+        fr: `${documented}/${total} contrôles étayés par des preuves documentées.` }),
+    mk('operational',
+      { de: 'Betrieb', en: 'Operational', fr: 'Opérationnel' },
+      opPct,
+      { de: 'Wirksamkeit der umgesetzten Kontrollen (gewichteter Konformitätswert).',
+        en: 'Effectiveness of implemented controls (weighted compliance score).',
+        fr: 'Efficacité des contrôles mis en œuvre (score de conformité pondéré).' }),
+    mk('governance',
+      { de: 'Governance', en: 'Governance', fr: 'Gouvernance' },
+      govPct,
+      govCats.length
+        ? { de: `Durchschnitt der Governance-Kategorien (${govCats.length}).`, en: `Average of governance-related categories (${govCats.length}).`, fr: `Moyenne des catégories de gouvernance (${govCats.length}).` }
+        : { de: 'Keine eigene Governance-Kategorie — Gesamtwert verwendet.', en: 'No dedicated governance category — overall score used.', fr: 'Pas de catégorie de gouvernance dédiée — score global utilisé.' }),
+    mk('evidence',
+      { de: 'Nachweise', en: 'Evidence', fr: 'Preuves' },
+      evPct,
+      { de: `${evidence.items.length}/${total} Kontrollen mit Nachweisen, gewichtet nach Nachweisstärke.`,
+        en: `${evidence.items.length}/${total} controls with evidence, weighted by evidence strength.`,
+        fr: `${evidence.items.length}/${total} contrôles avec preuves, pondérés par la force des preuves.` }),
+  ];
+
+  const overallPct = Math.round(dimensions.reduce((s, d) => s + d.pct, 0) / dimensions.length);
+  return { dimensions, overall: readinessRatingOf(overallPct), overallPct };
+}
+
+// ════════════════════════════════════════════════════════════════
+// MANAGEMENT ATTENTION INDEX  (deterministic — executive summary)
+// ════════════════════════════════════════════════════════════════
+const ATTENTION_LABEL: Record<AttentionLevel, L> = {
+  critical: { de: 'Kritisch', en: 'Critical', fr: 'Critique' },
+  high: { de: 'Hoch', en: 'High', fr: 'Élevé' },
+  medium: { de: 'Mittel', en: 'Medium', fr: 'Moyen' },
+  low: { de: 'Niedrig', en: 'Low', fr: 'Faible' },
+};
+
+export const attentionLabel = (l: AttentionLevel, lang: Lang) => t(ATTENTION_LABEL[l], lang);
+
+export function computeAttentionIndex(
+  profile: StandardProfile,
+  findings: AssessedRequirement[],
+  score: ScoreResult,
+  risks: EnrichedRisk[],
+  lang: Lang,
+): ManagementAttentionIndex {
+  const counts = riskCounts(risks);
+  const mandatoryIds = new Set(profile.requirements.filter((r) => r.mandatory).map((r) => r.id));
+  const mandatoryGaps = findings.filter((f) => f.status === 'fail' && mandatoryIds.has(f.id)).length;
+
+  let level: AttentionLevel;
+  if (counts.critical > 0 || mandatoryGaps > 0) level = 'critical';
+  else if (counts.high > 0 || score.weighted < 40) level = 'high';
+  else if (counts.medium > 0 || score.weighted < 70) level = 'medium';
+  else level = 'low';
+
+  const drivers: string[] = [];
+  if (counts.critical > 0) drivers.push(t({ de: `${counts.critical} kritische Risiken`, en: `${counts.critical} critical risk(s)`, fr: `${counts.critical} risque(s) critique(s)` }, lang));
+  if (mandatoryGaps > 0) drivers.push(t({ de: `${mandatoryGaps} Lücke(n) bei Pflichtkontrollen`, en: `${mandatoryGaps} mandatory control gap(s)`, fr: `${mandatoryGaps} lacune(s) sur contrôles obligatoires` }, lang));
+  if (counts.high > 0) drivers.push(t({ de: `${counts.high} hohe Risiken`, en: `${counts.high} high risk(s)`, fr: `${counts.high} risque(s) élevé(s)` }, lang));
+  drivers.push(t({ de: `Reifegrad ${score.weighted}%`, en: `Readiness ${score.weighted}%`, fr: `Maturité ${score.weighted}%` }, lang));
+
+  return { level, counts: { critical: counts.critical, high: counts.high, medium: counts.medium, low: counts.low }, drivers };
+}
+
+// ════════════════════════════════════════════════════════════════
 // ORCHESTRATOR
 // ════════════════════════════════════════════════════════════════
 export function computeAssessment(
@@ -487,7 +616,9 @@ export function computeAssessment(
   const quality = runQuality(profile, findings, recommendations, risks, lang);
   const evidence = buildEvidence(profile, findings, lang);
   const maturity = computeMaturity(profile, score, lang);
-  return { score, risks, recommendations, roadmap, quality, evidence, maturity };
+  const auditReadiness = computeAuditReadiness(profile, findings, score, evidence, lang);
+  const attentionIndex = computeAttentionIndex(profile, findings, score, risks, lang);
+  return { score, risks, recommendations, roadmap, quality, evidence, maturity, auditReadiness, attentionIndex };
 }
 
 // ════════════════════════════════════════════════════════════════
