@@ -181,4 +181,16 @@ export const NIS2_PROFILE: StandardProfile = {
     { id: 'A23-1', article: 'Art. 23', categoryId: 'report', weight: 2, mandatory: true, owner: { de: 'CISO / Compliance', en: 'CISO / Compliance', fr: 'RSSI / Conformité' }, name: { de: 'Meldepflichten (24h/72h/1 Monat)', en: 'Reporting obligations (24h/72h/1 month)', fr: 'Obligations de notification' } },
   ],
   scaleMax: 5,
+  demoAnswers: {
+    entityName: 'Stadtwerke Musterstadt GmbH',
+    sectors: ['energy', 'water'],
+    classification: 'essential',
+    description:
+      'Regionaler Energie- und Wasserversorger mit ca. 850 Mitarbeitenden. Betrieb von Strom-, Gas- und Wassernetzen, SCADA-/Leitsystemen sowie einem Kundenportal. Rechenzentrum on-premise plus Microsoft-365-Cloud. Kritische Systeme: Netzleitstelle, Abrechnungssystem (SAP IS-U), GIS.',
+    supplyChain: ['cloud', 'software', 'ot'],
+    roles: ['mgmt', 'ciso', 'dpo', 'risk'],
+    knownIssues:
+      'Keine durchgängige MFA für administrative Zugänge in der OT. BCM-Plan vorhanden, aber seit 2023 kein vollständiger Wiederanlauftest. Lieferantenverträge ohne einheitliche Sicherheitsklauseln. Schwachstellen-Scans nur in der IT, nicht in der OT.',
+    measures: ['riskpolicy', 'incident', 'bcm', 'vuln', 'crypto', 'training', 'audit'],
+  },
 };
