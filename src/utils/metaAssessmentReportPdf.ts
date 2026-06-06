@@ -280,6 +280,14 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   pdf.addBookmark(t('sec3', lang), 1);
   pdf.bodyParagraph(t('principlesIntro', lang));
 
+  // ── How This Assessment Was Produced (trust & auditability) ──
+  pdf.heading(t('howProduced', lang), 2);
+  pdf.bulletItem('Assessment responses were collected through structured intake.');
+  pdf.bulletItem('Compliance status was determined through deterministic assessment logic.');
+  pdf.bulletItem('Risks were derived from the identified gaps.');
+  pdf.bulletItem('AI generated explanatory insights, root cause analysis, clustering, management themes and roadmap recommendations.');
+  pdf.bulletItem('AI did not create, modify or override findings, risks, evidence or compliance results.');
+
   // ── 4 Individual Findings ───────────────────────────────────
   pdf.newPage();
   pdf.heading(t('sec4', lang), 1);
