@@ -1,57 +1,102 @@
-## Goal
+ive## Universal Assessment Platform — Refactoring Plan
 
-Replace the current compliance report (online results + PDF) for both IACS tools (UR E27 and UR E26) with the "Applicability Review" structure from the uploaded reference document. Verdicts switch to **Not applicable / Partially applicable / Applicable**, and the AI generates the narrative per finding.
+### What already exists (analysis)
 
-## Approach (robust, low-risk)
-
-Keep the internal scoring engine intact (status `pass|partial|fail` stays under the hood, so QA, charts, risk math keep working) and add a thin **verdict mapping layer** plus AI-generated narrative. Mapping:
+The platform is mature and consistent. Each standard currently ships its own parallel set of files:
 
 ```text
-pass    -> Not applicable        (green)
-partial -> Partially applicable  (amber)
-fail    -> Applicable            (red)
+src/data/<std>Data.ts(+I18n)      data model + controls
+src/utils/<std>ReportPdf.ts       ~1300-line consulting PDF generator
+src/utils/<std>QualityCheck.ts    QA validation
+src/utils/<std>AuditFixes.ts      deterministic fixes
+src/utils/pdfCore.ts              SHARED PDF primitives (fonts, layout, humanize…)
+supabase/functions/<std>-reasoning  per-standard AI function
+src/pages/<Std>ComplianceTool.tsx  per-standard page
 ```
 
-This makes the visible model fully applicability-based while avoiding a destabilising rewrite of the validated QA/fix engine.
+Standards with full tools: NIS2, DORA, AI Act, IEC 62443, IEC UR E26, CRA, TISAX, PCI-DSS.
 
-## Report structure (online + PDF), mirrored from the reference
+A first **Meta-Tool** already exists and is config-driven, but thin:
+- `src/data/metaAssessment/{types,nis2Profile,index}.ts` — `StandardProfile` plug-in model (intake + requirements).
+- `src/pages/MetaAssessmentTool.tsx` — state machine Standard → Intake → Analyzing → Report (JSON export only).
+- `supabase/functions/meta-assessment-reasoning/index.ts` — generic, profile-driven AI with a strict data-integrity policy.
 
-1. Cover / title block (client, product, subject, date, CONFIDENTIAL)
-2. Executive Summary — core finding paragraph + verdict overview counts (Critical / Not applicable / Partially applicable)
-3. Key residual scope items + Recommendation
-4. Introduction & Scope
-5. Device characteristics table (from intake)
-6. Key Assessment Principles
-7. Individual Findings — per finding: Category, E27/E26 reference, Original Risk Rating, Verdict, Generalised Finding, Client Response, Residual Scope Note
-8. Complete Control Assessment Matrix (all controls: ID, SR ref, topic, verdict, rationale)
-9. Conclusion
+The Meta-Tool is the correct foundation. It lacks: scoring engine, maturity, evidence model, risk engine, recommendation engine, quality engine, dashboard, and consulting-grade PDF. The mature single-tool code is the "best-of" source to generalize.
 
-## Work items
+### Goal & guardrails
 
-1. **Data model** (`src/data/iec62443Data.ts`)
-   - Add optional fields to `IecThreat`: `verdict?`, `generalisedFinding?`, `clientResponse?`, `residualScopeNote?`.
-   - Add `ReviewSummary` type (`coreFinding`, `recommendation`, `residualScopeItems[]`).
-   - Add helpers: `verdictFromStatus(status)`, `VERDICT_LABELS` (de/en/fr), `originalRatingLabel(threat)`.
+Transform the Meta-Tool into the Universal Assessment Platform so a **new standard = one profile file (+ prompt entry, optional demo)**, with all engines standard-agnostic.
 
-2. **AI edge function** (`supabase/functions/iec-document-assessment/index.ts`)
-   - Accept `threats` in addition to `reqs`.
-   - Extend tool schema to return: per-finding `{ verdict, generalisedFinding, clientResponse, residualScopeNote }`, per-control verdict+rationale, and a `summary` object.
-   - Keep Data Integrity Policy (no invented evidence).
+- Build **in parallel**. Do not modify or break the 8 existing single tools or their routes. They keep working unchanged.
+- Reuse `pdfCore.ts` as-is; do not fork it.
+- Keep the AI strictly explanatory; all scoring/compliance/risk math stays deterministic in TypeScript.
+- Client-side PDF, no uploads, no persistence, existing rate limiting on the edge function.
 
-3. **Assessment lib** (`src/lib/iecDocumentAssessment.ts`)
-   - Extend result types; merge review fields onto threats and summary into state.
+### Architecture (plug-in model)
 
-4. **Online results** (`Iec62443ComplianceTool.tsx` + `Iec62443Ur26ComplianceTool.tsx`)
-   - Rebuild `ReportView` to the 9-section structure; `StatusBadge` and the mapping panel relabelled to applicability terms.
+```text
+src/data/metaAssessment/
+  types.ts            ← extend schema (below)
+  engine/
+    scoring.ts        Universal scoring (pass/partial/fail + weighting, readiness)
+    maturity.ts       Optional 0–5 maturity model, configurable per profile
+    risk.ts           Risk = Likelihood × Impact (1–5), rating, heatmap buckets
+    recommendations.ts Priority/effort/impact/duration/owner, roadmap grouping
+    quality.ts        Universal QA rules (blocking vs warning)
+    evidence.ts       Evidence types + strength (display only, never scored)
+  profiles/<std>.ts   per-standard config (categories, controls, mappings, prompt id, maturity on/off)
+  index.ts            registry
 
-5. **PDF** (`iec62443ReportPdf.ts` + `iec62443Ur26ReportPdf.ts`)
-   - Reorder/relabel sections to match; render per-finding narrative and the control matrix.
+src/components/metaAssessment/   Dashboard, QualityPanel, rendering (presentation only)
+src/utils/universalReportPdf.ts  ONE consulting PDF generator (uses pdfCore), reads the result model
+supabase/functions/universal-reasoning/index.ts  consolidated, PROMPT_LIBRARY by standard
+```
 
-6. **Charts / QA** (`Iec62443AuditCharts.tsx`, `Iec62443Ur26AuditCharts.tsx`, both `*QualityCheck.ts`)
-   - Relabel donut to applicability terms; relax score-forcing QA rules (A3-1/A3-1b/B1/B2/E1) so a high-original-rating finding can legitimately be "Not applicable"; add completeness checks for the new narrative fields.
+### Data model (extend `types.ts`)
 
-## Notes / decisions to confirm during build
-- "Original Risk Rating" per finding is derived from the linked threat's likelihood × impact (e.g. "Critical (Score 20)").
-- Key Assessment Principles section uses standard boilerplate text (trilingual), not AI-generated, to keep it stable.
+Add the common entities the prompt requires, keeping existing ones backward-compatible: `Category`, `Control` (with `categoryId`, `weight`, optional `mandatory`, `maturityEnabled`), `Finding`, `Risk`, `Recommendation` (priority, effort, businessImpact, duration, owner, relatedFindings, relatedRisks), `Evidence` (type + strength), and `AssessmentProfile` (categories + controls + maturity flag + scoring model id + prompt id). The current `ProfileRequirement`/`AssessedRequirement` map onto `Control`/`Finding`.
 
-After implementation: build check + render a test PDF and visually QA every page before delivering.
+### Engines (deterministic, standard-agnostic)
+
+- **Scoring**: `pass=100 / partial=50 / fail=0`, category + weighted + overall, readiness level; pluggable scoring-model id for future models.
+- **Maturity**: optional per profile, levels 0–5, current vs target gap.
+- **Risk**: score, rating (Low/Med/High/Critical), heatmap matrix data.
+- **Recommendations**: enrich + group Critical/High/Medium/Low; roadmap 0–3 / 3–6 / 6–12 months by risk reduction + effort.
+- **Quality**: pass-without-evidence, risk-without-recommendation, recommendation-without-owner, missing mandatory controls, missing traceability, contradictions, incomplete intake. Critical → block PDF; warnings → Quality Panel.
+- **Evidence**: inventory + strength shown in report; never affects score.
+
+### Universal workflow (single page, no route change)
+
+Extend `MetaAssessmentTool.tsx` state machine to:
+`INTAKE → ASSESSMENT → AI REASONING → QUALITY CHECK → DASHBOARD → PDF REPORT`
+The AI step fills explanatory text only; engines compute everything else; Quality gate guards the PDF button.
+
+### Executive dashboard
+
+New `components/metaAssessment/ExecutiveDashboard.tsx`: overall score, maturity, risk exposure, critical findings, top recommendations, category breakdown, readiness, risk heatmap — non-technical framing.
+
+### Consulting-grade PDF (`universalReportPdf.ts`)
+
+One generator on top of `pdfCore`, producing the full report: Cover, Executive Summary, Scope, Methodology (with the mandated AI-limitation statement), Overall Results (charts/radar/heatmap), Category Findings, Risk Analysis + register/matrix, Recommendation Plan, Maturity (if enabled), Evidence Overview, Traceability Matrix, Management Roadmap, Appendix. Trilingual (DE/EN/FR).
+
+### AI consolidation
+
+Create `supabase/functions/universal-reasoning/index.ts` with `PROMPT_LIBRARY` keyed by standard, reusing the existing data-integrity policy and rate limiting from `meta-assessment-reasoning`. Input `{ standard, language, controls, intake }`; output explanatory findings/risks only. Meta-Tool switches to it. Existing per-standard functions stay deployed for the legacy single tools.
+
+### Pilot & rollout
+
+1. Build engines + extended types + universal PDF + dashboard + quality panel.
+2. Migrate the **NIS2 profile** to the full model as the pilot end-to-end.
+3. Add a second profile (DORA) to prove "profile-only" extension.
+4. Remaining standards become profile files incrementally (separate follow-ups).
+
+### Breaking-change risks & mitigation
+
+- Touching `pdfCore.ts` could affect all reports → only consume it, never modify signatures.
+- `types.ts` is imported by the live Meta-Tool → make all additions optional/additive.
+- New edge function is additive; legacy functions untouched.
+- No DB/schema changes; no persistence added.
+
+### Deliverable for this first implementation pass
+
+Extended types + all six engines + `universal-reasoning` function + universal PDF + dashboard + quality panel, wired into `MetaAssessmentTool.tsx`, with **NIS2 fully migrated** as the working pilot. Existing tools remain untouched.
