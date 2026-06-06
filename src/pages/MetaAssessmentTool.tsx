@@ -67,50 +67,39 @@ const STATUS_STYLE: Record<ReqStatus, { cls: string; label: Record<Lang, string>
 };
 
 // ── Standard selector ───────────────────────────────────────────
-function StandardSelect({ lang, onPick, onDemo }: { lang: Lang; onPick: (p: StandardProfile) => void; onDemo: (p: StandardProfile) => void }) {
+function StandardSelect({ lang, onPick }: { lang: Lang; onPick: (p: StandardProfile) => void }) {
   const u = ui(lang);
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {STANDARD_PROFILES.map((p) => {
         const Icon = ICONS[p.icon] ?? ShieldCheck;
         return (
-          <div
+          <button
             key={p.id}
+            disabled={!p.available}
+            onClick={() => p.available && onPick(p)}
             className={`group text-left bg-background/40 border rounded-lg p-5 transition-colors ${
-              p.available ? 'border-primary/15 hover:border-primary/40' : 'border-border/40 opacity-55'
+              p.available ? 'border-primary/15 hover:border-primary/40' : 'border-border/40 opacity-55 cursor-not-allowed'
             }`}
           >
-            <button
-              disabled={!p.available}
-              onClick={() => p.available && onPick(p)}
-              className={`text-left w-full ${p.available ? '' : 'cursor-not-allowed'}`}
-            >
-              <div className="flex items-start gap-3.5">
-                <Icon size={20} className="mt-0.5 flex-shrink-0 text-primary opacity-75" />
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-mono text-[15px] text-foreground leading-tight">{p.name}</h3>
-                    {!p.available && (
-                      <span className="font-mono text-[9px] uppercase tracking-wider text-muted-foreground border border-border/60 rounded px-1.5 py-0.5">{u.soon}</span>
-                    )}
-                  </div>
-                  <p className="text-[13px] text-muted-foreground mt-1.5 leading-relaxed">{tr(p.description, lang)}</p>
+            <div className="flex items-start gap-3.5">
+              <Icon size={20} className="mt-0.5 flex-shrink-0 text-primary opacity-75" />
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="font-mono text-[15px] text-foreground leading-tight">{p.name}</h3>
+                  {!p.available && (
+                    <span className="font-mono text-[9px] uppercase tracking-wider text-muted-foreground border border-border/60 rounded px-1.5 py-0.5">{u.soon}</span>
+                  )}
                 </div>
-              </div>
-            </button>
-            {p.available && (
-              <div className="flex items-center gap-4 mt-3 pl-[34px]">
-                <button onClick={() => onPick(p)} className="inline-flex items-center gap-1 font-mono text-xs text-primary group-hover:gap-2 transition-all">
-                  {u.open}<ArrowRight size={13} />
-                </button>
-                {p.demoAnswers && (
-                  <button onClick={() => onDemo(p)} className="inline-flex items-center gap-1 font-mono text-xs text-highlight hover:opacity-80 transition-opacity">
-                    <Sparkles size={12} /> {u.demo}
-                  </button>
+                <p className="text-[13px] text-muted-foreground mt-1.5 leading-relaxed">{tr(p.description, lang)}</p>
+                {p.available && (
+                  <span className="inline-flex items-center gap-1 mt-3 font-mono text-xs text-primary group-hover:gap-2 transition-all">
+                    {u.open}<ArrowRight size={13} />
+                  </span>
                 )}
               </div>
-            )}
-          </div>
+            </div>
+          </button>
         );
       })}
     </div>
@@ -202,6 +191,19 @@ function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
     setAnswers((prev) => ({ ...prev, [id]: v }));
   }, []);
 
+  // Demo: fill only the current step's fields with test data (like DORA/NIS2/E26)
+  const fillDemo = useCallback(() => {
+    const demo = profile.demoAnswers;
+    if (!demo) return;
+    setAnswers((prev) => {
+      const next = { ...prev };
+      for (const f of step.fields) {
+        if (f.id in demo) next[f.id] = demo[f.id];
+      }
+      return next;
+    });
+  }, [profile.demoAnswers, step]);
+
   const canNext = useMemo(() => step.fields.every((f) => {
     if (!f.required) return true;
     const v = answers[f.id];
@@ -217,18 +219,8 @@ function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
         <span className="text-xs text-muted-foreground flex-shrink-0 font-mono">{sub + 1}/{profile.intake.length}</span>
       </div>
 
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <div className="text-base font-bold text-foreground font-mono">{tr(step.title, lang)}</div>
-          {step.subtitle && <div className="text-sm text-muted-foreground mt-0.5 mb-3">{tr(step.subtitle, lang)}</div>}
-        </div>
-        {profile.demoAnswers && (
-          <button onClick={() => setAnswers(profile.demoAnswers ?? {})}
-            className="flex-shrink-0 inline-flex items-center gap-1 font-mono text-xs text-highlight hover:opacity-80 transition-opacity">
-            <Sparkles size={12} /> {u.demo}
-          </button>
-        )}
-      </div>
+      <div className="text-base font-bold text-foreground font-mono">{tr(step.title, lang)}</div>
+      {step.subtitle && <div className="text-sm text-muted-foreground mt-0.5 mb-3">{tr(step.subtitle, lang)}</div>}
       {step.info && (
         <div className="border border-primary/20 bg-primary/10 rounded-lg px-4 py-3 text-sm text-foreground mb-4">💡 {tr(step.info, lang)}</div>
       )}
@@ -239,11 +231,19 @@ function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
         ))}
       </div>
 
-      <div className="flex justify-between pt-6">
-        <button onClick={() => (sub === 0 ? onBack() : setSub(sub - 1))}
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors font-mono">
-          <ArrowLeft size={14} /> {u.back}
-        </button>
+      <div className="flex justify-between items-center pt-6">
+        <div className="flex items-center gap-2">
+          <button onClick={() => (sub === 0 ? onBack() : setSub(sub - 1))}
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors font-mono">
+            <ArrowLeft size={14} /> {u.back}
+          </button>
+          {profile.demoAnswers && (
+            <button onClick={fillDemo}
+              className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 font-semibold transition-colors px-2.5 py-1.5 rounded-lg hover:bg-primary/10">
+              <Sparkles size={13} /> {u.demo}
+            </button>
+          )}
+        </div>
         <button disabled={!canNext} onClick={() => (isLast ? onFinish(answers) : setSub(sub + 1))}
           className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-40">
           {isLast ? u.run : u.next} {isLast ? <Sparkles size={14} /> : <ArrowRight size={14} />}
@@ -475,7 +475,6 @@ const MetaAssessmentTool = () => {
             <StandardSelect
               lang={lang}
               onPick={(p) => { setProfile(p); setAnswers({}); setPhase('intake'); }}
-              onDemo={(p) => { setProfile(p); setAnswers(p.demoAnswers ?? {}); setPhase('intake'); }}
             />
           )}
 
