@@ -78,6 +78,27 @@ function ui(lang: Lang) {
     roadmapRationale: de ? 'Begründung der Roadmap' : fr ? 'Justification de la feuille de route' : 'Roadmap rationale',
     auditorQuestions: de ? 'Vertiefende Audit-Fragen' : fr ? "Questions d'audit" : 'Deepening audit questions',
     insightsError: de ? 'KI-Analyse fehlgeschlagen. Bitte erneut versuchen.' : fr ? "Échec de l'analyse IA." : 'AI analysis failed. Please retry.',
+    // ── advisory layer (virtual internal auditor / advisor) ──
+    consultantView: de ? 'Beratungsansicht' : fr ? 'Vue conseil' : 'Consultant view',
+    consultantHint: de ? 'Vertiefte Berater-Analyse: Grundursachen, Themen, Programme.' : fr ? 'Analyse conseil approfondie : causes, thèmes, programmes.' : 'In-depth advisory analysis: root causes, themes, programs.',
+    execInsights: de ? 'Executive Insights' : fr ? 'Executive Insights' : 'Executive Insights',
+    topWeaknesses: de ? 'Wichtigste Schwächen' : fr ? 'Principales faiblesses' : 'Top weaknesses',
+    topStrengths: de ? 'Wichtigste Stärken' : fr ? 'Principales forces' : 'Top strengths',
+    highestBusinessRisks: de ? 'Höchste Geschäftsrisiken' : fr ? 'Risques métier majeurs' : 'Highest business risks',
+    multiRegulatory: de ? 'Mehrere Anforderungen betroffen' : fr ? 'Plusieurs exigences' : 'Multi-requirement issues',
+    managementFocus: de ? 'Management-Fokus zuerst' : fr ? 'Priorités direction' : 'Management focus first',
+    managementThemes: de ? 'Management-Themen' : fr ? 'Thèmes de direction' : 'Management themes',
+    currentState: de ? 'Ist-Zustand' : fr ? 'État actuel' : 'Current state',
+    riskExposure: de ? 'Risiko-Exposition' : fr ? 'Exposition au risque' : 'Risk exposure',
+    improvementOpp: de ? 'Verbesserungspotenzial' : fr ? "Opportunité d'amélioration" : 'Improvement opportunity',
+    transformationPrograms: de ? 'Transformationsprogramme' : fr ? 'Programmes de transformation' : 'Transformation programs',
+    objectives: de ? 'Ziele' : fr ? 'Objectifs' : 'Objectives',
+    expectedBenefits: de ? 'Erwarteter Nutzen' : fr ? 'Bénéfices attendus' : 'Expected benefits',
+    complexity: de ? 'Komplexität' : fr ? 'Complexité' : 'Complexity',
+    businessValue: de ? 'Geschäftswert' : fr ? 'Valeur métier' : 'Business value',
+    managementRoadmap: de ? 'Management-Roadmap' : fr ? 'Feuille de route direction' : 'Management roadmap',
+    maturityInsights: de ? 'Reifegrad-Analyse' : fr ? 'Analyse de maturité' : 'Maturity insights',
+    businessImpact: de ? 'Business-Impact-Analyse' : fr ? 'Analyse impact métier' : 'Business impact analysis',
   };
 }
 
