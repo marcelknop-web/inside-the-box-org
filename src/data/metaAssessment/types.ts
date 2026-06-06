@@ -505,6 +505,8 @@ export interface InsightResult {
   systemicWeaknesses: SystemicWeakness[];
   /** Layer 2 — explicit AI assumptions requiring validation (HYPOTHESIS) */
   hypotheses: Hypothesis[];
+  /** Layer 3 — senior-consultant / virtual-CISO observations */
+  consultantObservations: ConsultantObservation[];
   /** Per-category confidence ratings for AI interpretations */
   confidence: ConfidenceSummary;
 }
