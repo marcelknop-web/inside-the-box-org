@@ -306,6 +306,14 @@ Produce the advisory analysis JSON now.`;
             };
           }).filter((h: any) => h.statement)
         : [],
+      consultantObservations: Array.isArray(parsed.consultantObservations)
+        ? parsed.consultantObservations.slice(0, 6).map((o: any) => ({
+            observation: str(o?.observation),
+            implication: str(o?.implication),
+            recommendation: str(o?.recommendation),
+            confidence: conf(o?.confidence),
+          })).filter((o: any) => o.observation)
+        : [],
       confidence: {
         executiveInsights: conf(parsed.confidence?.executiveInsights),
         rootCauses: conf(parsed.confidence?.rootCauses),
