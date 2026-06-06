@@ -801,9 +801,16 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
 
   const [pdfBusy, setPdfBusy] = useState(false);
   const exportPdf = async () => {
+    // Consistency gate — never generate a report from divergent data.
+    const check = validateConsistency(result, computed);
+    if (!check.ok) {
+      console.error('Report consistency validation failed', check.errors);
+      alert(`${u.consistencyError}\n\n${check.errors.join('\n')}`);
+      return;
+    }
     setPdfBusy(true);
     try {
-      await generateMetaAssessmentPdf({ profile, lang, result, computed, answers, entityName, insights });
+      await generateMetaAssessmentPdf({ profile, lang, result, computed, answers, entityName, insights, reportMeta: docMeta });
     } catch (e) {
       console.error('PDF generation failed', e);
       alert(u.pdfError);
