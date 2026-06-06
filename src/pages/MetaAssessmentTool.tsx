@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   ArrowRight, ArrowLeft, Loader2, Sparkles, ShieldCheck, Network, Car,
@@ -614,10 +614,9 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
     URL.revokeObjectURL(a.href);
   };
 
-  // ── AI insight / advisory layer ──
+  // ── AI insight / advisory layer (mandatory, auto-loaded) ──
   const [insights, setInsights] = useState<InsightResult | null>(null);
   const [insightsBusy, setInsightsBusy] = useState(false);
-  const [consultantView, setConsultantView] = useState(false);
 
   const loadInsights = useCallback(async () => {
     setInsightsBusy(true);
@@ -635,7 +634,6 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
       });
       if (error) throw error;
       setInsights(data as InsightResult);
-      setConsultantView(true);
     } catch (e) {
       console.error('insights failed', e);
       alert(u.insightsError);
@@ -644,11 +642,15 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
     }
   }, [profile, lang, computed, result, u.insightsError]);
 
+  useEffect(() => {
+    loadInsights();
+  }, [loadInsights]);
+
   const [pdfBusy, setPdfBusy] = useState(false);
   const exportPdf = async () => {
     setPdfBusy(true);
     try {
-      await generateMetaAssessmentPdf({ profile, lang, result, computed, answers, entityName, insights: consultantView ? insights : null });
+      await generateMetaAssessmentPdf({ profile, lang, result, computed, answers, entityName, insights });
     } catch (e) {
       console.error('PDF generation failed', e);
       alert(u.pdfError);
@@ -736,29 +738,18 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
 
       {/* AI advisory layer — virtual internal auditor / compliance advisor */}
       <div className="bg-background/40 border border-primary/15 rounded-lg p-5">
-        <div className="flex items-start justify-between gap-3 flex-wrap">
-          <div className="min-w-0">
-            <h2 className="font-mono text-xs tracking-[0.25em] uppercase text-highlight">{u.aiAnalysis}</h2>
-            <p className="text-xs text-muted-foreground mt-1.5 max-w-xl leading-relaxed">{u.aiNote}</p>
-          </div>
-          {!insights && (
-            <button onClick={loadInsights} disabled={insightsBusy}
-              className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60 flex-shrink-0">
-              {insightsBusy ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-              {insightsBusy ? u.loadingInsights : u.loadInsights}
-            </button>
-          )}
-          {insights && (
-            <button onClick={() => setConsultantView((v) => !v)}
-              className={`inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors flex-shrink-0 ${
-                consultantView ? 'border-primary bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:border-primary/40'
-              }`}>
-              <Sparkles size={13} /> {u.consultantView}
-            </button>
-          )}
+        <div className="mb-3">
+          <h2 className="font-mono text-xs tracking-[0.25em] uppercase text-highlight">{u.aiAnalysis}</h2>
+          <p className="text-xs text-muted-foreground mt-1.5 max-w-xl leading-relaxed">{u.aiNote}</p>
         </div>
 
-        {insights && consultantView && (
+        {insightsBusy && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground py-3">
+            <Loader2 size={14} className="animate-spin" /> {u.loadingInsights}
+          </div>
+        )}
+
+        {insights && (
           <InsightsPanel insights={insights} computed={computed} lang={lang} u={u} reqMeta={reqMeta} />
         )}
       </div>
