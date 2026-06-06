@@ -6,6 +6,7 @@ import {
   Download, FileText,
 } from 'lucide-react';
 import { generateMetaAssessmentPdf } from '@/utils/metaAssessmentReportPdf';
+import { buildReportMeta, validateConsistency, ORIGIN, REPORT_TITLE } from '@/data/metaAssessment/reportMeta';
 import { LucideIcon } from 'lucide-react';
 import { SiteChrome } from '@/components/SiteChrome';
 import { PasswordGate } from '@/components/PasswordGate';
