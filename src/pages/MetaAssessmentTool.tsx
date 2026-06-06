@@ -440,10 +440,10 @@ const MetaAssessmentTool = () => {
 
           {/* Phase nav */}
           <div className="flex items-center gap-2 mb-8 font-mono text-[11px] uppercase tracking-wider">
-            {(['standard', 'intake', 'analyzing', 'report'] as Phase[]).map((ph, i) => {
-              const order = ['standard', 'intake', 'analyzing', 'report'];
+            {(['standard', 'intake', 'report'] as Phase[]).map((ph, i) => {
+              const order = ['standard', 'intake', 'report'];
               const active = order.indexOf(phase) >= i;
-              const labels = { standard: u.chooseStandard, intake: 'Intake', analyzing: 'KI', report: 'Report' };
+              const labels = { standard: u.chooseStandard, intake: 'Intake', report: 'Report' };
               return (
                 <div key={ph} className="flex items-center gap-2">
                   {i > 0 && <span className="text-border">›</span>}
@@ -469,15 +469,8 @@ const MetaAssessmentTool = () => {
             />
           )}
 
-          {phase === 'analyzing' && (
-            <div className="flex flex-col items-center justify-center py-24 text-center">
-              <Loader2 className="w-10 h-10 animate-spin text-primary mb-5" />
-              <p className="text-sm text-muted-foreground max-w-md">{u.analyzing}</p>
-            </div>
-          )}
-
-          {phase === 'report' && profile && result && (
-            <Report profile={profile} lang={lang} result={result} answers={answers} onRestart={restart} />
+          {phase === 'report' && profile && result && computed && (
+            <Report profile={profile} lang={lang} result={result} computed={computed} answers={answers} onRestart={restart} />
           )}
         </main>
       </PasswordGate>
