@@ -221,6 +221,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     fields: [
       [t('client', lang), entityName],
       [t('standard', lang), profile.name],
+      [t('reportType', lang), REPORT_TITLE],
       [t('date', lang), dateStr],
       [t('prepared', lang), 'Inside the Box'],
       [t('status', lang), t('confidential', lang)],
