@@ -737,6 +737,17 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
   // ── AI insight / advisory layer (mandatory, auto-loaded) ──
   const [insights, setInsights] = useState<InsightResult | null>(null);
   const [insightsBusy, setInsightsBusy] = useState(false);
+  const [insightsProgress, setInsightsProgress] = useState(0);
+
+  // Animate a progress bar while the AI analysis runs (creeps toward 90%).
+  useEffect(() => {
+    if (!insightsBusy) return;
+    setInsightsProgress(8);
+    const t = setInterval(() => {
+      setInsightsProgress((p) => (p < 90 ? p + Math.max(1, Math.round((90 - p) * 0.08)) : p));
+    }, 400);
+    return () => clearInterval(t);
+  }, [insightsBusy]);
 
   const loadInsights = useCallback(async () => {
     setInsightsBusy(true);
