@@ -402,6 +402,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     pdf.newPage();
     pdf.heading(t('sec8', lang), 1);
     pdf.addBookmark(t('sec8', lang), 1);
+    pdf.metaLine(ORIGIN.insight);
     pdf.introText(t('aiNote', lang));
     pdf.bodyParagraph(t('labelLegend', lang));
 
