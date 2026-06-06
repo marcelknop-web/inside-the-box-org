@@ -56,6 +56,9 @@ const T: Record<string, Record<Lang, string>> = {
   whyMatters: { de: 'Why This Matters', en: 'Why This Matters', fr: 'Why This Matters' },
 
   verdictOverview: { de: 'Befundübersicht', en: 'Verdict Overview', fr: 'Aperçu des verdicts' },
+  attentionIndex: { de: 'Management-Attention-Index', en: 'Management Attention Index', fr: "Indice d'attention direction" },
+  attentionDrivers: { de: 'Wesentliche Treiber', en: 'Key Drivers', fr: 'Facteurs clés' },
+  auditReadiness: { de: 'Audit-Bereitschaft', en: 'Audit Readiness', fr: "Préparation à l'audit" },
   readiness: { de: 'Reifegrad', en: 'Readiness', fr: 'Maturité' },
   passed: { de: 'Erfüllt', en: 'Passed', fr: 'Conformes' },
   partial: { de: 'Teilweise', en: 'Partial', fr: 'Partiel' },
