@@ -29,6 +29,8 @@ export interface MetaReportData {
 const T: Record<string, Record<Lang, string>> = {
   category: { de: 'PRÜFBERICHT', en: 'ASSESSMENT REPORT', fr: "RAPPORT D'ÉVALUATION" },
   client: { de: 'Einrichtung', en: 'Entity', fr: 'Entité' },
+  reportType: { de: 'Berichtstyp', en: 'Report Type', fr: 'Type de rapport' },
+  reportMetaTitle: { de: 'Berichtsmetadaten', en: 'Report Metadata', fr: 'Métadonnées du rapport' },
   standard: { de: 'Standard', en: 'Standard', fr: 'Standard' },
   regulation: { de: 'Regelwerk', en: 'Regulation', fr: 'Réglementation' },
   date: { de: 'Datum', en: 'Date', fr: 'Date' },
