@@ -395,15 +395,18 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     pdf.heading(t('sec8', lang), 1);
     pdf.addBookmark(t('sec8', lang), 1);
     pdf.introText(t('aiNote', lang));
+    pdf.bodyParagraph(t('labelLegend', lang));
 
     if (insights.executiveNarrative) {
       pdf.sectionLabel(t('execNarrative', lang));
+      pdf.metaLine('INSIGHT — AI interpretation');
       pdf.bodyParagraph(insights.executiveNarrative);
     }
 
     const ei = insights.executiveInsights;
     if (ei && (ei.topWeaknesses?.length || ei.topStrengths?.length || ei.managementFocus?.length)) {
       pdf.heading(t('execInsights', lang), 2);
+      pdf.metaLine(`INSIGHT — AI interpretation · Confidence: ${confLabel(insights.confidence?.executiveInsights)}`);
       const list = (label: string, items?: string[]) => {
         if (!items?.length) return;
         pdf.sectionLabel(label);
@@ -418,7 +421,8 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
 
     if (insights.rootCauses?.length) {
       pdf.sectionLabel(t('rootCauses', lang));
-      insights.rootCauses.forEach((rc) => pdf.bulletItem(`${rc.symptom} → ${rc.cause}`));
+      pdf.metaLine(`INSIGHT — AI interpretation · Confidence: ${confLabel(insights.confidence?.rootCauses)}`);
+      insights.rootCauses.forEach((rc) => pdf.bulletItem(`${rc.symptom} → ${rc.cause} [Confidence: ${confLabel(rc.confidence)}]`));
     }
     if (insights.gapClusters?.length) {
       pdf.heading(t('gapClusters', lang), 2);
