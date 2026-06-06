@@ -672,11 +672,37 @@ function InsightsPanel({ insights, computed, lang, u, reqMeta }: {
                     ))}
                   </div>
                 )}
+                <ValidationActivities items={s.validationActivities} label={u.validationActivities} />
               </div>
             ))}
           </div>
         </InsightSection>
       )}
+
+      {insights.hypotheses?.length > 0 && (
+        <InsightSection title={u.hypotheses} layer="hypothesis">
+          <p className="text-xs text-muted-foreground mb-3 leading-relaxed">{u.hypothesesHint}</p>
+          <div className="space-y-3">
+            {insights.hypotheses.map((h, i) => (
+              <div key={i} className="bg-purple-500/5 border border-purple-500/20 rounded-md px-3 py-2.5">
+                <div className="flex items-start gap-2 flex-wrap">
+                  <p className="text-sm text-foreground leading-relaxed flex-1 min-w-[60%]">{h.statement}</p>
+                  <ConfidenceBadge level={h.confidence} />
+                </div>
+                {h.relatedControlIds?.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {h.relatedControlIds.map((id) => (
+                      <span key={id} className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-secondary text-muted-foreground">{id}</span>
+                    ))}
+                  </div>
+                )}
+                <ValidationActivities items={h.validationActivities} label={u.validationActivities} />
+              </div>
+            ))}
+          </div>
+        </InsightSection>
+      )}
+
 
       {insights.roadmapRationale && (
         <InsightSection title={u.roadmapRationale} layer="recommendation">
