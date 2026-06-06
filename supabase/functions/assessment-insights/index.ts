@@ -106,6 +106,7 @@ Return ONLY valid JSON (no markdown) with this exact shape:
   "auditorQuestions": ["..."],
   "systemicWeaknesses": [ { "area": "...", "pattern": "...", "relatedControlIds": ["A21-1"], "confidence": "medium", "validationActivities": ["Review risk registers"] } ],
   "hypotheses": [ { "statement": "...", "confidence": "medium", "validationActivities": ["Procurement interviews", "Contract reviews"], "relatedControlIds": ["A21-1"] } ],
+  "consultantObservations": [ { "observation": "...", "implication": "...", "recommendation": "...", "confidence": "medium" } ],
   "confidence": { "executiveInsights": "medium", "rootCauses": "medium", "managementThemes": "medium", "crossControlInsights": "medium", "transformationPrograms": "medium", "systemicWeaknesses": "medium" }
 }`;
 }
