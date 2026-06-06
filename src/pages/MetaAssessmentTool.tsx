@@ -386,7 +386,11 @@ function InsightsPanel({ insights, computed, lang, u, reqMeta }: {
   u: ReturnType<typeof ui>; reqMeta: Map<string, StandardProfile['requirements'][number]>;
 }) {
   const ei = insights.executiveInsights;
-  const ratingLabel = (r: string) => r === 'low' ? u.low ?? r : r === 'high' ? (lang === 'de' ? 'Hoch' : r) : (lang === 'de' ? 'Mittel' : r);
+  const ratingLabel = (r: string) => {
+    if (r === 'low') return lang === 'de' ? 'Niedrig' : lang === 'fr' ? 'Faible' : 'Low';
+    if (r === 'high') return lang === 'de' ? 'Hoch' : lang === 'fr' ? 'Élevé' : 'High';
+    return lang === 'de' ? 'Mittel' : lang === 'fr' ? 'Moyen' : 'Medium';
+  };
   return (
     <div className="mt-5 space-y-5">
       {insights.executiveNarrative && (
