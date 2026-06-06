@@ -826,8 +826,13 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
       <div className="bg-background/40 border-l-4 border-primary border border-primary/15 rounded-lg p-5">
         <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide font-mono">{profile.name} — {tr(profile.regulation, lang)}</div>
         <div className="text-lg font-bold text-foreground mt-0.5">{entityName}</div>
+        <div className="text-xs text-muted-foreground mt-1">{REPORT_TITLE}</div>
         {result.summary && <p className="text-sm text-foreground leading-relaxed mt-3">{result.summary}</p>}
+        <div className="text-[10px] text-muted-foreground font-mono mt-3 pt-3 border-t border-border">
+          {docMeta.assessmentId} · v{docMeta.reportVersion} · {new Date(docMeta.generatedAt).toLocaleDateString('en-GB')}
+        </div>
       </div>
+
 
       {/* Readiness + stats */}
       <div className="grid sm:grid-cols-4 gap-3">
