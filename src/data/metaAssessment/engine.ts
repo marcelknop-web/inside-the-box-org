@@ -489,3 +489,26 @@ export function computeAssessment(
   const maturity = computeMaturity(profile, score, lang);
   return { score, risks, recommendations, roadmap, quality, evidence, maturity };
 }
+
+// ════════════════════════════════════════════════════════════════
+// LAYER 1 PIPELINE — answers in, deterministic result out
+// ════════════════════════════════════════════════════════════════
+export interface DeterministicAssessment {
+  findings: AssessedRequirement[];
+  result: AssessmentResult;
+  computed: ComputedAssessment;
+}
+
+/** Full deterministic assessment from intake answers (no AI). */
+export function assess(
+  profile: StandardProfile,
+  answers: IntakeAnswers,
+  lang: Lang,
+): DeterministicAssessment {
+  const findings = deriveFindings(profile, answers, lang);
+  const risks = deriveRisks(profile, findings, lang);
+  const result: AssessmentResult = { requirements: findings, risks, summary: '' };
+  const computed = computeAssessment(profile, result, findings, lang);
+  return { findings, result, computed };
+}
+
