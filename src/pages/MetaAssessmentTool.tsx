@@ -12,10 +12,11 @@ import { PageMeta } from '@/components/PageMeta';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { STANDARD_PROFILES, getProfile, tr } from '@/data/metaAssessment';
+import { STANDARD_PROFILES, getProfile, tr, assess } from '@/data/metaAssessment';
 import type {
   Lang, StandardProfile, IntakeField, IntakeAnswers,
   AssessmentResult, AssessedRequirement, ReqStatus,
+  ComputedAssessment, Recommendation, InsightResult,
 } from '@/data/metaAssessment/types';
 
 const ICONS: Record<string, LucideIcon> = {
@@ -57,6 +58,23 @@ function ui(lang: Lang) {
     exportJson: de ? 'Ergebnis exportieren (JSON)' : fr ? 'Exporter (JSON)' : 'Export result (JSON)',
     error: de ? 'Auswertung fehlgeschlagen. Bitte erneut versuchen.' : fr ? 'Échec. Réessayez.' : 'Evaluation failed. Please retry.',
     summary: de ? 'Zusammenfassung' : fr ? 'Synthèse' : 'Summary',
+    // ── deterministic layer ──
+    computing: de ? 'Bewertung wird regelbasiert berechnet …' : fr ? 'Évaluation calculée par règles …' : 'Computing rule-based assessment …',
+    deterministicNote: de ? 'Regelbasierte Bewertung (revisionssicher, ohne KI).' : fr ? 'Évaluation basée sur des règles (sans IA).' : 'Rule-based assessment (audit-safe, no AI).',
+    recommendations: de ? 'Maßnahmenplan' : fr ? "Plan d'action" : 'Recommendation plan',
+    roadmap: de ? 'Roadmap' : fr ? 'Feuille de route' : 'Roadmap',
+    // ── AI insight layer ──
+    aiAnalysis: de ? 'KI-Analyse (erklärend)' : fr ? 'Analyse IA (explicative)' : 'AI analysis (explanatory)',
+    aiNote: de ? 'Die KI bewertet nichts — sie erklärt nur die regelbasierten Ergebnisse.' : fr ? "L'IA n'évalue rien — elle explique les résultats basés sur les règles." : 'The AI scores nothing — it only explains the rule-based results.',
+    loadInsights: de ? 'KI-Analyse laden' : fr ? "Charger l'analyse IA" : 'Load AI analysis',
+    loadingInsights: de ? 'KI analysiert die Ergebnisse …' : fr ? "L'IA analyse les résultats …" : 'AI is analysing the results …',
+    execNarrative: de ? 'Management-Lagebild' : fr ? 'Synthèse direction' : 'Executive narrative',
+    rootCauses: de ? 'Grundursachen' : fr ? 'Causes profondes' : 'Root causes',
+    gapClusters: de ? 'Kernthemen (Gap-Cluster)' : fr ? 'Thèmes clés' : 'Core themes (gap clusters)',
+    crossControl: de ? 'Übergreifende Zusammenhänge' : fr ? 'Liens transverses' : 'Cross-control insights',
+    roadmapRationale: de ? 'Begründung der Roadmap' : fr ? 'Justification de la feuille de route' : 'Roadmap rationale',
+    auditorQuestions: de ? 'Vertiefende Audit-Fragen' : fr ? "Questions d'audit" : 'Deepening audit questions',
+    insightsError: de ? 'KI-Analyse fehlgeschlagen. Bitte erneut versuchen.' : fr ? "Échec de l'analyse IA." : 'AI analysis failed. Please retry.',
   };
 }
 
@@ -391,54 +409,18 @@ const MetaAssessmentTool = () => {
   const [profile, setProfile] = useState<StandardProfile | null>(null);
   const [answers, setAnswers] = useState<IntakeAnswers>({});
   const [result, setResult] = useState<AssessmentResult | null>(null);
+  const [computed, setComputed] = useState<ComputedAssessment | null>(null);
 
-  const buildIntakeText = useCallback((p: StandardProfile, a: IntakeAnswers): string => {
-    const lines: string[] = [];
-    for (const step of p.intake) {
-      for (const f of step.fields) {
-        const v = a[f.id];
-        if (v === undefined || (Array.isArray(v) && v.length === 0) || v === '') continue;
-        let rendered: string;
-        if (Array.isArray(v)) {
-          rendered = v.map((id) => tr(f.options?.find((o) => o.id === id)?.label, lang) || id).join(', ');
-        } else if (f.options) {
-          rendered = tr(f.options.find((o) => o.id === v)?.label, lang) || v;
-        } else {
-          rendered = String(v);
-        }
-        lines.push(`- ${tr(f.label, lang)}: ${rendered}`);
-      }
-    }
-    return lines.join('\n') || '(no data provided)';
+  // Layer 1: deterministic, instant, no AI. Identical answers → identical result.
+  const runAssessment = useCallback((p: StandardProfile, a: IntakeAnswers) => {
+    const { result: res, computed: comp } = assess(p, a, lang);
+    setResult(res);
+    setComputed(comp);
+    setPhase('report');
   }, [lang]);
 
-  const runAssessment = useCallback(async (p: StandardProfile, a: IntakeAnswers) => {
-    setPhase('analyzing');
-    try {
-      const { data, error } = await supabase.functions.invoke('meta-assessment-reasoning', {
-        body: {
-          standardName: p.name,
-          regulation: tr(p.regulation, 'en'),
-          language: lang,
-          intakeText: buildIntakeText(p, a),
-          requirements: p.requirements.map((r) => ({
-            id: r.id, article: r.article, name: tr(r.name, lang),
-            criteria: r.criteria?.map((c) => tr(c, lang)).join('; '),
-          })),
-        },
-      });
-      if (error || !data || data.error) throw new Error(data?.error || error?.message || 'failed');
-      setResult(data as AssessmentResult);
-      setPhase('report');
-    } catch (e) {
-      console.error('meta-assessment error', e);
-      toast({ title: u.error, variant: 'destructive' });
-      setPhase('intake');
-    }
-  }, [lang, buildIntakeText, toast, u.error]);
-
   const restart = useCallback(() => {
-    setPhase('standard'); setProfile(null); setAnswers({}); setResult(null);
+    setPhase('standard'); setProfile(null); setAnswers({}); setResult(null); setComputed(null);
   }, []);
 
   return (
@@ -458,10 +440,10 @@ const MetaAssessmentTool = () => {
 
           {/* Phase nav */}
           <div className="flex items-center gap-2 mb-8 font-mono text-[11px] uppercase tracking-wider">
-            {(['standard', 'intake', 'analyzing', 'report'] as Phase[]).map((ph, i) => {
-              const order = ['standard', 'intake', 'analyzing', 'report'];
+            {(['standard', 'intake', 'report'] as Phase[]).map((ph, i) => {
+              const order = ['standard', 'intake', 'report'];
               const active = order.indexOf(phase) >= i;
-              const labels = { standard: u.chooseStandard, intake: 'Intake', analyzing: 'KI', report: 'Report' };
+              const labels = { standard: u.chooseStandard, intake: 'Intake', report: 'Report' };
               return (
                 <div key={ph} className="flex items-center gap-2">
                   {i > 0 && <span className="text-border">›</span>}
@@ -487,15 +469,8 @@ const MetaAssessmentTool = () => {
             />
           )}
 
-          {phase === 'analyzing' && (
-            <div className="flex flex-col items-center justify-center py-24 text-center">
-              <Loader2 className="w-10 h-10 animate-spin text-primary mb-5" />
-              <p className="text-sm text-muted-foreground max-w-md">{u.analyzing}</p>
-            </div>
-          )}
-
-          {phase === 'report' && profile && result && (
-            <Report profile={profile} lang={lang} result={result} answers={answers} onRestart={restart} />
+          {phase === 'report' && profile && result && computed && (
+            <Report profile={profile} lang={lang} result={result} computed={computed} answers={answers} onRestart={restart} />
           )}
         </main>
       </PasswordGate>

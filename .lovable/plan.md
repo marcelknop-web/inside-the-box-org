@@ -1,102 +1,71 @@
-ive## Universal Assessment Platform — Refactoring Plan
+# Universal Assessment — 3-Layer-Architektur (revisionssicher + KI-Insights)
 
-### What already exists (analysis)
+## Ziel
 
-The platform is mature and consistent. Each standard currently ships its own parallel set of files:
-
-```text
-src/data/<std>Data.ts(+I18n)      data model + controls
-src/utils/<std>ReportPdf.ts       ~1300-line consulting PDF generator
-src/utils/<std>QualityCheck.ts    QA validation
-src/utils/<std>AuditFixes.ts      deterministic fixes
-src/utils/pdfCore.ts              SHARED PDF primitives (fonts, layout, humanize…)
-supabase/functions/<std>-reasoning  per-standard AI function
-src/pages/<Std>ComplianceTool.tsx  per-standard page
-```
-
-Standards with full tools: NIS2, DORA, AI Act, IEC 62443, IEC UR E26, CRA, TISAX, PCI-DSS.
-
-A first **Meta-Tool** already exists and is config-driven, but thin:
-- `src/data/metaAssessment/{types,nis2Profile,index}.ts` — `StandardProfile` plug-in model (intake + requirements).
-- `src/pages/MetaAssessmentTool.tsx` — state machine Standard → Intake → Analyzing → Report (JSON export only).
-- `supabase/functions/meta-assessment-reasoning/index.ts` — generic, profile-driven AI with a strict data-integrity policy.
-
-The Meta-Tool is the correct foundation. It lacks: scoring engine, maturity, evidence model, risk engine, recommendation engine, quality engine, dashboard, and consulting-grade PDF. The mature single-tool code is the "best-of" source to generalize.
-
-### Goal & guardrails
-
-Transform the Meta-Tool into the Universal Assessment Platform so a **new standard = one profile file (+ prompt entry, optional demo)**, with all engines standard-agnostic.
-
-- Build **in parallel**. Do not modify or break the 8 existing single tools or their routes. They keep working unchanged.
-- Reuse `pdfCore.ts` as-is; do not fork it.
-- Keep the AI strictly explanatory; all scoring/compliance/risk math stays deterministic in TypeScript.
-- Client-side PDF, no uploads, no persistence, existing rate limiting on the edge function.
-
-### Architecture (plug-in model)
+Die KI trifft **keine** Compliance-Entscheidungen mehr. Findings/Scores/Risiken/Empfehlungen entstehen deterministisch aus den Intake-Antworten (revisionssicher, reproduzierbar). Die KI wird dort eingesetzt, wo sie stark ist: **Muster erkennen, Zusammenhänge erklären, Management-Narrativ formulieren**.
 
 ```text
-src/data/metaAssessment/
-  types.ts            ← extend schema (below)
-  engine/
-    scoring.ts        Universal scoring (pass/partial/fail + weighting, readiness)
-    maturity.ts       Optional 0–5 maturity model, configurable per profile
-    risk.ts           Risk = Likelihood × Impact (1–5), rating, heatmap buckets
-    recommendations.ts Priority/effort/impact/duration/owner, roadmap grouping
-    quality.ts        Universal QA rules (blocking vs warning)
-    evidence.ts       Evidence types + strength (display only, never scored)
-  profiles/<std>.ts   per-standard config (categories, controls, mappings, prompt id, maturity on/off)
-  index.ts            registry
-
-src/components/metaAssessment/   Dashboard, QualityPanel, rendering (presentation only)
-src/utils/universalReportPdf.ts  ONE consulting PDF generator (uses pdfCore), reads the result model
-supabase/functions/universal-reasoning/index.ts  consolidated, PROMPT_LIBRARY by standard
+Layer 1  Deterministic Assessment Engine   (Source of Truth)
+            User Answers -> Rules -> Findings -> Risks -> Recommendations -> Score
+Layer 2  AI Insight Engine                 (Analyse, erklärend)
+            Root Cause · Cross-Control · Gap-Cluster · Virtual-Auditor-Fragen
+Layer 3  AI Reporting Engine               (Narrativ)
+            Executive Risk Narrative · Roadmap-Begründung
 ```
 
-### Data model (extend `types.ts`)
+Bei identischen Antworten -> identische Bewertung. KI-Text ist additiv und als „erklärend, nicht bewertend" gekennzeichnet (Data-Integrity-Policy bleibt).
 
-Add the common entities the prompt requires, keeping existing ones backward-compatible: `Category`, `Control` (with `categoryId`, `weight`, optional `mandatory`, `maturityEnabled`), `Finding`, `Risk`, `Recommendation` (priority, effort, businessImpact, duration, owner, relatedFindings, relatedRisks), `Evidence` (type + strength), and `AssessmentProfile` (categories + controls + maturity flag + scoring model id + prompt id). The current `ProfileRequirement`/`AssessedRequirement` map onto `Control`/`Finding`.
+## Layer 1 — Compliance wird deterministisch
 
-### Engines (deterministic, standard-agnostic)
+Heute entscheidet die Edge Function `meta-assessment-reasoning` den Status (pass/partial/fail). Das wird ersetzt durch regelbasierte Auswertung im bestehenden `engine.ts`.
 
-- **Scoring**: `pass=100 / partial=50 / fail=0`, category + weighted + overall, readiness level; pluggable scoring-model id for future models.
-- **Maturity**: optional per profile, levels 0–5, current vs target gap.
-- **Risk**: score, rating (Low/Med/High/Critical), heatmap matrix data.
-- **Recommendations**: enrich + group Critical/High/Medium/Low; roadmap 0–3 / 3–6 / 6–12 months by risk reduction + effort.
-- **Quality**: pass-without-evidence, risk-without-recommendation, recommendation-without-owner, missing mandatory controls, missing traceability, contradictions, incomplete intake. Critical → block PDF; warnings → Quality Panel.
-- **Evidence**: inventory + strength shown in report; never affects score.
+- **Neues Feld an `ProfileRequirement`: `rule`** — eine deterministische Regel gegen Intake-Antworten, z. B.:
+  - `requiresAll` / `requiresAny`: Liste von Intake-Optionen (z. B. `measures:mfa`), die pass/partial bestimmen.
+  - Ergebnis-Logik: alle erfüllt -> `pass`, teils erfüllt -> `partial`, keine -> `fail`.
+- **Neue Funktion `deriveFindings(profile, answers, lang)`** in `engine.ts`: erzeugt `AssessedRequirement[]` rein aus Antworten (evidence/gap als faktische Kurztexte aus den getroffenen Antworten, keine erfundenen Nachweise).
+- **Risiken** werden aus den `fail`/`partial`-Findings deterministisch abgeleitet (Mapping Requirement -> Risiko mit fixem likelihood/impact-Default pro Kategorie), statt von der KI.
+- Scoring/Quality/Maturity/Recommendations/Roadmap bleiben wie gebaut (laufen jetzt auf den deterministischen Findings).
 
-### Universal workflow (single page, no route change)
+NIS2-Pilot bekommt die `rule`-Mappings (12 Anforderungen gegen die Intake-Felder `measures`, `roles`, `supplyChain`, `classification`).
 
-Extend `MetaAssessmentTool.tsx` state machine to:
-`INTAKE → ASSESSMENT → AI REASONING → QUALITY CHECK → DASHBOARD → PDF REPORT`
-The AI step fills explanatory text only; engines compute everything else; Quality gate guards the PDF button.
+## Layer 2 + 3 — Neue Edge Function `assessment-insights`
 
-### Executive dashboard
+Eine Function, die **nur** die fertig berechneten deterministischen Ergebnisse erhält (Findings, Risiken, Score, Kategorien) und erklärenden Text zurückgibt. Sie sieht die Rohantworten nur als Kontext, ändert aber keine Bewertung.
 
-New `components/metaAssessment/ExecutiveDashboard.tsx`: overall score, maturity, risk exposure, critical findings, top recommendations, category breakdown, readiness, risk heatmap — non-technical framing.
+Output (JSON, dreisprachig je nach `language`):
+1. **executiveNarrative** — 4–6 Sätze Management-Lagebild (Layer 3).
+2. **rootCauses** — pro Schwerpunkt: Symptom -> vermutete Grundursache.
+3. **gapClusters** — Findings zu 2–4 Kernthemen gruppiert („nicht 20 Probleme, sondern 3").
+4. **crossControlInsights** — erkannte Zusammenhänge zwischen Defiziten.
+5. **roadmapRationale** — Begründung der (deterministisch sortierten) Phasen 0–3/3–6/6–12.
+6. **auditorQuestions** — 4–6 vertiefende Audit-Rückfragen („Virtual Auditor").
 
-### Consulting-grade PDF (`universalReportPdf.ts`)
+Guardrails: strikt erklärend, keine Statusänderung, keine erfundenen Fakten; Rate-Limiting/Validierung wie in der bestehenden Function; Modell `google/gemini-3-flash-preview`.
 
-One generator on top of `pdfCore`, producing the full report: Cover, Executive Summary, Scope, Methodology (with the mandated AI-limitation statement), Overall Results (charts/radar/heatmap), Category Findings, Risk Analysis + register/matrix, Recommendation Plan, Maturity (if enabled), Evidence Overview, Traceability Matrix, Management Roadmap, Appendix. Trilingual (DE/EN/FR).
+(Benchmark-Analyse = Punkt 4 des Reviews -> später, sobald anonymisierte Vergleichsdaten existieren. Nicht in diesem Schritt.)
 
-### AI consolidation
+## Workflow in `MetaAssessmentTool.tsx`
 
-Create `supabase/functions/universal-reasoning/index.ts` with `PROMPT_LIBRARY` keyed by standard, reusing the existing data-integrity policy and rate limiting from `meta-assessment-reasoning`. Input `{ standard, language, controls, intake }`; output explanatory findings/risks only. Meta-Tool switches to it. Existing per-standard functions stay deployed for the legacy single tools.
+```text
+Standard -> Intake -> [Layer 1 sofort, lokal] -> Dashboard/Report
+                                   -> "KI-Insights laden" (Layer 2/3, optional)
+```
 
-### Pilot & rollout
+- Findings/Score/Risiken/Empfehlungen erscheinen **sofort** (kein KI-Call nötig, deterministisch).
+- Darüber ein Abschnitt **„KI-Analyse (erklärend)"** mit Executive Narrative, Gap-Clustern, Root Causes, Cross-Control, Roadmap-Begründung, Auditor-Fragen — nachgeladen per Button, klar als KI-generiert/erklärend markiert.
+- Demo-Mechanismus (pro Schritt) bleibt unverändert.
 
-1. Build engines + extended types + universal PDF + dashboard + quality panel.
-2. Migrate the **NIS2 profile** to the full model as the pilot end-to-end.
-3. Add a second profile (DORA) to prove "profile-only" extension.
-4. Remaining standards become profile files incrementally (separate follow-ups).
+## Migrationsschritte / Risiken
 
-### Breaking-change risks & mitigation
+1. `types.ts`: `rule` an `ProfileRequirement`; Insight-Typen ergänzen.
+2. `engine.ts`: `deriveFindings` + deterministische Risiko-Ableitung.
+3. `nis2Profile.ts`: `rule`-Mappings für alle 12 Anforderungen.
+4. Neue Function `assessment-insights` (Layer 2/3); alte `meta-assessment-reasoning` bleibt vorerst bestehen, wird aber nicht mehr für Statusentscheidungen genutzt (später entfernbar).
+5. `MetaAssessmentTool.tsx`: lokale Berechnung + Insights-Sektion.
 
-- Touching `pdfCore.ts` could affect all reports → only consume it, never modify signatures.
-- `types.ts` is imported by the live Meta-Tool → make all additions optional/additive.
-- New edge function is additive; legacy functions untouched.
-- No DB/schema changes; no persistence added.
+Risiko: `rule`-Mappings müssen fachlich sauber sein (bestimmen jetzt die Bewertung). Bestehende Einzeltools bleiben unberührt.
 
-### Deliverable for this first implementation pass
-
-Extended types + all six engines + `universal-reasoning` function + universal PDF + dashboard + quality panel, wired into `MetaAssessmentTool.tsx`, with **NIS2 fully migrated** as the working pilot. Existing tools remain untouched.
+## Was bewusst NICHT passiert
+- Keine `User Answer -> AI decides -> Compliance Result`-Kette mehr.
+- Keine DB-/Schema-Änderung, keine Persistenz (Client-side bleibt).
+- Kein Eingriff in NIS2/DORA/E26-Einzeltools.

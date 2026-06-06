@@ -7,10 +7,11 @@
 
 import type {
   Lang, Tri, StandardProfile, ProfileRequirement, AssessmentResult,
-  AssessedRequirement, ScoreResult, CategoryScore, ReadinessLevel,
+  AssessedRequirement, AssessedRisk, ScoreResult, CategoryScore, ReadinessLevel,
   EnrichedRisk, RiskRating, Recommendation, Priority, Effort, RoadmapBucket,
   RoadmapPhase, QualityResult, QualityIssue, EvidenceSummary, EvidenceItem,
   EvidenceType, EvidenceStrength, MaturityResult, MaturityLevel, ComputedAssessment,
+  IntakeAnswers,
 } from './types';
 import { tr } from './types';
 
@@ -19,6 +20,133 @@ type L = Record<Lang, string>;
 const t = (x: L, lang: Lang) => x[lang] ?? x.en;
 
 const STATUS_SCORE: Record<string, number> = { pass: 100, partial: 50, fail: 0 };
+
+// ════════════════════════════════════════════════════════════════
+// LAYER 1 — DETERMINISTIC FINDINGS ENGINE  (Source of Truth)
+// ════════════════════════════════════════════════════════════════
+//
+// Findings are derived purely from the intake answers via each
+// requirement's `rule`. The AI is NEVER involved here, so identical
+// answers always yield an identical, audit-defensible result.
+
+/** Build a lookup of intake option labels: "fieldId:optionId" → label. */
+function buildOptionLabels(profile: StandardProfile, lang: Lang): Map<string, string> {
+  const map = new Map<string, string>();
+  for (const step of profile.intake) {
+    for (const f of step.fields) {
+      for (const o of f.options ?? []) {
+        map.set(`${f.id}:${o.id}`, tr(o.label, lang));
+      }
+    }
+  }
+  return map;
+}
+
+/** Is a rule token ("fieldId:optionId" or "fieldId") satisfied by the answers? */
+function tokenSatisfied(token: string, answers: IntakeAnswers): boolean {
+  const [fieldId, optionId] = token.split(':');
+  const v = answers[fieldId];
+  if (v === undefined || v === null) return false;
+  if (optionId) {
+    return Array.isArray(v) ? v.includes(optionId) : v === optionId;
+  }
+  return Array.isArray(v) ? v.length > 0 : String(v).trim().length > 0;
+}
+
+export function deriveFindings(
+  profile: StandardProfile,
+  answers: IntakeAnswers,
+  lang: Lang,
+): AssessedRequirement[] {
+  const labels = buildOptionLabels(profile, lang);
+  const label = (token: string) => labels.get(token) ?? token.split(':')[1] ?? token;
+
+  const NONE = t({ de: 'Kein Nachweis in den Intake-Daten angegeben.', en: 'No evidence provided in the intake data.', fr: "Aucune preuve fournie dans les données d'intake." }, lang);
+  const evidenceLead = t({ de: 'Nachgewiesen', en: 'Evidenced', fr: 'Justifié' }, lang);
+  const gapLead = t({ de: 'Nicht nachgewiesen', en: 'Not evidenced', fr: 'Non justifié' }, lang);
+  const measureLead = t({ de: 'Umsetzen / nachweisen', en: 'Implement / evidence', fr: 'Mettre en œuvre / justifier' }, lang);
+
+  return profile.requirements.map((r) => {
+    const rule = r.rule;
+    const reqName = tr(r.name, lang);
+    if (!rule) {
+      // No rule → conservatively report as a gap (no evidence to confirm).
+      return mkFinding(r.id, 'fail', NONE, `${gapLead}: ${reqName}`, `${measureLead}: ${reqName}`, 'high');
+    }
+
+    const all = rule.requiresAll ?? [];
+    const any = rule.requiresAny ?? [];
+    const allHit = all.filter((tk) => tokenSatisfied(tk, answers));
+    const anyHit = any.filter((tk) => tokenSatisfied(tk, answers));
+    const allMiss = all.filter((tk) => !tokenSatisfied(tk, answers));
+
+    let status: AssessedRequirement['status'];
+    if (all.length > 0 && allHit.length === all.length) status = 'pass';
+    else if (allHit.length > 0 || anyHit.length > 0) status = 'partial';
+    else status = 'fail';
+
+    const hitTokens = [...allHit, ...anyHit];
+    const evidence = hitTokens.length
+      ? `${evidenceLead}: ${hitTokens.map(label).join(', ')}.`
+      : NONE;
+    const gap = allMiss.length
+      ? `${gapLead}: ${allMiss.map(label).join(', ')}.`
+      : '';
+    const measure = status === 'pass'
+      ? ''
+      : `${measureLead}: ${(allMiss.length ? allMiss.map(label) : [reqName]).join(', ')}.`;
+    const priority: AssessedRequirement['priority'] =
+      status === 'fail' ? 'high' : status === 'partial' ? 'medium' : 'low';
+
+    return mkFinding(r.id, status, evidence, gap, measure, priority);
+  });
+}
+
+function mkFinding(
+  id: string, status: AssessedRequirement['status'],
+  evidence: string, gap: string, measure: string,
+  priority: AssessedRequirement['priority'],
+): AssessedRequirement {
+  return { id, article: '', name: '', status, evidence, gap, rationale: '', measure, priority };
+}
+
+/** Deterministically derive risks from gap/partial findings. */
+export function deriveRisks(
+  profile: StandardProfile,
+  findings: AssessedRequirement[],
+  lang: Lang,
+): AssessedRisk[] {
+  const metaById = new Map(profile.requirements.map((r) => [r.id, r]));
+  const catName = new Map((profile.categories ?? []).map((c) => [c.id, tr(c.name, lang)]));
+  const lead = t({ de: 'Defizit bei', en: 'Deficiency in', fr: 'Déficience dans' }, lang);
+
+  const risks: AssessedRisk[] = [];
+  let n = 1;
+  for (const f of findings) {
+    if (f.status === 'pass') continue;
+    const meta = metaById.get(f.id);
+    const rule = meta?.rule;
+    // partial findings are less likely to materialise than full gaps
+    const baseL = rule?.riskLikelihood ?? (f.status === 'fail' ? 4 : 3);
+    const baseI = rule?.riskImpact ?? 3;
+    const likelihood = Math.min(5, Math.max(1, f.status === 'partial' ? baseL - 1 : baseL));
+    const impact = Math.min(5, Math.max(1, baseI));
+    const catId = meta?.categoryId ?? 'general';
+    risks.push({
+      id: `R${n++}`,
+      name: `${lead}: ${meta ? tr(meta.name, lang) : f.id}`,
+      component: meta?.article ?? '',
+      category: catName.get(catId) ?? catId,
+      likelihood,
+      impact,
+      evidence: f.gap || f.evidence,
+      rationale: '',
+    });
+  }
+  return risks;
+}
+
+
 
 // ════════════════════════════════════════════════════════════════
 // SCORING ENGINE
@@ -361,3 +489,26 @@ export function computeAssessment(
   const maturity = computeMaturity(profile, score, lang);
   return { score, risks, recommendations, roadmap, quality, evidence, maturity };
 }
+
+// ════════════════════════════════════════════════════════════════
+// LAYER 1 PIPELINE — answers in, deterministic result out
+// ════════════════════════════════════════════════════════════════
+export interface DeterministicAssessment {
+  findings: AssessedRequirement[];
+  result: AssessmentResult;
+  computed: ComputedAssessment;
+}
+
+/** Full deterministic assessment from intake answers (no AI). */
+export function assess(
+  profile: StandardProfile,
+  answers: IntakeAnswers,
+  lang: Lang,
+): DeterministicAssessment {
+  const findings = deriveFindings(profile, answers, lang);
+  const risks = deriveRisks(profile, findings, lang);
+  const result: AssessmentResult = { requirements: findings, risks, summary: '' };
+  const computed = computeAssessment(profile, result, findings, lang);
+  return { findings, result, computed };
+}
+
