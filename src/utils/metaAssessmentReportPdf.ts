@@ -44,8 +44,17 @@ const T: Record<string, Record<Lang, string>> = {
   sec5: { de: '5  Vollständige Kontrollmatrix', en: '5  Complete Control Matrix', fr: '5  Matrice de contrôle complète' },
   sec6: { de: '6  Risikolandschaft', en: '6  Risk Landscape', fr: '6  Paysage des risques' },
   sec7: { de: '7  Maßnahmen und Roadmap', en: '7  Recommendations and Roadmap', fr: '7  Recommandations et feuille de route' },
-  sec8: { de: '8  KI-Analyse (erklärend)', en: '8  AI Analysis (explanatory)', fr: '8  Analyse IA (explicative)' },
-  sec9: { de: '9  Schlussfolgerung', en: '9  Conclusion', fr: '9  Conclusion' },
+  sec8: { de: '8  AI Insights & Advisory', en: '8  AI Insights & Advisory', fr: '8  AI Insights & Advisory' },
+  sec9: { de: '9  Conclusion', en: '9  Conclusion', fr: '9  Conclusion' },
+
+  howProduced: { de: 'How This Assessment Was Produced', en: 'How This Assessment Was Produced', fr: 'How This Assessment Was Produced' },
+  howProducedBody: {
+    de: '', en: '', fr: '',
+  },
+  whyMatters: { de: 'Why This Matters', en: 'Why This Matters', fr: 'Why This Matters' },
+  whyMattersIntro: {
+    de: '', en: '', fr: '',
+  },
 
   verdictOverview: { de: 'Befundübersicht', en: 'Verdict Overview', fr: 'Aperçu des verdicts' },
   readiness: { de: 'Reifegrad', en: 'Readiness', fr: 'Maturité' },
