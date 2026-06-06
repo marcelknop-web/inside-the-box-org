@@ -158,6 +158,59 @@ function FieldView({ field, value, onChange, lang, answers, setVal }: {
       </div>
     );
   }
+  // maturity-multi: select measures + qualify each with a maturity level
+  if (field.type === 'maturity-multi') {
+    const sel = Array.isArray(value) ? value : value ? [value] : [];
+    const toggleMeasure = (id: string) => {
+      if (sel.includes(id)) {
+        onChange(sel.filter((x) => x !== id));
+        setVal(maturityKey(field.id, id), '');
+      } else {
+        onChange([...sel, id]);
+      }
+    };
+    return (
+      <div>
+        <FieldLabel field={field} lang={lang} />
+        <div className="space-y-2">
+          {field.options?.map((o) => {
+            const on = sel.includes(o.id);
+            const mat = (answers[maturityKey(field.id, o.id)] as string) || '';
+            return (
+              <div key={o.id}
+                className={`border rounded-lg transition-all ${on ? 'border-primary bg-primary/10' : 'border-border bg-card'}`}>
+                <button onClick={() => toggleMeasure(o.id)}
+                  className="w-full px-3 py-2 text-sm flex items-center gap-2 text-left">
+                  <span className={`flex-shrink-0 w-4 h-4 rounded border flex items-center justify-center text-[10px] ${
+                    on ? 'border-primary bg-primary text-primary-foreground' : 'border-border text-transparent'
+                  }`}>✓</span>
+                  <span className={`font-medium break-words flex-1 ${on ? 'text-foreground' : 'text-muted-foreground'}`}>{tr(o.label, lang)}</span>
+                </button>
+                {on && (
+                  <div className="px-3 pb-2.5 -mt-0.5 flex flex-wrap gap-1.5">
+                    {MATURITY_LEVELS.map((m) => {
+                      const active = mat === m.id;
+                      return (
+                        <button key={m.id}
+                          onClick={() => setVal(maturityKey(field.id, o.id), active ? '' : m.id)}
+                          className={`text-xs px-2 py-1 rounded-md border transition-all ${
+                            active
+                              ? 'border-primary bg-primary text-primary-foreground font-semibold'
+                              : 'border-border bg-background text-muted-foreground hover:border-primary/40'
+                          }`}>
+                          {tr(m.label, lang)}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
   // single / multi
   const arr = Array.isArray(value) ? value : value ? [value] : [];
   const toggle = (id: string) => {
