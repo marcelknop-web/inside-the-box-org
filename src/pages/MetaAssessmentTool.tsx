@@ -673,7 +673,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
                     <div className="text-sm font-semibold text-foreground break-words">{r.name}</div>
                     <div className="text-xs text-muted-foreground">{r.article}</div>
                   </div>
-                  <span className={`px-2 py-0.5 rounded text-xs font-bold border flex-shrink-0 ${st.cls}`}>{st.label[lang]}</span>
+                  <span className={`px-2 py-0.5 rounded text-xs font-bold border flex-shrink-0 ${st.cls}`}>{st.label.en}</span>
                 </summary>
                 <div className="border-t border-border bg-secondary/20 px-4 py-3 text-sm space-y-2.5">
                   {r.evidence && <ReportField label={u.evidence}>{r.evidence}</ReportField>}
