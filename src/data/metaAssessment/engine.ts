@@ -197,7 +197,7 @@ function classifyEvidence(text: string): { type: EvidenceType; strength: Evidenc
 
   let strength: EvidenceStrength = 'low';
   const len = text.trim().length;
-  if (type === 'audit_report' || type === 'certif') strength = 'very_high';
+  if (type === 'audit_report') strength = 'very_high';
   else if (type === 'policy' || type === 'procedure' || type === 'document') strength = 'high';
   else if (len > 140) strength = 'medium';
   return { type, strength };
