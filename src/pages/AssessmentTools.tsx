@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
 import { SiteChrome } from '@/components/SiteChrome';
+import { PasswordGate } from '@/components/PasswordGate';
 import { PageMeta } from '@/components/PageMeta';
 import { useLanguage } from '@/i18n/LanguageContext';
 
@@ -165,6 +166,7 @@ const AssessmentTools = () => {
 
   return (
     <SiteChrome>
+      <PasswordGate storageKey="assessment-tools" label="Assessment Tools">
       <PageMeta
         title="Assessment Tools — Inside the Box"
         description="Zentraler Einstieg zu allen Assessment- und Compliance-Tools: NIS-2, DORA, IEC 62443, IACS UR E26/E27, TISAX, PCI-DSS, EU AI Act und mehr."
@@ -242,6 +244,7 @@ const AssessmentTools = () => {
           ))}
         </div>
       </main>
+      </PasswordGate>
     </SiteChrome>
   );
 };
