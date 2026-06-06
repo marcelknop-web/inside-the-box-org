@@ -12,6 +12,7 @@ import type {
   AssessmentResult, ComputedAssessment, InsightResult,
 } from '@/data/metaAssessment/types';
 import { tr } from '@/data/metaAssessment/types';
+import { readinessRatingLabel, attentionLabel } from '@/data/metaAssessment/engine';
 import { ORIGIN, REPORT_TITLE, type ReportMeta } from '@/data/metaAssessment/reportMeta';
 
 export interface MetaReportData {
