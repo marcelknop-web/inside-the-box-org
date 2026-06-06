@@ -650,7 +650,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
   const exportPdf = async () => {
     setPdfBusy(true);
     try {
-      await generateMetaAssessmentPdf({ profile, lang, result, computed, answers, entityName, insights: consultantView ? insights : null });
+      await generateMetaAssessmentPdf({ profile, lang, result, computed, answers, entityName, insights });
     } catch (e) {
       console.error('PDF generation failed', e);
       alert(u.pdfError);
