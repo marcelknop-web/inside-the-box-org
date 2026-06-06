@@ -137,8 +137,9 @@ export const NIS2_PROFILE: StandardProfile = {
       fields: [
         {
           id: 'measures',
-          type: 'multi',
+          type: 'maturity-multi',
           label: { de: 'Maßnahmen nach Art. 21', en: 'Measures per Art. 21', fr: 'Mesures selon art. 21' },
+          help: { de: 'Pro ausgewählter Maßnahme den Reifegrad angeben.', en: 'Specify the maturity for each selected measure.', fr: 'Indiquez la maturité de chaque mesure.' },
           options: [
             { id: 'riskpolicy', label: { de: 'Risikoanalyse & Sicherheitsrichtlinien', en: 'Risk analysis & security policies', fr: 'Analyse de risque & politiques' } },
             { id: 'incident', label: { de: 'Incident Handling', en: 'Incident handling', fr: 'Gestion des incidents' } },
