@@ -48,13 +48,7 @@ const T: Record<string, Record<Lang, string>> = {
   sec9: { de: '9  Conclusion', en: '9  Conclusion', fr: '9  Conclusion' },
 
   howProduced: { de: 'How This Assessment Was Produced', en: 'How This Assessment Was Produced', fr: 'How This Assessment Was Produced' },
-  howProducedBody: {
-    de: '', en: '', fr: '',
-  },
   whyMatters: { de: 'Why This Matters', en: 'Why This Matters', fr: 'Why This Matters' },
-  whyMattersIntro: {
-    de: '', en: '', fr: '',
-  },
 
   verdictOverview: { de: 'Befundübersicht', en: 'Verdict Overview', fr: 'Aperçu des verdicts' },
   readiness: { de: 'Reifegrad', en: 'Readiness', fr: 'Maturité' },
