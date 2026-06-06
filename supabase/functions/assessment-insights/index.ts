@@ -235,7 +235,7 @@ Produce the advisory analysis JSON now.`;
         managementFocus: arrStr(ei.managementFocus, 6),
       },
       rootCauses: Array.isArray(parsed.rootCauses)
-        ? parsed.rootCauses.slice(0, 6).map((r: any) => ({ symptom: str(r?.symptom), cause: str(r?.cause) })).filter((r: any) => r.cause)
+        ? parsed.rootCauses.slice(0, 6).map((r: any) => ({ symptom: str(r?.symptom), cause: str(r?.cause), confidence: conf(r?.confidence) })).filter((r: any) => r.cause)
         : [],
       gapClusters: Array.isArray(parsed.gapClusters)
         ? parsed.gapClusters.slice(0, 5).map((c: any) => ({
