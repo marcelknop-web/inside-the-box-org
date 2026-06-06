@@ -57,6 +57,23 @@ function ui(lang: Lang) {
     exportJson: de ? 'Ergebnis exportieren (JSON)' : fr ? 'Exporter (JSON)' : 'Export result (JSON)',
     error: de ? 'Auswertung fehlgeschlagen. Bitte erneut versuchen.' : fr ? 'Échec. Réessayez.' : 'Evaluation failed. Please retry.',
     summary: de ? 'Zusammenfassung' : fr ? 'Synthèse' : 'Summary',
+    // ── deterministic layer ──
+    computing: de ? 'Bewertung wird regelbasiert berechnet …' : fr ? 'Évaluation calculée par règles …' : 'Computing rule-based assessment …',
+    deterministicNote: de ? 'Regelbasierte Bewertung (revisionssicher, ohne KI).' : fr ? 'Évaluation basée sur des règles (sans IA).' : 'Rule-based assessment (audit-safe, no AI).',
+    recommendations: de ? 'Maßnahmenplan' : fr ? "Plan d'action" : 'Recommendation plan',
+    roadmap: de ? 'Roadmap' : fr ? 'Feuille de route' : 'Roadmap',
+    // ── AI insight layer ──
+    aiAnalysis: de ? 'KI-Analyse (erklärend)' : fr ? 'Analyse IA (explicative)' : 'AI analysis (explanatory)',
+    aiNote: de ? 'Die KI bewertet nichts — sie erklärt nur die regelbasierten Ergebnisse.' : fr ? "L'IA n'évalue rien — elle explique les résultats basés sur les règles." : 'The AI scores nothing — it only explains the rule-based results.',
+    loadInsights: de ? 'KI-Analyse laden' : fr ? "Charger l'analyse IA" : 'Load AI analysis',
+    loadingInsights: de ? 'KI analysiert die Ergebnisse …' : fr ? "L'IA analyse les résultats …" : 'AI is analysing the results …',
+    execNarrative: de ? 'Management-Lagebild' : fr ? 'Synthèse direction' : 'Executive narrative',
+    rootCauses: de ? 'Grundursachen' : fr ? 'Causes profondes' : 'Root causes',
+    gapClusters: de ? 'Kernthemen (Gap-Cluster)' : fr ? 'Thèmes clés' : 'Core themes (gap clusters)',
+    crossControl: de ? 'Übergreifende Zusammenhänge' : fr ? 'Liens transverses' : 'Cross-control insights',
+    roadmapRationale: de ? 'Begründung der Roadmap' : fr ? 'Justification de la feuille de route' : 'Roadmap rationale',
+    auditorQuestions: de ? 'Vertiefende Audit-Fragen' : fr ? "Questions d'audit" : 'Deepening audit questions',
+    insightsError: de ? 'KI-Analyse fehlgeschlagen. Bitte erneut versuchen.' : fr ? "Échec de l'analyse IA." : 'AI analysis failed. Please retry.',
   };
 }
 
