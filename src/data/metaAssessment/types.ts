@@ -15,7 +15,40 @@ export interface IntakeOption {
   desc?: Tri;
 }
 
-export type IntakeFieldType = 'text' | 'textarea' | 'single' | 'multi';
+export type IntakeFieldType = 'text' | 'textarea' | 'single' | 'multi' | 'maturity-multi';
+
+/**
+ * Maturity levels for an implemented control, ordered from least to most
+ * assured. Used by the `maturity-multi` intake field so each selected
+ * measure can be qualified beyond a simple "implemented" checkbox.
+ */
+export const MATURITY_LEVELS: { id: string; label: Tri; short: Tri }[] = [
+  {
+    id: 'existing',
+    label: { de: 'Vorhanden, nicht dokumentiert', en: 'Existing, not documented', fr: 'Existant, non documenté' },
+    short: { de: 'Vorhanden', en: 'Existing', fr: 'Existant' },
+  },
+  {
+    id: 'documented',
+    label: { de: 'Dokumentiert', en: 'Documented', fr: 'Documenté' },
+    short: { de: 'Dokumentiert', en: 'Documented', fr: 'Documenté' },
+  },
+  {
+    id: 'audited',
+    label: { de: 'Auditiert', en: 'Audited', fr: 'Audité' },
+    short: { de: 'Auditiert', en: 'Audited', fr: 'Audité' },
+  },
+  {
+    id: 'certified',
+    label: { de: 'Zertifiziert', en: 'Certified', fr: 'Certifié' },
+    short: { de: 'Zertifiziert', en: 'Certified', fr: 'Certifié' },
+  },
+];
+
+/** Answer key that stores the maturity level for a given measure option. */
+export function maturityKey(fieldId: string, optionId: string): string {
+  return `${fieldId}__mat__${optionId}`;
+}
 
 export interface IntakeField {
   id: string;

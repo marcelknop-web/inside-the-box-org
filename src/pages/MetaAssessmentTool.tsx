@@ -13,7 +13,7 @@ import { PageMeta } from '@/components/PageMeta';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { STANDARD_PROFILES, getProfile, tr, assess } from '@/data/metaAssessment';
+import { STANDARD_PROFILES, getProfile, tr, assess, MATURITY_LEVELS, maturityKey } from '@/data/metaAssessment';
 import type {
   Lang, StandardProfile, IntakeField, IntakeAnswers,
   AssessmentResult, AssessedRequirement, ReqStatus,
@@ -128,9 +128,10 @@ function StandardSelect({ lang, onPick }: { lang: Lang; onPick: (p: StandardProf
 }
 
 // ── Field renderer ──────────────────────────────────────────────
-function FieldView({ field, value, onChange, lang }: {
+function FieldView({ field, value, onChange, lang, answers, setVal }: {
   field: IntakeField; value: string | string[] | undefined;
   onChange: (v: string | string[]) => void; lang: Lang;
+  answers: IntakeAnswers; setVal: (id: string, v: string | string[]) => void;
 }) {
   const label = tr(field.label, lang);
   const ph = tr(field.placeholder, lang);
@@ -154,6 +155,59 @@ function FieldView({ field, value, onChange, lang }: {
           className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none"
           placeholder={ph} value={(value as string) ?? ''} onChange={(e) => onChange(e.target.value)}
         />
+      </div>
+    );
+  }
+  // maturity-multi: select measures + qualify each with a maturity level
+  if (field.type === 'maturity-multi') {
+    const sel = Array.isArray(value) ? value : value ? [value] : [];
+    const toggleMeasure = (id: string) => {
+      if (sel.includes(id)) {
+        onChange(sel.filter((x) => x !== id));
+        setVal(maturityKey(field.id, id), '');
+      } else {
+        onChange([...sel, id]);
+      }
+    };
+    return (
+      <div>
+        <FieldLabel field={field} lang={lang} />
+        <div className="space-y-2">
+          {field.options?.map((o) => {
+            const on = sel.includes(o.id);
+            const mat = (answers[maturityKey(field.id, o.id)] as string) || '';
+            return (
+              <div key={o.id}
+                className={`border rounded-lg transition-all ${on ? 'border-primary bg-primary/10' : 'border-border bg-card'}`}>
+                <button onClick={() => toggleMeasure(o.id)}
+                  className="w-full px-3 py-2 text-sm flex items-center gap-2 text-left">
+                  <span className={`flex-shrink-0 w-4 h-4 rounded border flex items-center justify-center text-[10px] ${
+                    on ? 'border-primary bg-primary text-primary-foreground' : 'border-border text-transparent'
+                  }`}>✓</span>
+                  <span className={`font-medium break-words flex-1 ${on ? 'text-foreground' : 'text-muted-foreground'}`}>{tr(o.label, lang)}</span>
+                </button>
+                {on && (
+                  <div className="px-3 pb-2.5 -mt-0.5 flex flex-wrap gap-1.5">
+                    {MATURITY_LEVELS.map((m) => {
+                      const active = mat === m.id;
+                      return (
+                        <button key={m.id}
+                          onClick={() => setVal(maturityKey(field.id, o.id), active ? '' : m.id)}
+                          className={`text-xs px-2 py-1 rounded-md border transition-all ${
+                            active
+                              ? 'border-primary bg-primary text-primary-foreground font-semibold'
+                              : 'border-border bg-background text-muted-foreground hover:border-primary/40'
+                          }`}>
+                          {tr(m.label, lang)}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
     );
   }
@@ -248,7 +302,7 @@ function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
 
       <div className="space-y-5">
         {step.fields.map((f) => (
-          <FieldView key={f.id} field={f} value={answers[f.id]} onChange={(v) => setVal(f.id, v)} lang={lang} />
+          <FieldView key={f.id} field={f} value={answers[f.id]} onChange={(v) => setVal(f.id, v)} lang={lang} answers={answers} setVal={setVal} />
         ))}
       </div>
 
