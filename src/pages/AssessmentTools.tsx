@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
 import { SiteChrome } from '@/components/SiteChrome';
+import { PasswordGate } from '@/components/PasswordGate';
 import { PageMeta } from '@/components/PageMeta';
 import { useLanguage } from '@/i18n/LanguageContext';
 
