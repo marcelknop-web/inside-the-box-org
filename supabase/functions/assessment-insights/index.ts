@@ -280,7 +280,23 @@ Produce the advisory analysis JSON now.`;
         ? parsed.businessImpact.slice(0, 8).map((b: any) => ({ area: str(b?.area), consequence: str(b?.consequence) })).filter((b: any) => b.consequence)
         : [],
       roadmapRationale: str(parsed.roadmapRationale),
-      auditorQuestions: arrStr(parsed.auditorQuestions),
+      auditorQuestions: arrStr(parsed.auditorQuestions, 10),
+      systemicWeaknesses: Array.isArray(parsed.systemicWeaknesses)
+        ? parsed.systemicWeaknesses.slice(0, 6).map((s: any) => ({
+            area: str(s?.area),
+            pattern: str(s?.pattern),
+            relatedControlIds: filterIds(s?.relatedControlIds),
+            confidence: conf(s?.confidence),
+          })).filter((s: any) => s.area)
+        : [],
+      confidence: {
+        executiveInsights: conf(parsed.confidence?.executiveInsights),
+        rootCauses: conf(parsed.confidence?.rootCauses),
+        managementThemes: conf(parsed.confidence?.managementThemes),
+        crossControlInsights: conf(parsed.confidence?.crossControlInsights),
+        transformationPrograms: conf(parsed.confidence?.transformationPrograms),
+        systemicWeaknesses: conf(parsed.confidence?.systemicWeaknesses),
+      },
     };
 
     return new Response(JSON.stringify(out), {
