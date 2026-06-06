@@ -253,6 +253,7 @@ Produce the advisory analysis JSON now.`;
             currentState: str(m?.currentState),
             riskExposure: str(m?.riskExposure),
             improvementOpportunity: str(m?.improvementOpportunity),
+            confidence: conf(m?.confidence),
           })).filter((m: any) => m.title)
         : [],
       transformationPrograms: Array.isArray(parsed.transformationPrograms)
@@ -264,6 +265,7 @@ Produce the advisory analysis JSON now.`;
             relatedRisks: str(p?.relatedRisks),
             complexity: rating(p?.complexity),
             businessValue: rating(p?.businessValue),
+            confidence: conf(p?.confidence),
           })).filter((p: any) => p.title)
         : [],
       managementRoadmap: Array.isArray(parsed.managementRoadmap)
