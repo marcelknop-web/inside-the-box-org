@@ -217,18 +217,8 @@ function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
         <span className="text-xs text-muted-foreground flex-shrink-0 font-mono">{sub + 1}/{profile.intake.length}</span>
       </div>
 
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <div className="text-base font-bold text-foreground font-mono">{tr(step.title, lang)}</div>
-          {step.subtitle && <div className="text-sm text-muted-foreground mt-0.5 mb-3">{tr(step.subtitle, lang)}</div>}
-        </div>
-        {profile.demoAnswers && (
-          <button onClick={() => setAnswers(profile.demoAnswers ?? {})}
-            className="flex-shrink-0 inline-flex items-center gap-1 font-mono text-xs text-highlight hover:opacity-80 transition-opacity">
-            <Sparkles size={12} /> {u.demo}
-          </button>
-        )}
-      </div>
+      <div className="text-base font-bold text-foreground font-mono">{tr(step.title, lang)}</div>
+      {step.subtitle && <div className="text-sm text-muted-foreground mt-0.5 mb-3">{tr(step.subtitle, lang)}</div>}
       {step.info && (
         <div className="border border-primary/20 bg-primary/10 rounded-lg px-4 py-3 text-sm text-foreground mb-4">💡 {tr(step.info, lang)}</div>
       )}
