@@ -380,11 +380,41 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
     URL.revokeObjectURL(a.href);
   };
 
+  // ── AI insight / advisory layer ──
+  const [insights, setInsights] = useState<InsightResult | null>(null);
+  const [insightsBusy, setInsightsBusy] = useState(false);
+  const [consultantView, setConsultantView] = useState(false);
+
+  const loadInsights = useCallback(async () => {
+    setInsightsBusy(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('assessment-insights', {
+        body: {
+          standardName: profile.name,
+          language: lang,
+          score: computed.score.weighted,
+          findings: result.requirements.map((r) => ({ id: r.id, status: r.status, name: r.name, gap: r.gap })),
+          risks: computed.risks.map((r) => ({ name: r.name, likelihood: r.likelihood, impact: r.impact })),
+          recommendations: computed.recommendations.map((r) => ({ title: r.title, priority: r.priority })),
+          maturity: computed.maturity?.enabled ? { current: computed.maturity.current, target: computed.maturity.target } : undefined,
+        },
+      });
+      if (error) throw error;
+      setInsights(data as InsightResult);
+      setConsultantView(true);
+    } catch (e) {
+      console.error('insights failed', e);
+      alert(u.insightsError);
+    } finally {
+      setInsightsBusy(false);
+    }
+  }, [profile, lang, computed, result, u.insightsError]);
+
   const [pdfBusy, setPdfBusy] = useState(false);
   const exportPdf = async () => {
     setPdfBusy(true);
     try {
-      await generateMetaAssessmentPdf({ profile, lang, result, computed, answers, entityName });
+      await generateMetaAssessmentPdf({ profile, lang, result, computed, answers, entityName, insights: consultantView ? insights : null });
     } catch (e) {
       console.error('PDF generation failed', e);
       alert(u.pdfError);
@@ -392,6 +422,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
       setPdfBusy(false);
     }
   };
+
 
   return (
     <div className="space-y-6">
