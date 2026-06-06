@@ -737,6 +737,17 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
   // ── AI insight / advisory layer (mandatory, auto-loaded) ──
   const [insights, setInsights] = useState<InsightResult | null>(null);
   const [insightsBusy, setInsightsBusy] = useState(false);
+  const [insightsProgress, setInsightsProgress] = useState(0);
+
+  // Animate a progress bar while the AI analysis runs (creeps toward 90%).
+  useEffect(() => {
+    if (!insightsBusy) return;
+    setInsightsProgress(8);
+    const t = setInterval(() => {
+      setInsightsProgress((p) => (p < 90 ? p + Math.max(1, Math.round((90 - p) * 0.08)) : p));
+    }, 400);
+    return () => clearInterval(t);
+  }, [insightsBusy]);
 
   const loadInsights = useCallback(async () => {
     setInsightsBusy(true);
@@ -754,6 +765,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
       });
       if (error) throw error;
       setInsights(data as InsightResult);
+      setInsightsProgress(100);
     } catch (e) {
       console.error('insights failed', e);
       alert(u.insightsError);
@@ -870,8 +882,14 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
         </div>
 
         {insightsBusy && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground py-3">
-            <Loader2 size={14} className="animate-spin" /> {u.loadingInsights}
+          <div className="py-3 space-y-2">
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <span className="flex items-center gap-2"><Loader2 size={14} className="animate-spin" /> {u.loadingInsights}</span>
+              <span className="font-mono text-xs">{insightsProgress}%</span>
+            </div>
+            <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
+              <div className="h-full bg-primary rounded-full transition-all duration-500 ease-out" style={{ width: `${insightsProgress}%` }} />
+            </div>
           </div>
         )}
 
@@ -882,9 +900,11 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
 
 
       <div className="flex flex-wrap gap-3 pt-2">
-        <button onClick={exportPdf} disabled={pdfBusy} className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
-          {pdfBusy ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />} {u.exportPdf}
-        </button>
+        {insights && (
+          <button onClick={exportPdf} disabled={pdfBusy} className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
+            {pdfBusy ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />} {u.exportPdf}
+          </button>
+        )}
         <button onClick={exportJson} className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80">
           <Download size={14} /> {u.exportJson}
         </button>
