@@ -1034,6 +1034,42 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
         </div>
       )}
 
+      {/* Evidence strength overview (deterministic, informational) */}
+      {(() => {
+        const ev = computed.evidence;
+        const total = merged.length || 1;
+        const rows: [string, number, string][] = [
+          [u.evVeryHigh, ev.byStrength.very_high, 'bg-green-500'],
+          [u.evHigh, ev.byStrength.high, 'bg-cyan-500'],
+          [u.evMedium, ev.byStrength.medium, 'bg-yellow-500'],
+          [u.evLow, ev.byStrength.low, 'bg-orange-500'],
+          [u.evMissing, ev.missing.length, 'bg-destructive'],
+        ];
+        return (
+          <div>
+            <h2 className="font-mono text-xs tracking-[0.25em] uppercase text-highlight mb-1">{u.evidenceStrength}</h2>
+            <div className="text-[10px] text-muted-foreground font-mono mb-3">{ORIGIN.assessment}</div>
+            <div className="bg-background/40 border border-primary/15 rounded-lg p-5 space-y-2.5">
+              {rows.map(([label, count, cls]) => {
+                const pct = Math.round((count / total) * 100);
+                return (
+                  <div key={label}>
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="text-foreground">{label}</span>
+                      <span className="font-mono text-muted-foreground">{count} · {pct}%</span>
+                    </div>
+                    <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
+                      <div className={`h-full rounded-full ${cls}`} style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
+                );
+              })}
+              <p className="text-[11px] text-muted-foreground pt-1">{u.evidenceStrengthHint}</p>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* AI advisory layer — virtual internal auditor / compliance advisor */}
       <div className="bg-background/40 border border-primary/15 rounded-lg p-5">
         <div className="mb-3">
