@@ -446,10 +446,16 @@ function InsightChips({ title, items }: { title: string; items: string[] }) {
   );
 }
 
-function InsightSection({ title, children }: { title: string; children: React.ReactNode }) {
+function InsightSection({ title, children, layer = 'insight', confidence }: {
+  title: string; children: React.ReactNode; layer?: LayerKind; confidence?: string;
+}) {
   return (
     <div className="border-t border-border/60 pt-4">
-      <h3 className="font-mono text-[11px] tracking-[0.2em] uppercase text-primary mb-3">{title}</h3>
+      <div className="flex items-center gap-2 flex-wrap mb-3">
+        <h3 className="font-mono text-[11px] tracking-[0.2em] uppercase text-primary">{title}</h3>
+        <LayerBadge kind={layer} />
+        {confidence && <ConfidenceBadge level={confidence} />}
+      </div>
       {children}
     </div>
   );
