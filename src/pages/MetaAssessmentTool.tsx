@@ -12,10 +12,11 @@ import { PageMeta } from '@/components/PageMeta';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { STANDARD_PROFILES, getProfile, tr } from '@/data/metaAssessment';
+import { STANDARD_PROFILES, getProfile, tr, assess } from '@/data/metaAssessment';
 import type {
   Lang, StandardProfile, IntakeField, IntakeAnswers,
   AssessmentResult, AssessedRequirement, ReqStatus,
+  ComputedAssessment, Recommendation, InsightResult,
 } from '@/data/metaAssessment/types';
 
 const ICONS: Record<string, LucideIcon> = {
