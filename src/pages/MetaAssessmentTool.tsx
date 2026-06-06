@@ -804,6 +804,9 @@ const MetaAssessmentTool = () => {
               {phase === 'standard' ? u.headline : `${profile?.name} — ${tr(profile?.fullName, lang)}`}
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground mt-3 max-w-2xl leading-relaxed">{u.sub}</p>
+            {phase === 'standard' && (
+              <p className="text-sm text-foreground/80 mt-3 max-w-2xl leading-relaxed">{u.valueProp}</p>
+            )}
           </header>
 
           {/* Phase nav */}
@@ -811,7 +814,7 @@ const MetaAssessmentTool = () => {
             {(['standard', 'intake', 'report'] as Phase[]).map((ph, i) => {
               const order = ['standard', 'intake', 'report'];
               const active = order.indexOf(phase) >= i;
-              const labels = { standard: u.chooseStandard, intake: 'Intake', report: 'Report' };
+              const labels = { standard: u.chooseStandard, intake: 'Intake', report: 'Assessment & Report' };
               return (
                 <div key={ph} className="flex items-center gap-2">
                   {i > 0 && <span className="text-border">›</span>}
@@ -822,10 +825,13 @@ const MetaAssessmentTool = () => {
           </div>
 
           {phase === 'standard' && (
-            <StandardSelect
-              lang={lang}
-              onPick={(p) => { setProfile(p); setAnswers({}); setPhase('intake'); }}
-            />
+            <>
+              <ArchitectureNote u={u} />
+              <StandardSelect
+                lang={lang}
+                onPick={(p) => { setProfile(p); setAnswers({}); setPhase('intake'); }}
+              />
+            </>
           )}
 
           {phase === 'intake' && profile && (
