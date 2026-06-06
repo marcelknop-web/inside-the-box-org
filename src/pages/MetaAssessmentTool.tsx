@@ -302,7 +302,7 @@ function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
 
       <div className="space-y-5">
         {step.fields.map((f) => (
-          <FieldView key={f.id} field={f} value={answers[f.id]} onChange={(v) => setVal(f.id, v)} lang={lang} />
+          <FieldView key={f.id} field={f} value={answers[f.id]} onChange={(v) => setVal(f.id, v)} lang={lang} answers={answers} setVal={setVal} />
         ))}
       </div>
 
