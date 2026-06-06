@@ -188,13 +188,13 @@ function FieldLabel({ field, lang }: { field: IntakeField; lang: Lang }) {
 }
 
 // ── Intake wizard ───────────────────────────────────────────────
-function IntakeWizard({ profile, lang, onFinish, onBack }: {
-  profile: StandardProfile; lang: Lang;
+function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
+  profile: StandardProfile; lang: Lang; initial?: IntakeAnswers;
   onFinish: (a: IntakeAnswers) => void; onBack: () => void;
 }) {
   const u = ui(lang);
   const [sub, setSub] = useState(0);
-  const [answers, setAnswers] = useState<IntakeAnswers>({});
+  const [answers, setAnswers] = useState<IntakeAnswers>(initial ?? {});
   const step = profile.intake[sub];
   const isLast = sub === profile.intake.length - 1;
 
@@ -475,13 +475,14 @@ const MetaAssessmentTool = () => {
             <StandardSelect
               lang={lang}
               onPick={(p) => { setProfile(p); setAnswers({}); setPhase('intake'); }}
-              onDemo={(p) => { setProfile(p); setAnswers(p.demoAnswers ?? {}); runAssessment(p, p.demoAnswers ?? {}); }}
+              onDemo={(p) => { setProfile(p); setAnswers(p.demoAnswers ?? {}); setPhase('intake'); }}
             />
           )}
 
           {phase === 'intake' && profile && (
             <IntakeWizard
-              profile={profile} lang={lang}
+              key={`${profile.id}-${Object.keys(answers).length}`}
+              profile={profile} lang={lang} initial={answers}
               onBack={restart}
               onFinish={(a) => { setAnswers(a); runAssessment(profile, a); }}
             />
