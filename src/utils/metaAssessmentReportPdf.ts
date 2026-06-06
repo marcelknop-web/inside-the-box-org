@@ -12,6 +12,7 @@ import type {
   AssessmentResult, ComputedAssessment, InsightResult,
 } from '@/data/metaAssessment/types';
 import { tr } from '@/data/metaAssessment/types';
+import { ORIGIN, REPORT_TITLE, type ReportMeta } from '@/data/metaAssessment/reportMeta';
 
 export interface MetaReportData {
   profile: StandardProfile;
@@ -21,12 +22,15 @@ export interface MetaReportData {
   answers: IntakeAnswers;
   entityName: string;
   insights?: InsightResult | null;
+  reportMeta?: ReportMeta;
 }
 
 /* ── tiny i18n ─────────────────────────────────────────────── */
 const T: Record<string, Record<Lang, string>> = {
   category: { de: 'PRÜFBERICHT', en: 'ASSESSMENT REPORT', fr: "RAPPORT D'ÉVALUATION" },
   client: { de: 'Einrichtung', en: 'Entity', fr: 'Entité' },
+  reportType: { de: 'Berichtstyp', en: 'Report Type', fr: 'Type de rapport' },
+  reportMetaTitle: { de: 'Berichtsmetadaten', en: 'Report Metadata', fr: 'Métadonnées du rapport' },
   standard: { de: 'Standard', en: 'Standard', fr: 'Standard' },
   regulation: { de: 'Regelwerk', en: 'Regulation', fr: 'Réglementation' },
   date: { de: 'Datum', en: 'Date', fr: 'Date' },
@@ -137,6 +141,7 @@ const T: Record<string, Record<Lang, string>> = {
   maturityInsights: { de: 'Reifegrad-Analyse', en: 'Maturity Insights', fr: 'Analyse de maturité' },
   businessImpactLbl: { de: 'Business-Impact-Analyse', en: 'Business Impact Analysis', fr: 'Analyse impact métier' },
   systemicWeaknesses: { de: 'Potential Systemic Weaknesses', en: 'Potential Systemic Weaknesses', fr: 'Potential Systemic Weaknesses' },
+  hypotheses: { de: 'Hypotheses', en: 'Hypotheses', fr: 'Hypotheses' },
   confidenceSummary: { de: 'Management Confidence Summary', en: 'Management Confidence Summary', fr: 'Management Confidence Summary' },
   insightLimitations: { de: 'AI Insight Limitations', en: 'AI Insight Limitations', fr: 'AI Insight Limitations' },
   assessmentFindingsLbl: { de: 'Assessment Findings', en: 'Assessment Findings', fr: 'Assessment Findings' },
@@ -197,7 +202,7 @@ function formatAnswer(field: { type: string; options?: { id: string; label: any 
 }
 
 export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<void> {
-  const { profile, result, computed, answers, entityName, insights } = data;
+  const { profile, result, computed, answers, entityName, insights, reportMeta } = data;
   // The report is produced in English only, independent of the UI language.
   const lang: Lang = 'en';
 
@@ -219,6 +224,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     fields: [
       [t('client', lang), entityName],
       [t('standard', lang), profile.name],
+      [t('reportType', lang), REPORT_TITLE],
       [t('date', lang), dateStr],
       [t('prepared', lang), 'Inside the Box'],
       [t('status', lang), t('confidential', lang)],
@@ -238,9 +244,10 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     const meta = profile.requirements.find((x) => x.id === r.id);
     return { ...r, article: meta?.article ?? r.article ?? '', name: meta ? tr(meta.name, lang) : r.name };
   });
-  const pass = merged.filter((r) => r.status === 'pass').length;
-  const partial = merged.filter((r) => r.status === 'partial').length;
-  const fail = merged.filter((r) => r.status === 'fail').length;
+  // Single source of truth: counts come from the deterministic computed model.
+  const pass = computed.score.counts.pass;
+  const partial = computed.score.counts.partial;
+  const fail = computed.score.counts.fail;
   const pct = computed.score.weighted;
 
   // ── 1 Executive Summary ─────────────────────────────────────
@@ -304,6 +311,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   pdf.newPage();
   pdf.heading(t('sec4', lang), 1);
   pdf.addBookmark(t('sec4', lang), 1);
+  pdf.metaLine(ORIGIN.assessment);
   pdf.introText(t('findingsIntro', lang));
 
   merged.forEach((r, i) => {
@@ -338,6 +346,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   pdf.newPage();
   pdf.heading(t('sec6', lang), 1);
   pdf.addBookmark(t('sec6', lang), 1);
+  pdf.metaLine(ORIGIN.risk);
   pdf.introText(t('riskIntro', lang));
 
   const risks = computed.risks;
@@ -394,6 +403,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     pdf.newPage();
     pdf.heading(t('sec8', lang), 1);
     pdf.addBookmark(t('sec8', lang), 1);
+    pdf.metaLine(ORIGIN.insight);
     pdf.introText(t('aiNote', lang));
     pdf.bodyParagraph(t('labelLegend', lang));
 
@@ -422,7 +432,10 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     if (insights.rootCauses?.length) {
       pdf.sectionLabel(t('rootCauses', lang));
       pdf.metaLine(`INSIGHT — AI interpretation · Confidence: ${confLabel(insights.confidence?.rootCauses)}`);
-      insights.rootCauses.forEach((rc) => pdf.bulletItem(`${rc.symptom} → ${rc.cause} [Confidence: ${confLabel(rc.confidence)}]`));
+      insights.rootCauses.forEach((rc) => {
+        pdf.bulletItem(`${rc.symptom} → ${rc.cause} [Confidence: ${confLabel(rc.confidence)}]`);
+        if (rc.validationActivities?.length) pdf.metaLine(`Recommended validation: ${rc.validationActivities.join('; ')}`);
+      });
     }
     if (insights.gapClusters?.length) {
       pdf.heading(t('gapClusters', lang), 2);
@@ -451,6 +464,18 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
         pdf.metaLine(`Confidence: ${confLabel(s.confidence)}`);
         if (s.pattern) pdf.bodyText(s.pattern);
         if (s.relatedControlIds?.length) pdf.metaLine(s.relatedControlIds.join(', '));
+        if (s.validationActivities?.length) pdf.metaLine(`Recommended validation: ${s.validationActivities.join('; ')}`);
+      });
+    }
+    if (insights.hypotheses?.length) {
+      pdf.heading(t('hypotheses', lang), 2);
+      pdf.metaLine('HYPOTHESIS — AI assumption requiring validation');
+      pdf.introText('Explicit assumptions that are not directly evidenced by the assessment data and should be validated before being treated as fact.');
+      insights.hypotheses.forEach((h) => {
+        pdf.checkSpace(22);
+        pdf.bulletItem(`${h.statement} [Confidence: ${confLabel(h.confidence)}]`);
+        if (h.relatedControlIds?.length) pdf.metaLine(h.relatedControlIds.join(', '));
+        if (h.validationActivities?.length) pdf.metaLine(`Recommended validation: ${h.validationActivities.join('; ')}`);
       });
     }
     if (insights.managementThemes?.length) {
@@ -539,6 +564,17 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   pdf.addBookmark(t('sec9', lang), 1);
   pdf.verdictBox(result.summary || `${entityName}: ${pct}% — ${pass} ${t('passed', lang)}, ${partial} ${t('partial', lang)}, ${fail} ${t('gaps', lang)}.`);
   pdf.bodyParagraph(t('disclaimer', lang));
+
+  // ── Report Metadata (traceability / auditability) ───────────
+  if (reportMeta) {
+    pdf.sectionLabel(t('reportMetaTitle', lang));
+    pdf.fieldInline('Assessment ID', reportMeta.assessmentId);
+    pdf.fieldInline('Report Title', reportMeta.title);
+    pdf.fieldInline('Report Version', reportMeta.reportVersion);
+    pdf.fieldInline('Generated', new Date(reportMeta.generatedAt).toLocaleString('en-GB'));
+    pdf.fieldInline('Assessment Engine', reportMeta.assessmentEngineVersion);
+    pdf.fieldInline('AI Insight Engine', reportMeta.aiInsightEngineVersion);
+  }
 
   pdf.save(`${profile.id}-assessment-${entityName.replace(/[^a-z0-9]/gi, '_').slice(0, 30)}.pdf`);
 }

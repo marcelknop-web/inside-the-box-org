@@ -64,7 +64,7 @@ Produce the following (write all text in ${langName}, executive language, minima
 1. executiveNarrative: 4-6 sentence board-ready situation report on overall posture and the biggest weakness clusters and their business consequence.
 2. executiveInsights: object with arrays (2-5 items each), executive language:
    - topWeaknesses, topStrengths, highestBusinessRisks, multiRegulatoryIssues (issues touching several requirements), managementFocus (what to act on first).
-3. rootCauses: for the main weak areas, map the visible symptom to the LIKELY organizational root cause. 3-6 items. Explain WHY issues may exist.
+3. rootCauses: for the main weak areas, map the visible symptom to the LIKELY organizational root cause. 3-6 items. Explain WHY issues may exist. Each MUST include validationActivities: 2-4 concrete activities an internal auditor would perform to confirm the cause (e.g. "Interview process owners", "Review policies", "Review contracts", "Review audit logs", "Review change records", "Review access reviews", "Review risk registers").
 4. gapClusters: group failing/partial controls into 2-5 CORE THEMES ("not 20 problems, but 4"). Each: title, one-sentence summary, related control ids, businessImpact, regulatoryImpact.
 5. crossControlInsights: 2-4 statements linking deficits that may stem from a single missing capability.
 6. managementThemes: 3-5 management-level themes. Each: title, currentState, riskExposure, improvementOpportunity, confidence.
@@ -74,8 +74,9 @@ Produce the following (write all text in ${langName}, executive language, minima
 10. businessImpact: translate the major weaknesses/clusters into business consequences. 3-6 items, each: area, consequence.
 11. roadmapRationale: 2-4 sentences explaining the sequencing logic.
 12. auditorQuestions: 5-8 sharp follow-up questions a senior internal auditor, regulator or external assessor would ask next. Derive them from: missing evidence, contradictory answers, high risks, partial controls and unusual maturity patterns. They must encourage further investigation.
-13. systemicWeaknesses: 2-5 RECURRING cross-finding patterns pointing to a systemic governance/capability weakness (e.g. Identity Governance, Third-Party Governance, Cybersecurity Governance, Operational Resilience, Incident Response, Business Continuity). Each: area, pattern (the recurring pattern across multiple findings), relatedControlIds, confidence. This must identify patterns spanning multiple findings — one of the most valuable sections.
-14. confidence: object giving an overall confidence (high|medium|low) for each AI category: executiveInsights, rootCauses, managementThemes, crossControlInsights, transformationPrograms, systemicWeaknesses.
+13. systemicWeaknesses: 2-5 RECURRING cross-finding patterns pointing to a systemic governance/capability weakness (e.g. Identity Governance, Third-Party Governance, Cybersecurity Governance, Operational Resilience, Incident Response, Business Continuity). Each: area, pattern (the recurring pattern across multiple findings), relatedControlIds, confidence, and validationActivities (2-4 concrete validation activities). This must identify patterns spanning multiple findings — one of the most valuable sections.
+14. hypotheses: 2-5 explicit ASSUMPTIONS that are NOT directly evidenced by the assessment data but plausibly explain the results. Use this whenever a conclusion is speculative or confidence is medium/low. Each: statement (hedged, e.g. "The assessment results suggest that supplier governance may not yet be fully integrated into procurement processes."), confidence (medium|low — NEVER high, a confirmed item is not a hypothesis), validationActivities (2-4 activities to confirm/refute, e.g. "Procurement interviews", "Contract reviews", "Supplier assessment records"), and relatedControlIds. Hypotheses separate assumptions from supported observations and align the report with professional internal audit practice.
+15. confidence: object giving an overall confidence (high|medium|low) for each AI category: executiveInsights, rootCauses, managementThemes, crossControlInsights, transformationPrograms, systemicWeaknesses.
 
 LANGUAGE & CONFIDENCE RULES (non-negotiable):
 - Root causes and any inferred cause MUST use hedged language ("may indicate", "suggests", "appears to", "likely reflects", "may be caused by") UNLESS directly evidenced by the assessment inputs. Never present an inferred cause as a proven fact. Example: instead of "Missing third-party risk management governance." write "The assessment results may indicate weaknesses in third-party risk governance."
@@ -92,7 +93,7 @@ Return ONLY valid JSON (no markdown) with this exact shape:
 {
   "executiveNarrative": "...",
   "executiveInsights": { "topWeaknesses": ["..."], "topStrengths": ["..."], "highestBusinessRisks": ["..."], "multiRegulatoryIssues": ["..."], "managementFocus": ["..."] },
-  "rootCauses": [ { "symptom": "...", "cause": "...", "confidence": "medium" } ],
+  "rootCauses": [ { "symptom": "...", "cause": "...", "confidence": "medium", "validationActivities": ["Interview process owners", "Review policies"] } ],
   "gapClusters": [ { "title": "...", "summary": "...", "controlIds": ["A21-1"], "businessImpact": "...", "regulatoryImpact": "..." } ],
   "crossControlInsights": ["..."],
   "managementThemes": [ { "title": "...", "currentState": "...", "riskExposure": "...", "improvementOpportunity": "...", "confidence": "medium" } ],
@@ -102,7 +103,8 @@ Return ONLY valid JSON (no markdown) with this exact shape:
   "businessImpact": [ { "area": "...", "consequence": "..." } ],
   "roadmapRationale": "...",
   "auditorQuestions": ["..."],
-  "systemicWeaknesses": [ { "area": "...", "pattern": "...", "relatedControlIds": ["A21-1"], "confidence": "medium" } ],
+  "systemicWeaknesses": [ { "area": "...", "pattern": "...", "relatedControlIds": ["A21-1"], "confidence": "medium", "validationActivities": ["Review risk registers"] } ],
+  "hypotheses": [ { "statement": "...", "confidence": "medium", "validationActivities": ["Procurement interviews", "Contract reviews"], "relatedControlIds": ["A21-1"] } ],
   "confidence": { "executiveInsights": "medium", "rootCauses": "medium", "managementThemes": "medium", "crossControlInsights": "medium", "transformationPrograms": "medium", "systemicWeaknesses": "medium" }
 }`;
 }
@@ -235,7 +237,7 @@ Produce the advisory analysis JSON now.`;
         managementFocus: arrStr(ei.managementFocus, 6),
       },
       rootCauses: Array.isArray(parsed.rootCauses)
-        ? parsed.rootCauses.slice(0, 6).map((r: any) => ({ symptom: str(r?.symptom), cause: str(r?.cause), confidence: conf(r?.confidence) })).filter((r: any) => r.cause)
+        ? parsed.rootCauses.slice(0, 6).map((r: any) => ({ symptom: str(r?.symptom), cause: str(r?.cause), confidence: conf(r?.confidence), validationActivities: arrStr(r?.validationActivities, 4) })).filter((r: any) => r.cause)
         : [],
       gapClusters: Array.isArray(parsed.gapClusters)
         ? parsed.gapClusters.slice(0, 5).map((c: any) => ({
@@ -287,7 +289,20 @@ Produce the advisory analysis JSON now.`;
             pattern: str(s?.pattern),
             relatedControlIds: filterIds(s?.relatedControlIds),
             confidence: conf(s?.confidence),
+            validationActivities: arrStr(s?.validationActivities, 4),
           })).filter((s: any) => s.area)
+        : [],
+      hypotheses: Array.isArray(parsed.hypotheses)
+        ? parsed.hypotheses.slice(0, 6).map((h: any) => {
+            // A hypothesis is by definition not confirmed → never "high".
+            const c = conf(h?.confidence);
+            return {
+              statement: str(h?.statement),
+              confidence: c === "high" ? "medium" : c,
+              validationActivities: arrStr(h?.validationActivities, 4),
+              relatedControlIds: filterIds(h?.relatedControlIds),
+            };
+          }).filter((h: any) => h.statement)
         : [],
       confidence: {
         executiveInsights: conf(parsed.confidence?.executiveInsights),

@@ -311,6 +311,24 @@ export interface RootCause {
   cause: string;
   /** AI confidence that this inferred cause is correct */
   confidence?: Confidence;
+  /** concrete activities an internal auditor should run to validate the cause */
+  validationActivities?: string[];
+}
+
+/**
+ * An explicit AI assumption that is NOT directly evidenced by the assessment
+ * data and therefore requires validation before being treated as fact.
+ * Used whenever confidence is Medium/Low or the inference is speculative.
+ * This is distinct from a RECOMMENDATION (advisory) and an INSIGHT
+ * (supported interpretation).
+ */
+export interface Hypothesis {
+  statement: string;
+  confidence: Confidence;
+  /** activities recommended to confirm or refute the hypothesis */
+  validationActivities: string[];
+  /** related control ids this hypothesis concerns (optional) */
+  relatedControlIds?: string[];
 }
 
 export interface GapCluster {
@@ -372,6 +390,8 @@ export interface SystemicWeakness {
   /** related control ids that exhibit the pattern */
   relatedControlIds: string[];
   confidence?: Confidence;
+  /** activities recommended to validate this potential systemic weakness */
+  validationActivities?: string[];
 }
 
 /**
@@ -430,6 +450,8 @@ export interface InsightResult {
   auditorQuestions: string[];
   /** Layer 2 — recurring cross-finding systemic weaknesses */
   systemicWeaknesses: SystemicWeakness[];
+  /** Layer 2 — explicit AI assumptions requiring validation (HYPOTHESIS) */
+  hypotheses: Hypothesis[];
   /** Per-category confidence ratings for AI interpretations */
   confidence: ConfidenceSummary;
 }
