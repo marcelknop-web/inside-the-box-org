@@ -197,7 +197,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     draftWatermark: t('draft', lang),
   });
 
-  const dateStr = new Date().toLocaleDateString(lang === 'de' ? 'de-DE' : lang === 'fr' ? 'fr-FR' : 'en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+  const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
 
   // ── Cover ───────────────────────────────────────────────────
   pdf.coverPage({
