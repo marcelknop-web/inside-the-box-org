@@ -904,6 +904,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
       <div className="bg-background/40 border border-primary/15 rounded-lg p-5">
         <div className="mb-3">
           <h2 className="font-mono text-xs tracking-[0.25em] uppercase text-highlight">{u.aiAnalysis}</h2>
+          <div className="text-[10px] text-muted-foreground font-mono mt-0.5">{ORIGIN.insight}</div>
           <p className="text-xs text-muted-foreground mt-1.5 max-w-xl leading-relaxed">{u.aiNote}</p>
           <div className="flex flex-wrap items-center gap-2 mt-3">
             <LayerBadge kind="fact" />
