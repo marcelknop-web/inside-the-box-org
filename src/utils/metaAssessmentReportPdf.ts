@@ -463,6 +463,18 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
         pdf.metaLine(`Confidence: ${confLabel(s.confidence)}`);
         if (s.pattern) pdf.bodyText(s.pattern);
         if (s.relatedControlIds?.length) pdf.metaLine(s.relatedControlIds.join(', '));
+        if (s.validationActivities?.length) pdf.metaLine(`Recommended validation: ${s.validationActivities.join('; ')}`);
+      });
+    }
+    if (insights.hypotheses?.length) {
+      pdf.heading(t('hypotheses', lang), 2);
+      pdf.metaLine('HYPOTHESIS — AI assumption requiring validation');
+      pdf.introText('Explicit assumptions that are not directly evidenced by the assessment data and should be validated before being treated as fact.');
+      insights.hypotheses.forEach((h) => {
+        pdf.checkSpace(22);
+        pdf.bulletItem(`${h.statement} [Confidence: ${confLabel(h.confidence)}]`);
+        if (h.relatedControlIds?.length) pdf.metaLine(h.relatedControlIds.join(', '));
+        if (h.validationActivities?.length) pdf.metaLine(`Recommended validation: ${h.validationActivities.join('; ')}`);
       });
     }
     if (insights.managementThemes?.length) {
