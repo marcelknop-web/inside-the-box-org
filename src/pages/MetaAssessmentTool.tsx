@@ -720,6 +720,26 @@ function InsightsPanel({ insights, computed, lang, u, reqMeta }: {
         </InsightSection>
       )}
 
+      {insights.consultantObservations?.length > 0 && (
+        <InsightSection title={u.consultantObservations} layer="recommendation">
+          <p className="text-xs text-muted-foreground mb-3 leading-relaxed">{u.consultantObservationsHint}</p>
+          <div className="space-y-3">
+            {insights.consultantObservations.map((o, i) => (
+              <div key={i} className="bg-background/50 border border-border rounded-md px-3 py-2.5">
+                <div className="flex items-start gap-2 flex-wrap">
+                  <p className="text-sm text-foreground leading-relaxed flex-1 min-w-[60%]">{o.observation}</p>
+                  <ConfidenceBadge level={o.confidence} />
+                </div>
+                {o.implication && <p className="text-xs text-foreground mt-1.5"><span className="font-semibold">{u.implication}: </span>{o.implication}</p>}
+                {o.recommendation && <p className="text-xs text-foreground mt-0.5"><span className="font-semibold text-primary">{u.recommendation}: </span>{o.recommendation}</p>}
+              </div>
+            ))}
+          </div>
+        </InsightSection>
+      )}
+
+
+
 
       {insights.roadmapRationale && (
         <InsightSection title={u.roadmapRationale} layer="recommendation">
