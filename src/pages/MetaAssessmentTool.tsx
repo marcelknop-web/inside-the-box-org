@@ -876,10 +876,12 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
       {/* Risks — rendered from the canonical computed.risks (same scores/ratings as PDF) */}
       {computed.risks.length > 0 && (
         <div>
-          <h2 className="font-mono text-xs tracking-[0.25em] uppercase text-highlight mb-3">
+          <h2 className="font-mono text-xs tracking-[0.25em] uppercase text-highlight mb-1">
             {u.riskLandscape} {critRisks.length > 0 && <span className="text-destructive">· {critRisks.length} {u.critical}</span>}
           </h2>
+          <div className="text-[10px] text-muted-foreground font-mono mb-3">{ORIGIN.risk}</div>
           <div className="space-y-1.5">
+
             {[...computed.risks].sort((a, b) => b.score - a.score).map((r) => {
               const score = r.score;
               const cls = r.rating === 'critical' ? 'bg-destructive text-destructive-foreground' : r.rating === 'high' ? 'bg-orange-500 text-white' : r.rating === 'medium' ? 'bg-yellow-500 text-black' : 'bg-green-500 text-white';
