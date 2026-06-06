@@ -202,6 +202,19 @@ function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
     setAnswers((prev) => ({ ...prev, [id]: v }));
   }, []);
 
+  // Demo: fill only the current step's fields with test data (like DORA/NIS2/E26)
+  const fillDemo = useCallback(() => {
+    const demo = profile.demoAnswers;
+    if (!demo) return;
+    setAnswers((prev) => {
+      const next = { ...prev };
+      for (const f of step.fields) {
+        if (f.id in demo) next[f.id] = demo[f.id];
+      }
+      return next;
+    });
+  }, [profile.demoAnswers, step]);
+
   const canNext = useMemo(() => step.fields.every((f) => {
     if (!f.required) return true;
     const v = answers[f.id];
