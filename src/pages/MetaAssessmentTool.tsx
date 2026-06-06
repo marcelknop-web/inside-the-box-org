@@ -128,9 +128,10 @@ function StandardSelect({ lang, onPick }: { lang: Lang; onPick: (p: StandardProf
 }
 
 // ── Field renderer ──────────────────────────────────────────────
-function FieldView({ field, value, onChange, lang }: {
+function FieldView({ field, value, onChange, lang, answers, setVal }: {
   field: IntakeField; value: string | string[] | undefined;
   onChange: (v: string | string[]) => void; lang: Lang;
+  answers: IntakeAnswers; setVal: (id: string, v: string | string[]) => void;
 }) {
   const label = tr(field.label, lang);
   const ph = tr(field.placeholder, lang);
