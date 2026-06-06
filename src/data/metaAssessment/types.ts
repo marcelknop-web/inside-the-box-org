@@ -285,6 +285,42 @@ export interface MaturityResult {
   label: string;
 }
 
+// ── Audit Readiness (deterministic, never from the AI) ──────────
+
+/** Readiness rating for an audit-readiness dimension. */
+export type ReadinessRating = 'strong' | 'substantial' | 'developing' | 'limited';
+
+export type AuditReadinessDimensionId =
+  | 'documentation' | 'operational' | 'governance' | 'evidence';
+
+export interface AuditReadinessDimension {
+  id: AuditReadinessDimensionId;
+  label: string;
+  pct: number;
+  rating: ReadinessRating;
+  /** plain-language explanation of how the rating was derived */
+  basis: string;
+}
+
+export interface AuditReadiness {
+  dimensions: AuditReadinessDimension[];
+  /** aggregate readiness across the four dimensions */
+  overall: ReadinessRating;
+  overallPct: number;
+}
+
+// ── Management Attention Index (deterministic) ──────────────────
+
+export type AttentionLevel = 'critical' | 'high' | 'medium' | 'low';
+
+export interface ManagementAttentionIndex {
+  level: AttentionLevel;
+  /** distribution of issues by severity driving the index */
+  counts: { critical: number; high: number; medium: number; low: number };
+  /** plain-language drivers behind the assigned level */
+  drivers: string[];
+}
+
 export interface ComputedAssessment {
   score: ScoreResult;
   risks: EnrichedRisk[];
@@ -293,6 +329,10 @@ export interface ComputedAssessment {
   quality: QualityResult;
   evidence: EvidenceSummary;
   maturity: MaturityResult | null;
+  /** deterministic audit-readiness ratings (Documentation / Operational / Governance / Evidence) */
+  auditReadiness: AuditReadiness;
+  /** deterministic management attention index for the executive summary */
+  attentionIndex: ManagementAttentionIndex;
 }
 
 // ── Layer 2/3: AI Insight Engine output (explanatory, never scoring) ──
