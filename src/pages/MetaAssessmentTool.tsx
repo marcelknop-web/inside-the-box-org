@@ -481,7 +481,8 @@ const MetaAssessmentTool = () => {
 
           {phase === 'intake' && profile && (
             <IntakeWizard
-              profile={profile} lang={lang}
+              key={`${profile.id}-${Object.keys(answers).length}`}
+              profile={profile} lang={lang} initial={answers}
               onBack={restart}
               onFinish={(a) => { setAnswers(a); runAssessment(profile, a); }}
             />
