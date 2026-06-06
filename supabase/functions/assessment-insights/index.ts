@@ -64,16 +64,24 @@ Produce the following (write all text in ${langName}, executive language, minima
 1. executiveNarrative: 4-6 sentence board-ready situation report on overall posture and the biggest weakness clusters and their business consequence.
 2. executiveInsights: object with arrays (2-5 items each), executive language:
    - topWeaknesses, topStrengths, highestBusinessRisks, multiRegulatoryIssues (issues touching several requirements), managementFocus (what to act on first).
-3. rootCauses: for the main weak areas, map the visible symptom to the likely organizational ROOT CAUSE (missing governance, missing ownership, weak processes, lack of training, missing policies, weak risk management, inadequate supplier governance, weak identity management, ...). 3-6 items. Explain WHY issues exist, not only what is missing.
+3. rootCauses: for the main weak areas, map the visible symptom to the LIKELY organizational root cause. 3-6 items. Explain WHY issues may exist.
 4. gapClusters: group failing/partial controls into 2-5 CORE THEMES ("not 20 problems, but 4"). Each: title, one-sentence summary, related control ids, businessImpact, regulatoryImpact.
-5. crossControlInsights: 2-4 statements linking deficits that stem from a single missing capability.
-6. managementThemes: 3-5 management-level themes (e.g. Governance, Third Party Risk, Operational Resilience, Identity & Access Management, Security Monitoring). Each: title, currentState, riskExposure, improvementOpportunity.
-7. transformationPrograms: 3-5 higher-level programs that REPLACE long recommendation lists (e.g. "Cybersecurity Governance Enhancement"). Each: title, objectives, expectedBenefits, relatedControlIds, relatedRisks, complexity (low|medium|high), businessValue (low|medium|high).
-8. managementRoadmap: phased plan grouped into "0-3", "3-6", "6-12", "12+". Each: phase, activities (array), rationale. Prioritise by risk reduction, regulatory impact, business impact and implementation effort. Suitable for management decision-making.
-9. maturityNarrative: if a maturity level is provided, a short narrative explaining current vs target maturity, key gaps and improvement priorities (explain what the level MEANS, not just numbers). Empty string if no maturity provided.
-10. businessImpact: translate the major weaknesses/clusters into business consequences (regulatory exposure, higher incident likelihood, operational disruption, reputational/financial damage, audit findings). 3-6 items, each: area, consequence.
+5. crossControlInsights: 2-4 statements linking deficits that may stem from a single missing capability.
+6. managementThemes: 3-5 management-level themes. Each: title, currentState, riskExposure, improvementOpportunity, confidence.
+7. transformationPrograms: 3-5 higher-level OUTCOME/CAPABILITY-focused programs that REPLACE long recommendation lists (e.g. "Cybersecurity Governance Enhancement"). Each: title, objectives, expectedBenefits, relatedControlIds, relatedRisks, complexity (low|medium|high), businessValue (low|medium|high), confidence.
+8. managementRoadmap: phased plan grouped into "0-3", "3-6", "6-12", "12+". Each: phase, activities (array), rationale.
+9. maturityNarrative: ONLY if a maturity level is explicitly provided in the input, give a short narrative explaining current vs target maturity. If no maturity is provided, return an empty string and DO NOT state any numeric maturity level — instead describe characteristics in qualitative terms (e.g. "characteristics typically associated with a managed security posture").
+10. businessImpact: translate the major weaknesses/clusters into business consequences. 3-6 items, each: area, consequence.
 11. roadmapRationale: 2-4 sentences explaining the sequencing logic.
-12. auditorQuestions: 4-6 sharp follow-up questions a human internal auditor would ask next.
+12. auditorQuestions: 5-8 sharp follow-up questions a senior internal auditor, regulator or external assessor would ask next. Derive them from: missing evidence, contradictory answers, high risks, partial controls and unusual maturity patterns. They must encourage further investigation.
+13. systemicWeaknesses: 2-5 RECURRING cross-finding patterns pointing to a systemic governance/capability weakness (e.g. Identity Governance, Third-Party Governance, Cybersecurity Governance, Operational Resilience, Incident Response, Business Continuity). Each: area, pattern (the recurring pattern across multiple findings), relatedControlIds, confidence. This must identify patterns spanning multiple findings — one of the most valuable sections.
+14. confidence: object giving an overall confidence (high|medium|low) for each AI category: executiveInsights, rootCauses, managementThemes, crossControlInsights, transformationPrograms, systemicWeaknesses.
+
+LANGUAGE & CONFIDENCE RULES (non-negotiable):
+- Root causes and any inferred cause MUST use hedged language ("may indicate", "suggests", "appears to", "likely reflects", "may be caused by") UNLESS directly evidenced by the assessment inputs. Never present an inferred cause as a proven fact. Example: instead of "Missing third-party risk management governance." write "The assessment results may indicate weaknesses in third-party risk governance."
+- Confidence levels: high = assessment data strongly supports the insight; medium = reasonable inference based on available evidence; low = hypothesis requiring further validation. Apply confidence ONLY to AI interpretations, NEVER to deterministic findings, scores or risks.
+- Recommendations / programs must focus on OUTCOMES and CAPABILITIES and stay VENDOR-NEUTRAL. Avoid prescribing specific products/technologies (e.g. "implement a vendor risk management portal"); prefer "establish a structured vendor risk management process" unless a specific technology is explicitly supported by the assessment data.
+- Do NOT state a numeric maturity level unless it is explicitly provided in the input.
 
 DATA-INTEGRITY POLICY (non-negotiable):
 - Base every statement ONLY on the provided findings/risks/recommendations/score/maturity. Never invent controls, evidence, systems or facts.
@@ -84,16 +92,18 @@ Return ONLY valid JSON (no markdown) with this exact shape:
 {
   "executiveNarrative": "...",
   "executiveInsights": { "topWeaknesses": ["..."], "topStrengths": ["..."], "highestBusinessRisks": ["..."], "multiRegulatoryIssues": ["..."], "managementFocus": ["..."] },
-  "rootCauses": [ { "symptom": "...", "cause": "..." } ],
+  "rootCauses": [ { "symptom": "...", "cause": "...", "confidence": "medium" } ],
   "gapClusters": [ { "title": "...", "summary": "...", "controlIds": ["A21-1"], "businessImpact": "...", "regulatoryImpact": "..." } ],
   "crossControlInsights": ["..."],
-  "managementThemes": [ { "title": "...", "currentState": "...", "riskExposure": "...", "improvementOpportunity": "..." } ],
-  "transformationPrograms": [ { "title": "...", "objectives": "...", "expectedBenefits": "...", "relatedControlIds": ["A21-1"], "relatedRisks": "...", "complexity": "medium", "businessValue": "high" } ],
+  "managementThemes": [ { "title": "...", "currentState": "...", "riskExposure": "...", "improvementOpportunity": "...", "confidence": "medium" } ],
+  "transformationPrograms": [ { "title": "...", "objectives": "...", "expectedBenefits": "...", "relatedControlIds": ["A21-1"], "relatedRisks": "...", "complexity": "medium", "businessValue": "high", "confidence": "medium" } ],
   "managementRoadmap": [ { "phase": "0-3", "activities": ["..."], "rationale": "..." } ],
   "maturityNarrative": "...",
   "businessImpact": [ { "area": "...", "consequence": "..." } ],
   "roadmapRationale": "...",
-  "auditorQuestions": ["..."]
+  "auditorQuestions": ["..."],
+  "systemicWeaknesses": [ { "area": "...", "pattern": "...", "relatedControlIds": ["A21-1"], "confidence": "medium" } ],
+  "confidence": { "executiveInsights": "medium", "rootCauses": "medium", "managementThemes": "medium", "crossControlInsights": "medium", "transformationPrograms": "medium", "systemicWeaknesses": "medium" }
 }`;
 }
 
