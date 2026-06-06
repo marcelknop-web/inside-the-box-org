@@ -289,7 +289,20 @@ Produce the advisory analysis JSON now.`;
             pattern: str(s?.pattern),
             relatedControlIds: filterIds(s?.relatedControlIds),
             confidence: conf(s?.confidence),
+            validationActivities: arrStr(s?.validationActivities, 4),
           })).filter((s: any) => s.area)
+        : [],
+      hypotheses: Array.isArray(parsed.hypotheses)
+        ? parsed.hypotheses.slice(0, 6).map((h: any) => {
+            // A hypothesis is by definition not confirmed → never "high".
+            const c = conf(h?.confidence);
+            return {
+              statement: str(h?.statement),
+              confidence: c === "high" ? "medium" : c,
+              validationActivities: arrStr(h?.validationActivities, 4),
+              relatedControlIds: filterIds(h?.relatedControlIds),
+            };
+          }).filter((h: any) => h.statement)
         : [],
       confidence: {
         executiveInsights: conf(parsed.confidence?.executiveInsights),
