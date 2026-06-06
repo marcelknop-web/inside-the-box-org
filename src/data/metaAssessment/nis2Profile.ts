@@ -183,15 +183,15 @@ export const NIS2_PROFILE: StandardProfile = {
   ],
   scaleMax: 5,
   demoAnswers: {
-    entityName: 'Stadtwerke Musterstadt GmbH',
+    entityName: 'Acme Utilities GmbH',
     sectors: ['energy', 'water'],
     classification: 'essential',
     description:
-      'Regionaler Energie- und Wasserversorger mit ca. 850 Mitarbeitenden. Betrieb von Strom-, Gas- und Wassernetzen, SCADA-/Leitsystemen sowie einem Kundenportal. Rechenzentrum on-premise plus Microsoft-365-Cloud. Kritische Systeme: Netzleitstelle, Abrechnungssystem (SAP IS-U), GIS.',
+      'Regional energy and water utility with approx. 850 employees. Operates electricity, gas and water distribution networks, SCADA / control systems and a customer portal. On-premises data centre plus Microsoft 365 cloud. Critical systems: network control centre, billing system (SAP IS-U), GIS.',
     supplyChain: ['cloud', 'software', 'ot'],
     roles: ['mgmt', 'ciso', 'dpo', 'risk'],
     knownIssues:
-      'Keine durchgängige MFA für administrative Zugänge in der OT. BCM-Plan vorhanden, aber seit 2023 kein vollständiger Wiederanlauftest. Lieferantenverträge ohne einheitliche Sicherheitsklauseln. Schwachstellen-Scans nur in der IT, nicht in der OT.',
+      'No consistent MFA for administrative access in OT. BCM plan exists, but no full recovery test since 2023. Supplier contracts lack uniform security clauses. Vulnerability scans only in IT, not OT.',
     measures: ['riskpolicy', 'incident', 'bcm', 'vuln', 'crypto', 'training', 'audit'],
     measures__mat__riskpolicy: 'documented',
     measures__mat__incident: 'documented',
