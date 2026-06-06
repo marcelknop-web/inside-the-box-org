@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import {
   ArrowRight, Network, Server, Ship, ShieldCheck, Factory, Car, CreditCard,
-  Sparkles, AlertCircle, ClipboardList, GraduationCap, Lock,
+  Sparkles, AlertCircle, ClipboardList, GraduationCap, Lock, Download,
 } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
 import { SiteChrome } from '@/components/SiteChrome';
