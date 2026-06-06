@@ -176,6 +176,10 @@ const AssessmentTools = () => {
     : 'Direct access to every tool — linked or not.';
   const protectedLabel =
     lang === 'de' ? 'Passwortgeschützt' : lang === 'fr' ? 'Protégé par mot de passe' : 'Password-protected';
+  const downloadLabel =
+    lang === 'de' ? 'Build-Anleitung herunterladen'
+    : lang === 'fr' ? 'Télécharger le guide de construction'
+    : 'Download build guide';
 
   return (
     <SiteChrome>
@@ -198,6 +202,14 @@ const AssessmentTools = () => {
           <p className="text-sm sm:text-base text-muted-foreground mt-3 max-w-2xl leading-relaxed">
             {subline}
           </p>
+          <a
+            href="/assessment-tools-build-guide.md"
+            download="assessment-tools-build-guide.md"
+            className="inline-flex items-center gap-2 mt-5 font-mono text-xs text-primary border border-primary/25 rounded-lg px-4 py-2.5 hover:border-primary/60 hover:bg-primary/5 transition-colors"
+          >
+            <Download size={14} />
+            {downloadLabel}
+          </a>
         </header>
 
         <div className="space-y-12">
