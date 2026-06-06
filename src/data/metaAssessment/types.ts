@@ -450,6 +450,8 @@ export interface InsightResult {
   auditorQuestions: string[];
   /** Layer 2 — recurring cross-finding systemic weaknesses */
   systemicWeaknesses: SystemicWeakness[];
+  /** Layer 2 — explicit AI assumptions requiring validation (HYPOTHESIS) */
+  hypotheses: Hypothesis[];
   /** Per-category confidence ratings for AI interpretations */
   confidence: ConfidenceSummary;
 }
