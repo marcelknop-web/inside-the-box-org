@@ -296,9 +296,21 @@ export interface ComputedAssessment {
 }
 
 // ── Layer 2/3: AI Insight Engine output (explanatory, never scoring) ──
+
+/**
+ * Confidence level attached to an AI-generated interpretation.
+ * - high   : assessment data strongly supports the insight
+ * - medium : reasonable inference based on available evidence
+ * - low    : hypothesis requiring further validation
+ * Never applied to deterministic findings (those are facts, not inferences).
+ */
+export type Confidence = 'high' | 'medium' | 'low';
+
 export interface RootCause {
   symptom: string;
   cause: string;
+  /** AI confidence that this inferred cause is correct */
+  confidence?: Confidence;
 }
 
 export interface GapCluster {
