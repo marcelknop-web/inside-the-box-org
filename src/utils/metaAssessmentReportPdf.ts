@@ -294,7 +294,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     pdf.y += 2;
     [...risks].sort((a, b) => b.score - a.score).forEach((r) => {
       pdf.checkSpace(12);
-      const x = pdf.statusBadge(r.rating === 'low' ? 'pass' : r.rating === 'medium' ? 'partial' : 'fail');
+      pdf.statusBadge(r.rating === 'low' ? 'pass' : r.rating === 'medium' ? 'partial' : 'fail');
       pdf.metaLine(`${r.id} · ${r.name}  (${t('impact', lang)} ${r.impact} × ${t('likelihood', lang)} ${r.likelihood} = ${r.score})`);
     });
   }
