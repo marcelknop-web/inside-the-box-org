@@ -614,10 +614,9 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
     URL.revokeObjectURL(a.href);
   };
 
-  // ── AI insight / advisory layer ──
+  // ── AI insight / advisory layer (mandatory, auto-loaded) ──
   const [insights, setInsights] = useState<InsightResult | null>(null);
   const [insightsBusy, setInsightsBusy] = useState(false);
-  const [consultantView, setConsultantView] = useState(false);
 
   const loadInsights = useCallback(async () => {
     setInsightsBusy(true);
@@ -635,7 +634,6 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
       });
       if (error) throw error;
       setInsights(data as InsightResult);
-      setConsultantView(true);
     } catch (e) {
       console.error('insights failed', e);
       alert(u.insightsError);
@@ -643,6 +641,10 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
       setInsightsBusy(false);
     }
   }, [profile, lang, computed, result, u.insightsError]);
+
+  useEffect(() => {
+    loadInsights();
+  }, [loadInsights]);
 
   const [pdfBusy, setPdfBusy] = useState(false);
   const exportPdf = async () => {
