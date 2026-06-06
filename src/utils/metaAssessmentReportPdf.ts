@@ -579,6 +579,20 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
       pdf.metaLine('INSIGHT — AI interpretation');
       insights.auditorQuestions.forEach((q) => pdf.bulletItem(q));
     }
+    if (insights.consultantObservations?.length) {
+      pdf.heading(t('consultantObservations', lang), 2);
+      pdf.metaLine('RECOMMENDATION — AI advisory');
+      pdf.introText('Senior-consultant / virtual-CISO commentary on the overall posture.');
+      insights.consultantObservations.forEach((o) => {
+        pdf.checkSpace(24);
+        pdf.bodyText(o.observation);
+        if (o.implication) { pdf.sectionLabel(t('implication', lang)); pdf.bodyText(o.implication); }
+        if (o.recommendation) { pdf.sectionLabel(t('recommendationLbl', lang)); pdf.bodyText(o.recommendation); }
+        pdf.metaLine(`Confidence: ${confLabel(o.confidence)}`);
+      });
+    }
+
+
 
     // ── Management Confidence Summary (facts vs interpretation) ──
     pdf.heading(t('confidenceSummary', lang), 2);
