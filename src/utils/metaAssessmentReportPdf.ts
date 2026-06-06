@@ -310,6 +310,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   pdf.newPage();
   pdf.heading(t('sec4', lang), 1);
   pdf.addBookmark(t('sec4', lang), 1);
+  pdf.metaLine(ORIGIN.assessment);
   pdf.introText(t('findingsIntro', lang));
 
   merged.forEach((r, i) => {
