@@ -557,12 +557,15 @@ function InsightsPanel({ insights, computed, lang, u, reqMeta }: {
       )}
 
       {insights.transformationPrograms?.length > 0 && (
-        <InsightSection title={u.transformationPrograms}>
+        <InsightSection title={u.transformationPrograms} layer="recommendation" confidence={insights.confidence?.transformationPrograms}>
           <div className="space-y-3">
             {insights.transformationPrograms.map((p, i) => (
               <div key={i} className="bg-background/50 border border-border rounded-md px-3 py-2.5">
                 <div className="flex items-center justify-between gap-2 flex-wrap">
-                  <div className="text-sm font-semibold text-foreground">{p.title}</div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <div className="text-sm font-semibold text-foreground">{p.title}</div>
+                    <ConfidenceBadge level={p.confidence} />
+                  </div>
                   <div className="flex gap-1.5">
                     <span className={`text-[10px] px-1.5 py-0.5 rounded border ${RATING_CLS[p.complexity]}`}>{u.complexity}: {ratingLabel(p.complexity)}</span>
                     <span className={`text-[10px] px-1.5 py-0.5 rounded border ${RATING_CLS[p.businessValue]}`}>{u.businessValue}: {ratingLabel(p.businessValue)}</span>
