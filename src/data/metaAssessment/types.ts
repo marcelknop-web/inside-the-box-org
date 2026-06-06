@@ -46,6 +46,26 @@ export interface Category {
 }
 
 /**
+ * Deterministic rule that derives a finding status purely from the
+ * intake answers — NO AI involved. References intake options as
+ * "fieldId:optionId" (e.g. "measures:mfa") or a plain "fieldId" for
+ * free-text / presence checks.
+ *
+ * Logic: all `requiresAll` satisfied → pass; some (or any `requiresAny`)
+ * satisfied → partial; none satisfied → fail.
+ */
+export interface RequirementRule {
+  /** every token must be present for a full pass */
+  requiresAll?: string[];
+  /** at least one of these counts as partial evidence */
+  requiresAny?: string[];
+  /** default likelihood (1–5) for the risk derived from a gap */
+  riskLikelihood?: number;
+  /** default impact (1–5) for the risk derived from a gap */
+  riskImpact?: number;
+}
+
+/**
  * One regulatory requirement / control the AI must assess.
  * `categoryId`, `weight`, `mandatory` and `owner` power the universal
  * scoring, quality and recommendation engines without standard-specific code.
@@ -64,6 +84,8 @@ export interface ProfileRequirement {
   mandatory?: boolean;
   /** default remediation owner used by the recommendation engine */
   owner?: Tri;
+  /** deterministic evaluation rule (Layer 1 — source of truth) */
+  rule?: RequirementRule;
 }
 
 /** Optional maturity model configuration (per standard). */
