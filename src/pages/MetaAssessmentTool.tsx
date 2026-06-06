@@ -790,8 +790,8 @@ function ReportField({ label, children }: { label: string; children: React.React
 
 // ── Page ────────────────────────────────────────────────────────
 const MetaAssessmentTool = () => {
-  const { language } = useLanguage();
-  const lang = language as Lang;
+  // This platform is presented in English only, independent of the global UI language.
+  const lang: Lang = 'en';
   const u = ui(lang);
   const { toast } = useToast();
 
