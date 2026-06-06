@@ -35,13 +35,42 @@ export interface IntakeStep {
   fields: IntakeField[];
 }
 
-/** One regulatory requirement / control the AI must assess. */
+// ── Common data model entities (standard-agnostic) ──────────────
+
+/** A grouping of controls (e.g. "Governance", "Technical measures"). */
+export interface Category {
+  id: string;
+  name: Tri;
+  /** relative weight of the category (default 1) */
+  weight?: number;
+}
+
+/**
+ * One regulatory requirement / control the AI must assess.
+ * `categoryId`, `weight`, `mandatory` and `owner` power the universal
+ * scoring, quality and recommendation engines without standard-specific code.
+ */
 export interface ProfileRequirement {
   id: string;
   article: string;
   name: Tri;
   /** concrete acceptance criteria the AI uses as the yardstick */
   criteria?: Tri[];
+  /** category this control belongs to (falls back to "general") */
+  categoryId?: string;
+  /** scoring weight (default 1) */
+  weight?: number;
+  /** mandatory controls must be present or QA flags a critical issue */
+  mandatory?: boolean;
+  /** default remediation owner used by the recommendation engine */
+  owner?: Tri;
+}
+
+/** Optional maturity model configuration (per standard). */
+export interface MaturityConfig {
+  enabled: boolean;
+  /** target maturity level 0–5 (default 4) */
+  target?: number;
 }
 
 export interface StandardProfile {
@@ -57,6 +86,10 @@ export interface StandardProfile {
   available: boolean;
   intake: IntakeStep[];
   requirements: ProfileRequirement[];
+  /** control categories (optional; engine falls back to "general") */
+  categories?: Category[];
+  /** optional maturity assessment configuration */
+  maturity?: MaturityConfig;
   /** impact / likelihood scale max (default 5) */
   scaleMax?: number;
 }
@@ -92,6 +125,117 @@ export interface AssessmentResult {
   requirements: AssessedRequirement[];
   risks: AssessedRisk[];
   summary: string;
+}
+
+// ── Computed engine output (deterministic, never from the AI) ───
+
+export type ReadinessLevel = 'initial' | 'developing' | 'managed' | 'audit-ready';
+
+export interface CategoryScore {
+  id: string;
+  name: string;
+  pct: number;
+  pass: number;
+  partial: number;
+  fail: number;
+  total: number;
+}
+
+export interface ScoreResult {
+  /** simple average of control scores (pass=100/partial=50/fail=0) */
+  overall: number;
+  /** weighted by control + category weight */
+  weighted: number;
+  readiness: ReadinessLevel;
+  counts: { pass: number; partial: number; fail: number; total: number };
+  categories: CategoryScore[];
+}
+
+export type RiskRating = 'low' | 'medium' | 'high' | 'critical';
+
+export interface EnrichedRisk extends AssessedRisk {
+  score: number;
+  rating: RiskRating;
+}
+
+export type Priority = 'critical' | 'high' | 'medium' | 'low';
+export type Effort = 'low' | 'medium' | 'high';
+
+export interface Recommendation {
+  id: string;
+  title: string;
+  priority: Priority;
+  effort: Effort;
+  businessImpact: string;
+  duration: string;
+  owner: string;
+  relatedControl: string;
+  relatedControlName: string;
+}
+
+export type RoadmapPhase = '0-3' | '3-6' | '6-12';
+
+export interface RoadmapBucket {
+  phase: RoadmapPhase;
+  items: Recommendation[];
+}
+
+export type EvidenceType =
+  | 'statement' | 'screenshot' | 'document' | 'policy'
+  | 'procedure' | 'log' | 'audit_report';
+
+export type EvidenceStrength = 'low' | 'medium' | 'high' | 'very_high';
+
+export interface EvidenceItem {
+  controlId: string;
+  controlName: string;
+  type: EvidenceType;
+  strength: EvidenceStrength;
+  summary: string;
+}
+
+export interface EvidenceSummary {
+  items: EvidenceItem[];
+  /** control ids with no evidence */
+  missing: string[];
+  byStrength: Record<EvidenceStrength, number>;
+}
+
+export type QualitySeverity = 'critical' | 'warning';
+
+export interface QualityIssue {
+  id: string;
+  severity: QualitySeverity;
+  message: string;
+  ref?: string;
+}
+
+export interface QualityResult {
+  issues: QualityIssue[];
+  /** true if any critical issue blocks report generation */
+  blocking: boolean;
+  passedChecks: number;
+  totalChecks: number;
+}
+
+export type MaturityLevel = 0 | 1 | 2 | 3 | 4 | 5;
+
+export interface MaturityResult {
+  enabled: boolean;
+  current: MaturityLevel;
+  target: MaturityLevel;
+  gap: number;
+  label: string;
+}
+
+export interface ComputedAssessment {
+  score: ScoreResult;
+  risks: EnrichedRisk[];
+  recommendations: Recommendation[];
+  roadmap: RoadmapBucket[];
+  quality: QualityResult;
+  evidence: EvidenceSummary;
+  maturity: MaturityResult | null;
 }
 
 // ── Intake answer bag ───────────────────────────────────────────
