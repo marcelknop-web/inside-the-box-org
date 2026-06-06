@@ -296,9 +296,21 @@ export interface ComputedAssessment {
 }
 
 // ── Layer 2/3: AI Insight Engine output (explanatory, never scoring) ──
+
+/**
+ * Confidence level attached to an AI-generated interpretation.
+ * - high   : assessment data strongly supports the insight
+ * - medium : reasonable inference based on available evidence
+ * - low    : hypothesis requiring further validation
+ * Never applied to deterministic findings (those are facts, not inferences).
+ */
+export type Confidence = 'high' | 'medium' | 'low';
+
 export interface RootCause {
   symptom: string;
   cause: string;
+  /** AI confidence that this inferred cause is correct */
+  confidence?: Confidence;
 }
 
 export interface GapCluster {
@@ -328,6 +340,8 @@ export interface ManagementTheme {
   currentState: string;
   riskExposure: string;
   improvementOpportunity: string;
+  /** AI confidence in this management-level interpretation */
+  confidence?: Confidence;
 }
 
 export type ProgramRating = 'low' | 'medium' | 'high';
@@ -341,6 +355,37 @@ export interface TransformationProgram {
   relatedRisks: string;
   complexity: ProgramRating;
   businessValue: ProgramRating;
+  /** AI confidence in this advisory program */
+  confidence?: Confidence;
+}
+
+/**
+ * A recurring, cross-finding pattern pointing to a systemic governance or
+ * capability weakness (e.g. Identity Governance, Third-Party Governance).
+ * Advisory interpretation — never a deterministic finding.
+ */
+export interface SystemicWeakness {
+  /** capability/governance area, e.g. "Third-Party Governance" */
+  area: string;
+  /** the recurring pattern observed across multiple findings */
+  pattern: string;
+  /** related control ids that exhibit the pattern */
+  relatedControlIds: string[];
+  confidence?: Confidence;
+}
+
+/**
+ * Per-category confidence overview used to build the Management Confidence
+ * Summary. Deterministic categories (findings, risks) are always treated as
+ * High by the report layer and are not part of this AI-provided object.
+ */
+export interface ConfidenceSummary {
+  executiveInsights: Confidence;
+  rootCauses: Confidence;
+  managementThemes: Confidence;
+  crossControlInsights: Confidence;
+  transformationPrograms: Confidence;
+  systemicWeaknesses: Confidence;
 }
 
 export type ManagementPhase = '0-3' | '3-6' | '6-12' | '12+';
@@ -383,6 +428,10 @@ export interface InsightResult {
   roadmapRationale: string;
   /** Layer 2 — "virtual auditor" deepening questions */
   auditorQuestions: string[];
+  /** Layer 2 — recurring cross-finding systemic weaknesses */
+  systemicWeaknesses: SystemicWeakness[];
+  /** Per-category confidence ratings for AI interpretations */
+  confidence: ConfidenceSummary;
 }
 
 // ── Intake answer bag ───────────────────────────────────────────

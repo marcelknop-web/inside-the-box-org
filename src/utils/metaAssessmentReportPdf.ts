@@ -136,6 +136,16 @@ const T: Record<string, Record<Lang, string>> = {
   managementRoadmap: { de: 'Management-Roadmap', en: 'Management Roadmap', fr: 'Feuille de route direction' },
   maturityInsights: { de: 'Reifegrad-Analyse', en: 'Maturity Insights', fr: 'Analyse de maturité' },
   businessImpactLbl: { de: 'Business-Impact-Analyse', en: 'Business Impact Analysis', fr: 'Analyse impact métier' },
+  systemicWeaknesses: { de: 'Potential Systemic Weaknesses', en: 'Potential Systemic Weaknesses', fr: 'Potential Systemic Weaknesses' },
+  confidenceSummary: { de: 'Management Confidence Summary', en: 'Management Confidence Summary', fr: 'Management Confidence Summary' },
+  insightLimitations: { de: 'AI Insight Limitations', en: 'AI Insight Limitations', fr: 'AI Insight Limitations' },
+  assessmentFindingsLbl: { de: 'Assessment Findings', en: 'Assessment Findings', fr: 'Assessment Findings' },
+  riskRatingsLbl: { de: 'Risk Ratings', en: 'Risk Ratings', fr: 'Risk Ratings' },
+  labelLegend: {
+    de: 'Each item below is labelled FACT (deterministic assessment logic), INSIGHT (AI interpretation) or RECOMMENDATION (AI advisory). Confidence ratings apply only to AI interpretations, never to deterministic findings.',
+    en: 'Each item below is labelled FACT (deterministic assessment logic), INSIGHT (AI interpretation) or RECOMMENDATION (AI advisory). Confidence ratings apply only to AI interpretations, never to deterministic findings.',
+    fr: 'Each item below is labelled FACT (deterministic assessment logic), INSIGHT (AI interpretation) or RECOMMENDATION (AI advisory). Confidence ratings apply only to AI interpretations, never to deterministic findings.',
+  },
   disclaimer: {
     de: 'Dieser Bericht stellt keine formale Zertifizierung dar und ersetzt nicht die Bewertung durch eine anerkannte Prüfstelle. Die Konformitätsbewertung beruht auf den im Intake gemachten Angaben.',
     en: 'This report does not constitute a formal certification and does not replace assessment by a recognised authority. The compliance assessment is based on the information provided during intake.',
@@ -152,6 +162,14 @@ function ratingLabel(r: string, _lang: Lang): string {
   if (r === 'high') return 'High';
   return 'Medium';
 }
+
+function confLabel(c?: string): string {
+  const v = (c ?? '').toLowerCase();
+  if (v === 'high') return 'High';
+  if (v === 'low') return 'Low';
+  return 'Medium';
+}
+
 
 const VERDICT_LABEL: Record<string, Record<Lang, string>> = {
   pass: { de: 'Erfüllt', en: 'Pass', fr: 'Conforme' },
@@ -377,15 +395,18 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     pdf.heading(t('sec8', lang), 1);
     pdf.addBookmark(t('sec8', lang), 1);
     pdf.introText(t('aiNote', lang));
+    pdf.bodyParagraph(t('labelLegend', lang));
 
     if (insights.executiveNarrative) {
       pdf.sectionLabel(t('execNarrative', lang));
+      pdf.metaLine('INSIGHT — AI interpretation');
       pdf.bodyParagraph(insights.executiveNarrative);
     }
 
     const ei = insights.executiveInsights;
     if (ei && (ei.topWeaknesses?.length || ei.topStrengths?.length || ei.managementFocus?.length)) {
       pdf.heading(t('execInsights', lang), 2);
+      pdf.metaLine(`INSIGHT — AI interpretation · Confidence: ${confLabel(insights.confidence?.executiveInsights)}`);
       const list = (label: string, items?: string[]) => {
         if (!items?.length) return;
         pdf.sectionLabel(label);
@@ -400,10 +421,12 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
 
     if (insights.rootCauses?.length) {
       pdf.sectionLabel(t('rootCauses', lang));
-      insights.rootCauses.forEach((rc) => pdf.bulletItem(`${rc.symptom} → ${rc.cause}`));
+      pdf.metaLine(`INSIGHT — AI interpretation · Confidence: ${confLabel(insights.confidence?.rootCauses)}`);
+      insights.rootCauses.forEach((rc) => pdf.bulletItem(`${rc.symptom} → ${rc.cause} [Confidence: ${confLabel(rc.confidence)}]`));
     }
     if (insights.gapClusters?.length) {
       pdf.heading(t('gapClusters', lang), 2);
+      pdf.metaLine('INSIGHT — AI interpretation');
       insights.gapClusters.forEach((gc) => {
         pdf.checkSpace(24);
         pdf.heading(gc.title, 3);
@@ -415,13 +438,28 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     }
     if (insights.crossControlInsights?.length) {
       pdf.sectionLabel(t('crossControl', lang));
+      pdf.metaLine(`INSIGHT — AI interpretation · Confidence: ${confLabel(insights.confidence?.crossControlInsights)}`);
       insights.crossControlInsights.forEach((c) => pdf.bulletItem(c));
+    }
+    if (insights.systemicWeaknesses?.length) {
+      pdf.heading(t('systemicWeaknesses', lang), 2);
+      pdf.metaLine(`INSIGHT — AI interpretation · Confidence: ${confLabel(insights.confidence?.systemicWeaknesses)}`);
+      pdf.introText('Recurring patterns identified across multiple findings, pointing to potential systemic governance or capability weaknesses.');
+      insights.systemicWeaknesses.forEach((s) => {
+        pdf.checkSpace(22);
+        pdf.heading(s.area, 3);
+        pdf.metaLine(`Confidence: ${confLabel(s.confidence)}`);
+        if (s.pattern) pdf.bodyText(s.pattern);
+        if (s.relatedControlIds?.length) pdf.metaLine(s.relatedControlIds.join(', '));
+      });
     }
     if (insights.managementThemes?.length) {
       pdf.heading(t('managementThemes', lang), 2);
+      pdf.metaLine(`INSIGHT — AI interpretation · Confidence: ${confLabel(insights.confidence?.managementThemes)}`);
       insights.managementThemes.forEach((m) => {
         pdf.checkSpace(28);
         pdf.heading(m.title, 3);
+        pdf.metaLine(`Confidence: ${confLabel(m.confidence)}`);
         if (m.currentState) { pdf.sectionLabel(t('currentState', lang)); pdf.bodyText(m.currentState); }
         if (m.riskExposure) { pdf.sectionLabel(t('riskExposure', lang)); pdf.bodyText(m.riskExposure); }
         if (m.improvementOpportunity) { pdf.sectionLabel(t('improvementOpp', lang)); pdf.bodyText(m.improvementOpportunity); }
@@ -429,10 +467,11 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     }
     if (insights.transformationPrograms?.length) {
       pdf.heading(t('transformationPrograms', lang), 2);
+      pdf.metaLine(`RECOMMENDATION — AI advisory · Confidence: ${confLabel(insights.confidence?.transformationPrograms)}`);
       insights.transformationPrograms.forEach((p) => {
         pdf.checkSpace(28);
         pdf.heading(p.title, 3);
-        pdf.metaLine(`${t('complexity', lang)}: ${ratingLabel(p.complexity, lang)} · ${t('businessValueLbl', lang)}: ${ratingLabel(p.businessValue, lang)}`);
+        pdf.metaLine(`${t('complexity', lang)}: ${ratingLabel(p.complexity, lang)} · ${t('businessValueLbl', lang)}: ${ratingLabel(p.businessValue, lang)} · Confidence: ${confLabel(p.confidence)}`);
         if (p.objectives) { pdf.sectionLabel(t('objectives', lang)); pdf.bodyText(p.objectives); }
         if (p.expectedBenefits) { pdf.sectionLabel(t('expectedBenefits', lang)); pdf.bodyText(p.expectedBenefits); }
         if (p.relatedRisks) { pdf.sectionLabel(t('riskExposure', lang)); pdf.bodyText(p.relatedRisks); }
@@ -441,14 +480,17 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     }
     if (insights.businessImpact?.length) {
       pdf.sectionLabel(t('businessImpactLbl', lang));
+      pdf.metaLine('INSIGHT — AI interpretation');
       insights.businessImpact.forEach((b) => pdf.bulletItem(`${b.area}: ${b.consequence}`));
     }
     if (computed.maturity?.enabled && insights.maturityNarrative) {
       pdf.sectionLabel(t('maturityInsights', lang));
+      pdf.metaLine('INSIGHT — AI interpretation');
       pdf.bodyParagraph(insights.maturityNarrative);
     }
     if (insights.managementRoadmap?.length) {
       pdf.heading(t('managementRoadmap', lang), 2);
+      pdf.metaLine('RECOMMENDATION — AI advisory');
       insights.managementRoadmap.forEach((r) => {
         pdf.checkSpace(20);
         pdf.sectionLabel(`${r.phase} ${t('months', lang)}`);
@@ -458,12 +500,37 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     }
     if (insights.roadmapRationale) {
       pdf.sectionLabel(t('roadmapRationale', lang));
+      pdf.metaLine('RECOMMENDATION — AI advisory');
       pdf.bodyParagraph(insights.roadmapRationale);
     }
     if (insights.auditorQuestions?.length) {
       pdf.sectionLabel(t('auditorQuestions', lang));
+      pdf.metaLine('INSIGHT — AI interpretation');
       insights.auditorQuestions.forEach((q) => pdf.bulletItem(q));
     }
+
+    // ── Management Confidence Summary (facts vs interpretation) ──
+    pdf.heading(t('confidenceSummary', lang), 2);
+    pdf.introText('This summary helps management distinguish objectively determined facts from analytical interpretation.');
+    const confRows: [string, string, string][] = [
+      [t('assessmentFindingsLbl', lang), 'High', 'FACT — deterministic'],
+      [t('riskRatingsLbl', lang), 'High', 'FACT — deterministic'],
+      [t('execInsights', lang), confLabel(insights.confidence?.executiveInsights), 'INSIGHT — AI interpretation'],
+      [t('rootCauses', lang), confLabel(insights.confidence?.rootCauses), 'INSIGHT — AI interpretation'],
+      [t('managementThemes', lang), confLabel(insights.confidence?.managementThemes), 'INSIGHT — AI interpretation'],
+      [t('transformationPrograms', lang), confLabel(insights.confidence?.transformationPrograms), 'RECOMMENDATION — AI advisory'],
+      [t('systemicWeaknesses', lang), confLabel(insights.confidence?.systemicWeaknesses), 'INSIGHT — AI interpretation'],
+    ];
+    confRows.forEach(([label, level, kind]) => {
+      pdf.fieldInline(label, `Confidence: ${level}  (${kind})`);
+    });
+
+    // ── AI Insight Limitations (audit defensibility) ──
+    pdf.heading(t('insightLimitations', lang), 2);
+    pdf.bulletItem('AI-generated insights are analytical interpretations of assessment results.');
+    pdf.bulletItem('They are intended to support internal audit, risk management and compliance improvement activities.');
+    pdf.bulletItem('AI insights do not constitute audit findings, legal advice, regulatory opinions or certification decisions.');
+    pdf.bulletItem('Root cause analyses and management observations should be validated through interviews, evidence review and management discussion.');
   }
 
   // ── 9 Conclusion ────────────────────────────────────────────
