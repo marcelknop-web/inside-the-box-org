@@ -606,7 +606,7 @@ function InsightsPanel({ insights, computed, lang, u, reqMeta }: {
       )}
 
       {insights.managementRoadmap?.length > 0 && (
-        <InsightSection title={u.managementRoadmap}>
+        <InsightSection title={u.managementRoadmap} layer="recommendation">
           <div className="space-y-3">
             {insights.managementRoadmap.map((r, i) => (
               <div key={i} className="bg-background/50 border border-border rounded-md px-3 py-2.5">
@@ -624,22 +624,81 @@ function InsightsPanel({ insights, computed, lang, u, reqMeta }: {
       )}
 
       {insights.crossControlInsights?.length > 0 && (
-        <InsightSection title={u.crossControl}>
+        <InsightSection title={u.crossControl} layer="insight" confidence={insights.confidence?.crossControlInsights}>
           <InsightChips title="" items={insights.crossControlInsights} />
         </InsightSection>
       )}
 
+      {insights.systemicWeaknesses?.length > 0 && (
+        <InsightSection title={u.systemicWeaknesses} layer="insight" confidence={insights.confidence?.systemicWeaknesses}>
+          <p className="text-xs text-muted-foreground mb-3 leading-relaxed">{u.systemicHint}</p>
+          <div className="space-y-3">
+            {insights.systemicWeaknesses.map((s, i) => (
+              <div key={i} className="bg-background/50 border border-border rounded-md px-3 py-2.5">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <div className="text-sm font-semibold text-highlight">{s.area}</div>
+                  <ConfidenceBadge level={s.confidence} />
+                </div>
+                {s.pattern && <p className="text-sm text-foreground mt-1 leading-relaxed"><span className="font-semibold text-muted-foreground">{u.pattern}: </span>{s.pattern}</p>}
+                {s.relatedControlIds?.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {s.relatedControlIds.map((id) => (
+                      <span key={id} className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-secondary text-muted-foreground">{id}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </InsightSection>
+      )}
+
       {insights.roadmapRationale && (
-        <InsightSection title={u.roadmapRationale}>
+        <InsightSection title={u.roadmapRationale} layer="recommendation">
           <p className="text-sm text-foreground leading-relaxed">{insights.roadmapRationale}</p>
         </InsightSection>
       )}
 
       {insights.auditorQuestions?.length > 0 && (
-        <InsightSection title={u.auditorQuestions}>
+        <InsightSection title={u.auditorQuestions} layer="insight">
           <InsightChips title="" items={insights.auditorQuestions} />
         </InsightSection>
       )}
+
+      {/* Management Confidence Summary — facts vs interpretation */}
+      <InsightSection title={u.confidenceSummary} layer="fact">
+        <p className="text-xs text-muted-foreground mb-3 leading-relaxed">{u.confidenceHint}</p>
+        <div className="space-y-1.5">
+          {([
+            [u.assessmentFindings, 'high', u.deterministic],
+            [u.riskRatings, 'high', u.deterministic],
+            [u.execInsights, insights.confidence?.executiveInsights ?? 'medium', u.aiInterpretation],
+            [u.rootCauses, insights.confidence?.rootCauses ?? 'medium', u.aiInterpretation],
+            [u.managementThemes, insights.confidence?.managementThemes ?? 'medium', u.aiInterpretation],
+            [u.transformationPrograms, insights.confidence?.transformationPrograms ?? 'medium', u.aiInterpretation],
+            [u.systemicWeaknesses, insights.confidence?.systemicWeaknesses ?? 'medium', u.aiInterpretation],
+          ] as [string, string, string][]).map(([label, level, source]) => (
+            <div key={label} className="flex items-center justify-between gap-2 bg-background/50 border border-border rounded-md px-3 py-2">
+              <div className="text-sm text-foreground">{label} <span className="text-[10px] text-muted-foreground font-mono">· {source}</span></div>
+              <ConfidenceBadge level={level} />
+            </div>
+          ))}
+        </div>
+      </InsightSection>
+
+      {/* AI Insight Limitations — audit defensibility */}
+      <InsightSection title={u.insightLimitations} layer="insight">
+        <ul className="space-y-1.5 text-sm text-muted-foreground leading-relaxed">
+          {[
+            'AI-generated insights are analytical interpretations of assessment results.',
+            'They are intended to support internal audit, risk management and compliance improvement activities.',
+            'AI insights do not constitute audit findings, legal advice, regulatory opinions or certification decisions.',
+            'Root cause analyses and management observations should be validated through interviews, evidence review and management discussion.',
+          ].map((l, i) => (
+            <li key={i} className="flex gap-2"><span className="text-primary flex-shrink-0">•</span><span>{l}</span></li>
+          ))}
+        </ul>
+      </InsightSection>
     </div>
   );
 }
