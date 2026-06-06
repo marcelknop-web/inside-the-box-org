@@ -717,22 +717,44 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
     return { ...r, article: meta?.article ?? '', name: meta ? tr(meta.name, lang) : r.id };
   }), [result, reqMeta, lang]);
 
-  const pass = merged.filter((r) => r.status === 'pass').length;
-  const partial = merged.filter((r) => r.status === 'partial').length;
-  const fail = merged.filter((r) => r.status === 'fail').length;
-  const pct = merged.length ? Math.round(((pass + partial * 0.5) / merged.length) * 100) : 0;
-  const critRisks = result.risks.filter((r) => r.likelihood * r.impact >= 15);
+  // ── Single source of truth: all displayed metrics come from the
+  // deterministic `computed` object (the same one used by the PDF and
+  // JSON export), never from a parallel calculation. This guarantees the
+  // readiness score, counts and risks never diverge between UI / PDF / JSON.
+  const pass = computed.score.counts.pass;
+  const partial = computed.score.counts.partial;
+  const fail = computed.score.counts.fail;
+  const pct = computed.score.weighted;
+  const critRisks = computed.risks.filter((r) => r.rating === 'critical');
 
   const entityName = (answers.entityName as string) || profile.name;
 
   const exportJson = () => {
-    const blob = new Blob([JSON.stringify({ profile: profile.id, entityName, answers, result }, null, 2)], { type: 'application/json' });
+    // Export the canonical computed model alongside the raw result so the
+    // JSON export can never contradict the on-screen / PDF figures.
+    const payload = {
+      meta: {
+        title: 'Internal Audit & Compliance Readiness Assessment',
+        assessmentId: `${profile.id}-${Date.now().toString(36)}`,
+        generatedAt: new Date().toISOString(),
+        standard: profile.id,
+        entityName,
+      },
+      profile: profile.id,
+      entityName,
+      answers,
+      result,
+      computed,
+      insights,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = `${profile.id}-assessment.json`;
     a.click();
     URL.revokeObjectURL(a.href);
   };
+
 
   // ── AI insight / advisory layer (mandatory, auto-loaded) ──
   const [insights, setInsights] = useState<InsightResult | null>(null);
