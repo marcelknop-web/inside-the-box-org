@@ -273,6 +273,26 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     title: t('verdictOverview', lang),
   });
 
+  // ── Management Attention Index (deterministic) ──────────────
+  const att = computed.attentionIndex;
+  pdf.heading(t('attentionIndex', lang), 2);
+  pdf.metaLine(ORIGIN.assessment);
+  pdf.fieldInline(t('attentionIndex', lang), `${attentionLabel(att.level, lang)}  (Critical ${att.counts.critical} · High ${att.counts.high} · Medium ${att.counts.medium} · Low ${att.counts.low})`);
+  if (att.drivers.length) {
+    pdf.sectionLabel(t('attentionDrivers', lang));
+    att.drivers.forEach((d) => pdf.bulletItem(d));
+  }
+
+  // ── Audit Readiness dimensions (deterministic) ──────────────
+  const ar = computed.auditReadiness;
+  pdf.heading(t('auditReadiness', lang), 2);
+  pdf.metaLine(ORIGIN.assessment);
+  pdf.fieldInline(`${t('readiness', lang)} (overall)`, `${readinessRatingLabel(ar.overall, lang)} · ${ar.overallPct}%`);
+  ar.dimensions.forEach((d) => {
+    pdf.fieldInline(d.label, `${readinessRatingLabel(d.rating, lang)} · ${d.pct}%`);
+    pdf.metaLine(d.basis);
+  });
+
   // ── Why This Matters (translate results into business language) ──
   pdf.heading(t('whyMatters', lang), 2);
   pdf.bodyParagraph(
