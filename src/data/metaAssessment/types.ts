@@ -390,6 +390,8 @@ export interface SystemicWeakness {
   /** related control ids that exhibit the pattern */
   relatedControlIds: string[];
   confidence?: Confidence;
+  /** activities recommended to validate this potential systemic weakness */
+  validationActivities?: string[];
 }
 
 /**
