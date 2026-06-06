@@ -193,5 +193,12 @@ export const NIS2_PROFILE: StandardProfile = {
     knownIssues:
       'Keine durchgängige MFA für administrative Zugänge in der OT. BCM-Plan vorhanden, aber seit 2023 kein vollständiger Wiederanlauftest. Lieferantenverträge ohne einheitliche Sicherheitsklauseln. Schwachstellen-Scans nur in der IT, nicht in der OT.',
     measures: ['riskpolicy', 'incident', 'bcm', 'vuln', 'crypto', 'training', 'audit'],
+    measures__mat__riskpolicy: 'documented',
+    measures__mat__incident: 'documented',
+    measures__mat__bcm: 'existing',
+    measures__mat__vuln: 'audited',
+    measures__mat__crypto: 'documented',
+    measures__mat__training: 'existing',
+    measures__mat__audit: 'certified',
   },
 };
