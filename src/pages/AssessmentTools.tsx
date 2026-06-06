@@ -243,6 +243,7 @@ const AssessmentTools = () => {
           ))}
         </div>
       </main>
+      </PasswordGate>
     </SiteChrome>
   );
 };
