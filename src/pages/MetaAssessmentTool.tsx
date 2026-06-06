@@ -78,6 +78,27 @@ function ui(lang: Lang) {
     roadmapRationale: de ? 'Begründung der Roadmap' : fr ? 'Justification de la feuille de route' : 'Roadmap rationale',
     auditorQuestions: de ? 'Vertiefende Audit-Fragen' : fr ? "Questions d'audit" : 'Deepening audit questions',
     insightsError: de ? 'KI-Analyse fehlgeschlagen. Bitte erneut versuchen.' : fr ? "Échec de l'analyse IA." : 'AI analysis failed. Please retry.',
+    // ── advisory layer (virtual internal auditor / advisor) ──
+    consultantView: de ? 'Beratungsansicht' : fr ? 'Vue conseil' : 'Consultant view',
+    consultantHint: de ? 'Vertiefte Berater-Analyse: Grundursachen, Themen, Programme.' : fr ? 'Analyse conseil approfondie : causes, thèmes, programmes.' : 'In-depth advisory analysis: root causes, themes, programs.',
+    execInsights: de ? 'Executive Insights' : fr ? 'Executive Insights' : 'Executive Insights',
+    topWeaknesses: de ? 'Wichtigste Schwächen' : fr ? 'Principales faiblesses' : 'Top weaknesses',
+    topStrengths: de ? 'Wichtigste Stärken' : fr ? 'Principales forces' : 'Top strengths',
+    highestBusinessRisks: de ? 'Höchste Geschäftsrisiken' : fr ? 'Risques métier majeurs' : 'Highest business risks',
+    multiRegulatory: de ? 'Mehrere Anforderungen betroffen' : fr ? 'Plusieurs exigences' : 'Multi-requirement issues',
+    managementFocus: de ? 'Management-Fokus zuerst' : fr ? 'Priorités direction' : 'Management focus first',
+    managementThemes: de ? 'Management-Themen' : fr ? 'Thèmes de direction' : 'Management themes',
+    currentState: de ? 'Ist-Zustand' : fr ? 'État actuel' : 'Current state',
+    riskExposure: de ? 'Risiko-Exposition' : fr ? 'Exposition au risque' : 'Risk exposure',
+    improvementOpp: de ? 'Verbesserungspotenzial' : fr ? "Opportunité d'amélioration" : 'Improvement opportunity',
+    transformationPrograms: de ? 'Transformationsprogramme' : fr ? 'Programmes de transformation' : 'Transformation programs',
+    objectives: de ? 'Ziele' : fr ? 'Objectifs' : 'Objectives',
+    expectedBenefits: de ? 'Erwarteter Nutzen' : fr ? 'Bénéfices attendus' : 'Expected benefits',
+    complexity: de ? 'Komplexität' : fr ? 'Complexité' : 'Complexity',
+    businessValue: de ? 'Geschäftswert' : fr ? 'Valeur métier' : 'Business value',
+    managementRoadmap: de ? 'Management-Roadmap' : fr ? 'Feuille de route direction' : 'Management roadmap',
+    maturityInsights: de ? 'Reifegrad-Analyse' : fr ? 'Analyse de maturité' : 'Maturity insights',
+    businessImpact: de ? 'Business-Impact-Analyse' : fr ? 'Analyse impact métier' : 'Business impact analysis',
   };
 }
 
@@ -328,6 +349,206 @@ function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
   );
 }
 
+// ── AI advisory insights panel ──────────────────────────────────
+function InsightChips({ title, items }: { title: string; items: string[] }) {
+  if (!items?.length) return null;
+  return (
+    <div>
+      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">{title}</div>
+      <ul className="space-y-1">
+        {items.map((it, i) => (
+          <li key={i} className="text-sm text-foreground leading-relaxed flex gap-2">
+            <span className="text-primary flex-shrink-0">•</span><span>{it}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function InsightSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="border-t border-border/60 pt-4">
+      <h3 className="font-mono text-[11px] tracking-[0.2em] uppercase text-primary mb-3">{title}</h3>
+      {children}
+    </div>
+  );
+}
+
+const RATING_CLS: Record<string, string> = {
+  low: 'bg-green-500/10 text-green-400 border-green-500/20',
+  medium: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
+  high: 'bg-destructive/10 text-destructive border-destructive/20',
+};
+
+function InsightsPanel({ insights, computed, lang, u, reqMeta }: {
+  insights: InsightResult; computed: ComputedAssessment; lang: Lang;
+  u: ReturnType<typeof ui>; reqMeta: Map<string, StandardProfile['requirements'][number]>;
+}) {
+  const ei = insights.executiveInsights;
+  const ratingLabel = (r: string) => {
+    if (r === 'low') return lang === 'de' ? 'Niedrig' : lang === 'fr' ? 'Faible' : 'Low';
+    if (r === 'high') return lang === 'de' ? 'Hoch' : lang === 'fr' ? 'Élevé' : 'High';
+    return lang === 'de' ? 'Mittel' : lang === 'fr' ? 'Moyen' : 'Medium';
+  };
+  return (
+    <div className="mt-5 space-y-5">
+      {insights.executiveNarrative && (
+        <InsightSection title={u.execNarrative}>
+          <p className="text-sm text-foreground leading-relaxed">{insights.executiveNarrative}</p>
+        </InsightSection>
+      )}
+
+      {ei && (ei.topWeaknesses.length || ei.topStrengths.length || ei.managementFocus.length) ? (
+        <InsightSection title={u.execInsights}>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <InsightChips title={u.topWeaknesses} items={ei.topWeaknesses} />
+            <InsightChips title={u.topStrengths} items={ei.topStrengths} />
+            <InsightChips title={u.highestBusinessRisks} items={ei.highestBusinessRisks} />
+            <InsightChips title={u.multiRegulatory} items={ei.multiRegulatoryIssues} />
+            <InsightChips title={u.managementFocus} items={ei.managementFocus} />
+          </div>
+        </InsightSection>
+      ) : null}
+
+      {insights.rootCauses?.length > 0 && (
+        <InsightSection title={u.rootCauses}>
+          <div className="space-y-2">
+            {insights.rootCauses.map((rc, i) => (
+              <div key={i} className="text-sm leading-relaxed">
+                <span className="text-muted-foreground">{rc.symptom}</span>
+                <span className="text-primary mx-1.5">→</span>
+                <span className="text-foreground">{rc.cause}</span>
+              </div>
+            ))}
+          </div>
+        </InsightSection>
+      )}
+
+      {insights.gapClusters?.length > 0 && (
+        <InsightSection title={u.gapClusters}>
+          <div className="space-y-3">
+            {insights.gapClusters.map((gc, i) => (
+              <div key={i} className="bg-background/50 border border-border rounded-md px-3 py-2.5">
+                <div className="text-sm font-semibold text-foreground">{gc.title}</div>
+                {gc.summary && <p className="text-sm text-muted-foreground mt-0.5">{gc.summary}</p>}
+                {gc.businessImpact && <p className="text-xs text-foreground mt-1.5"><span className="font-semibold">{u.businessImpact}: </span>{gc.businessImpact}</p>}
+                {gc.regulatoryImpact && <p className="text-xs text-foreground mt-0.5"><span className="font-semibold">{u.multiRegulatory}: </span>{gc.regulatoryImpact}</p>}
+                {gc.controlIds?.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {gc.controlIds.map((id) => (
+                      <span key={id} className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-secondary text-muted-foreground">{id}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </InsightSection>
+      )}
+
+      {insights.managementThemes?.length > 0 && (
+        <InsightSection title={u.managementThemes}>
+          <div className="space-y-3">
+            {insights.managementThemes.map((m, i) => (
+              <div key={i} className="bg-background/50 border border-border rounded-md px-3 py-2.5">
+                <div className="text-sm font-semibold text-foreground">{m.title}</div>
+                <div className="grid sm:grid-cols-3 gap-2 mt-2 text-xs">
+                  {m.currentState && <div><span className="font-semibold text-muted-foreground uppercase tracking-wide">{u.currentState}</span><p className="text-foreground mt-0.5">{m.currentState}</p></div>}
+                  {m.riskExposure && <div><span className="font-semibold text-muted-foreground uppercase tracking-wide">{u.riskExposure}</span><p className="text-foreground mt-0.5">{m.riskExposure}</p></div>}
+                  {m.improvementOpportunity && <div><span className="font-semibold text-muted-foreground uppercase tracking-wide">{u.improvementOpp}</span><p className="text-foreground mt-0.5">{m.improvementOpportunity}</p></div>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </InsightSection>
+      )}
+
+      {insights.transformationPrograms?.length > 0 && (
+        <InsightSection title={u.transformationPrograms}>
+          <div className="space-y-3">
+            {insights.transformationPrograms.map((p, i) => (
+              <div key={i} className="bg-background/50 border border-border rounded-md px-3 py-2.5">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <div className="text-sm font-semibold text-foreground">{p.title}</div>
+                  <div className="flex gap-1.5">
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded border ${RATING_CLS[p.complexity]}`}>{u.complexity}: {ratingLabel(p.complexity)}</span>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded border ${RATING_CLS[p.businessValue]}`}>{u.businessValue}: {ratingLabel(p.businessValue)}</span>
+                  </div>
+                </div>
+                {p.objectives && <p className="text-xs text-foreground mt-1.5"><span className="font-semibold">{u.objectives}: </span>{p.objectives}</p>}
+                {p.expectedBenefits && <p className="text-xs text-foreground mt-0.5"><span className="font-semibold">{u.expectedBenefits}: </span>{p.expectedBenefits}</p>}
+                {p.relatedControlIds?.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {p.relatedControlIds.map((id) => (
+                      <span key={id} className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-secondary text-muted-foreground">{id}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </InsightSection>
+      )}
+
+      {insights.businessImpact?.length > 0 && (
+        <InsightSection title={u.businessImpact}>
+          <div className="space-y-1.5">
+            {insights.businessImpact.map((b, i) => (
+              <div key={i} className="text-sm leading-relaxed">
+                <span className="font-semibold text-foreground">{b.area}: </span>
+                <span className="text-muted-foreground">{b.consequence}</span>
+              </div>
+            ))}
+          </div>
+        </InsightSection>
+      )}
+
+      {computed.maturity?.enabled && insights.maturityNarrative && (
+        <InsightSection title={u.maturityInsights}>
+          <p className="text-sm text-foreground leading-relaxed">{insights.maturityNarrative}</p>
+        </InsightSection>
+      )}
+
+      {insights.managementRoadmap?.length > 0 && (
+        <InsightSection title={u.managementRoadmap}>
+          <div className="space-y-3">
+            {insights.managementRoadmap.map((r, i) => (
+              <div key={i} className="bg-background/50 border border-border rounded-md px-3 py-2.5">
+                <div className="font-mono text-xs text-primary font-bold">{r.phase} {u.roadmap === 'Roadmap' ? 'months' : ''}</div>
+                <ul className="mt-1.5 space-y-1">
+                  {r.activities.map((a, j) => (
+                    <li key={j} className="text-sm text-foreground flex gap-2"><span className="text-primary flex-shrink-0">•</span><span>{a}</span></li>
+                  ))}
+                </ul>
+                {r.rationale && <p className="text-xs text-muted-foreground mt-1.5 italic">{r.rationale}</p>}
+              </div>
+            ))}
+          </div>
+        </InsightSection>
+      )}
+
+      {insights.crossControlInsights?.length > 0 && (
+        <InsightSection title={u.crossControl}>
+          <InsightChips title="" items={insights.crossControlInsights} />
+        </InsightSection>
+      )}
+
+      {insights.roadmapRationale && (
+        <InsightSection title={u.roadmapRationale}>
+          <p className="text-sm text-foreground leading-relaxed">{insights.roadmapRationale}</p>
+        </InsightSection>
+      )}
+
+      {insights.auditorQuestions?.length > 0 && (
+        <InsightSection title={u.auditorQuestions}>
+          <InsightChips title="" items={insights.auditorQuestions} />
+        </InsightSection>
+      )}
+    </div>
+  );
+}
+
 // ── Report ──────────────────────────────────────────────────────
 function Report({ profile, lang, result, computed, answers, onRestart }: {
   profile: StandardProfile; lang: Lang; result: AssessmentResult;
@@ -359,11 +580,41 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
     URL.revokeObjectURL(a.href);
   };
 
+  // ── AI insight / advisory layer ──
+  const [insights, setInsights] = useState<InsightResult | null>(null);
+  const [insightsBusy, setInsightsBusy] = useState(false);
+  const [consultantView, setConsultantView] = useState(false);
+
+  const loadInsights = useCallback(async () => {
+    setInsightsBusy(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('assessment-insights', {
+        body: {
+          standardName: profile.name,
+          language: lang,
+          score: computed.score.weighted,
+          findings: result.requirements.map((r) => ({ id: r.id, status: r.status, name: r.name, gap: r.gap })),
+          risks: computed.risks.map((r) => ({ name: r.name, likelihood: r.likelihood, impact: r.impact })),
+          recommendations: computed.recommendations.map((r) => ({ title: r.title, priority: r.priority })),
+          maturity: computed.maturity?.enabled ? { current: computed.maturity.current, target: computed.maturity.target } : undefined,
+        },
+      });
+      if (error) throw error;
+      setInsights(data as InsightResult);
+      setConsultantView(true);
+    } catch (e) {
+      console.error('insights failed', e);
+      alert(u.insightsError);
+    } finally {
+      setInsightsBusy(false);
+    }
+  }, [profile, lang, computed, result, u.insightsError]);
+
   const [pdfBusy, setPdfBusy] = useState(false);
   const exportPdf = async () => {
     setPdfBusy(true);
     try {
-      await generateMetaAssessmentPdf({ profile, lang, result, computed, answers, entityName });
+      await generateMetaAssessmentPdf({ profile, lang, result, computed, answers, entityName, insights: consultantView ? insights : null });
     } catch (e) {
       console.error('PDF generation failed', e);
       alert(u.pdfError);
@@ -371,6 +622,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
       setPdfBusy(false);
     }
   };
+
 
   return (
     <div className="space-y-6">
@@ -447,6 +699,36 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
           </div>
         </div>
       )}
+
+      {/* AI advisory layer — virtual internal auditor / compliance advisor */}
+      <div className="bg-background/40 border border-primary/15 rounded-lg p-5">
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <div className="min-w-0">
+            <h2 className="font-mono text-xs tracking-[0.25em] uppercase text-highlight">{u.aiAnalysis}</h2>
+            <p className="text-xs text-muted-foreground mt-1.5 max-w-xl leading-relaxed">{u.aiNote}</p>
+          </div>
+          {!insights && (
+            <button onClick={loadInsights} disabled={insightsBusy}
+              className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60 flex-shrink-0">
+              {insightsBusy ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+              {insightsBusy ? u.loadingInsights : u.loadInsights}
+            </button>
+          )}
+          {insights && (
+            <button onClick={() => setConsultantView((v) => !v)}
+              className={`inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors flex-shrink-0 ${
+                consultantView ? 'border-primary bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:border-primary/40'
+              }`}>
+              <Sparkles size={13} /> {u.consultantView}
+            </button>
+          )}
+        </div>
+
+        {insights && consultantView && (
+          <InsightsPanel insights={insights} computed={computed} lang={lang} u={u} reqMeta={reqMeta} />
+        )}
+      </div>
+
 
       <div className="flex flex-wrap gap-3 pt-2">
         <button onClick={exportPdf} disabled={pdfBusy} className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60">

@@ -305,17 +305,80 @@ export interface GapCluster {
   title: string;
   summary: string;
   controlIds: string[];
+  /** business consequence of this cluster (advisory) */
+  businessImpact?: string;
+  /** regulatory consequence of this cluster (advisory) */
+  regulatoryImpact?: string;
+}
+
+/** Executive-language overview of the most decision-relevant points. */
+export interface ExecutiveInsights {
+  topWeaknesses: string[];
+  topStrengths: string[];
+  highestBusinessRisks: string[];
+  /** issues that touch multiple regulatory requirements */
+  multiRegulatoryIssues: string[];
+  /** what management should focus on first */
+  managementFocus: string[];
+}
+
+/** A management-level theme grouping (e.g. Governance, IAM). */
+export interface ManagementTheme {
+  title: string;
+  currentState: string;
+  riskExposure: string;
+  improvementOpportunity: string;
+}
+
+export type ProgramRating = 'low' | 'medium' | 'high';
+
+/** A higher-level transformation program replacing long rec lists. */
+export interface TransformationProgram {
+  title: string;
+  objectives: string;
+  expectedBenefits: string;
+  relatedControlIds: string[];
+  relatedRisks: string;
+  complexity: ProgramRating;
+  businessValue: ProgramRating;
+}
+
+export type ManagementPhase = '0-3' | '3-6' | '6-12' | '12+';
+
+/** A management-decision roadmap phase with rationale. */
+export interface ManagementRoadmapItem {
+  phase: ManagementPhase;
+  activities: string[];
+  rationale: string;
+}
+
+/** Translation of a weakness into a business consequence. */
+export interface BusinessImpactItem {
+  area: string;
+  consequence: string;
 }
 
 export interface InsightResult {
   /** Layer 3 — management situation narrative */
   executiveNarrative: string;
+  /** Layer 3 — executive-language key points (strengths/weaknesses/focus) */
+  executiveInsights: ExecutiveInsights;
   /** Layer 2 — symptom → suspected root cause */
   rootCauses: RootCause[];
   /** Layer 2 — findings grouped into a few core themes */
   gapClusters: GapCluster[];
   /** Layer 2 — relationships between deficits */
   crossControlInsights: string[];
+  /** Layer 2/3 — management themes (current state / exposure / opportunity) */
+  managementThemes: ManagementTheme[];
+  /** Layer 3 — higher-level transformation programs */
+  transformationPrograms: TransformationProgram[];
+  /** Layer 3 — management roadmap phases */
+  managementRoadmap: ManagementRoadmapItem[];
+  /** Layer 3 — narrative analysis of maturity (if maturity enabled) */
+  maturityNarrative: string;
+  /** Layer 3 — technical weaknesses translated to business impact */
+  businessImpact: BusinessImpactItem[];
   /** Layer 3 — rationale for the deterministic roadmap phases */
   roadmapRationale: string;
   /** Layer 2 — "virtual auditor" deepening questions */

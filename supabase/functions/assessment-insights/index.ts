@@ -45,35 +45,53 @@ const LANG_NAME: Record<string, string> = { de: "Deutsch", en: "English", fr: "F
 
 // ─── Layer 2 + 3: AI INSIGHT / REPORTING ENGINE ─────────────────
 // IMPORTANT: This function NEVER decides compliance. It receives the
-// finished deterministic findings/risks/score and only EXPLAINS them:
-// root causes, cross-control patterns, gap clusters, an executive
-// narrative, a roadmap rationale and "virtual auditor" questions.
+// finished DETERMINISTIC findings/risks/score/recommendations and only
+// ANALYSES and EXPLAINS them, acting as a "Virtual Internal Auditor"
+// and "Virtual Compliance Advisor": root causes, gap/management themes,
+// executive insights, transformation programs, a management roadmap,
+// business impact and (optionally) a maturity narrative.
 function buildSystemPrompt(standardName: string, langName: string): string {
-  return `You are a senior management consultant and lead auditor for "${standardName}".
+  return `You are a senior cybersecurity & compliance consultant, internal auditor and virtual CISO advising on "${standardName}".
 
-You are given the results of a DETERMINISTIC compliance assessment that has ALREADY been computed by a rule engine: per-control findings (pass/partial/fail), a readiness score, and derived risks. These results are the source of truth and are FIXED.
+Your audience: Internal Auditors, Information Security Managers, CISOs, Compliance Managers, NIS2/DORA Program Managers, cybersecurity consultants, virtual CISOs and advisory firms.
 
-YOUR ROLE IS THE ANALYSIS LAYER ON TOP — you NEVER change, re-score, or contradict a finding. You add consulting value:
-1. executiveNarrative: a 4-6 sentence management situation report describing the overall posture (reactive/managed/etc.), where the biggest weaknesses cluster, and the business consequence. Board-ready prose.
-2. rootCauses: for the main weak areas, map the visible symptom to a likely underlying ROOT CAUSE (e.g. missing IAM strategy, no ITSM process). 2-5 items.
-3. gapClusters: group the failing/partial controls into 2-4 CORE THEMES so the reader sees "not 20 problems, but 3 root themes". Each cluster: title, one-sentence summary, and the related control ids.
-4. crossControlInsights: 2-4 statements linking deficits that are likely consequences of a single missing capability.
-5. roadmapRationale: 2-4 sentences explaining the sequencing logic (why critical/high first, dependencies).
-6. auditorQuestions: 4-6 sharp follow-up questions a human auditor would ask next ("virtual auditor").
+You are given the results of a DETERMINISTIC compliance assessment ALREADY computed by a rule engine: per-control findings (pass/partial/fail), a readiness score, derived risks, recommendations and (optionally) a maturity level. These results are the SINGLE SOURCE OF TRUTH and are FIXED.
+
+YOU ARE THE ANALYSIS LAYER ON TOP. You NEVER change, re-score or contradict a finding, risk, score, evidence, recommendation or compliance status. You add advisory value answering: "Where are we? Why are we there? What should we do next?" — not just "what score did we achieve?".
+
+Produce the following (write all text in ${langName}, executive language, minimal technical jargon):
+
+1. executiveNarrative: 4-6 sentence board-ready situation report on overall posture and the biggest weakness clusters and their business consequence.
+2. executiveInsights: object with arrays (2-5 items each), executive language:
+   - topWeaknesses, topStrengths, highestBusinessRisks, multiRegulatoryIssues (issues touching several requirements), managementFocus (what to act on first).
+3. rootCauses: for the main weak areas, map the visible symptom to the likely organizational ROOT CAUSE (missing governance, missing ownership, weak processes, lack of training, missing policies, weak risk management, inadequate supplier governance, weak identity management, ...). 3-6 items. Explain WHY issues exist, not only what is missing.
+4. gapClusters: group failing/partial controls into 2-5 CORE THEMES ("not 20 problems, but 4"). Each: title, one-sentence summary, related control ids, businessImpact, regulatoryImpact.
+5. crossControlInsights: 2-4 statements linking deficits that stem from a single missing capability.
+6. managementThemes: 3-5 management-level themes (e.g. Governance, Third Party Risk, Operational Resilience, Identity & Access Management, Security Monitoring). Each: title, currentState, riskExposure, improvementOpportunity.
+7. transformationPrograms: 3-5 higher-level programs that REPLACE long recommendation lists (e.g. "Cybersecurity Governance Enhancement"). Each: title, objectives, expectedBenefits, relatedControlIds, relatedRisks, complexity (low|medium|high), businessValue (low|medium|high).
+8. managementRoadmap: phased plan grouped into "0-3", "3-6", "6-12", "12+". Each: phase, activities (array), rationale. Prioritise by risk reduction, regulatory impact, business impact and implementation effort. Suitable for management decision-making.
+9. maturityNarrative: if a maturity level is provided, a short narrative explaining current vs target maturity, key gaps and improvement priorities (explain what the level MEANS, not just numbers). Empty string if no maturity provided.
+10. businessImpact: translate the major weaknesses/clusters into business consequences (regulatory exposure, higher incident likelihood, operational disruption, reputational/financial damage, audit findings). 3-6 items, each: area, consequence.
+11. roadmapRationale: 2-4 sentences explaining the sequencing logic.
+12. auditorQuestions: 4-6 sharp follow-up questions a human internal auditor would ask next.
 
 DATA-INTEGRITY POLICY (non-negotiable):
-- Base every statement ONLY on the provided findings/risks. Never invent controls, evidence, systems or facts.
+- Base every statement ONLY on the provided findings/risks/recommendations/score/maturity. Never invent controls, evidence, systems or facts.
 - Never assert a control is compliant/non-compliant beyond what the findings already state.
-- This output is EXPLANATORY, not a compliance verdict.
-
-Write all text in ${langName}.
+- This output is EXPLANATORY and ADVISORY, not a compliance verdict.
 
 Return ONLY valid JSON (no markdown) with this exact shape:
 {
   "executiveNarrative": "...",
+  "executiveInsights": { "topWeaknesses": ["..."], "topStrengths": ["..."], "highestBusinessRisks": ["..."], "multiRegulatoryIssues": ["..."], "managementFocus": ["..."] },
   "rootCauses": [ { "symptom": "...", "cause": "..." } ],
-  "gapClusters": [ { "title": "...", "summary": "...", "controlIds": ["A21-1"] } ],
+  "gapClusters": [ { "title": "...", "summary": "...", "controlIds": ["A21-1"], "businessImpact": "...", "regulatoryImpact": "..." } ],
   "crossControlInsights": ["..."],
+  "managementThemes": [ { "title": "...", "currentState": "...", "riskExposure": "...", "improvementOpportunity": "..." } ],
+  "transformationPrograms": [ { "title": "...", "objectives": "...", "expectedBenefits": "...", "relatedControlIds": ["A21-1"], "relatedRisks": "...", "complexity": "medium", "businessValue": "high" } ],
+  "managementRoadmap": [ { "phase": "0-3", "activities": ["..."], "rationale": "..." } ],
+  "maturityNarrative": "...",
+  "businessImpact": [ { "area": "...", "consequence": "..." } ],
   "roadmapRationale": "...",
   "auditorQuestions": ["..."]
 }`;
@@ -97,11 +115,12 @@ serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { standardName, language, score, findings, risks } = body ?? {};
+    const { standardName, language, score, findings, risks, recommendations, maturity } = body ?? {};
 
     if (typeof standardName !== "string" || standardName.length > 80) return bad("Invalid standardName");
     if (!Array.isArray(findings) || findings.length === 0 || findings.length > 80) return bad("Invalid findings");
     if (!Array.isArray(risks) || risks.length > 40) return bad("Invalid risks");
+    if (recommendations !== undefined && (!Array.isArray(recommendations) || recommendations.length > 60)) return bad("Invalid recommendations");
     if (score !== undefined && (typeof score !== "number" || score < 0 || score > 100)) return bad("Invalid score");
     const lang = typeof language === "string" && LANG_NAME[language] ? language : "de";
 
@@ -118,9 +137,16 @@ serve(async (req) => {
     const risksText = risks
       .map((r: any) => `${String(r.name ?? "").slice(0, 200)} (L${Number(r.likelihood) || 0}×I${Number(r.impact) || 0})`)
       .join("\n");
+    const recsText = Array.isArray(recommendations)
+      ? recommendations.map((r: any) => `${String(r.title ?? "").slice(0, 160)} [${String(r.priority ?? "").slice(0, 12)}]`).join("\n")
+      : "";
+    const maturityText = maturity && typeof maturity === "object"
+      ? `current ${Number((maturity as any).current) || 0}/5, target ${Number((maturity as any).target) || 0}/5`
+      : "";
 
     const userContent = `STANDARD: ${standardName}
 READINESS SCORE: ${typeof score === "number" ? score : "n/a"}%
+MATURITY: ${maturityText || "(not enabled)"}
 
 DETERMINISTIC FINDINGS (fixed, do not change):
 ${findingsText}
@@ -128,7 +154,10 @@ ${findingsText}
 DERIVED RISKS:
 ${risksText || "(none)"}
 
-Produce the analysis JSON now.`;
+DETERMINISTIC RECOMMENDATIONS:
+${recsText || "(none)"}
+
+Produce the advisory analysis JSON now.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -143,7 +172,7 @@ Produce the analysis JSON now.`;
           { role: "user", content: userContent },
         ],
         response_format: { type: "json_object" },
-        max_tokens: 4000,
+        max_tokens: 6000,
         temperature: 0.5,
       }),
     });
@@ -170,10 +199,27 @@ Produce the analysis JSON now.`;
 
     const knownIds = new Set(findings.map((f: any) => String(f.id)));
     const str = (x: unknown) => String(x ?? "");
-    const arrStr = (x: unknown) => Array.isArray(x) ? x.map(str).filter(Boolean).slice(0, 8) : [];
+    const arrStr = (x: unknown, max = 8) => Array.isArray(x) ? x.map(str).filter(Boolean).slice(0, max) : [];
+    const filterIds = (x: unknown) => (Array.isArray(x) ? x.map(str) : []).filter((id: string) => knownIds.has(id)).slice(0, 12);
+    const rating = (x: unknown): "low" | "medium" | "high" => {
+      const v = str(x).toLowerCase();
+      return v === "low" || v === "high" ? v : "medium";
+    };
+    const ei = parsed.executiveInsights ?? {};
+    const phaseOf = (x: unknown): string => {
+      const v = str(x).replace(/\s/g, "");
+      return ["0-3", "3-6", "6-12", "12+"].includes(v) ? v : "0-3";
+    };
 
     const out = {
       executiveNarrative: str(parsed.executiveNarrative),
+      executiveInsights: {
+        topWeaknesses: arrStr(ei.topWeaknesses, 6),
+        topStrengths: arrStr(ei.topStrengths, 6),
+        highestBusinessRisks: arrStr(ei.highestBusinessRisks, 6),
+        multiRegulatoryIssues: arrStr(ei.multiRegulatoryIssues, 6),
+        managementFocus: arrStr(ei.managementFocus, 6),
+      },
       rootCauses: Array.isArray(parsed.rootCauses)
         ? parsed.rootCauses.slice(0, 6).map((r: any) => ({ symptom: str(r?.symptom), cause: str(r?.cause) })).filter((r: any) => r.cause)
         : [],
@@ -181,10 +227,42 @@ Produce the analysis JSON now.`;
         ? parsed.gapClusters.slice(0, 5).map((c: any) => ({
             title: str(c?.title),
             summary: str(c?.summary),
-            controlIds: (Array.isArray(c?.controlIds) ? c.controlIds.map(str) : []).filter((id: string) => knownIds.has(id)).slice(0, 12),
+            controlIds: filterIds(c?.controlIds),
+            businessImpact: str(c?.businessImpact),
+            regulatoryImpact: str(c?.regulatoryImpact),
           })).filter((c: any) => c.title)
         : [],
       crossControlInsights: arrStr(parsed.crossControlInsights),
+      managementThemes: Array.isArray(parsed.managementThemes)
+        ? parsed.managementThemes.slice(0, 6).map((m: any) => ({
+            title: str(m?.title),
+            currentState: str(m?.currentState),
+            riskExposure: str(m?.riskExposure),
+            improvementOpportunity: str(m?.improvementOpportunity),
+          })).filter((m: any) => m.title)
+        : [],
+      transformationPrograms: Array.isArray(parsed.transformationPrograms)
+        ? parsed.transformationPrograms.slice(0, 6).map((p: any) => ({
+            title: str(p?.title),
+            objectives: str(p?.objectives),
+            expectedBenefits: str(p?.expectedBenefits),
+            relatedControlIds: filterIds(p?.relatedControlIds),
+            relatedRisks: str(p?.relatedRisks),
+            complexity: rating(p?.complexity),
+            businessValue: rating(p?.businessValue),
+          })).filter((p: any) => p.title)
+        : [],
+      managementRoadmap: Array.isArray(parsed.managementRoadmap)
+        ? parsed.managementRoadmap.slice(0, 4).map((r: any) => ({
+            phase: phaseOf(r?.phase),
+            activities: arrStr(r?.activities, 8),
+            rationale: str(r?.rationale),
+          })).filter((r: any) => r.activities.length)
+        : [],
+      maturityNarrative: str(parsed.maturityNarrative),
+      businessImpact: Array.isArray(parsed.businessImpact)
+        ? parsed.businessImpact.slice(0, 8).map((b: any) => ({ area: str(b?.area), consequence: str(b?.consequence) })).filter((b: any) => b.consequence)
+        : [],
       roadmapRationale: str(parsed.roadmapRationale),
       auditorQuestions: arrStr(parsed.auditorQuestions),
     };

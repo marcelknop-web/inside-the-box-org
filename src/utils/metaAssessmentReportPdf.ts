@@ -115,6 +115,24 @@ const T: Record<string, Record<Lang, string>> = {
   crossControl: { de: 'Übergreifende Zusammenhänge', en: 'Cross-control Insights', fr: 'Liens transverses' },
   roadmapRationale: { de: 'Begründung der Roadmap', en: 'Roadmap Rationale', fr: 'Justification de la feuille de route' },
   auditorQuestions: { de: 'Vertiefende Audit-Fragen', en: 'Deepening Audit Questions', fr: "Questions d'audit" },
+  execInsights: { de: 'Executive Insights', en: 'Executive Insights', fr: 'Executive Insights' },
+  topWeaknesses: { de: 'Wichtigste Schwächen', en: 'Top Weaknesses', fr: 'Principales faiblesses' },
+  topStrengths: { de: 'Wichtigste Stärken', en: 'Top Strengths', fr: 'Principales forces' },
+  highestBusinessRisks: { de: 'Höchste Geschäftsrisiken', en: 'Highest Business Risks', fr: 'Risques métier majeurs' },
+  multiRegulatory: { de: 'Mehrere Anforderungen betroffen', en: 'Multi-requirement Issues', fr: 'Plusieurs exigences' },
+  managementFocus: { de: 'Management-Fokus zuerst', en: 'Management Focus First', fr: 'Priorités direction' },
+  managementThemes: { de: 'Management-Themen', en: 'Management Themes', fr: 'Thèmes de direction' },
+  currentState: { de: 'Ist-Zustand', en: 'Current State', fr: 'État actuel' },
+  riskExposure: { de: 'Risiko-Exposition', en: 'Risk Exposure', fr: 'Exposition au risque' },
+  improvementOpp: { de: 'Verbesserungspotenzial', en: 'Improvement Opportunity', fr: "Opportunité d'amélioration" },
+  transformationPrograms: { de: 'Transformationsprogramme', en: 'Transformation Programs', fr: 'Programmes de transformation' },
+  objectives: { de: 'Ziele', en: 'Objectives', fr: 'Objectifs' },
+  expectedBenefits: { de: 'Erwarteter Nutzen', en: 'Expected Benefits', fr: 'Bénéfices attendus' },
+  complexity: { de: 'Komplexität', en: 'Complexity', fr: 'Complexité' },
+  businessValueLbl: { de: 'Geschäftswert', en: 'Business Value', fr: 'Valeur métier' },
+  managementRoadmap: { de: 'Management-Roadmap', en: 'Management Roadmap', fr: 'Feuille de route direction' },
+  maturityInsights: { de: 'Reifegrad-Analyse', en: 'Maturity Insights', fr: 'Analyse de maturité' },
+  businessImpactLbl: { de: 'Business-Impact-Analyse', en: 'Business Impact Analysis', fr: 'Analyse impact métier' },
   disclaimer: {
     de: 'Dieser Bericht stellt keine formale Zertifizierung dar und ersetzt nicht die Bewertung durch eine anerkannte Prüfstelle. Die Konformitätsbewertung beruht auf den im Intake gemachten Angaben.',
     en: 'This report does not constitute a formal certification and does not replace assessment by a recognised authority. The compliance assessment is based on the information provided during intake.',
@@ -124,6 +142,12 @@ const T: Record<string, Record<Lang, string>> = {
 
 function t(key: string, lang: Lang): string {
   return T[key]?.[lang] ?? T[key]?.en ?? key;
+}
+
+function ratingLabel(r: string, lang: Lang): string {
+  if (r === 'low') return lang === 'de' ? 'Niedrig' : lang === 'fr' ? 'Faible' : 'Low';
+  if (r === 'high') return lang === 'de' ? 'Hoch' : lang === 'fr' ? 'Élevé' : 'High';
+  return lang === 'de' ? 'Mittel' : lang === 'fr' ? 'Moyen' : 'Medium';
 }
 
 const VERDICT_LABEL: Record<string, Record<Lang, string>> = {
@@ -334,17 +358,79 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
       pdf.sectionLabel(t('execNarrative', lang));
       pdf.bodyParagraph(insights.executiveNarrative);
     }
+
+    const ei = insights.executiveInsights;
+    if (ei && (ei.topWeaknesses?.length || ei.topStrengths?.length || ei.managementFocus?.length)) {
+      pdf.heading(t('execInsights', lang), 2);
+      const list = (label: string, items?: string[]) => {
+        if (!items?.length) return;
+        pdf.sectionLabel(label);
+        items.forEach((it) => pdf.bulletItem(it));
+      };
+      list(t('topWeaknesses', lang), ei.topWeaknesses);
+      list(t('topStrengths', lang), ei.topStrengths);
+      list(t('highestBusinessRisks', lang), ei.highestBusinessRisks);
+      list(t('multiRegulatory', lang), ei.multiRegulatoryIssues);
+      list(t('managementFocus', lang), ei.managementFocus);
+    }
+
     if (insights.rootCauses?.length) {
       pdf.sectionLabel(t('rootCauses', lang));
       insights.rootCauses.forEach((rc) => pdf.bulletItem(`${rc.symptom} → ${rc.cause}`));
     }
     if (insights.gapClusters?.length) {
-      pdf.sectionLabel(t('gapClusters', lang));
-      insights.gapClusters.forEach((gc) => pdf.bulletItem(`${gc.title}: ${gc.summary}`));
+      pdf.heading(t('gapClusters', lang), 2);
+      insights.gapClusters.forEach((gc) => {
+        pdf.checkSpace(24);
+        pdf.heading(gc.title, 3);
+        if (gc.summary) pdf.bodyText(gc.summary);
+        if (gc.businessImpact) { pdf.sectionLabel(t('businessImpactLbl', lang)); pdf.bodyText(gc.businessImpact); }
+        if (gc.regulatoryImpact) { pdf.sectionLabel(t('multiRegulatory', lang)); pdf.bodyText(gc.regulatoryImpact); }
+        if (gc.controlIds?.length) pdf.metaLine(gc.controlIds.join(', '));
+      });
     }
     if (insights.crossControlInsights?.length) {
       pdf.sectionLabel(t('crossControl', lang));
       insights.crossControlInsights.forEach((c) => pdf.bulletItem(c));
+    }
+    if (insights.managementThemes?.length) {
+      pdf.heading(t('managementThemes', lang), 2);
+      insights.managementThemes.forEach((m) => {
+        pdf.checkSpace(28);
+        pdf.heading(m.title, 3);
+        if (m.currentState) { pdf.sectionLabel(t('currentState', lang)); pdf.bodyText(m.currentState); }
+        if (m.riskExposure) { pdf.sectionLabel(t('riskExposure', lang)); pdf.bodyText(m.riskExposure); }
+        if (m.improvementOpportunity) { pdf.sectionLabel(t('improvementOpp', lang)); pdf.bodyText(m.improvementOpportunity); }
+      });
+    }
+    if (insights.transformationPrograms?.length) {
+      pdf.heading(t('transformationPrograms', lang), 2);
+      insights.transformationPrograms.forEach((p) => {
+        pdf.checkSpace(28);
+        pdf.heading(p.title, 3);
+        pdf.metaLine(`${t('complexity', lang)}: ${ratingLabel(p.complexity, lang)} · ${t('businessValueLbl', lang)}: ${ratingLabel(p.businessValue, lang)}`);
+        if (p.objectives) { pdf.sectionLabel(t('objectives', lang)); pdf.bodyText(p.objectives); }
+        if (p.expectedBenefits) { pdf.sectionLabel(t('expectedBenefits', lang)); pdf.bodyText(p.expectedBenefits); }
+        if (p.relatedRisks) { pdf.sectionLabel(t('riskExposure', lang)); pdf.bodyText(p.relatedRisks); }
+        if (p.relatedControlIds?.length) pdf.metaLine(p.relatedControlIds.join(', '));
+      });
+    }
+    if (insights.businessImpact?.length) {
+      pdf.sectionLabel(t('businessImpactLbl', lang));
+      insights.businessImpact.forEach((b) => pdf.bulletItem(`${b.area}: ${b.consequence}`));
+    }
+    if (computed.maturity?.enabled && insights.maturityNarrative) {
+      pdf.sectionLabel(t('maturityInsights', lang));
+      pdf.bodyParagraph(insights.maturityNarrative);
+    }
+    if (insights.managementRoadmap?.length) {
+      pdf.heading(t('managementRoadmap', lang), 2);
+      insights.managementRoadmap.forEach((r) => {
+        pdf.checkSpace(20);
+        pdf.sectionLabel(`${r.phase} ${t('months', lang)}`);
+        r.activities.forEach((a) => pdf.bulletItem(a));
+        if (r.rationale) pdf.metaLine(r.rationale);
+      });
     }
     if (insights.roadmapRationale) {
       pdf.sectionLabel(t('roadmapRationale', lang));
