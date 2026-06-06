@@ -34,6 +34,7 @@ function ui(lang: Lang) {
     chooseStandard: de ? 'Standard wählen' : fr ? 'Choisir un standard' : 'Choose a standard',
     soon: de ? 'Bald' : fr ? 'Bientôt' : 'Soon',
     open: de ? 'Starten' : fr ? 'Démarrer' : 'Start',
+    demo: de ? 'Demo' : fr ? 'Démo' : 'Demo',
     back: de ? 'Zurück' : fr ? 'Retour' : 'Back',
     next: de ? 'Weiter' : fr ? 'Suivant' : 'Next',
     run: de ? 'KI-Auswertung starten' : fr ? "Lancer l'évaluation IA" : 'Run AI evaluation',
