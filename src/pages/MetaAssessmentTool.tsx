@@ -461,7 +461,13 @@ const MetaAssessmentTool = () => {
             })}
           </div>
 
-          {phase === 'standard' && <StandardSelect lang={lang} onPick={(p) => { setProfile(p); setPhase('intake'); }} />}
+          {phase === 'standard' && (
+            <StandardSelect
+              lang={lang}
+              onPick={(p) => { setProfile(p); setAnswers({}); setPhase('intake'); }}
+              onDemo={(p) => { setProfile(p); setAnswers(p.demoAnswers ?? {}); runAssessment(p, p.demoAnswers ?? {}); }}
+            />
+          )}
 
           {phase === 'intake' && profile && (
             <IntakeWizard
