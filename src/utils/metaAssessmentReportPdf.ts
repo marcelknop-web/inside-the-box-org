@@ -44,8 +44,11 @@ const T: Record<string, Record<Lang, string>> = {
   sec5: { de: '5  Vollständige Kontrollmatrix', en: '5  Complete Control Matrix', fr: '5  Matrice de contrôle complète' },
   sec6: { de: '6  Risikolandschaft', en: '6  Risk Landscape', fr: '6  Paysage des risques' },
   sec7: { de: '7  Maßnahmen und Roadmap', en: '7  Recommendations and Roadmap', fr: '7  Recommandations et feuille de route' },
-  sec8: { de: '8  KI-Analyse (erklärend)', en: '8  AI Analysis (explanatory)', fr: '8  Analyse IA (explicative)' },
-  sec9: { de: '9  Schlussfolgerung', en: '9  Conclusion', fr: '9  Conclusion' },
+  sec8: { de: '8  AI Insights & Advisory', en: '8  AI Insights & Advisory', fr: '8  AI Insights & Advisory' },
+  sec9: { de: '9  Conclusion', en: '9  Conclusion', fr: '9  Conclusion' },
+
+  howProduced: { de: 'How This Assessment Was Produced', en: 'How This Assessment Was Produced', fr: 'How This Assessment Was Produced' },
+  whyMatters: { de: 'Why This Matters', en: 'Why This Matters', fr: 'Why This Matters' },
 
   verdictOverview: { de: 'Befundübersicht', en: 'Verdict Overview', fr: 'Aperçu des verdicts' },
   readiness: { de: 'Reifegrad', en: 'Readiness', fr: 'Maturité' },
@@ -140,14 +143,14 @@ const T: Record<string, Record<Lang, string>> = {
   },
 };
 
-function t(key: string, lang: Lang): string {
-  return T[key]?.[lang] ?? T[key]?.en ?? key;
+function t(key: string, _lang: Lang): string {
+  return T[key]?.en ?? key;
 }
 
-function ratingLabel(r: string, lang: Lang): string {
-  if (r === 'low') return lang === 'de' ? 'Niedrig' : lang === 'fr' ? 'Faible' : 'Low';
-  if (r === 'high') return lang === 'de' ? 'Hoch' : lang === 'fr' ? 'Élevé' : 'High';
-  return lang === 'de' ? 'Mittel' : lang === 'fr' ? 'Moyen' : 'Medium';
+function ratingLabel(r: string, _lang: Lang): string {
+  if (r === 'low') return 'Low';
+  if (r === 'high') return 'High';
+  return 'Medium';
 }
 
 const VERDICT_LABEL: Record<string, Record<Lang, string>> = {
@@ -176,7 +179,9 @@ function formatAnswer(field: { type: string; options?: { id: string; label: any 
 }
 
 export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<void> {
-  const { profile, lang, result, computed, answers, entityName, insights } = data;
+  const { profile, result, computed, answers, entityName, insights } = data;
+  // The report is produced in English only, independent of the UI language.
+  const lang: Lang = 'en';
 
   const pdf = await createPdfDoc({
     lang,
@@ -186,7 +191,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     draftWatermark: t('draft', lang),
   });
 
-  const dateStr = new Date().toLocaleDateString(lang === 'de' ? 'de-DE' : lang === 'fr' ? 'fr-FR' : 'en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+  const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
 
   // ── Cover ───────────────────────────────────────────────────
   pdf.coverPage({
@@ -239,6 +244,17 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     title: t('verdictOverview', lang),
   });
 
+  // ── Why This Matters (translate results into business language) ──
+  pdf.heading(t('whyMatters', lang), 2);
+  pdf.bodyParagraph(
+    'This section translates the assessment results into business language for executives, board members and management teams. It frames the findings in terms of business impact, regulatory exposure, operational consequences, financial implications and strategic priorities — not just a score.',
+  );
+  pdf.bulletItem('Business impact — how gaps affect day-to-day operations and service delivery.');
+  pdf.bulletItem('Regulatory exposure — where the organisation falls short of mandatory obligations.');
+  pdf.bulletItem('Operational consequences — the risks that materialise if gaps remain unaddressed.');
+  pdf.bulletItem('Financial implications — potential cost of incidents, penalties and remediation.');
+  pdf.bulletItem('Strategic priorities — what management should focus on first to reduce exposure.');
+
   // ── 2 Subject and Scope ─────────────────────────────────────
   pdf.newPage();
   pdf.heading(t('sec2', lang), 1);
@@ -257,6 +273,14 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   pdf.heading(t('sec3', lang), 1);
   pdf.addBookmark(t('sec3', lang), 1);
   pdf.bodyParagraph(t('principlesIntro', lang));
+
+  // ── How This Assessment Was Produced (trust & auditability) ──
+  pdf.heading(t('howProduced', lang), 2);
+  pdf.bulletItem('Assessment responses were collected through structured intake.');
+  pdf.bulletItem('Compliance status was determined through deterministic assessment logic.');
+  pdf.bulletItem('Risks were derived from the identified gaps.');
+  pdf.bulletItem('AI generated explanatory insights, root cause analysis, clustering, management themes and roadmap recommendations.');
+  pdf.bulletItem('AI did not create, modify or override findings, risks, evidence or compliance results.');
 
   // ── 4 Individual Findings ───────────────────────────────────
   pdf.newPage();

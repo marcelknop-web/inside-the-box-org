@@ -29,17 +29,17 @@ interface Group {
 const GROUPS: Group[] = [
   {
     label: {
-      de: 'Universal (Beta)',
-      en: 'Universal (Beta)',
-      fr: 'Universel (Bêta)',
+      de: 'Internal Audit & Compliance Readiness (Beta)',
+      en: 'Internal Audit & Compliance Readiness (Beta)',
+      fr: 'Internal Audit & Compliance Readiness (Beta)',
     },
     tools: [
       {
-        icon: Sparkles, path: '/meta-assessment', protected: true, title: 'Meta-Assessment',
+        icon: Sparkles, path: '/meta-assessment', protected: true, title: 'AI-Powered Audit & Readiness Platform',
         desc: {
-          de: 'Universelles Tool: Standard wählen → Intake → KI-Auswertung → Reporting.',
-          en: 'Universal tool: pick a standard → intake → AI evaluation → reporting.',
-          fr: 'Outil universel : standard → intake → IA → rapport.',
+          de: 'Pick a standard → intake → compliance assessment → AI insights → reporting. Rule-based compliance with an AI insight & advisory layer.',
+          en: 'Pick a standard → intake → compliance assessment → AI insights → reporting. Rule-based compliance with an AI insight & advisory layer.',
+          fr: 'Pick a standard → intake → compliance assessment → AI insights → reporting. Rule-based compliance with an AI insight & advisory layer.',
         },
       },
     ],

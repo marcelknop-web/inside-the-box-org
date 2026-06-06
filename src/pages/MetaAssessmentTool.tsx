@@ -10,9 +10,9 @@ import { LucideIcon } from 'lucide-react';
 import { SiteChrome } from '@/components/SiteChrome';
 import { PasswordGate } from '@/components/PasswordGate';
 import { PageMeta } from '@/components/PageMeta';
-import { useLanguage } from '@/i18n/LanguageContext';
+
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+
 import { STANDARD_PROFILES, getProfile, tr, assess, MATURITY_LEVELS, maturityKey } from '@/data/metaAssessment';
 import type {
   Lang, StandardProfile, IntakeField, IntakeAnswers,
@@ -26,79 +26,91 @@ const ICONS: Record<string, LucideIcon> = {
 
 type Phase = 'standard' | 'intake' | 'analyzing' | 'report';
 
-// ── small i18n helper for chrome strings ────────────────────────
-function ui(lang: Lang) {
-  const de = lang === 'de', fr = lang === 'fr';
+// ── chrome strings — English only ───────────────────────────────
+// The platform is positioned as an AI-Powered Internal Audit & Compliance
+// Readiness Platform. Compliance is determined by the deterministic
+// Assessment Engine; AI provides an interpretation & advisory layer only.
+function ui(_lang: Lang) {
   return {
-    section: de ? '/ META-ASSESSMENT' : fr ? '/ MÉTA-ÉVALUATION' : '/ META ASSESSMENT',
-    headline: de ? 'Universelles Assessment-Tool' : fr ? "Outil d'évaluation universel" : 'Universal assessment tool',
-    sub: de ? 'Standard wählen → Intake → KI-Auswertung → Reporting.' : fr ? 'Standard → intake → IA → rapport.' : 'Pick a standard → intake → AI evaluation → reporting.',
-    chooseStandard: de ? 'Standard wählen' : fr ? 'Choisir un standard' : 'Choose a standard',
-    soon: de ? 'Bald' : fr ? 'Bientôt' : 'Soon',
-    open: de ? 'Starten' : fr ? 'Démarrer' : 'Start',
-    demo: de ? 'Demo' : fr ? 'Démo' : 'Demo',
-    back: de ? 'Zurück' : fr ? 'Retour' : 'Back',
-    next: de ? 'Weiter' : fr ? 'Suivant' : 'Next',
-    run: de ? 'KI-Auswertung starten' : fr ? "Lancer l'évaluation IA" : 'Run AI evaluation',
-    analyzing: de ? 'Die KI prüft jede Anforderung gegen die Nachweise …' : fr ? "L'IA évalue chaque exigence …" : 'The AI assesses each requirement against the evidence …',
-    required: de ? 'Pflichtfeld' : fr ? 'Champ requis' : 'Required',
-    restart: de ? 'Neu starten' : fr ? 'Recommencer' : 'Restart',
-    readiness: de ? 'Reifegrad' : fr ? 'Maturité' : 'Readiness',
-    checked: de ? 'Anforderungen geprüft' : fr ? 'exigences évaluées' : 'requirements assessed',
-    passed: de ? 'erfüllt' : fr ? 'conformes' : 'passed',
-    partial: de ? 'teilweise' : fr ? 'partiel' : 'partial',
-    gaps: de ? 'Lücken' : fr ? 'lacunes' : 'gaps',
-    risks: de ? 'Risiken' : fr ? 'Risques' : 'Risks',
-    critical: de ? 'Kritisch' : fr ? 'Critiques' : 'Critical',
-    findings: de ? 'Befunde je Anforderung' : fr ? 'Constats par exigence' : 'Findings per requirement',
-    evidence: de ? 'Nachweis' : fr ? 'Preuve' : 'Evidence',
-    gap: de ? 'Lücke' : fr ? 'Lacune' : 'Gap',
-    measure: de ? 'Empfohlene Maßnahme' : fr ? 'Mesure recommandée' : 'Recommended measure',
-    rationale: de ? 'Begründung' : fr ? 'Justification' : 'Rationale',
-    riskLandscape: de ? 'Risikolandschaft' : fr ? 'Paysage des risques' : 'Risk landscape',
-    exportJson: de ? 'Ergebnis exportieren (JSON)' : fr ? 'Exporter (JSON)' : 'Export result (JSON)',
-    exportPdf: de ? 'Bericht als PDF' : fr ? 'Rapport en PDF' : 'Report as PDF',
-    pdfError: de ? 'PDF-Erstellung fehlgeschlagen.' : fr ? 'Échec de la création du PDF.' : 'PDF generation failed.',
-    error: de ? 'Auswertung fehlgeschlagen. Bitte erneut versuchen.' : fr ? 'Échec. Réessayez.' : 'Evaluation failed. Please retry.',
-    summary: de ? 'Zusammenfassung' : fr ? 'Synthèse' : 'Summary',
+    section: '/ INTERNAL AUDIT & COMPLIANCE READINESS',
+    headline: 'AI-Powered Internal Audit & Compliance Readiness Platform',
+    sub: 'Pick a standard → intake → compliance assessment → AI insights → reporting.',
+    valueProp: 'The Assessment Engine determines compliance. The AI Insight Engine explains why issues exist, how they connect, which matter most and what to prioritise — it never alters findings, scores or risks.',
+    chooseStandard: 'Choose a standard',
+    soon: 'Soon',
+    open: 'Start',
+    demo: 'Demo',
+    back: 'Back',
+    next: 'Next',
+    run: 'Run compliance assessment',
+    analyzing: 'Running the rule-based compliance assessment …',
+    required: 'Required',
+    restart: 'Restart',
+    readiness: 'Readiness',
+    checked: 'requirements assessed',
+    passed: 'passed',
+    partial: 'partial',
+    gaps: 'gaps',
+    risks: 'Risks',
+    critical: 'Critical',
+    findings: 'Findings per requirement',
+    evidence: 'Evidence',
+    gap: 'Gap',
+    measure: 'Recommended measure',
+    rationale: 'Rationale',
+    riskLandscape: 'Risk landscape',
+    exportJson: 'Export result (JSON)',
+    exportPdf: 'Report as PDF',
+    pdfError: 'PDF generation failed.',
+    error: 'Assessment failed. Please retry.',
+    summary: 'Summary',
+    // ── architecture (engine separation) ──
+    archTitle: 'How this platform works',
+    archEngines: [
+      'Deterministic Assessment Engine — source of truth',
+      'Risk Engine — risks derived from gaps',
+      'AI Insight Engine — interpretation layer',
+      'Reporting Engine — communication layer',
+    ],
+    archNote: 'AI is not responsible for compliance decisions. It explains results but never alters them.',
     // ── deterministic layer ──
-    computing: de ? 'Bewertung wird regelbasiert berechnet …' : fr ? 'Évaluation calculée par règles …' : 'Computing rule-based assessment …',
-    deterministicNote: de ? 'Regelbasierte Bewertung (revisionssicher, ohne KI).' : fr ? 'Évaluation basée sur des règles (sans IA).' : 'Rule-based assessment (audit-safe, no AI).',
-    recommendations: de ? 'Maßnahmenplan' : fr ? "Plan d'action" : 'Recommendation plan',
-    roadmap: de ? 'Roadmap' : fr ? 'Feuille de route' : 'Roadmap',
-    // ── AI insight layer ──
-    aiAnalysis: de ? 'KI-Analyse (erklärend)' : fr ? 'Analyse IA (explicative)' : 'AI analysis (explanatory)',
-    aiNote: de ? 'Die KI bewertet nichts — sie erklärt nur die regelbasierten Ergebnisse.' : fr ? "L'IA n'évalue rien — elle explique les résultats basés sur les règles." : 'The AI scores nothing — it only explains the rule-based results.',
-    loadInsights: de ? 'KI-Analyse laden' : fr ? "Charger l'analyse IA" : 'Load AI analysis',
-    loadingInsights: de ? 'KI analysiert die Ergebnisse …' : fr ? "L'IA analyse les résultats …" : 'AI is analysing the results …',
-    execNarrative: de ? 'Management-Lagebild' : fr ? 'Synthèse direction' : 'Executive narrative',
-    rootCauses: de ? 'Grundursachen' : fr ? 'Causes profondes' : 'Root causes',
-    gapClusters: de ? 'Kernthemen (Gap-Cluster)' : fr ? 'Thèmes clés' : 'Core themes (gap clusters)',
-    crossControl: de ? 'Übergreifende Zusammenhänge' : fr ? 'Liens transverses' : 'Cross-control insights',
-    roadmapRationale: de ? 'Begründung der Roadmap' : fr ? 'Justification de la feuille de route' : 'Roadmap rationale',
-    auditorQuestions: de ? 'Vertiefende Audit-Fragen' : fr ? "Questions d'audit" : 'Deepening audit questions',
-    insightsError: de ? 'KI-Analyse fehlgeschlagen. Bitte erneut versuchen.' : fr ? "Échec de l'analyse IA." : 'AI analysis failed. Please retry.',
+    computing: 'Computing rule-based assessment …',
+    deterministicNote: 'Rule-based compliance assessment (audit-safe, no AI).',
+    recommendations: 'Recommendation plan',
+    roadmap: 'Roadmap',
+    // ── AI insight & advisory layer ──
+    aiAnalysis: 'AI Insights & Advisory',
+    aiNote: 'AI interpretation layer — it explains the rule-based compliance results and never determines, modifies or overrides compliance status, scores or risks.',
+    loadInsights: 'Load AI Insights',
+    loadingInsights: 'AI is analysing the results …',
+    execNarrative: 'Executive narrative',
+    rootCauses: 'Root causes',
+    gapClusters: 'Core themes (gap clusters)',
+    crossControl: 'Cross-control insights',
+    roadmapRationale: 'Roadmap rationale',
+    auditorQuestions: 'Deepening audit questions',
+    insightsError: 'AI analysis failed. Please retry.',
     // ── advisory layer (virtual internal auditor / advisor) ──
-    consultantView: de ? 'Beratungsansicht' : fr ? 'Vue conseil' : 'Consultant view',
-    consultantHint: de ? 'Vertiefte Berater-Analyse: Grundursachen, Themen, Programme.' : fr ? 'Analyse conseil approfondie : causes, thèmes, programmes.' : 'In-depth advisory analysis: root causes, themes, programs.',
-    execInsights: de ? 'Executive Insights' : fr ? 'Executive Insights' : 'Executive Insights',
-    topWeaknesses: de ? 'Wichtigste Schwächen' : fr ? 'Principales faiblesses' : 'Top weaknesses',
-    topStrengths: de ? 'Wichtigste Stärken' : fr ? 'Principales forces' : 'Top strengths',
-    highestBusinessRisks: de ? 'Höchste Geschäftsrisiken' : fr ? 'Risques métier majeurs' : 'Highest business risks',
-    multiRegulatory: de ? 'Mehrere Anforderungen betroffen' : fr ? 'Plusieurs exigences' : 'Multi-requirement issues',
-    managementFocus: de ? 'Management-Fokus zuerst' : fr ? 'Priorités direction' : 'Management focus first',
-    managementThemes: de ? 'Management-Themen' : fr ? 'Thèmes de direction' : 'Management themes',
-    currentState: de ? 'Ist-Zustand' : fr ? 'État actuel' : 'Current state',
-    riskExposure: de ? 'Risiko-Exposition' : fr ? 'Exposition au risque' : 'Risk exposure',
-    improvementOpp: de ? 'Verbesserungspotenzial' : fr ? "Opportunité d'amélioration" : 'Improvement opportunity',
-    transformationPrograms: de ? 'Transformationsprogramme' : fr ? 'Programmes de transformation' : 'Transformation programs',
-    objectives: de ? 'Ziele' : fr ? 'Objectifs' : 'Objectives',
-    expectedBenefits: de ? 'Erwarteter Nutzen' : fr ? 'Bénéfices attendus' : 'Expected benefits',
-    complexity: de ? 'Komplexität' : fr ? 'Complexité' : 'Complexity',
-    businessValue: de ? 'Geschäftswert' : fr ? 'Valeur métier' : 'Business value',
-    managementRoadmap: de ? 'Management-Roadmap' : fr ? 'Feuille de route direction' : 'Management roadmap',
-    maturityInsights: de ? 'Reifegrad-Analyse' : fr ? 'Analyse de maturité' : 'Maturity insights',
-    businessImpact: de ? 'Business-Impact-Analyse' : fr ? 'Analyse impact métier' : 'Business impact analysis',
+    consultantView: 'Consultant & Internal Audit View',
+    consultantHint: 'In-depth advisory analysis: root causes, themes, programs.',
+    execInsights: 'Executive Insights',
+    topWeaknesses: 'Top weaknesses',
+    topStrengths: 'Top strengths',
+    highestBusinessRisks: 'Highest business risks',
+    multiRegulatory: 'Multi-requirement issues',
+    managementFocus: 'Management focus first',
+    managementThemes: 'Management themes',
+    currentState: 'Current state',
+    riskExposure: 'Risk exposure',
+    improvementOpp: 'Improvement opportunity',
+    transformationPrograms: 'Transformation programs',
+    objectives: 'Objectives',
+    expectedBenefits: 'Expected benefits',
+    complexity: 'Complexity',
+    businessValue: 'Business value',
+    managementRoadmap: 'Management roadmap',
+    maturityInsights: 'Maturity insights',
+    businessImpact: 'Business impact analysis',
   };
 }
 
@@ -107,6 +119,28 @@ const STATUS_STYLE: Record<ReqStatus, { cls: string; label: Record<Lang, string>
   partial: { cls: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20', label: { de: 'Teilweise', en: 'Partial', fr: 'Partiel' } },
   fail: { cls: 'bg-destructive/10 text-destructive border-destructive/20', label: { de: 'Lücke', en: 'Gap', fr: 'Lacune' } },
 };
+
+// ── Architecture explanation (engine separation) ────────────────
+function ArchitectureNote({ u }: { u: ReturnType<typeof ui> }) {
+  return (
+    <div className="mb-8 bg-background/40 border border-primary/15 rounded-lg p-5">
+      <h2 className="font-mono text-xs tracking-[0.25em] uppercase text-highlight mb-3">{u.archTitle}</h2>
+      <div className="flex flex-col sm:flex-row sm:items-stretch gap-2 sm:gap-0">
+        {u.archEngines.map((label, i) => (
+          <div key={label} className="flex items-center gap-2 sm:flex-1">
+            <div className="flex-1 bg-secondary/40 border border-border rounded-md px-3 py-2 text-xs text-foreground leading-snug">
+              {label}
+            </div>
+            {i < u.archEngines.length - 1 && (
+              <span className="text-primary font-mono hidden sm:inline">→</span>
+            )}
+          </div>
+        ))}
+      </div>
+      <p className="text-xs text-muted-foreground mt-3 leading-relaxed">{u.archNote}</p>
+    </div>
+  );
+}
 
 // ── Standard selector ───────────────────────────────────────────
 function StandardSelect({ lang, onPick }: { lang: Lang; onPick: (p: StandardProfile) => void }) {
@@ -387,9 +421,9 @@ function InsightsPanel({ insights, computed, lang, u, reqMeta }: {
 }) {
   const ei = insights.executiveInsights;
   const ratingLabel = (r: string) => {
-    if (r === 'low') return lang === 'de' ? 'Niedrig' : lang === 'fr' ? 'Faible' : 'Low';
-    if (r === 'high') return lang === 'de' ? 'Hoch' : lang === 'fr' ? 'Élevé' : 'High';
-    return lang === 'de' ? 'Mittel' : lang === 'fr' ? 'Moyen' : 'Medium';
+    if (r === 'low') return 'Low';
+    if (r === 'high') return 'High';
+    return 'Medium';
   };
   return (
     <div className="mt-5 space-y-5">
@@ -661,7 +695,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
                     <div className="text-sm font-semibold text-foreground break-words">{r.name}</div>
                     <div className="text-xs text-muted-foreground">{r.article}</div>
                   </div>
-                  <span className={`px-2 py-0.5 rounded text-xs font-bold border flex-shrink-0 ${st.cls}`}>{st.label[lang]}</span>
+                  <span className={`px-2 py-0.5 rounded text-xs font-bold border flex-shrink-0 ${st.cls}`}>{st.label.en}</span>
                 </summary>
                 <div className="border-t border-border bg-secondary/20 px-4 py-3 text-sm space-y-2.5">
                   {r.evidence && <ReportField label={u.evidence}>{r.evidence}</ReportField>}
@@ -756,10 +790,10 @@ function ReportField({ label, children }: { label: string; children: React.React
 
 // ── Page ────────────────────────────────────────────────────────
 const MetaAssessmentTool = () => {
-  const { language } = useLanguage();
-  const lang = language as Lang;
+  // This platform is presented in English only, independent of the global UI language.
+  const lang: Lang = 'en';
   const u = ui(lang);
-  const { toast } = useToast();
+  
 
   const [phase, setPhase] = useState<Phase>('standard');
   const [profile, setProfile] = useState<StandardProfile | null>(null);
@@ -782,7 +816,7 @@ const MetaAssessmentTool = () => {
   return (
     <SiteChrome>
       <PasswordGate storageKey="assessment-tools" label="Meta Assessment">
-        <PageMeta title="Universal Assessment Tool — Inside the Box" description="Universelles, KI-gestütztes Compliance-Assessment: Standard wählen, Intake, KI-Auswertung, Reporting." />
+        <PageMeta title="AI-Powered Internal Audit & Compliance Readiness Platform — Inside the Box" description="Rule-based compliance assessment with an AI insight & advisory layer: pick a standard, intake, compliance assessment, AI insights, reporting." />
         <Helmet><meta name="robots" content="noindex,nofollow" /></Helmet>
 
         <main className="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
@@ -792,6 +826,9 @@ const MetaAssessmentTool = () => {
               {phase === 'standard' ? u.headline : `${profile?.name} — ${tr(profile?.fullName, lang)}`}
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground mt-3 max-w-2xl leading-relaxed">{u.sub}</p>
+            {phase === 'standard' && (
+              <p className="text-sm text-foreground/80 mt-3 max-w-2xl leading-relaxed">{u.valueProp}</p>
+            )}
           </header>
 
           {/* Phase nav */}
@@ -799,7 +836,7 @@ const MetaAssessmentTool = () => {
             {(['standard', 'intake', 'report'] as Phase[]).map((ph, i) => {
               const order = ['standard', 'intake', 'report'];
               const active = order.indexOf(phase) >= i;
-              const labels = { standard: u.chooseStandard, intake: 'Intake', report: 'Report' };
+              const labels = { standard: u.chooseStandard, intake: 'Intake', report: 'Assessment & Report' };
               return (
                 <div key={ph} className="flex items-center gap-2">
                   {i > 0 && <span className="text-border">›</span>}
@@ -810,10 +847,13 @@ const MetaAssessmentTool = () => {
           </div>
 
           {phase === 'standard' && (
-            <StandardSelect
-              lang={lang}
-              onPick={(p) => { setProfile(p); setAnswers({}); setPhase('intake'); }}
-            />
+            <>
+              <ArchitectureNote u={u} />
+              <StandardSelect
+                lang={lang}
+                onPick={(p) => { setProfile(p); setAnswers({}); setPhase('intake'); }}
+              />
+            </>
           )}
 
           {phase === 'intake' && profile && (
