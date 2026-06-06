@@ -241,9 +241,10 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     const meta = profile.requirements.find((x) => x.id === r.id);
     return { ...r, article: meta?.article ?? r.article ?? '', name: meta ? tr(meta.name, lang) : r.name };
   });
-  const pass = merged.filter((r) => r.status === 'pass').length;
-  const partial = merged.filter((r) => r.status === 'partial').length;
-  const fail = merged.filter((r) => r.status === 'fail').length;
+  // Single source of truth: counts come from the deterministic computed model.
+  const pass = computed.score.counts.pass;
+  const partial = computed.score.counts.partial;
+  const fail = computed.score.counts.fail;
   const pct = computed.score.weighted;
 
   // ── 1 Executive Summary ─────────────────────────────────────
