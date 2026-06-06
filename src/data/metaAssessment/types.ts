@@ -262,6 +262,33 @@ export interface ComputedAssessment {
   maturity: MaturityResult | null;
 }
 
+// ── Layer 2/3: AI Insight Engine output (explanatory, never scoring) ──
+export interface RootCause {
+  symptom: string;
+  cause: string;
+}
+
+export interface GapCluster {
+  title: string;
+  summary: string;
+  controlIds: string[];
+}
+
+export interface InsightResult {
+  /** Layer 3 — management situation narrative */
+  executiveNarrative: string;
+  /** Layer 2 — symptom → suspected root cause */
+  rootCauses: RootCause[];
+  /** Layer 2 — findings grouped into a few core themes */
+  gapClusters: GapCluster[];
+  /** Layer 2 — relationships between deficits */
+  crossControlInsights: string[];
+  /** Layer 3 — rationale for the deterministic roadmap phases */
+  roadmapRationale: string;
+  /** Layer 2 — "virtual auditor" deepening questions */
+  auditorQuestions: string[];
+}
+
 // ── Intake answer bag ───────────────────────────────────────────
 export type IntakeAnswers = Record<string, string | string[]>;
 
