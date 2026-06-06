@@ -12,6 +12,7 @@ import type {
   AssessmentResult, ComputedAssessment, InsightResult,
 } from '@/data/metaAssessment/types';
 import { tr } from '@/data/metaAssessment/types';
+import { ORIGIN, REPORT_TITLE, type ReportMeta } from '@/data/metaAssessment/reportMeta';
 
 export interface MetaReportData {
   profile: StandardProfile;
@@ -21,6 +22,7 @@ export interface MetaReportData {
   answers: IntakeAnswers;
   entityName: string;
   insights?: InsightResult | null;
+  reportMeta?: ReportMeta;
 }
 
 /* ── tiny i18n ─────────────────────────────────────────────── */
