@@ -399,9 +399,9 @@ function InsightsPanel({ insights, computed, lang, u, reqMeta }: {
 }) {
   const ei = insights.executiveInsights;
   const ratingLabel = (r: string) => {
-    if (r === 'low') return lang === 'de' ? 'Niedrig' : lang === 'fr' ? 'Faible' : 'Low';
-    if (r === 'high') return lang === 'de' ? 'Hoch' : lang === 'fr' ? 'Élevé' : 'High';
-    return lang === 'de' ? 'Mittel' : lang === 'fr' ? 'Moyen' : 'Medium';
+    if (r === 'low') return 'Low';
+    if (r === 'high') return 'High';
+    return 'Medium';
   };
   return (
     <div className="mt-5 space-y-5">
