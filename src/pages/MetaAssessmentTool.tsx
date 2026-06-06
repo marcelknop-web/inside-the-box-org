@@ -903,7 +903,70 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
         ))}
       </div>
 
+      {/* Management attention index + audit readiness (deterministic) */}
+      <div className="grid lg:grid-cols-2 gap-3">
+        {/* Attention index */}
+        <div className="bg-background/40 border border-primary/15 rounded-lg p-5">
+          <h2 className="font-mono text-xs tracking-[0.25em] uppercase text-highlight mb-1">{u.attentionIndex}</h2>
+          <div className="text-[10px] text-muted-foreground font-mono mb-3">{ORIGIN.assessment}</div>
+          {(() => {
+            const ai = computed.attentionIndex;
+            const lvlCls = ai.level === 'critical' ? 'bg-destructive text-destructive-foreground'
+              : ai.level === 'high' ? 'bg-orange-500 text-white'
+              : ai.level === 'medium' ? 'bg-yellow-500 text-black' : 'bg-green-500 text-white';
+            return (
+              <>
+                <div className="flex items-center gap-3">
+                  <span className={`px-3 py-1 rounded text-sm font-bold uppercase tracking-wide ${lvlCls}`}>{attentionLabel(ai.level, lang)}</span>
+                  <div className="flex gap-1.5 text-[11px] font-mono">
+                    <span className="text-destructive">{ai.counts.critical}C</span>
+                    <span className="text-orange-500">{ai.counts.high}H</span>
+                    <span className="text-yellow-500">{ai.counts.medium}M</span>
+                    <span className="text-green-500">{ai.counts.low}L</span>
+                  </div>
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-3">{u.attentionIndexHint}</p>
+                {ai.drivers.length > 0 && (
+                  <div className="mt-2">
+                    <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">{u.attentionDrivers}</div>
+                    <ul className="space-y-0.5">
+                      {ai.drivers.map((d, i) => (
+                        <li key={i} className="text-xs text-foreground flex gap-1.5"><span className="text-primary">•</span><span>{d}</span></li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </>
+            );
+          })()}
+        </div>
+
+        {/* Audit readiness dimensions */}
+        <div className="bg-background/40 border border-primary/15 rounded-lg p-5">
+          <h2 className="font-mono text-xs tracking-[0.25em] uppercase text-highlight mb-1">{u.auditReadiness}</h2>
+          <div className="text-[10px] text-muted-foreground font-mono mb-3">{ORIGIN.assessment}</div>
+          <div className="space-y-2.5">
+            {computed.auditReadiness.dimensions.map((d) => {
+              const barCls = d.pct >= 80 ? 'bg-green-500' : d.pct >= 60 ? 'bg-yellow-500' : d.pct >= 35 ? 'bg-orange-500' : 'bg-destructive';
+              return (
+                <div key={d.id} title={d.basis}>
+                  <div className="flex items-center justify-between text-xs mb-1">
+                    <span className="text-foreground font-medium">{d.label}</span>
+                    <span className="font-mono text-muted-foreground">{readinessRatingLabel(d.rating, lang)} · {d.pct}%</span>
+                  </div>
+                  <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
+                    <div className={`h-full rounded-full ${barCls}`} style={{ width: `${d.pct}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-3">{u.auditReadinessHint}</p>
+        </div>
+      </div>
+
       {/* Findings */}
+
       <div>
         <h2 className="font-mono text-xs tracking-[0.25em] uppercase text-highlight mb-1">{u.findings}</h2>
         <div className="text-[10px] text-muted-foreground font-mono mb-3">{ORIGIN.assessment}</div>
