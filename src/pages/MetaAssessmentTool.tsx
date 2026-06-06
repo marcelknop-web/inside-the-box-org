@@ -793,7 +793,7 @@ const MetaAssessmentTool = () => {
   // This platform is presented in English only, independent of the global UI language.
   const lang: Lang = 'en';
   const u = ui(lang);
-  const { toast } = useToast();
+  
 
   const [phase, setPhase] = useState<Phase>('standard');
   const [profile, setProfile] = useState<StandardProfile | null>(null);
