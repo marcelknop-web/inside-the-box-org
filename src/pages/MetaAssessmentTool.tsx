@@ -57,6 +57,8 @@ function ui(lang: Lang) {
     rationale: de ? 'Begründung' : fr ? 'Justification' : 'Rationale',
     riskLandscape: de ? 'Risikolandschaft' : fr ? 'Paysage des risques' : 'Risk landscape',
     exportJson: de ? 'Ergebnis exportieren (JSON)' : fr ? 'Exporter (JSON)' : 'Export result (JSON)',
+    exportPdf: de ? 'Bericht als PDF' : fr ? 'Rapport en PDF' : 'Report as PDF',
+    pdfError: de ? 'PDF-Erstellung fehlgeschlagen.' : fr ? 'Échec de la création du PDF.' : 'PDF generation failed.',
     error: de ? 'Auswertung fehlgeschlagen. Bitte erneut versuchen.' : fr ? 'Échec. Réessayez.' : 'Evaluation failed. Please retry.',
     summary: de ? 'Zusammenfassung' : fr ? 'Synthèse' : 'Summary',
     // ── deterministic layer ──
