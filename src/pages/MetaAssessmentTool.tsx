@@ -730,17 +730,15 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
 
   const entityName = (answers.entityName as string) || profile.name;
 
+  // Canonical report metadata — generated once and reused by both the JSON
+  // export and the PDF so the Assessment ID / version / timestamp match.
+  const docMeta = useMemo(() => buildReportMeta(profile.id), [profile.id]);
+
   const exportJson = () => {
     // Export the canonical computed model alongside the raw result so the
     // JSON export can never contradict the on-screen / PDF figures.
     const payload = {
-      meta: {
-        title: 'Internal Audit & Compliance Readiness Assessment',
-        assessmentId: `${profile.id}-${Date.now().toString(36)}`,
-        generatedAt: new Date().toISOString(),
-        standard: profile.id,
-        entityName,
-      },
+      meta: { ...docMeta, standard: profile.id, entityName },
       profile: profile.id,
       entityName,
       answers,
