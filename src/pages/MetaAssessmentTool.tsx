@@ -537,11 +537,14 @@ function InsightsPanel({ insights, computed, lang, u, reqMeta }: {
       )}
 
       {insights.managementThemes?.length > 0 && (
-        <InsightSection title={u.managementThemes}>
+        <InsightSection title={u.managementThemes} layer="insight" confidence={insights.confidence?.managementThemes}>
           <div className="space-y-3">
             {insights.managementThemes.map((m, i) => (
               <div key={i} className="bg-background/50 border border-border rounded-md px-3 py-2.5">
-                <div className="text-sm font-semibold text-foreground">{m.title}</div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <div className="text-sm font-semibold text-foreground">{m.title}</div>
+                  <ConfidenceBadge level={m.confidence} />
+                </div>
                 <div className="grid sm:grid-cols-3 gap-2 mt-2 text-xs">
                   {m.currentState && <div><span className="font-semibold text-muted-foreground uppercase tracking-wide">{u.currentState}</span><p className="text-foreground mt-0.5">{m.currentState}</p></div>}
                   {m.riskExposure && <div><span className="font-semibold text-muted-foreground uppercase tracking-wide">{u.riskExposure}</span><p className="text-foreground mt-0.5">{m.riskExposure}</p></div>}
