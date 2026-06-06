@@ -92,6 +92,8 @@ export interface StandardProfile {
   maturity?: MaturityConfig;
   /** impact / likelihood scale max (default 5) */
   scaleMax?: number;
+  /** pre-filled intake answers for demo mode (test data) */
+  demoAnswers?: IntakeAnswers;
 }
 
 // ── Runtime result types (what the AI returns, normalised) ──────
