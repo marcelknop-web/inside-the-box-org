@@ -428,6 +428,10 @@ export interface InsightResult {
   roadmapRationale: string;
   /** Layer 2 — "virtual auditor" deepening questions */
   auditorQuestions: string[];
+  /** Layer 2 — recurring cross-finding systemic weaknesses */
+  systemicWeaknesses: SystemicWeakness[];
+  /** Per-category confidence ratings for AI interpretations */
+  confidence: ConfidenceSummary;
 }
 
 // ── Intake answer bag ───────────────────────────────────────────
