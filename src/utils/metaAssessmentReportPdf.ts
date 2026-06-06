@@ -250,6 +250,17 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     title: t('verdictOverview', lang),
   });
 
+  // ── Why This Matters (translate results into business language) ──
+  pdf.heading(t('whyMatters', lang), 2);
+  pdf.bodyParagraph(
+    'This section translates the assessment results into business language for executives, board members and management teams. It frames the findings in terms of business impact, regulatory exposure, operational consequences, financial implications and strategic priorities — not just a score.',
+  );
+  pdf.bulletItem('Business impact — how gaps affect day-to-day operations and service delivery.');
+  pdf.bulletItem('Regulatory exposure — where the organisation falls short of mandatory obligations.');
+  pdf.bulletItem('Operational consequences — the risks that materialise if gaps remain unaddressed.');
+  pdf.bulletItem('Financial implications — potential cost of incidents, penalties and remediation.');
+  pdf.bulletItem('Strategic priorities — what management should focus on first to reduce exposure.');
+
   // ── 2 Subject and Scope ─────────────────────────────────────
   pdf.newPage();
   pdf.heading(t('sec2', lang), 1);
