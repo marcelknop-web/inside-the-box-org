@@ -816,7 +816,7 @@ const MetaAssessmentTool = () => {
   return (
     <SiteChrome>
       <PasswordGate storageKey="assessment-tools" label="Meta Assessment">
-        <PageMeta title="Universal Assessment Tool — Inside the Box" description="Universelles, KI-gestütztes Compliance-Assessment: Standard wählen, Intake, KI-Auswertung, Reporting." />
+        <PageMeta title="AI-Powered Internal Audit & Compliance Readiness Platform — Inside the Box" description="Rule-based compliance assessment with an AI insight & advisory layer: pick a standard, intake, compliance assessment, AI insights, reporting." />
         <Helmet><meta name="robots" content="noindex,nofollow" /></Helmet>
 
         <main className="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
