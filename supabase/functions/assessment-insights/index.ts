@@ -215,6 +215,10 @@ Produce the advisory analysis JSON now.`;
       const v = str(x).toLowerCase();
       return v === "low" || v === "high" ? v : "medium";
     };
+    const conf = (x: unknown): "high" | "medium" | "low" => {
+      const v = str(x).toLowerCase();
+      return v === "high" || v === "low" ? v : "medium";
+    };
     const ei = parsed.executiveInsights ?? {};
     const phaseOf = (x: unknown): string => {
       const v = str(x).replace(/\s/g, "");
