@@ -449,6 +449,21 @@ function InsightChips({ title, items }: { title: string; items: string[] }) {
   );
 }
 
+function ValidationActivities({ items, label }: { items?: string[]; label: string }) {
+  if (!items?.length) return null;
+  return (
+    <div className="mt-1.5 pl-3 border-l-2 border-purple-500/30">
+      <div className="text-[10px] font-mono uppercase tracking-wide text-purple-400 mb-0.5">{label}</div>
+      <ul className="space-y-0.5">
+        {items.map((it, i) => (
+          <li key={i} className="text-xs text-muted-foreground flex gap-1.5"><span className="text-purple-400">›</span><span>{it}</span></li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+
 function InsightSection({ title, children, layer = 'insight', confidence }: {
   title: string; children: React.ReactNode; layer?: LayerKind; confidence?: string;
 }) {
