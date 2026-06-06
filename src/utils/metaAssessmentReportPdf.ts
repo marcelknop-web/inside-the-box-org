@@ -12,6 +12,7 @@ import type {
   AssessmentResult, ComputedAssessment, InsightResult,
 } from '@/data/metaAssessment/types';
 import { tr } from '@/data/metaAssessment/types';
+import { readinessRatingLabel, attentionLabel } from '@/data/metaAssessment/engine';
 import { ORIGIN, REPORT_TITLE, type ReportMeta } from '@/data/metaAssessment/reportMeta';
 
 export interface MetaReportData {
@@ -55,6 +56,9 @@ const T: Record<string, Record<Lang, string>> = {
   whyMatters: { de: 'Why This Matters', en: 'Why This Matters', fr: 'Why This Matters' },
 
   verdictOverview: { de: 'Befundübersicht', en: 'Verdict Overview', fr: 'Aperçu des verdicts' },
+  attentionIndex: { de: 'Management-Attention-Index', en: 'Management Attention Index', fr: "Indice d'attention direction" },
+  attentionDrivers: { de: 'Wesentliche Treiber', en: 'Key Drivers', fr: 'Facteurs clés' },
+  auditReadiness: { de: 'Audit-Bereitschaft', en: 'Audit Readiness', fr: "Préparation à l'audit" },
   readiness: { de: 'Reifegrad', en: 'Readiness', fr: 'Maturité' },
   passed: { de: 'Erfüllt', en: 'Passed', fr: 'Conformes' },
   partial: { de: 'Teilweise', en: 'Partial', fr: 'Partiel' },
@@ -267,6 +271,26 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   pdf.complianceBar(pass, partial, fail, {
     pass: t('passed', lang), partial: t('partial', lang), fail: t('gaps', lang),
     title: t('verdictOverview', lang),
+  });
+
+  // ── Management Attention Index (deterministic) ──────────────
+  const att = computed.attentionIndex;
+  pdf.heading(t('attentionIndex', lang), 2);
+  pdf.metaLine(ORIGIN.assessment);
+  pdf.fieldInline(t('attentionIndex', lang), `${attentionLabel(att.level, lang)}  (Critical ${att.counts.critical} · High ${att.counts.high} · Medium ${att.counts.medium} · Low ${att.counts.low})`);
+  if (att.drivers.length) {
+    pdf.sectionLabel(t('attentionDrivers', lang));
+    att.drivers.forEach((d) => pdf.bulletItem(d));
+  }
+
+  // ── Audit Readiness dimensions (deterministic) ──────────────
+  const ar = computed.auditReadiness;
+  pdf.heading(t('auditReadiness', lang), 2);
+  pdf.metaLine(ORIGIN.assessment);
+  pdf.fieldInline(`${t('readiness', lang)} (overall)`, `${readinessRatingLabel(ar.overall, lang)} · ${ar.overallPct}%`);
+  ar.dimensions.forEach((d) => {
+    pdf.fieldInline(d.label, `${readinessRatingLabel(d.rating, lang)} · ${d.pct}%`);
+    pdf.metaLine(d.basis);
   });
 
   // ── Why This Matters (translate results into business language) ──
