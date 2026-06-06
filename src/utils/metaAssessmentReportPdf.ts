@@ -144,6 +144,12 @@ function t(key: string, lang: Lang): string {
   return T[key]?.[lang] ?? T[key]?.en ?? key;
 }
 
+function ratingLabel(r: string, lang: Lang): string {
+  if (r === 'low') return lang === 'de' ? 'Niedrig' : lang === 'fr' ? 'Faible' : 'Low';
+  if (r === 'high') return lang === 'de' ? 'Hoch' : lang === 'fr' ? 'Élevé' : 'High';
+  return lang === 'de' ? 'Mittel' : lang === 'fr' ? 'Moyen' : 'Medium';
+}
+
 const VERDICT_LABEL: Record<string, Record<Lang, string>> = {
   pass: { de: 'Erfüllt', en: 'Pass', fr: 'Conforme' },
   partial: { de: 'Teilweise', en: 'Partial', fr: 'Partiel' },
