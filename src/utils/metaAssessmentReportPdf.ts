@@ -370,6 +370,24 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     );
   });
 
+  // ── Evidence Strength Overview (deterministic, informational) ──
+  const ev = computed.evidence;
+  const evTotal = merged.length || 1;
+  pdf.heading(t('evidenceStrength', lang), 2);
+  pdf.metaLine(ORIGIN.assessment);
+  pdf.introText('Informational overview of the strength of evidence supporting the assessment. It does not affect scoring or compliance status.');
+  ([
+    ['Very high', ev.byStrength.very_high],
+    ['High', ev.byStrength.high],
+    ['Medium', ev.byStrength.medium],
+    ['Low', ev.byStrength.low],
+    ['No evidence', ev.missing.length],
+  ] as [string, number][]).forEach(([label, count]) => {
+    pdf.fieldInline(label, `${count}  (${Math.round((count / evTotal) * 100)}%)`);
+  });
+
+
+
   // ── 6 Risk Landscape ────────────────────────────────────────
   pdf.newPage();
   pdf.heading(t('sec6', lang), 1);
