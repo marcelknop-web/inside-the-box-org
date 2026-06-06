@@ -150,6 +150,10 @@ const T: Record<string, Record<Lang, string>> = {
   insightLimitations: { de: 'AI Insight Limitations', en: 'AI Insight Limitations', fr: 'AI Insight Limitations' },
   assessmentFindingsLbl: { de: 'Assessment Findings', en: 'Assessment Findings', fr: 'Assessment Findings' },
   riskRatingsLbl: { de: 'Risk Ratings', en: 'Risk Ratings', fr: 'Risk Ratings' },
+  evidenceStrength: { de: 'Evidence Strength Overview', en: 'Evidence Strength Overview', fr: 'Evidence Strength Overview' },
+  consultantObservations: { de: 'Consultant Observations', en: 'Consultant Observations', fr: 'Consultant Observations' },
+  implication: { de: 'Implication', en: 'Implication', fr: 'Implication' },
+  recommendationLbl: { de: 'Recommendation', en: 'Recommendation', fr: 'Recommendation' },
   labelLegend: {
     de: 'Each item below is labelled FACT (deterministic assessment logic), INSIGHT (AI interpretation) or RECOMMENDATION (AI advisory). Confidence ratings apply only to AI interpretations, never to deterministic findings.',
     en: 'Each item below is labelled FACT (deterministic assessment logic), INSIGHT (AI interpretation) or RECOMMENDATION (AI advisory). Confidence ratings apply only to AI interpretations, never to deterministic findings.',
