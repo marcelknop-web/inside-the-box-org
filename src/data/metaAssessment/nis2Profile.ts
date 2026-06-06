@@ -1,0 +1,175 @@
+import type { StandardProfile } from './types';
+
+// ── NIS2 pilot profile ──────────────────────────────────────────
+// Directive (EU) 2022/2555. Intake captures the entity context and
+// implemented measures; the AI assesses the requirements below
+// strictly against the supplied evidence (no invented findings).
+
+export const NIS2_PROFILE: StandardProfile = {
+  id: 'nis2',
+  name: 'NIS2',
+  icon: 'Network',
+  available: true,
+  fullName: {
+    de: 'NIS-2-Konformitätsprüfung',
+    en: 'NIS-2 Conformity Assessment',
+    fr: 'Évaluation de conformité NIS-2',
+  },
+  regulation: {
+    de: 'Richtlinie (EU) 2022/2555',
+    en: 'Directive (EU) 2022/2555',
+    fr: 'Directive (UE) 2022/2555',
+  },
+  description: {
+    de: 'Audit-Workflow für wesentliche und wichtige Einrichtungen nach NIS-2.',
+    en: 'Audit workflow for essential and important entities under NIS-2.',
+    fr: "Flux d'audit pour entités essentielles et importantes selon NIS-2.",
+  },
+  intake: [
+    {
+      title: { de: 'Einrichtung', en: 'Entity', fr: 'Entité' },
+      subtitle: {
+        de: 'Wer wird bewertet?',
+        en: 'Who is being assessed?',
+        fr: 'Qui est évalué ?',
+      },
+      info: {
+        de: 'Die Einstufung (wesentlich/wichtig) bestimmt Pflichtumfang und Aufsichtsregime.',
+        en: 'Classification (essential/important) drives the scope of obligations and supervision.',
+        fr: "La classification détermine l'étendue des obligations et le régime de supervision.",
+      },
+      fields: [
+        {
+          id: 'entityName',
+          type: 'text',
+          required: true,
+          label: { de: 'Name der Einrichtung', en: 'Entity name', fr: "Nom de l'entité" },
+          placeholder: { de: 'z. B. Stadtwerke Musterstadt', en: 'e.g. Acme Utilities', fr: 'p. ex. Régie municipale' },
+        },
+        {
+          id: 'sectors',
+          type: 'multi',
+          required: true,
+          label: { de: 'Sektor(en)', en: 'Sector(s)', fr: 'Secteur(s)' },
+          options: [
+            { id: 'energy', icon: '⚡', label: { de: 'Energie', en: 'Energy', fr: 'Énergie' } },
+            { id: 'health', icon: '🏥', label: { de: 'Gesundheit', en: 'Health', fr: 'Santé' } },
+            { id: 'transport', icon: '🚆', label: { de: 'Transport', en: 'Transport', fr: 'Transport' } },
+            { id: 'finance', icon: '🏦', label: { de: 'Finanzwesen', en: 'Finance', fr: 'Finance' } },
+            { id: 'water', icon: '💧', label: { de: 'Wasser/Abwasser', en: 'Water', fr: 'Eau' } },
+            { id: 'digital', icon: '☁️', label: { de: 'Digitale Dienste', en: 'Digital services', fr: 'Services numériques' } },
+            { id: 'manufacturing', icon: '🏭', label: { de: 'Produktion', en: 'Manufacturing', fr: 'Fabrication' } },
+            { id: 'public', icon: '🏛️', label: { de: 'Öffentliche Verwaltung', en: 'Public administration', fr: 'Administration publique' } },
+          ],
+        },
+        {
+          id: 'classification',
+          type: 'single',
+          required: true,
+          label: { de: 'Einstufung', en: 'Classification', fr: 'Classification' },
+          options: [
+            { id: 'essential', label: { de: 'Wesentliche Einrichtung', en: 'Essential entity', fr: 'Entité essentielle' }, desc: { de: 'Strengere Aufsicht, proaktive Kontrolle', en: 'Stricter, proactive supervision', fr: 'Supervision proactive renforcée' } },
+            { id: 'important', label: { de: 'Wichtige Einrichtung', en: 'Important entity', fr: 'Entité importante' }, desc: { de: 'Reaktive Aufsicht', en: 'Reactive supervision', fr: 'Supervision réactive' } },
+            { id: 'unsure', label: { de: 'Unklar', en: 'Unsure', fr: 'Incertain' }, desc: { de: 'Einstufung soll mitbewertet werden', en: 'Classification to be assessed too', fr: 'Classification à évaluer' } },
+          ],
+        },
+      ],
+    },
+    {
+      title: { de: 'Kontext & Lieferkette', en: 'Context & supply chain', fr: 'Contexte & chaîne' },
+      info: {
+        de: 'Je konkreter die Beschreibung, desto präziser die KI-Auswertung.',
+        en: 'The more concrete the description, the sharper the AI assessment.',
+        fr: "Plus la description est concrète, plus l'évaluation IA est précise.",
+      },
+      fields: [
+        {
+          id: 'description',
+          type: 'textarea',
+          label: { de: 'Beschreibung der Tätigkeit & IT-Landschaft', en: 'Description of operations & IT landscape', fr: "Description de l'activité & du SI" },
+          placeholder: { de: 'Kerndienste, kritische Systeme, Standorte …', en: 'Core services, critical systems, sites …', fr: 'Services clés, systèmes critiques, sites …' },
+        },
+        {
+          id: 'supplyChain',
+          type: 'multi',
+          label: { de: 'Wesentliche Drittanbieter', en: 'Key third parties', fr: 'Tiers clés' },
+          options: [
+            { id: 'cloud', icon: '☁️', label: { de: 'Cloud-Provider', en: 'Cloud provider', fr: 'Fournisseur cloud' } },
+            { id: 'mssp', icon: '🛡️', label: { de: 'Managed Security (MSSP)', en: 'Managed security (MSSP)', fr: 'Sécurité managée' } },
+            { id: 'software', icon: '💾', label: { de: 'Software-Lieferanten', en: 'Software vendors', fr: 'Éditeurs logiciels' } },
+            { id: 'ot', icon: '⚙️', label: { de: 'OT-/Anlagenlieferanten', en: 'OT/equipment vendors', fr: 'Fournisseurs OT' } },
+            { id: 'outsourcing', icon: '🤝', label: { de: 'IT-Outsourcing', en: 'IT outsourcing', fr: 'Infogérance' } },
+          ],
+        },
+      ],
+    },
+    {
+      title: { de: 'Governance & Schwachstellen', en: 'Governance & gaps', fr: 'Gouvernance & lacunes' },
+      fields: [
+        {
+          id: 'roles',
+          type: 'multi',
+          required: true,
+          label: { de: 'Etablierte Rollen', en: 'Established roles', fr: 'Rôles établis' },
+          options: [
+            { id: 'mgmt', icon: '👔', label: { de: 'Geschäftsleitung eingebunden', en: 'Management involved', fr: 'Direction impliquée' } },
+            { id: 'ciso', icon: '🔐', label: { de: 'CISO / IT-Sicherheit', en: 'CISO / IT security', fr: 'RSSI' } },
+            { id: 'dpo', icon: '📋', label: { de: 'Datenschutzbeauftragter', en: 'DPO', fr: 'DPO' } },
+            { id: 'risk', icon: '📊', label: { de: 'Risikomanagement', en: 'Risk management', fr: 'Gestion des risques' } },
+            { id: 'irt', icon: '🚨', label: { de: 'Incident-Response-Team', en: 'Incident response team', fr: "Équipe de réponse" } },
+          ],
+        },
+        {
+          id: 'knownIssues',
+          type: 'textarea',
+          label: { de: 'Bekannte Schwachstellen / offene Punkte', en: 'Known weaknesses / open points', fr: 'Faiblesses connues' },
+          placeholder: { de: 'z. B. keine MFA für Admins, kein BCM-Test 2024 …', en: 'e.g. no MFA for admins, no BCM test in 2024 …', fr: 'p. ex. pas de MFA admins …' },
+        },
+      ],
+    },
+    {
+      title: { de: 'Umgesetzte Maßnahmen', en: 'Implemented measures', fr: 'Mesures en place' },
+      info: {
+        de: 'Nur ankreuzen, was nachweislich existiert. Die KI erfindet keine Nachweise.',
+        en: 'Only tick what verifiably exists. The AI invents no evidence.',
+        fr: "Ne cochez que ce qui existe réellement. L'IA n'invente aucune preuve.",
+      },
+      fields: [
+        {
+          id: 'measures',
+          type: 'multi',
+          label: { de: 'Maßnahmen nach Art. 21', en: 'Measures per Art. 21', fr: 'Mesures selon art. 21' },
+          options: [
+            { id: 'riskpolicy', label: { de: 'Risikoanalyse & Sicherheitsrichtlinien', en: 'Risk analysis & security policies', fr: 'Analyse de risque & politiques' } },
+            { id: 'incident', label: { de: 'Incident Handling', en: 'Incident handling', fr: 'Gestion des incidents' } },
+            { id: 'bcm', label: { de: 'Business Continuity / Backup', en: 'Business continuity / backup', fr: 'Continuité / sauvegarde' } },
+            { id: 'supplychainsec', label: { de: 'Lieferkettensicherheit', en: 'Supply chain security', fr: 'Sécurité de la chaîne' } },
+            { id: 'vuln', label: { de: 'Schwachstellen- & Patch-Management', en: 'Vulnerability & patch mgmt', fr: 'Gestion des vulnérabilités' } },
+            { id: 'crypto', label: { de: 'Kryptografie / Verschlüsselung', en: 'Cryptography / encryption', fr: 'Cryptographie' } },
+            { id: 'mfa', label: { de: 'MFA & Zugriffskontrolle', en: 'MFA & access control', fr: 'MFA & contrôle d\'accès' } },
+            { id: 'training', label: { de: 'Schulung & Awareness', en: 'Training & awareness', fr: 'Formation & sensibilisation' } },
+            { id: 'audit', label: { de: 'Wirksamkeitsprüfung / Audits', en: 'Effectiveness reviews / audits', fr: 'Audits d\'efficacité' } },
+          ],
+        },
+      ],
+    },
+  ],
+  requirements: [
+    { id: 'A20-1', article: 'Art. 20', name: { de: 'Verantwortung & Schulung der Geschäftsleitung', en: 'Management accountability & training', fr: 'Responsabilité de la direction' }, criteria: [
+      { de: 'Leitungsorgan billigt Risikomaßnahmen und überwacht deren Umsetzung', en: 'Management approves risk measures and oversees implementation', fr: 'La direction approuve et supervise' },
+      { de: 'Leitungspersonen nehmen an Schulungen teil', en: 'Management members attend training', fr: 'Formation de la direction' },
+    ] },
+    { id: 'A21-1', article: 'Art. 21(2)(a)', name: { de: 'Risikoanalyse & Sicherheitsrichtlinien', en: 'Risk analysis & security policies', fr: 'Analyse de risque & politiques' } },
+    { id: 'A21-2', article: 'Art. 21(2)(b)', name: { de: 'Bewältigung von Sicherheitsvorfällen', en: 'Incident handling', fr: 'Gestion des incidents' } },
+    { id: 'A21-3', article: 'Art. 21(2)(c)', name: { de: 'Business Continuity & Backup-Management', en: 'Business continuity & backup', fr: 'Continuité & sauvegarde' } },
+    { id: 'A21-4', article: 'Art. 21(2)(d)', name: { de: 'Sicherheit der Lieferkette', en: 'Supply chain security', fr: 'Sécurité de la chaîne' } },
+    { id: 'A21-5', article: 'Art. 21(2)(e)', name: { de: 'Sicherheit bei Beschaffung, Entwicklung & Wartung', en: 'Security in acquisition, development & maintenance', fr: 'Sécurité acquisition & maintenance' } },
+    { id: 'A21-6', article: 'Art. 21(2)(f)', name: { de: 'Bewertung der Wirksamkeit der Maßnahmen', en: 'Effectiveness assessment of measures', fr: 'Évaluation de l\'efficacité' } },
+    { id: 'A21-7', article: 'Art. 21(2)(g)', name: { de: 'Cyberhygiene & Schulungen', en: 'Cyber hygiene & training', fr: 'Cyberhygiène & formation' } },
+    { id: 'A21-8', article: 'Art. 21(2)(h)', name: { de: 'Kryptografie & Verschlüsselung', en: 'Cryptography & encryption', fr: 'Cryptographie' } },
+    { id: 'A21-9', article: 'Art. 21(2)(i)', name: { de: 'Personalsicherheit & Zugriffskontrolle', en: 'HR security & access control', fr: 'Sécurité RH & accès' } },
+    { id: 'A21-10', article: 'Art. 21(2)(j)', name: { de: 'MFA & gesicherte Kommunikation', en: 'MFA & secured communications', fr: 'MFA & communications' } },
+    { id: 'A23-1', article: 'Art. 23', name: { de: 'Meldepflichten (24h/72h/1 Monat)', en: 'Reporting obligations (24h/72h/1 month)', fr: 'Obligations de notification' } },
+  ],
+  scaleMax: 5,
+};

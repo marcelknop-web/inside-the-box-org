@@ -29,6 +29,23 @@ interface Group {
 const GROUPS: Group[] = [
   {
     label: {
+      de: 'Universal (Beta)',
+      en: 'Universal (Beta)',
+      fr: 'Universel (Bêta)',
+    },
+    tools: [
+      {
+        icon: Sparkles, path: '/meta-assessment', protected: true, title: 'Meta-Assessment',
+        desc: {
+          de: 'Universelles Tool: Standard wählen → Intake → KI-Auswertung → Reporting.',
+          en: 'Universal tool: pick a standard → intake → AI evaluation → reporting.',
+          fr: 'Outil universel : standard → intake → IA → rapport.',
+        },
+      },
+    ],
+  },
+  {
+    label: {
       de: 'Assessments',
       en: 'Assessments',
       fr: 'Évaluations',

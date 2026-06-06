@@ -35,6 +35,7 @@ const Iec62443Ur26ComplianceTool = lazy(() => import("./pages/Iec62443Ur26Compli
 const Iec62443ComplianceTool = lazy(() => import("./pages/Iec62443ComplianceTool"));
 const BlindSpotSimulator = lazy(() => import("./pages/BlindSpotSimulator"));
 const AssessmentTools = lazy(() => import("./pages/AssessmentTools"));
+const MetaAssessmentTool = lazy(() => import("./pages/MetaAssessmentTool"));
 
 const queryClient = new QueryClient();
 
@@ -67,6 +68,7 @@ const App = () => (
               <Route path="/blind-spot" element={<Suspense fallback={<RouteSkeleton />}><BlindSpotSimulator /></Suspense>} />
               <Route path="/assessment-tools" element={<Suspense fallback={<RouteSkeleton />}><AssessmentTools /></Suspense>} />
               <Route path="/tools" element={<Suspense fallback={<RouteSkeleton />}><AssessmentTools /></Suspense>} />
+              <Route path="/meta-assessment" element={<Suspense fallback={<RouteSkeleton />}><MetaAssessmentTool /></Suspense>} />
 
               {/* Catch-all: every Journey service id (nis2-dora, virtual-ciso, …) renders ChatView */}
               <Route path="/:serviceId" element={<ChatView />} />
