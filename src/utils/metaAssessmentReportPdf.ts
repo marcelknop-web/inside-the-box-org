@@ -1,0 +1,367 @@
+// Meta-Assessment Report PDF — universal assessment report
+// Structure mirrors the DRYNET E27 Applicability Review template:
+//   Cover → TOC → Executive Summary + Verdict overview → Scope →
+//   Assessment Principles → Individual Findings → Control Matrix →
+//   Risk Landscape → Recommendations & Roadmap → Conclusion
+//
+// Layer 1 (deterministic) is the source of truth; the AI insight layer is
+// rendered as clearly-marked explanatory commentary only.
+import { createPdfDoc } from '@/utils/pdfCore';
+import type {
+  Lang, StandardProfile, IntakeAnswers,
+  AssessmentResult, ComputedAssessment, InsightResult,
+} from '@/data/metaAssessment/types';
+import { tr } from '@/data/metaAssessment/types';
+
+export interface MetaReportData {
+  profile: StandardProfile;
+  lang: Lang;
+  result: AssessmentResult;
+  computed: ComputedAssessment;
+  answers: IntakeAnswers;
+  entityName: string;
+  insights?: InsightResult | null;
+}
+
+/* ── tiny i18n ─────────────────────────────────────────────── */
+const T: Record<string, Record<Lang, string>> = {
+  category: { de: 'PRÜFBERICHT', en: 'ASSESSMENT REPORT', fr: "RAPPORT D'ÉVALUATION" },
+  client: { de: 'Einrichtung', en: 'Entity', fr: 'Entité' },
+  standard: { de: 'Standard', en: 'Standard', fr: 'Standard' },
+  regulation: { de: 'Regelwerk', en: 'Regulation', fr: 'Réglementation' },
+  date: { de: 'Datum', en: 'Date', fr: 'Date' },
+  prepared: { de: 'Erstellt durch', en: 'Prepared by', fr: 'Préparé par' },
+  status: { de: 'Status', en: 'Status', fr: 'Statut' },
+  confidential: { de: 'VERTRAULICH', en: 'CONFIDENTIAL', fr: 'CONFIDENTIEL' },
+  page: { de: 'Seite', en: 'Page', fr: 'Page' },
+  toc: { de: 'Inhaltsverzeichnis', en: 'Table of Contents', fr: 'Table des matières' },
+  draft: { de: 'ENTWURF', en: 'DRAFT', fr: 'BROUILLON' },
+
+  sec1: { de: '1  Zusammenfassung', en: '1  Executive Summary', fr: '1  Synthèse' },
+  sec2: { de: '2  Gegenstand und Geltungsbereich', en: '2  Subject and Scope', fr: '2  Objet et périmètre' },
+  sec3: { de: '3  Bewertungsprinzipien', en: '3  Assessment Principles', fr: "3  Principes d'évaluation" },
+  sec4: { de: '4  Feststellungen im Einzelnen', en: '4  Individual Findings', fr: '4  Constatations détaillées' },
+  sec5: { de: '5  Vollständige Kontrollmatrix', en: '5  Complete Control Matrix', fr: '5  Matrice de contrôle complète' },
+  sec6: { de: '6  Risikolandschaft', en: '6  Risk Landscape', fr: '6  Paysage des risques' },
+  sec7: { de: '7  Maßnahmen und Roadmap', en: '7  Recommendations and Roadmap', fr: '7  Recommandations et feuille de route' },
+  sec8: { de: '8  KI-Analyse (erklärend)', en: '8  AI Analysis (explanatory)', fr: '8  Analyse IA (explicative)' },
+  sec9: { de: '9  Schlussfolgerung', en: '9  Conclusion', fr: '9  Conclusion' },
+
+  verdictOverview: { de: 'Befundübersicht', en: 'Verdict Overview', fr: 'Aperçu des verdicts' },
+  readiness: { de: 'Reifegrad', en: 'Readiness', fr: 'Maturité' },
+  passed: { de: 'Erfüllt', en: 'Passed', fr: 'Conformes' },
+  partial: { de: 'Teilweise', en: 'Partial', fr: 'Partiel' },
+  gaps: { de: 'Lücken', en: 'Gaps', fr: 'Lacunes' },
+  distribution: { de: 'Konformitätsverteilung', en: 'Compliance Distribution', fr: 'Répartition de conformité' },
+  scopeIntro: {
+    de: 'Der folgende Abschnitt dokumentiert die im Intake erfassten Angaben zur geprüften Einrichtung. Diese bilden die Grundlage der regelbasierten Bewertung.',
+    en: 'The following section documents the intake data captured for the assessed entity. These form the basis of the rule-based assessment.',
+    fr: "La section suivante documente les données d'admission de l'entité évaluée. Elles constituent la base de l'évaluation basée sur des règles.",
+  },
+  principlesIntro: {
+    de: 'Die Bewertung folgt einem revisionssicheren, dreistufigen Modell: Die Konformitätsentscheidung (erfüllt / teilweise / Lücke) wird ausschließlich regelbasiert aus den Intake-Antworten abgeleitet. Keine Feststellung wird von der KI erfunden. Risiken werden deterministisch aus den Lücken abgeleitet. Die KI wird ausschließlich für die erklärende Analyseebene eingesetzt.',
+    en: 'The assessment follows an audit-safe, three-layer model: the compliance decision (pass / partial / gap) is derived strictly from the intake answers by deterministic rules. No finding is invented by the AI. Risks are derived deterministically from the gaps. The AI is used solely for the explanatory analysis layer.',
+    fr: "L'évaluation suit un modèle vérifiable à trois niveaux : la décision de conformité (conforme / partiel / lacune) est dérivée strictement des réponses par des règles déterministes. Aucune constatation n'est inventée par l'IA. Les risques sont dérivés des lacunes. L'IA sert uniquement à la couche d'analyse explicative.",
+  },
+  findingsIntro: {
+    de: 'Jede Anforderung wurde regelbasiert gegen die erfassten Nachweise geprüft. Lücken und teilweise Erfüllungen sind mit konkreten Maßnahmenempfehlungen versehen.',
+    en: 'Each requirement was assessed against the captured evidence using deterministic rules. Gaps and partial compliance are accompanied by concrete remediation recommendations.',
+    fr: 'Chaque exigence a été évaluée par rapport aux preuves saisies à l\'aide de règles déterministes. Les lacunes et conformités partielles sont assorties de recommandations concrètes.',
+  },
+  observation: { de: 'Nachweis / Beobachtung', en: 'Evidence / Observation', fr: 'Preuve / Observation' },
+  gap: { de: 'Festgestellte Lücke', en: 'Identified Gap', fr: 'Lacune identifiée' },
+  rationale: { de: 'Begründung', en: 'Rationale', fr: 'Justification' },
+  measure: { de: 'Empfohlene Maßnahme', en: 'Recommended Measure', fr: 'Mesure recommandée' },
+  colId: { de: 'ID', en: 'ID', fr: 'ID' },
+  colRef: { de: 'Artikel', en: 'Article', fr: 'Article' },
+  colTopic: { de: 'Thema', en: 'Topic', fr: 'Sujet' },
+  colVerdict: { de: 'Verdikt', en: 'Verdict', fr: 'Verdict' },
+  matrixIntro: {
+    de: 'Vollständige, nachvollziehbare Übersicht aller geprüften Anforderungen mit Verdikt.',
+    en: 'Complete, traceable overview of all assessed requirements with verdict.',
+    fr: 'Aperçu complet et traçable de toutes les exigences évaluées avec verdict.',
+  },
+  riskIntro: {
+    de: 'Die folgenden Risiken wurden deterministisch aus den festgestellten Lücken abgeleitet (Eintrittswahrscheinlichkeit × Auswirkung).',
+    en: 'The following risks were derived deterministically from the identified gaps (likelihood × impact).',
+    fr: 'Les risques suivants ont été dérivés des lacunes identifiées (probabilité × impact).',
+  },
+  riskDist: { de: 'Risikoverteilung', en: 'Risk Distribution', fr: 'Répartition des risques' },
+  heatmap: { de: 'Risiko-Heatmap', en: 'Risk Heatmap', fr: 'Carte thermique des risques' },
+  likelihood: { de: 'Wahrscheinlichkeit', en: 'Likelihood', fr: 'Probabilité' },
+  impact: { de: 'Auswirkung', en: 'Impact', fr: 'Impact' },
+  critical: { de: 'Kritisch', en: 'Critical', fr: 'Critique' },
+  high: { de: 'Hoch', en: 'High', fr: 'Élevé' },
+  medium: { de: 'Mittel', en: 'Medium', fr: 'Moyen' },
+  low: { de: 'Niedrig', en: 'Low', fr: 'Faible' },
+  noRisks: { de: 'Es wurden keine offenen Risiken aus Lücken abgeleitet.', en: 'No open risks were derived from gaps.', fr: "Aucun risque ouvert n'a été dérivé des lacunes." },
+  recsIntro: {
+    de: 'Priorisierter Maßnahmenplan, abgeleitet aus den Lücken und Risiken.',
+    en: 'Prioritised remediation plan, derived from the gaps and risks.',
+    fr: "Plan d'action priorisé, dérivé des lacunes et des risques.",
+  },
+  roadmap: { de: 'Umsetzungs-Roadmap', en: 'Remediation Roadmap', fr: 'Feuille de route' },
+  phase: { de: 'Phase', en: 'Phase', fr: 'Phase' },
+  months: { de: 'Monate', en: 'months', fr: 'mois' },
+  noRecs: { de: 'Keine offenen Maßnahmen — alle Anforderungen erfüllt.', en: 'No open measures — all requirements met.', fr: 'Aucune mesure ouverte — toutes les exigences sont satisfaites.' },
+  aiNote: {
+    de: 'Hinweis: Dieser Abschnitt ist KI-generiert und ausschließlich erklärend. Er verändert keine Konformitätsbewertung.',
+    en: 'Note: this section is AI-generated and strictly explanatory. It does not alter any compliance assessment.',
+    fr: "Remarque : cette section est générée par IA et purement explicative. Elle ne modifie aucune évaluation de conformité.",
+  },
+  execNarrative: { de: 'Management-Lagebild', en: 'Executive Narrative', fr: 'Synthèse direction' },
+  rootCauses: { de: 'Grundursachen', en: 'Root Causes', fr: 'Causes profondes' },
+  gapClusters: { de: 'Kernthemen', en: 'Core Themes', fr: 'Thèmes clés' },
+  crossControl: { de: 'Übergreifende Zusammenhänge', en: 'Cross-control Insights', fr: 'Liens transverses' },
+  roadmapRationale: { de: 'Begründung der Roadmap', en: 'Roadmap Rationale', fr: 'Justification de la feuille de route' },
+  auditorQuestions: { de: 'Vertiefende Audit-Fragen', en: 'Deepening Audit Questions', fr: "Questions d'audit" },
+  disclaimer: {
+    de: 'Dieser Bericht stellt keine formale Zertifizierung dar und ersetzt nicht die Bewertung durch eine anerkannte Prüfstelle. Die Konformitätsbewertung beruht auf den im Intake gemachten Angaben.',
+    en: 'This report does not constitute a formal certification and does not replace assessment by a recognised authority. The compliance assessment is based on the information provided during intake.',
+    fr: "Ce rapport ne constitue pas une certification formelle et ne remplace pas l'évaluation par un organisme reconnu. L'évaluation de conformité repose sur les informations fournies lors de l'admission.",
+  },
+};
+
+function t(key: string, lang: Lang): string {
+  return T[key]?.[lang] ?? T[key]?.en ?? key;
+}
+
+const VERDICT_LABEL: Record<string, Record<Lang, string>> = {
+  pass: { de: 'Erfüllt', en: 'Pass', fr: 'Conforme' },
+  partial: { de: 'Teilweise', en: 'Partial', fr: 'Partiel' },
+  fail: { de: 'Lücke', en: 'Gap', fr: 'Lacune' },
+};
+
+const PRIORITY_LABEL: Record<string, Record<Lang, string>> = {
+  critical: { de: 'Kritisch', en: 'Critical', fr: 'Critique' },
+  high: { de: 'Hoch', en: 'High', fr: 'Élevé' },
+  medium: { de: 'Mittel', en: 'Medium', fr: 'Moyen' },
+  low: { de: 'Niedrig', en: 'Low', fr: 'Faible' },
+};
+
+function formatAnswer(field: { type: string; options?: { id: string; label: any }[] }, val: string | string[], lang: Lang): string {
+  if (val == null) return '—';
+  const opts = field.options ?? [];
+  const lbl = (id: string) => {
+    const o = opts.find((x) => x.id === id);
+    return o ? tr(o.label, lang) : id;
+  };
+  if (Array.isArray(val)) return val.length ? val.map(lbl).join(', ') : '—';
+  if (field.type === 'single') return val ? lbl(val) : '—';
+  return val || '—';
+}
+
+export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<void> {
+  const { profile, lang, result, computed, answers, entityName, insights } = data;
+
+  const pdf = await createPdfDoc({
+    lang,
+    reportPrefix: profile.name.replace(/[^A-Z0-9]/gi, '').toUpperCase().slice(0, 6) || 'ASMT',
+    confidentialLabel: `${t('confidential', lang)} — ${profile.name} ${profile.name && tr(profile.regulation, lang) ? '·' : ''} ${tr(profile.regulation, lang)}`.trim(),
+    pageLabel: t('page', lang),
+    draftWatermark: t('draft', lang),
+  });
+
+  const dateStr = new Date().toLocaleDateString(lang === 'de' ? 'de-DE' : lang === 'fr' ? 'fr-FR' : 'en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+
+  // ── Cover ───────────────────────────────────────────────────
+  pdf.coverPage({
+    title: tr(profile.fullName, lang) || profile.name,
+    subtitle: tr(profile.regulation, lang),
+    entityName,
+    fields: [
+      [t('client', lang), entityName],
+      [t('standard', lang), profile.name],
+      [t('date', lang), dateStr],
+      [t('prepared', lang), 'Inside the Box'],
+      [t('status', lang), t('confidential', lang)],
+    ],
+    confidentialNote: t('confidential', lang),
+  });
+
+  // ── TOC ─────────────────────────────────────────────────────
+  pdf.tableOfContents(t('toc', lang), [
+    t('sec1', lang), t('sec2', lang), t('sec3', lang), t('sec4', lang),
+    t('sec5', lang), t('sec6', lang), t('sec7', lang),
+    ...(insights ? [t('sec8', lang)] : []),
+    t('sec9', lang),
+  ]);
+
+  const merged = result.requirements.map((r) => {
+    const meta = profile.requirements.find((x) => x.id === r.id);
+    return { ...r, article: meta?.article ?? r.article ?? '', name: meta ? tr(meta.name, lang) : r.name };
+  });
+  const pass = merged.filter((r) => r.status === 'pass').length;
+  const partial = merged.filter((r) => r.status === 'partial').length;
+  const fail = merged.filter((r) => r.status === 'fail').length;
+  const pct = computed.score.weighted;
+
+  // ── 1 Executive Summary ─────────────────────────────────────
+  pdf.newPage();
+  pdf.heading(t('sec1', lang), 1);
+  pdf.addBookmark(t('sec1', lang), 1);
+  if (result.summary) pdf.bodyParagraph(result.summary);
+
+  pdf.kpiRow([
+    [`${pct}%`, t('readiness', lang)],
+    [String(pass), t('passed', lang)],
+    [String(partial), t('partial', lang)],
+    [String(fail), t('gaps', lang)],
+  ]);
+
+  pdf.sectionLabel(t('distribution', lang));
+  pdf.complianceBar(pass, partial, fail, {
+    pass: t('passed', lang), partial: t('partial', lang), fail: t('gaps', lang),
+    title: t('verdictOverview', lang),
+  });
+
+  // ── 2 Subject and Scope ─────────────────────────────────────
+  pdf.newPage();
+  pdf.heading(t('sec2', lang), 1);
+  pdf.addBookmark(t('sec2', lang), 1);
+  pdf.introText(t('scopeIntro', lang));
+  pdf.field(t('client', lang), entityName);
+  profile.intake.forEach((step) => {
+    step.fields.forEach((f) => {
+      const val = answers[f.id];
+      if (val == null || (Array.isArray(val) && val.length === 0) || val === '') return;
+      pdf.field(tr(f.label, lang), formatAnswer(f, val, lang));
+    });
+  });
+
+  // ── 3 Assessment Principles ─────────────────────────────────
+  pdf.heading(t('sec3', lang), 1);
+  pdf.addBookmark(t('sec3', lang), 1);
+  pdf.bodyParagraph(t('principlesIntro', lang));
+
+  // ── 4 Individual Findings ───────────────────────────────────
+  pdf.newPage();
+  pdf.heading(t('sec4', lang), 1);
+  pdf.addBookmark(t('sec4', lang), 1);
+  pdf.introText(t('findingsIntro', lang));
+
+  merged.forEach((r, i) => {
+    pdf.checkSpace(40);
+    pdf.heading(`4.${i + 1}  ${r.id} — ${r.name}`, 3);
+    pdf.metaLine(`${t('colRef', lang)}: ${r.article || '—'}`);
+    pdf.statusBadge(r.status);
+    pdf.y += 4;
+    if (r.evidence) { pdf.sectionLabel(t('observation', lang)); pdf.bodyText(r.evidence); }
+    if (r.gap) { pdf.sectionLabel(t('gap', lang)); pdf.bodyText(r.gap); }
+    if (r.rationale) { pdf.sectionLabel(t('rationale', lang)); pdf.bodyText(r.rationale); }
+    if (r.measure) { pdf.sectionLabel(t('measure', lang)); pdf.bodyText(r.measure); }
+    pdf.separator();
+  });
+
+  // ── 5 Complete Control Matrix ───────────────────────────────
+  pdf.newPage();
+  pdf.heading(t('sec5', lang), 1);
+  pdf.addBookmark(t('sec5', lang), 1);
+  pdf.introText(t('matrixIntro', lang));
+  pdf.dataTableHeader(
+    `${t('colId', lang).padEnd(10)}${t('colRef', lang).padEnd(14)}${t('colTopic', lang).padEnd(40)}${t('colVerdict', lang)}`
+  );
+  merged.forEach((r) => {
+    const topic = (r.name || '').slice(0, 38);
+    pdf.dataTableRow(
+      `${r.id.padEnd(10)}${(r.article || '—').slice(0, 12).padEnd(14)}${topic.padEnd(40)}${VERDICT_LABEL[r.status][lang]}`
+    );
+  });
+
+  // ── 6 Risk Landscape ────────────────────────────────────────
+  pdf.newPage();
+  pdf.heading(t('sec6', lang), 1);
+  pdf.addBookmark(t('sec6', lang), 1);
+  pdf.introText(t('riskIntro', lang));
+
+  const risks = computed.risks;
+  if (risks.length === 0) {
+    pdf.bodyParagraph(t('noRisks', lang));
+  } else {
+    const counts = {
+      critical: risks.filter((r) => r.rating === 'critical').length,
+      high: risks.filter((r) => r.rating === 'high').length,
+      medium: risks.filter((r) => r.rating === 'medium').length,
+      low: risks.filter((r) => r.rating === 'low').length,
+    };
+    pdf.riskDistribution(counts, {
+      critical: t('critical', lang), high: t('high', lang), medium: t('medium', lang), low: t('low', lang),
+      title: t('riskDist', lang),
+    });
+    pdf.riskHeatmap(risks.map((r) => ({ likelihood: r.likelihood, impact: r.impact })), {
+      title: t('heatmap', lang), likelihood: t('likelihood', lang), impact: t('impact', lang),
+    });
+    pdf.y += 2;
+    [...risks].sort((a, b) => b.score - a.score).forEach((r) => {
+      pdf.checkSpace(12);
+      pdf.statusBadge(r.rating === 'low' ? 'pass' : r.rating === 'medium' ? 'partial' : 'fail');
+      pdf.metaLine(`${r.id} · ${r.name}  (${t('impact', lang)} ${r.impact} × ${t('likelihood', lang)} ${r.likelihood} = ${r.score})`);
+    });
+  }
+
+  // ── 7 Recommendations and Roadmap ───────────────────────────
+  pdf.newPage();
+  pdf.heading(t('sec7', lang), 1);
+  pdf.addBookmark(t('sec7', lang), 1);
+  pdf.introText(t('recsIntro', lang));
+
+  if (computed.recommendations.length === 0) {
+    pdf.bodyParagraph(t('noRecs', lang));
+  } else {
+    computed.recommendations.forEach((rec) => {
+      pdf.checkSpace(22);
+      pdf.heading(`${rec.title}`, 3);
+      pdf.metaLine(`${PRIORITY_LABEL[rec.priority][lang]} · ${rec.duration} · ${rec.owner}`);
+      if (rec.businessImpact) pdf.bodyText(rec.businessImpact);
+    });
+
+    pdf.heading(t('roadmap', lang), 2);
+    computed.roadmap.forEach((bucket) => {
+      if (bucket.items.length === 0) return;
+      pdf.sectionLabel(`${t('phase', lang)} ${bucket.phase} ${t('months', lang)}`);
+      bucket.items.forEach((it) => pdf.bulletItem(`${PRIORITY_LABEL[it.priority][lang]} — ${it.title}`));
+    });
+  }
+
+  // ── 8 AI Analysis (explanatory) ─────────────────────────────
+  if (insights) {
+    pdf.newPage();
+    pdf.heading(t('sec8', lang), 1);
+    pdf.addBookmark(t('sec8', lang), 1);
+    pdf.introText(t('aiNote', lang));
+
+    if (insights.executiveNarrative) {
+      pdf.sectionLabel(t('execNarrative', lang));
+      pdf.bodyParagraph(insights.executiveNarrative);
+    }
+    if (insights.rootCauses?.length) {
+      pdf.sectionLabel(t('rootCauses', lang));
+      insights.rootCauses.forEach((rc) => pdf.bulletItem(`${rc.symptom} → ${rc.cause}`));
+    }
+    if (insights.gapClusters?.length) {
+      pdf.sectionLabel(t('gapClusters', lang));
+      insights.gapClusters.forEach((gc) => pdf.bulletItem(`${gc.title}: ${gc.summary}`));
+    }
+    if (insights.crossControlInsights?.length) {
+      pdf.sectionLabel(t('crossControl', lang));
+      insights.crossControlInsights.forEach((c) => pdf.bulletItem(c));
+    }
+    if (insights.roadmapRationale) {
+      pdf.sectionLabel(t('roadmapRationale', lang));
+      pdf.bodyParagraph(insights.roadmapRationale);
+    }
+    if (insights.auditorQuestions?.length) {
+      pdf.sectionLabel(t('auditorQuestions', lang));
+      insights.auditorQuestions.forEach((q) => pdf.bulletItem(q));
+    }
+  }
+
+  // ── 9 Conclusion ────────────────────────────────────────────
+  pdf.newPage();
+  pdf.heading(t('sec9', lang), 1);
+  pdf.addBookmark(t('sec9', lang), 1);
+  pdf.verdictBox(result.summary || `${entityName}: ${pct}% — ${pass} ${t('passed', lang)}, ${partial} ${t('partial', lang)}, ${fail} ${t('gaps', lang)}.`);
+  pdf.bodyParagraph(t('disclaimer', lang));
+
+  pdf.save(`${profile.id}-assessment-${entityName.replace(/[^a-z0-9]/gi, '_').slice(0, 30)}.pdf`);
+}

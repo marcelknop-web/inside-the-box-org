@@ -3,8 +3,9 @@ import { Helmet } from 'react-helmet-async';
 import {
   ArrowRight, ArrowLeft, Loader2, Sparkles, ShieldCheck, Network, Car,
   CreditCard, Factory, Server, RotateCcw, Lock, AlertTriangle, CheckCircle2,
-  Download,
+  Download, FileText,
 } from 'lucide-react';
+import { generateMetaAssessmentPdf } from '@/utils/metaAssessmentReportPdf';
 import { LucideIcon } from 'lucide-react';
 import { SiteChrome } from '@/components/SiteChrome';
 import { PasswordGate } from '@/components/PasswordGate';
@@ -56,6 +57,8 @@ function ui(lang: Lang) {
     rationale: de ? 'Begründung' : fr ? 'Justification' : 'Rationale',
     riskLandscape: de ? 'Risikolandschaft' : fr ? 'Paysage des risques' : 'Risk landscape',
     exportJson: de ? 'Ergebnis exportieren (JSON)' : fr ? 'Exporter (JSON)' : 'Export result (JSON)',
+    exportPdf: de ? 'Bericht als PDF' : fr ? 'Rapport en PDF' : 'Report as PDF',
+    pdfError: de ? 'PDF-Erstellung fehlgeschlagen.' : fr ? 'Échec de la création du PDF.' : 'PDF generation failed.',
     error: de ? 'Auswertung fehlgeschlagen. Bitte erneut versuchen.' : fr ? 'Échec. Réessayez.' : 'Evaluation failed. Please retry.',
     summary: de ? 'Zusammenfassung' : fr ? 'Synthèse' : 'Summary',
     // ── deterministic layer ──
@@ -302,6 +305,19 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
     URL.revokeObjectURL(a.href);
   };
 
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const exportPdf = async () => {
+    setPdfBusy(true);
+    try {
+      await generateMetaAssessmentPdf({ profile, lang, result, computed, answers, entityName });
+    } catch (e) {
+      console.error('PDF generation failed', e);
+      alert(u.pdfError);
+    } finally {
+      setPdfBusy(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="bg-background/40 border-l-4 border-primary border border-primary/15 rounded-lg p-5">
@@ -379,7 +395,10 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
       )}
 
       <div className="flex flex-wrap gap-3 pt-2">
-        <button onClick={exportJson} className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90">
+        <button onClick={exportPdf} disabled={pdfBusy} className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
+          {pdfBusy ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />} {u.exportPdf}
+        </button>
+        <button onClick={exportJson} className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80">
           <Download size={14} /> {u.exportJson}
         </button>
         <button onClick={onRestart} className="inline-flex items-center gap-2 text-sm font-mono text-muted-foreground hover:text-foreground transition-colors px-4 py-2">
