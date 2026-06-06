@@ -475,7 +475,6 @@ const MetaAssessmentTool = () => {
             <StandardSelect
               lang={lang}
               onPick={(p) => { setProfile(p); setAnswers({}); setPhase('intake'); }}
-              onDemo={(p) => { setProfile(p); setAnswers(p.demoAnswers ?? {}); setPhase('intake'); }}
             />
           )}
 
