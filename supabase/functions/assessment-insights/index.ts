@@ -64,7 +64,7 @@ Produce the following (write all text in ${langName}, executive language, minima
 1. executiveNarrative: 4-6 sentence board-ready situation report on overall posture and the biggest weakness clusters and their business consequence.
 2. executiveInsights: object with arrays (2-5 items each), executive language:
    - topWeaknesses, topStrengths, highestBusinessRisks, multiRegulatoryIssues (issues touching several requirements), managementFocus (what to act on first).
-3. rootCauses: for the main weak areas, map the visible symptom to the LIKELY organizational root cause. 3-6 items. Explain WHY issues may exist.
+3. rootCauses: for the main weak areas, map the visible symptom to the LIKELY organizational root cause. 3-6 items. Explain WHY issues may exist. Each MUST include validationActivities: 2-4 concrete activities an internal auditor would perform to confirm the cause (e.g. "Interview process owners", "Review policies", "Review contracts", "Review audit logs", "Review change records", "Review access reviews", "Review risk registers").
 4. gapClusters: group failing/partial controls into 2-5 CORE THEMES ("not 20 problems, but 4"). Each: title, one-sentence summary, related control ids, businessImpact, regulatoryImpact.
 5. crossControlInsights: 2-4 statements linking deficits that may stem from a single missing capability.
 6. managementThemes: 3-5 management-level themes. Each: title, currentState, riskExposure, improvementOpportunity, confidence.
