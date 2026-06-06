@@ -765,6 +765,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
       });
       if (error) throw error;
       setInsights(data as InsightResult);
+      setInsightsProgress(100);
     } catch (e) {
       console.error('insights failed', e);
       alert(u.insightsError);
