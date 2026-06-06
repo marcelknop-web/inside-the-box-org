@@ -14,7 +14,7 @@ import { PageMeta } from '@/components/PageMeta';
 
 import { supabase } from '@/integrations/supabase/client';
 
-import { STANDARD_PROFILES, getProfile, tr, assess, MATURITY_LEVELS, maturityKey } from '@/data/metaAssessment';
+import { STANDARD_PROFILES, getProfile, tr, assess, MATURITY_LEVELS, maturityKey, readinessRatingLabel, attentionLabel } from '@/data/metaAssessment';
 import type {
   Lang, StandardProfile, IntakeField, IntakeAnswers,
   AssessmentResult, AssessedRequirement, ReqStatus,
