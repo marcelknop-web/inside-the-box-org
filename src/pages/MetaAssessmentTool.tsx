@@ -188,13 +188,13 @@ function FieldLabel({ field, lang }: { field: IntakeField; lang: Lang }) {
 }
 
 // ── Intake wizard ───────────────────────────────────────────────
-function IntakeWizard({ profile, lang, onFinish, onBack }: {
-  profile: StandardProfile; lang: Lang;
+function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
+  profile: StandardProfile; lang: Lang; initial?: IntakeAnswers;
   onFinish: (a: IntakeAnswers) => void; onBack: () => void;
 }) {
   const u = ui(lang);
   const [sub, setSub] = useState(0);
-  const [answers, setAnswers] = useState<IntakeAnswers>({});
+  const [answers, setAnswers] = useState<IntakeAnswers>(initial ?? {});
   const step = profile.intake[sub];
   const isLast = sub === profile.intake.length - 1;
 
