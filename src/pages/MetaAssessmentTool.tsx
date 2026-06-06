@@ -229,11 +229,19 @@ function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
         ))}
       </div>
 
-      <div className="flex justify-between pt-6">
-        <button onClick={() => (sub === 0 ? onBack() : setSub(sub - 1))}
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors font-mono">
-          <ArrowLeft size={14} /> {u.back}
-        </button>
+      <div className="flex justify-between items-center pt-6">
+        <div className="flex items-center gap-2">
+          <button onClick={() => (sub === 0 ? onBack() : setSub(sub - 1))}
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors font-mono">
+            <ArrowLeft size={14} /> {u.back}
+          </button>
+          {profile.demoAnswers && (
+            <button onClick={fillDemo}
+              className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 font-semibold transition-colors px-2.5 py-1.5 rounded-lg hover:bg-primary/10">
+              <Sparkles size={13} /> {u.demo}
+            </button>
+          )}
+        </div>
         <button disabled={!canNext} onClick={() => (isLast ? onFinish(answers) : setSub(sub + 1))}
           className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-40">
           {isLast ? u.run : u.next} {isLast ? <Sparkles size={14} /> : <ArrowRight size={14} />}
