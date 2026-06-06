@@ -517,18 +517,22 @@ function InsightsPanel({ insights, computed, lang, u, reqMeta }: {
 
       {insights.rootCauses?.length > 0 && (
         <InsightSection title={u.rootCauses} layer="insight" confidence={insights.confidence?.rootCauses}>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {insights.rootCauses.map((rc, i) => (
-              <div key={i} className="text-sm leading-relaxed flex items-start gap-2 flex-wrap">
-                <span className="flex-1 min-w-[60%]">
-                  <span className="text-muted-foreground">{rc.symptom}</span>
-                  <span className="text-primary mx-1.5">→</span>
-                  <span className="text-foreground">{rc.cause}</span>
-                </span>
-                <ConfidenceBadge level={rc.confidence} />
+              <div key={i} className="text-sm leading-relaxed">
+                <div className="flex items-start gap-2 flex-wrap">
+                  <span className="flex-1 min-w-[60%]">
+                    <span className="text-muted-foreground">{rc.symptom}</span>
+                    <span className="text-primary mx-1.5">→</span>
+                    <span className="text-foreground">{rc.cause}</span>
+                  </span>
+                  <ConfidenceBadge level={rc.confidence} />
+                </div>
+                <ValidationActivities items={rc.validationActivities} label={u.validationActivities} />
               </div>
             ))}
           </div>
+
         </InsightSection>
       )}
 
