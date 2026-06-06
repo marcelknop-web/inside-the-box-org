@@ -305,6 +305,19 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
     URL.revokeObjectURL(a.href);
   };
 
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const exportPdf = async () => {
+    setPdfBusy(true);
+    try {
+      await generateMetaAssessmentPdf({ profile, lang, result, computed, answers, entityName });
+    } catch (e) {
+      console.error('PDF generation failed', e);
+      alert(u.pdfError);
+    } finally {
+      setPdfBusy(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="bg-background/40 border-l-4 border-primary border border-primary/15 rounded-lg p-5">
