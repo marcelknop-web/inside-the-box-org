@@ -63,6 +63,7 @@ function ui(_lang: Lang) {
     exportJson: 'Export result (JSON)',
     exportPdf: 'Report as PDF',
     pdfError: 'PDF generation failed.',
+    consistencyError: 'Report consistency validation failed. Regenerate assessment results.',
     error: 'Assessment failed. Please retry.',
     summary: 'Summary',
     // ── architecture (engine separation) ──
