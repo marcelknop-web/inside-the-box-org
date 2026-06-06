@@ -133,6 +133,18 @@ function ui(_lang: Lang) {
     attentionIndex: 'Management attention index',
     attentionIndexHint: 'Overall level of management attention required, derived from risks and mandatory gaps.',
     attentionDrivers: 'Key drivers',
+    evidenceStrength: 'Evidence strength overview',
+    evidenceStrengthHint: 'Informational overview of the strength of evidence supporting the assessment. Does not affect scoring.',
+    evVeryHigh: 'Very high',
+    evHigh: 'High',
+    evMedium: 'Medium',
+    evLow: 'Low',
+    evMissing: 'No evidence',
+    consultantObservations: 'Consultant observations',
+    consultantObservationsHint: 'Senior-consultant / virtual-CISO commentary on the overall posture.',
+    observation: 'Observation',
+    implication: 'Implication',
+    recommendation: 'Recommendation',
   };
 }
 
