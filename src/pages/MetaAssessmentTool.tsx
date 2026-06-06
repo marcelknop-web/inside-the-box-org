@@ -125,6 +125,9 @@ function ui(_lang: Lang) {
     riskRatings: 'Risk ratings',
     deterministic: 'Deterministic',
     aiInterpretation: 'AI interpretation',
+    validationActivities: 'Recommended validation activities',
+    hypotheses: 'Hypotheses (require validation)',
+    hypothesesHint: 'Explicit AI assumptions not directly evidenced — confirm before acting.',
   };
 }
 
