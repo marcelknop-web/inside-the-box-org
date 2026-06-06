@@ -28,13 +28,13 @@ interface Group {
 const GROUPS: Group[] = [
   {
     label: {
-      de: 'Regulatorik & Compliance',
-      en: 'Regulation & Compliance',
-      fr: 'Réglementation & Conformité',
+      de: 'Assessments',
+      en: 'Assessments',
+      fr: 'Évaluations',
     },
     tools: [
       {
-        icon: Network, path: '/nis2-compliance', protected: true, title: 'NIS-2 Compliance Tool',
+        icon: Network, path: '/nis2-compliance', protected: true, title: 'NIS2',
         desc: {
           de: 'Audit-Workflow inkl. PDF-Report nach NIS-2.',
           en: 'Audit workflow with PDF report per NIS-2.',
@@ -42,7 +42,7 @@ const GROUPS: Group[] = [
         },
       },
       {
-        icon: Network, path: '/dora-compliance', protected: true, title: 'DORA Compliance Tool',
+        icon: Network, path: '/dora-compliance', protected: true, title: 'DORA',
         desc: {
           de: 'DORA-Selbstbewertung mit KI-gestütztem Reasoning.',
           en: 'DORA self-assessment with AI-assisted reasoning.',
@@ -50,30 +50,29 @@ const GROUPS: Group[] = [
         },
       },
       {
-        icon: AlertCircle, path: '/dora-check', title: 'DORA Incident Reporter',
-        desc: {
-          de: 'Major-Incident-Bewertung nach Art. 18 DORA.',
-          en: 'Major-incident assessment per Art. 18 DORA.',
-          fr: 'Évaluation d\'incident majeur selon l\'art. 18 DORA.',
-        },
-      },
-      {
-        icon: Sparkles, path: '/ai-act-readiness', protected: true, title: 'EU AI Act Readiness',
+        icon: Sparkles, path: '/ai-act-readiness', protected: true, title: 'AI Act',
         desc: {
           de: 'Risikoklassifizierung nach Reg. (EU) 2024/1689.',
           en: 'Risk classification per Reg. (EU) 2024/1689.',
           fr: 'Classification des risques selon Règl. (UE) 2024/1689.',
         },
       },
-    ],
-  },
-  {
-    label: {
-      de: 'OT, Industrie & Maritim',
-      en: 'OT, Industry & Maritime',
-      fr: 'OT, Industrie & Maritime',
-    },
-    tools: [
+      {
+        icon: Car, path: '/tisax-check', title: 'TISAX',
+        desc: {
+          de: 'AL1–AL3 Klassifizierungs-Wizard für Automotive.',
+          en: 'AL1–AL3 classification wizard for automotive.',
+          fr: 'Assistant de classification AL1–AL3 (automobile).',
+        },
+      },
+      {
+        icon: CreditCard, path: '/pci-check', title: 'PCI-DSS',
+        desc: {
+          de: 'Selbstbewertungs-Pfad-Wizard für Payment.',
+          en: 'Self-assessment path wizard for payment.',
+          fr: 'Assistant de parcours d\'auto-évaluation paiement.',
+        },
+      },
       {
         icon: Factory, path: '/iec62443', protected: true, title: 'IEC 62443',
         desc: {
@@ -83,7 +82,15 @@ const GROUPS: Group[] = [
         },
       },
       {
-        icon: Ship, path: '/iacs-ur26', protected: true, title: 'IACS UR E26',
+        icon: Server, path: '/cra-check', protected: true, title: 'CRA',
+        desc: {
+          de: 'Cyber Resilience Act — Einzelsystem-Assessment.',
+          en: 'Cyber Resilience Act — individual system assessment.',
+          fr: 'Cyber Resilience Act — évaluation des systèmes individuels.',
+        },
+      },
+      {
+        icon: Ship, path: '/iacs-ur26', protected: true, title: 'UR E26',
         desc: {
           de: 'Maritime Cyber-Resilience — Schiff als Ganzes.',
           en: 'Maritime cyber resilience — vessel as a whole.',
@@ -91,53 +98,28 @@ const GROUPS: Group[] = [
         },
       },
       {
-        icon: Server, path: '/iacs-ur27', protected: true, title: 'CRA / IACS UR E27',
+        icon: ShieldCheck, path: '/iacs-ur27', protected: true, title: 'UR E27',
         desc: {
-          de: 'Cyber Resilience Act + UR E27 — Einzelsysteme.',
-          en: 'Cyber Resilience Act + UR E27 — individual systems.',
-          fr: 'Cyber Resilience Act + UR E27 — systèmes individuels.',
+          de: 'IACS UR E27 — Einzelsysteme.',
+          en: 'IACS UR E27 — individual systems.',
+          fr: 'IACS UR E27 — systèmes individuels.',
         },
       },
     ],
   },
   {
     label: {
-      de: 'Branchenstandards',
-      en: 'Industry Standards',
-      fr: 'Normes sectorielles',
+      de: 'Spezialisierte Tools',
+      en: 'Specialized Tools',
+      fr: 'Outils Spécialisés',
     },
     tools: [
       {
-        icon: Car, path: '/tisax-check', title: 'TISAX Assessment Classifier',
+        icon: AlertCircle, path: '/dora-check', title: 'DORA Incident Classification',
         desc: {
-          de: 'AL1–AL3 Klassifizierungs-Wizard für Automotive.',
-          en: 'AL1–AL3 classification wizard for automotive.',
-          fr: 'Assistant de classification AL1–AL3 (automobile).',
-        },
-      },
-      {
-        icon: CreditCard, path: '/pci-check', title: 'PCI-DSS SAQ Navigator',
-        desc: {
-          de: 'Selbstbewertungs-Pfad-Wizard für Payment.',
-          en: 'Self-assessment path wizard for payment.',
-          fr: 'Assistant de parcours d\'auto-évaluation paiement.',
-        },
-      },
-    ],
-  },
-  {
-    label: {
-      de: 'Krisenübung & Reife',
-      en: 'Exercise & Readiness',
-      fr: 'Exercice & Maturité',
-    },
-    tools: [
-      {
-        icon: ClipboardList, path: '/ttx-check', title: 'ISCP TTX Prioritizer',
-        desc: {
-          de: 'Szenario-Priorisierung für Tabletop-Übungen.',
-          en: 'Scenario prioritisation for tabletop exercises.',
-          fr: 'Priorisation de scénarios pour exercices tabletop.',
+          de: 'Major-Incident-Bewertung nach Art. 18 DORA.',
+          en: 'Major-incident assessment per Art. 18 DORA.',
+          fr: 'Évaluation d\'incident majeur selon l\'art. 18 DORA.',
         },
       },
       {
@@ -149,11 +131,11 @@ const GROUPS: Group[] = [
         },
       },
       {
-        icon: ShieldCheck, path: '/iec62443', title: 'IEC 62443 (UR E27)',
+        icon: ClipboardList, path: '/ttx-check', title: 'Scenario Prioritizer',
         desc: {
-          de: 'Einzelsystem-Assessment nach IEC 62443.',
-          en: 'Component assessment per IEC 62443.',
-          fr: 'Évaluation de composants selon IEC 62443.',
+          de: 'Szenario-Priorisierung für Tabletop-Übungen.',
+          en: 'Scenario prioritisation for tabletop exercises.',
+          fr: 'Priorisation de scénarios pour exercices tabletop.',
         },
       },
     ],
