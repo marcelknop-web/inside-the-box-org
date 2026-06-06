@@ -865,16 +865,16 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
         </div>
       </div>
 
-      {/* Risks */}
-      {result.risks.length > 0 && (
+      {/* Risks — rendered from the canonical computed.risks (same scores/ratings as PDF) */}
+      {computed.risks.length > 0 && (
         <div>
           <h2 className="font-mono text-xs tracking-[0.25em] uppercase text-highlight mb-3">
             {u.riskLandscape} {critRisks.length > 0 && <span className="text-destructive">· {critRisks.length} {u.critical}</span>}
           </h2>
           <div className="space-y-1.5">
-            {[...result.risks].sort((a, b) => b.likelihood * b.impact - a.likelihood * a.impact).map((r) => {
-              const score = r.likelihood * r.impact;
-              const cls = score >= 20 ? 'bg-destructive text-destructive-foreground' : score >= 15 ? 'bg-orange-500 text-white' : score >= 8 ? 'bg-yellow-500 text-black' : 'bg-green-500 text-white';
+            {[...computed.risks].sort((a, b) => b.score - a.score).map((r) => {
+              const score = r.score;
+              const cls = r.rating === 'critical' ? 'bg-destructive text-destructive-foreground' : r.rating === 'high' ? 'bg-orange-500 text-white' : r.rating === 'medium' ? 'bg-yellow-500 text-black' : 'bg-green-500 text-white';
               return (
                 <div key={r.id} className="flex items-center gap-3 bg-background/40 border border-primary/15 rounded-lg px-3 py-2.5 text-sm">
                   <span className="font-mono text-[11px] text-muted-foreground font-bold w-8 flex-shrink-0">{r.id}</span>
