@@ -1832,23 +1832,14 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
       {/* Executive presentation (Gamma) */}
       <div className="bg-background/40 border border-primary/15 rounded-lg p-5 space-y-4">
         {deckStatus === 'generating' ? (
-          /* While generating, show the AI-analysis step exclusively. */
-          <div className="py-6 px-2">
-            <div className="flex items-center gap-3 text-foreground">
-              <Loader2 size={18} className="animate-spin text-primary shrink-0" />
-              <div className="text-base font-semibold">{u.analyzingDeck}</div>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1.5 ml-[30px]">{u.analyzingDeckHint}</p>
-            <div className="mt-5 ml-[30px] max-w-xl">
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[11px] font-mono uppercase tracking-wide text-muted-foreground">AI analysis</span>
-                <span className="text-xs font-mono text-primary">{deckProgress}%</span>
-              </div>
-              <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
-                <div className="h-full bg-primary rounded-full transition-all duration-700 ease-out" style={{ width: `${deckProgress}%` }} />
-              </div>
-            </div>
-          </div>
+          /* Waiting is shown as a guided pop-up overlay. */
+          <AiWaitModal
+            title={u.aiAnalysis}
+            label={u.analyzingDeck}
+            note={u.analyzingDeckHint}
+            progress={deckProgress}
+            u={u}
+          />
         ) : (
           <>
             <div>
