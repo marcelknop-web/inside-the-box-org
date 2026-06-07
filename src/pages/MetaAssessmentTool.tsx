@@ -9,6 +9,8 @@ import { generateMetaAssessmentPdf } from '@/utils/metaAssessmentReportPdf';
 import { generateWorkingPapersPdf } from '@/utils/workingPapersPdf';
 import { buildReportMeta, validateConsistency, ORIGIN, REPORT_TITLE } from '@/data/metaAssessment/reportMeta';
 import { buildPresentationContent, type PresentationType } from '@/data/metaAssessment/presentationContent';
+import { validateSlideMetrics } from '@/data/metaAssessment/slideValidation';
+import QualityCheckPanel from '@/components/QualityCheckPanel';
 import { LucideIcon } from 'lucide-react';
 import { SiteChrome } from '@/components/SiteChrome';
 import { PasswordGate } from '@/components/PasswordGate';
