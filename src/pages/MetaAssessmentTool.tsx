@@ -1239,7 +1239,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
   };
 
   // ── Executive presentation (Gamma) ──
-  const [deckType, setDeckType] = useState<PresentationType>('executive');
+  const [deckType, setDeckType] = useState<PresentationType>('visual-executive');
   const [deckStatus, setDeckStatus] = useState<'idle' | 'generating' | 'ready' | 'error'>('idle');
   const [deckUrl, setDeckUrl] = useState<string | null>(null);
   const [deckPdfUrl, setDeckPdfUrl] = useState<string | null>(null);
