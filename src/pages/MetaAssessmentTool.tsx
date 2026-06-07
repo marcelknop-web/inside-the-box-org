@@ -1665,8 +1665,8 @@ const MetaAssessmentTool = () => {
 
   return (
     <SiteChrome>
-      <PasswordGate storageKey="assessment-tools" label="Meta Assessment">
-        <PageMeta title="AI-Powered Internal Audit & Compliance Readiness Platform — Inside the Box" description="Rule-based compliance assessment with an AI insight & advisory layer: pick a standard, intake, compliance assessment, AI insights, reporting." />
+      <PasswordGate storageKey="assessment-tools" label="GapZeo">
+        <PageMeta title="GapZeo — AI-Powered Internal Audit & Compliance Readiness — Inside the Box" description="GapZeo turns any standard into an audit-ready assessment: rule-based compliance with an AI insight & advisory layer — intake, assessment, AI insights and board-ready reporting." />
         <Helmet><meta name="robots" content="noindex,nofollow" /></Helmet>
 
         <main className="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
