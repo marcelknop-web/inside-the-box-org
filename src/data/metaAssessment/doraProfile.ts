@@ -215,4 +215,87 @@ export const DORA_PROFILE: StandardProfile = {
     measures__mat__register: 'existing',
     measures__mat__tprcontract: 'documented',
   },
+  demoScenarios: [
+    {
+      id: 'mature',
+      label: { de: 'Kreditinstitut — auditreif', en: 'Credit institution — audit-ready', fr: 'Établissement de crédit — prêt pour l’audit' },
+      description: {
+        de: 'Regionalbank mit reifem IKT-Risikorahmen und wenigen offenen Punkten.',
+        en: 'Regional bank with a mature ICT risk framework and few open points.',
+        fr: 'Banque régionale avec cadre de risque TIC mature et peu de points ouverts.',
+      },
+      answers: {
+        entityName: 'Acme Bank AG',
+        entityType: 'credit',
+        proportionality: 'full',
+        description:
+          'Regional credit institution with approx. 1,200 employees offering retail and corporate banking, payments and online banking. Core banking on a managed platform, Microsoft 365 cloud, two ICT third parties for payment processing and market data. Critical functions: payment processing, core banking ledger, online banking portal.',
+        thirdParties: ['cloud', 'corebanking', 'payproc', 'datafeeds'],
+        roles: ['mgmt', 'ictrisk', 'ciso', 'irt', 'tprm', 'audit'],
+        knownIssues:
+          'Register of information is incomplete for sub-outsourcing. No TLPT performed yet. Exit strategies documented only for the cloud provider, not for the core banking platform. Detection relies mainly on the MSSP without internal correlation.',
+        measures: ['ictframework', 'protection', 'detection', 'bcm', 'backup', 'incidentmgmt', 'incidentreport', 'testing', 'register', 'tprcontract', 'exit'],
+        measures__mat__ictframework: 'audited',
+        measures__mat__protection: 'documented',
+        measures__mat__detection: 'documented',
+        measures__mat__bcm: 'audited',
+        measures__mat__backup: 'documented',
+        measures__mat__incidentmgmt: 'documented',
+        measures__mat__incidentreport: 'documented',
+        measures__mat__testing: 'documented',
+        measures__mat__register: 'documented',
+        measures__mat__tprcontract: 'documented',
+        measures__mat__exit: 'existing',
+      },
+    },
+    {
+      id: 'developing',
+      label: { de: 'Zahlungsinstitut — im Aufbau', en: 'Payment institution — developing', fr: 'Établissement de paiement — en développement' },
+      description: {
+        de: 'Zahlungsdienstleister mit Teil-Resilienz und Lücken bei Tests & Dritten.',
+        en: 'Payment provider with partial resilience and gaps in testing & third parties.',
+        fr: 'Prestataire de paiement avec résilience partielle et lacunes tests & tiers.',
+      },
+      answers: {
+        entityName: 'PayFlow Payments SA',
+        entityType: 'payment',
+        proportionality: 'full',
+        description:
+          'Payment institution with approx. 240 employees providing card acquiring and account-to-account payments across the EU. Heavily reliant on a cloud hyperscaler and an external payment processor. Critical functions: transaction authorisation, settlement, fraud monitoring.',
+        thirdParties: ['cloud', 'payproc', 'mssp'],
+        roles: ['mgmt', 'ictrisk', 'ciso'],
+        knownIssues:
+          'ICT risk framework is documented but not yet independently reviewed. Incident reporting timelines are not formally tested. No resilience testing programme in place. Register of information started but contractual clauses are inconsistent across providers.',
+        measures: ['ictframework', 'protection', 'detection', 'backup', 'incidentmgmt', 'register'],
+        measures__mat__ictframework: 'documented',
+        measures__mat__protection: 'existing',
+        measures__mat__detection: 'existing',
+        measures__mat__backup: 'documented',
+        measures__mat__incidentmgmt: 'existing',
+        measures__mat__register: 'existing',
+      },
+    },
+    {
+      id: 'early',
+      label: { de: 'Wertpapierfirma — Frühphase', en: 'Investment firm — early stage', fr: 'Entreprise d’investissement — phase initiale' },
+      description: {
+        de: 'Kleine Wertpapierfirma, kaum formalisierte IKT-Resilienz, viele Lücken.',
+        en: 'Small investment firm with little formal ICT resilience and many gaps.',
+        fr: 'Petite entreprise d’investissement, faible résilience TIC, nombreuses lacunes.',
+      },
+      answers: {
+        entityName: 'Meridian Capital Partners',
+        entityType: 'investment',
+        proportionality: 'simplified',
+        description:
+          'Small investment firm with approx. 45 employees offering portfolio management and brokerage. Relies on a SaaS trading platform, market-data feeds and outsourced IT. Security and ICT risk are managed informally by operations alongside other duties.',
+        thirdParties: ['cloud', 'datafeeds', 'software'],
+        roles: ['mgmt'],
+        knownIssues:
+          'No documented ICT risk-management framework. No incident-management or reporting process. No business-continuity or backup testing. No register of information and no third-party contractual security clauses.',
+        measures: ['protection'],
+        measures__mat__protection: 'existing',
+      },
+    },
+  ],
 };
