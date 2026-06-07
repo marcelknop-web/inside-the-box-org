@@ -1184,6 +1184,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
   const [insights, setInsights] = useState<InsightResult | null>(null);
   const [insightsBusy, setInsightsBusy] = useState(false);
   const [insightsProgress, setInsightsProgress] = useState(0);
+  const [insightsDone, setInsightsDone] = useState(false);
 
   // Animate a progress bar while the AI analysis runs (creeps toward 90%).
   useEffect(() => {
