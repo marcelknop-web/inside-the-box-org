@@ -495,7 +495,7 @@ export function buildPresentationContent(type: PresentationType, input: Presenta
   const present = cards.filter((c): c is Card => !!c && !!c.md && c.md.trim().length > 0);
 
   let additionalInstructions = tone + limitNote + frameworkVisualGuidance(profile);
-  if (type !== 'text') additionalInstructions += visualMap(present);
+  if (type !== 'text') additionalInstructions += STUDIO_DESIGN + visualMap(present);
 
   const titleByType: Record<PresentationType, string> = {
     'visual-executive': `${profile.name} Executive Briefing — ${entityName}`,
