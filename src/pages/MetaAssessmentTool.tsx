@@ -217,6 +217,8 @@ function ui(_lang: Lang) {
     presentationType: 'Presentation type',
     generating: 'Generating presentation …',
     generatingHint: 'This can take 1–3 minutes. Please keep this screen open.',
+    analyzingDeck: 'Results are being analyzed by AI …',
+    analyzingDeckHint: 'Building your visual executive deck. This can take 1–3 minutes — please keep this screen open.',
     presentationReady: 'Presentation Ready',
     openInGamma: 'Open in Gamma',
     downloadDeckPdf: 'Download PDF',
@@ -1243,12 +1245,24 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
   const [deckStatus, setDeckStatus] = useState<'idle' | 'generating' | 'ready' | 'error'>('idle');
   const [deckUrl, setDeckUrl] = useState<string | null>(null);
   const [deckPdfUrl, setDeckPdfUrl] = useState<string | null>(null);
+  const [deckProgress, setDeckProgress] = useState(0);
+
+  // Animate a professional progress bar while the deck is generated (creeps toward 95%).
+  useEffect(() => {
+    if (deckStatus !== 'generating') return;
+    setDeckProgress((p) => (p > 0 && p < 95 ? p : 6));
+    const id = setInterval(() => {
+      setDeckProgress((p) => (p < 95 ? p + Math.max(1, Math.round((95 - p) * 0.04)) : p));
+    }, 1400);
+    return () => clearInterval(id);
+  }, [deckStatus]);
 
   const generatePresentation = useCallback(async () => {
     // Never lose assessment results — only the presentation state changes.
     setDeckStatus('generating');
     setDeckUrl(null);
     setDeckPdfUrl(null);
+    setDeckProgress(6);
     try {
       const content = buildPresentationContent(deckType, {
         profile, lang, result, computed, answers, entityName, insights, reportMeta: docMeta,
@@ -1279,6 +1293,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
           const p = poll as { gammaUrl?: string; exportUrl?: string };
           setDeckUrl(p.gammaUrl ?? null);
           setDeckPdfUrl(p.exportUrl ?? null);
+          setDeckProgress(100);
           setDeckStatus('ready');
           return;
         }
@@ -1524,84 +1539,95 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
 
       {/* Executive presentation (Gamma) */}
       <div className="bg-background/40 border border-primary/15 rounded-lg p-5 space-y-4">
-        <div>
-          <div className="text-sm font-semibold text-foreground flex items-center gap-2">
-            <Presentation size={15} className="text-primary" /> {u.presentationTitle}
+        {deckStatus === 'generating' ? (
+          /* While generating, show the AI-analysis step exclusively. */
+          <div className="py-6 px-2">
+            <div className="flex items-center gap-3 text-foreground">
+              <Loader2 size={18} className="animate-spin text-primary shrink-0" />
+              <div className="text-base font-semibold">{u.analyzingDeck}</div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1.5 ml-[30px]">{u.analyzingDeckHint}</p>
+            <div className="mt-5 ml-[30px] max-w-xl">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[11px] font-mono uppercase tracking-wide text-muted-foreground">AI analysis</span>
+                <span className="text-xs font-mono text-primary">{deckProgress}%</span>
+              </div>
+              <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+                <div className="h-full bg-primary rounded-full transition-all duration-700 ease-out" style={{ width: `${deckProgress}%` }} />
+              </div>
+            </div>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-0.5 max-w-2xl leading-relaxed">{u.presentationHint}</p>
-        </div>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {([
-            ['visual-executive', u.deckExecutive, u.deckExecutiveHint],
-            ['consultant', u.deckConsultant, u.deckConsultantHint],
-            ['audit', u.deckAudit, u.deckAuditHint],
-            ['text', u.deckText, u.deckTextHint],
-          ] as [PresentationType, string, string][]).map(([id, label, hint]) => {
-            const active = deckType === id;
-            return (
-              <button key={id} type="button" onClick={() => setDeckType(id)}
-                disabled={deckStatus === 'generating'}
-                className={`text-left rounded-lg border p-3 transition-colors disabled:opacity-60 ${active ? 'border-primary bg-primary/10' : 'border-border bg-background/50 hover:border-primary/40'}`}>
-                <div className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  {active && <CheckCircle2 size={13} className="text-primary" />} {label}
-                </div>
-                <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">{hint}</p>
-              </button>
-            );
-          })}
-        </div>
-
-        {deckStatus === 'generating' && (
-          <div className="flex items-center gap-3 text-sm text-foreground bg-background/50 border border-border rounded-lg px-4 py-3">
-            <Loader2 size={16} className="animate-spin text-primary" />
+        ) : (
+          <>
             <div>
-              <div className="font-semibold">{u.generating}</div>
-              <div className="text-[11px] text-muted-foreground">{u.generatingHint}</div>
+              <div className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <Presentation size={15} className="text-primary" /> {u.presentationTitle}
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-0.5 max-w-2xl leading-relaxed">{u.presentationHint}</p>
             </div>
-          </div>
-        )}
 
-        {deckStatus === 'ready' && (
-          <div className="bg-primary/10 border border-primary/30 rounded-lg px-4 py-3 space-y-3">
-            <div className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <CheckCircle2 size={15} className="text-primary" /> {u.presentationReady}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {([
+                ['visual-executive', u.deckExecutive, u.deckExecutiveHint],
+                ['consultant', u.deckConsultant, u.deckConsultantHint],
+                ['audit', u.deckAudit, u.deckAuditHint],
+                ['text', u.deckText, u.deckTextHint],
+              ] as [PresentationType, string, string][]).map(([id, label, hint]) => {
+                const active = deckType === id;
+                return (
+                  <button key={id} type="button" onClick={() => setDeckType(id)}
+                    className={`text-left rounded-lg border p-3 transition-colors ${active ? 'border-primary bg-primary/10' : 'border-border bg-background/50 hover:border-primary/40'}`}>
+                    <div className="text-sm font-semibold text-foreground flex items-center gap-2">
+                      {active && <CheckCircle2 size={13} className="text-primary" />} {label}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">{hint}</p>
+                  </button>
+                );
+              })}
             </div>
-            <div className="flex flex-wrap gap-3">
-              {deckUrl && (
-                <a href={deckUrl} target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90">
-                  <ExternalLink size={14} /> {u.openInGamma}
-                </a>
-              )}
-              {deckPdfUrl && (
-                <a href={deckPdfUrl} target="_blank" rel="noopener noreferrer"
+
+            {deckStatus === 'ready' && (
+              <div className="bg-primary/10 border border-primary/30 rounded-lg px-4 py-3 space-y-3">
+                <div className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <CheckCircle2 size={15} className="text-primary" /> {u.presentationReady}
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  {deckUrl && (
+                    <a href={deckUrl} target="_blank" rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90">
+                      <ExternalLink size={14} /> {u.openInGamma}
+                    </a>
+                  )}
+                  {deckPdfUrl && (
+                    <a href={deckPdfUrl} target="_blank" rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80">
+                      <Download size={14} /> {u.downloadDeckPdf}
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {deckStatus === 'error' && (
+              <div className="bg-destructive/10 border border-destructive/30 rounded-lg px-4 py-3 flex items-center justify-between gap-3">
+                <div className="text-sm font-semibold text-destructive flex items-center gap-2">
+                  <AlertTriangle size={15} /> {u.presentationFailed}
+                </div>
+                <button onClick={generatePresentation}
                   className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80">
-                  <Download size={14} /> {u.downloadDeckPdf}
-                </a>
-              )}
-            </div>
-          </div>
-        )}
+                  <RotateCcw size={14} /> {u.retry}
+                </button>
+              </div>
+            )}
 
-        {deckStatus === 'error' && (
-          <div className="bg-destructive/10 border border-destructive/30 rounded-lg px-4 py-3 flex items-center justify-between gap-3">
-            <div className="text-sm font-semibold text-destructive flex items-center gap-2">
-              <AlertTriangle size={15} /> {u.presentationFailed}
+            <div>
+              <button onClick={generatePresentation}
+                className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90">
+                <Presentation size={14} /> {u.genPresentation}
+              </button>
             </div>
-            <button onClick={generatePresentation}
-              className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80">
-              <RotateCcw size={14} /> {u.retry}
-            </button>
-          </div>
+          </>
         )}
-
-        <div>
-          <button onClick={generatePresentation} disabled={deckStatus === 'generating'}
-            className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
-            {deckStatus === 'generating' ? <Loader2 size={14} className="animate-spin" /> : <Presentation size={14} />} {u.genPresentation}
-          </button>
-        </div>
       </div>
 
 
