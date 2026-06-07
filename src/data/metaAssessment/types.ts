@@ -300,6 +300,37 @@ export interface MaturityResult {
   label: string;
 }
 
+// ── CMMI Maturity Matching (deterministic, official 1–5 scale) ──
+
+/** Official CMMI maturity levels (1–5). */
+export type CmmiLevel = 1 | 2 | 3 | 4 | 5;
+
+export interface CmmiCategoryMatch {
+  id: string;
+  name: string;
+  /** matched CMMI level (1–5) for this category */
+  level: CmmiLevel;
+  /** official CMMI level name */
+  label: string;
+  /** underlying category compliance percentage */
+  pct: number;
+  /** target CMMI level for this category */
+  target: CmmiLevel;
+  /** levels short of target (0 = meets/exceeds) */
+  gap: number;
+}
+
+export interface CmmiMatching {
+  enabled: boolean;
+  /** per-category CMMI matching */
+  categories: CmmiCategoryMatch[];
+  /** overall CMMI level across the assessment */
+  overall: CmmiLevel;
+  overallLabel: string;
+  target: CmmiLevel;
+  gap: number;
+}
+
 // ── Audit Readiness (deterministic, never from the AI) ──────────
 
 /** Readiness rating for an audit-readiness dimension. */
