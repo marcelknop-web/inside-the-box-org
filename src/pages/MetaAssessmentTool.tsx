@@ -3,9 +3,10 @@ import { Helmet } from 'react-helmet-async';
 import {
   ArrowRight, ArrowLeft, Loader2, Sparkles, ShieldCheck, Network, Car,
   CreditCard, Factory, Server, RotateCcw, Lock, AlertTriangle, CheckCircle2,
-  Download, FileText,
+  Download, FileText, ClipboardList,
 } from 'lucide-react';
 import { generateMetaAssessmentPdf } from '@/utils/metaAssessmentReportPdf';
+import { generateWorkingPapersPdf } from '@/utils/workingPapersPdf';
 import { buildReportMeta, validateConsistency, ORIGIN, REPORT_TITLE } from '@/data/metaAssessment/reportMeta';
 import { LucideIcon } from 'lucide-react';
 import { SiteChrome } from '@/components/SiteChrome';
@@ -14,12 +15,13 @@ import { PageMeta } from '@/components/PageMeta';
 
 import { supabase } from '@/integrations/supabase/client';
 
-import { STANDARD_PROFILES, getProfile, tr, assess, MATURITY_LEVELS, maturityKey, readinessRatingLabel, attentionLabel } from '@/data/metaAssessment';
+import { STANDARD_PROFILES, getProfile, tr, assess, MATURITY_LEVELS, maturityKey, readinessRatingLabel, attentionLabel, buildWorkingPapers } from '@/data/metaAssessment';
 import type {
   Lang, StandardProfile, IntakeField, IntakeAnswers,
   AssessmentResult, AssessedRequirement, ReqStatus,
   ComputedAssessment, Recommendation, InsightResult,
 } from '@/data/metaAssessment/types';
+import type { WorkingPapers, WorkingPaperRecord } from '@/data/metaAssessment/workingPapers';
 
 const ICONS: Record<string, LucideIcon> = {
   Network, Sparkles, Car, CreditCard, Factory, Server, ShieldCheck,
