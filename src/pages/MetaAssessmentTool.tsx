@@ -1246,39 +1246,64 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
     const ai = computed.attentionIndex;
     const ev = computed.evidence;
     const evTotal = merged.length || 1;
-    type Chapter = { title: string; origin: string; summary: string; kind: string; data: any };
+    type Chapter = { title: string; origin: string; takeaway: string; summary: string; kind: string; data: any };
+
+    // ── Pyramid Principle: each chapter leads with its single conclusion (takeaway),
+    //    then the supporting visual evidence, then the explanatory context. ──
+    const attLvl = ai.level;
+    const attTake = attLvl === 'critical' || attLvl === 'high'
+      ? `Management action is required now — attention level is ${attentionLabel(attLvl, lang)}.`
+      : `Posture is under control — attention level is ${attentionLabel(attLvl, lang)}.`;
+
+    const weakDims = computed.auditReadiness.dimensions.filter((dm: any) => dm.pct < 60).sort((a: any, b: any) => a.pct - b.pct);
+    const readyTake = weakDims.length === 0
+      ? 'Audit-ready across all readiness dimensions.'
+      : `Focus on ${weakDims.slice(0, 2).map((dm: any) => dm.label).join(' and ')} — the weakest readiness dimension${weakDims.length > 1 ? 's' : ''}.`;
+
+    const findTake = `${pct}% audit-ready: ${pass} of ${merged.length} requirements pass, ${fail} gap${fail === 1 ? '' : 's'} to close.`;
+
+    const wpTake = `Every conclusion is traceable — ${workingPapers.records.length} working-paper records evidence the assessment.`;
+
+    const evMissingCount = ev.missing.length;
+    const evTake = evMissingCount === 0
+      ? 'Evidence base is complete — every requirement is supported.'
+      : `${evMissingCount} requirement${evMissingCount === 1 ? '' : 's'} lack supporting evidence and need follow-up.`;
+
     const chs: Chapter[] = [
       {
         title: u.attentionIndex, origin: ORIGIN.assessment, kind: 'attention',
-        summary: u.attentionIndexHint,
+        takeaway: attTake, summary: u.attentionIndexHint,
         data: { level: ai.level, label: attentionLabel(ai.level, lang), counts: ai.counts },
       },
       {
         title: u.auditReadiness, origin: ORIGIN.assessment, kind: 'readiness',
-        summary: u.auditReadinessHint,
+        takeaway: readyTake, summary: u.auditReadinessHint,
         data: { dimensions: computed.auditReadiness.dimensions },
       },
       {
         title: u.findings, origin: ORIGIN.assessment, kind: 'findings',
-        summary: `${pass} ${u.passed} · ${partial} ${u.partial} · ${fail} ${u.gaps}`,
+        takeaway: findTake, summary: `${pass} ${u.passed} · ${partial} ${u.partial} · ${fail} ${u.gaps}`,
         data: { pass, partial, fail, total: merged.length, pct },
       },
       {
         title: u.workingPapers, origin: ORIGIN.assessment, kind: 'stat',
-        summary: u.workingPapersHint,
+        takeaway: wpTake, summary: u.workingPapersHint,
         data: { value: workingPapers.records.length, label: u.workingPapers, icon: 'clipboard' },
       },
     ];
     if (computed.risks.length > 0) {
+      const riskTake = critRisks.length > 0
+        ? `${critRisks.length} critical risk${critRisks.length === 1 ? '' : 's'} dominate — prioritise these first.`
+        : `${computed.risks.length} risks identified, none critical — manage on the standard cycle.`;
       chs.push({
         title: u.riskLandscape, origin: ORIGIN.risk, kind: 'risks',
-        summary: `${computed.risks.length} risks · ${critRisks.length} ${u.critical}`,
+        takeaway: riskTake, summary: `${computed.risks.length} risks · ${critRisks.length} ${u.critical}`,
         data: { risks: [...computed.risks].sort((a, b) => b.score - a.score).slice(0, 5), total: computed.risks.length, crit: critRisks.length },
       });
     }
     chs.push({
       title: u.evidenceStrength, origin: ORIGIN.assessment, kind: 'evidence',
-      summary: u.evidenceStrengthHint,
+      takeaway: evTake, summary: u.evidenceStrengthHint,
       data: {
         rows: [
           { label: u.evVeryHigh, count: ev.byStrength.very_high, cls: 'bg-green-500' },
@@ -1290,13 +1315,18 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
         total: evTotal,
       },
     });
+    const aiCount = insights ? (insights.executiveInsights?.topWeaknesses?.length ?? 0) + (insights.rootCauses?.length ?? 0) : 0;
     chs.push({
       title: u.aiAnalysis, origin: ORIGIN.insight, kind: 'stat',
+      takeaway: aiCount > 0
+        ? `AI distilled ${aiCount} interpreted insight${aiCount === 1 ? '' : 's'} — advisory only, findings stay deterministic.`
+        : 'AI advisory layer — it explains results without altering any finding.',
       summary: u.aiNote,
-      data: { value: insights ? (insights.executiveInsights?.topWeaknesses?.length ?? 0) + (insights.rootCauses?.length ?? 0) : 0, label: u.aiAnalysis, icon: 'sparkles' },
+      data: { value: aiCount, label: u.aiAnalysis, icon: 'sparkles' },
     });
     return chs;
   }, [computed, u, lang, pass, partial, fail, pct, merged.length, critRisks.length, workingPapers.records.length, insights]);
+
 
   // Trigger the walkthrough once every required analysis has completed.
   useEffect(() => {
@@ -1435,7 +1465,11 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
               <div>
                 <h2 className="font-mono text-sm tracking-[0.2em] uppercase text-highlight">{ch.title}</h2>
                 <div className="text-[10px] text-muted-foreground font-mono mt-1">{ch.origin}</div>
+                {/* Pyramid Principle: conclusion first */}
+                <p className="text-base font-bold text-foreground leading-snug mt-3 border-l-2 border-primary pl-3">{ch.takeaway}</p>
+                {/* Supporting evidence */}
                 <div className="mt-4"><ChapterVisual ch={ch} /></div>
+                {/* Context */}
                 <p className="text-xs text-muted-foreground leading-relaxed mt-4">{ch.summary}</p>
               </div>
               <div className="flex items-center gap-1.5 pt-1">
