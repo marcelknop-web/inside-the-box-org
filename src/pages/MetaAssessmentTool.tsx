@@ -1465,7 +1465,11 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
               <div>
                 <h2 className="font-mono text-sm tracking-[0.2em] uppercase text-highlight">{ch.title}</h2>
                 <div className="text-[10px] text-muted-foreground font-mono mt-1">{ch.origin}</div>
+                {/* Pyramid Principle: conclusion first */}
+                <p className="text-base font-bold text-foreground leading-snug mt-3 border-l-2 border-primary pl-3">{ch.takeaway}</p>
+                {/* Supporting evidence */}
                 <div className="mt-4"><ChapterVisual ch={ch} /></div>
+                {/* Context */}
                 <p className="text-xs text-muted-foreground leading-relaxed mt-4">{ch.summary}</p>
               </div>
               <div className="flex items-center gap-1.5 pt-1">
