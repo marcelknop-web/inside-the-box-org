@@ -1837,6 +1837,148 @@ function ReportField({ label, children }: { label: string; children: React.React
   );
 }
 
+// ── Chapter walkthrough visuals (easy-to-read graphics per chapter) ──
+function ChapterVisual({ ch }: { ch: { kind: string; data: any } }) {
+  const d = ch.data;
+  if (ch.kind === 'attention') {
+    const lvlCls = d.level === 'critical' ? 'bg-destructive text-destructive-foreground'
+      : d.level === 'high' ? 'bg-orange-500 text-white'
+      : d.level === 'medium' ? 'bg-yellow-500 text-black' : 'bg-green-500 text-white';
+    const cells: [string, number, string][] = [
+      ['Critical', d.counts.critical, 'text-destructive'],
+      ['High', d.counts.high, 'text-orange-500'],
+      ['Medium', d.counts.medium, 'text-yellow-500'],
+      ['Low', d.counts.low, 'text-green-500'],
+    ];
+    return (
+      <div className="space-y-3">
+        <div className="flex justify-center">
+          <span className={`px-4 py-1.5 rounded-md text-base font-bold uppercase tracking-wide ${lvlCls}`}>{d.label}</span>
+        </div>
+        <div className="grid grid-cols-4 gap-2">
+          {cells.map(([l, n, c]) => (
+            <div key={l} className="bg-secondary/40 rounded-lg p-2 text-center">
+              <div className={`text-2xl font-bold font-mono ${c}`}>{n}</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">{l}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  if (ch.kind === 'readiness') {
+    return (
+      <div className="space-y-2.5">
+        {d.dimensions.map((dim: any) => {
+          const barCls = dim.pct >= 80 ? 'bg-green-500' : dim.pct >= 60 ? 'bg-yellow-500' : dim.pct >= 35 ? 'bg-orange-500' : 'bg-destructive';
+          return (
+            <div key={dim.id}>
+              <div className="flex items-center justify-between text-xs mb-1">
+                <span className="text-foreground font-medium">{dim.label}</span>
+                <span className="font-mono text-muted-foreground">{dim.pct}%</span>
+              </div>
+              <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
+                <div className={`h-full rounded-full ${barCls}`} style={{ width: `${dim.pct}%` }} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+  if (ch.kind === 'findings') {
+    const total = d.total || 1;
+    const seg: [number, string][] = [[d.pass, 'bg-green-500'], [d.partial, 'bg-yellow-500'], [d.fail, 'bg-destructive']];
+    const cells: [string, number, string][] = [
+      ['Passed', d.pass, 'text-green-500'],
+      ['Partial', d.partial, 'text-yellow-500'],
+      ['Gaps', d.fail, 'text-destructive'],
+    ];
+    return (
+      <div className="space-y-3">
+        <div className="text-center">
+          <div className={`text-4xl font-bold font-mono ${d.pct >= 70 ? 'text-green-500' : d.pct >= 40 ? 'text-yellow-500' : 'text-destructive'}`}>{d.pct}%</div>
+          <div className="text-[10px] text-muted-foreground">{d.total} requirements assessed</div>
+        </div>
+        <div className="flex h-3 w-full rounded-full overflow-hidden bg-secondary">
+          {seg.map(([n, cls], i) => (
+            <div key={i} className={cls} style={{ width: `${(n / total) * 100}%` }} />
+          ))}
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {cells.map(([l, n, c]) => (
+            <div key={l} className="bg-secondary/40 rounded-lg p-2 text-center">
+              <div className={`text-2xl font-bold font-mono ${c}`}>{n}</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">{l}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  if (ch.kind === 'risks') {
+    const max = d.risks[0]?.score || 1;
+    return (
+      <div className="space-y-3">
+        <div className="grid grid-cols-2 gap-2">
+          <div className="bg-secondary/40 rounded-lg p-2 text-center">
+            <div className="text-2xl font-bold font-mono text-foreground">{d.total}</div>
+            <div className="text-[10px] text-muted-foreground mt-0.5">Total risks</div>
+          </div>
+          <div className="bg-secondary/40 rounded-lg p-2 text-center">
+            <div className="text-2xl font-bold font-mono text-destructive">{d.crit}</div>
+            <div className="text-[10px] text-muted-foreground mt-0.5">Critical</div>
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          {d.risks.map((r: any) => {
+            const cls = r.rating === 'critical' ? 'bg-destructive' : r.rating === 'high' ? 'bg-orange-500' : r.rating === 'medium' ? 'bg-yellow-500' : 'bg-green-500';
+            return (
+              <div key={r.id} className="flex items-center gap-2 text-xs">
+                <span className="flex-1 min-w-0 truncate text-foreground" title={r.name}>{r.name}</span>
+                <div className="w-24 h-2 rounded-full bg-secondary overflow-hidden">
+                  <div className={`h-full rounded-full ${cls}`} style={{ width: `${(r.score / max) * 100}%` }} />
+                </div>
+                <span className="font-mono text-muted-foreground w-6 text-right">{r.score}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+  if (ch.kind === 'evidence') {
+    const total = d.total || 1;
+    return (
+      <div className="space-y-2.5">
+        {d.rows.map((row: any) => {
+          const pct = Math.round((row.count / total) * 100);
+          return (
+            <div key={row.label}>
+              <div className="flex items-center justify-between text-xs mb-1">
+                <span className="text-foreground">{row.label}</span>
+                <span className="font-mono text-muted-foreground">{row.count} · {pct}%</span>
+              </div>
+              <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
+                <div className={`h-full rounded-full ${row.cls}`} style={{ width: `${pct}%` }} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+  if (ch.kind === 'stat') {
+    const Icon = d.icon === 'sparkles' ? Sparkles : ClipboardList;
+    return (
+      <div className="flex flex-col items-center justify-center py-4">
+        <Icon size={32} className="text-primary mb-2" />
+        <div className="text-5xl font-bold font-mono text-foreground">{d.value}</div>
+      </div>
+    );
+  }
+  return null;
+
 // ── Page ────────────────────────────────────────────────────────
 const MetaAssessmentTool = () => {
   // This platform is presented in English only, independent of the global UI language.
