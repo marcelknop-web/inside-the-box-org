@@ -149,6 +149,21 @@ export interface StandardProfile {
   scaleMax?: number;
   /** pre-filled intake answers for demo mode (test data) */
   demoAnswers?: IntakeAnswers;
+  /** selectable test cases offered on the first intake step */
+  demoScenarios?: DemoScenario[];
+}
+
+/**
+ * A named, selectable test case for an assessment. Selecting one pre-fills the
+ * entire intake with a realistic profile (e.g. a mature, a developing and an
+ * early-stage organisation) so the full pipeline can be demonstrated quickly.
+ */
+export interface DemoScenario {
+  id: string;
+  label: Tri;
+  /** one-line summary shown under the label */
+  description?: Tri;
+  answers: IntakeAnswers;
 }
 
 // ── Runtime result types (what the AI returns, normalised) ──────
