@@ -30,6 +30,8 @@ export interface MetaReportData {
   includeWorkingPapers?: boolean;
   /** Pre-built working papers (falls back to building from the canonical data). */
   workingPapers?: WorkingPapers;
+  /** Auditor free-text evidence notes per obligation (requirement id → note). */
+  auditorNotes?: Record<string, string>;
 }
 
 /* ── tiny i18n ─────────────────────────────────────────────── */
