@@ -542,7 +542,10 @@ export class PdfDoc {
 
   /** Inline label: value on same line — with subtle background */
   fieldInline(label: string, value: string, indent = 0): void {
-    const labelW = Math.min(this.doc.getTextWidth(label + ':  ') + 2, 48);
+    // Fixed value column so every label/value pair aligns to a consistent
+    // tab stop — professional, table-like alignment across all fields.
+    const FIELD_LABEL_COL = 46;
+    const labelW = FIELD_LABEL_COL;
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(8.5);
     const valLines = this.doc.splitTextToSize(value, LAYOUT.WIDTH - indent - labelW - 10);
