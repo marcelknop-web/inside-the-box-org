@@ -41,6 +41,15 @@ const MCKINSEY_LAYOUT_INSTRUCTIONS =
   'SOURCE NOTES: add a small, muted "Source:" / footnote line at the bottom of data slides where relevant. ' +
   'Overall impression must read as boardroom-grade, sober, precise and authoritative.';
 
+// Quality bar applied to every deck — enforces precision and a premium finish.
+const QUALITY_INSTRUCTIONS =
+  'QUALITY BAR — NON-NEGOTIABLE: The deck must look and read like a finished, paid-for engagement deliverable from a tier-1 consultancy. Reject anything that feels generic, templated, vague or "AI-generated". ' +
+  'PRECISION: Be concrete and specific on every slide. Always use the exact figures, percentages, ratings, control IDs, article references, category names and CMMI levels provided in the content — never round them away, never replace them with vague qualifiers like "several", "many" or "some". Every claim must be traceable to a number or finding in the source content. ' +
+  'NO FLUFF: Cut filler words, hedging and throat-clearing. Each bullet is one crisp, parallel, information-dense phrase. No empty intros, no "in conclusion", no restating the title. If a slide does not earn its place with a distinct insight, merge it. ' +
+  'CONSISTENCY: Identical terminology, capitalisation, number formatting (e.g. 1 decimal for CMMI levels, % with no space), date format and label style across all slides. The same concept always uses the same word. ' +
+  'HIERARCHY: A single dominant message per slide, with supporting evidence visibly subordinate. The reader must grasp the "so-what" in under three seconds. ' +
+  'SELF-CHECK BEFORE FINISHING: re-read every slide and remove any vagueness, any unsupported claim, any decorative filler, any duplicated point, and any text that overflows or crowds the layout. The final deck must be tight, accurate, scannable and visually pristine.';
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
