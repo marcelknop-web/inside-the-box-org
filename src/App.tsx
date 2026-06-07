@@ -68,6 +68,8 @@ const App = () => (
               <Route path="/blind-spot" element={<Suspense fallback={<RouteSkeleton />}><BlindSpotSimulator /></Suspense>} />
               <Route path="/assessment-tools" element={<Suspense fallback={<RouteSkeleton />}><AssessmentTools /></Suspense>} />
               <Route path="/tools" element={<Suspense fallback={<RouteSkeleton />}><AssessmentTools /></Suspense>} />
+              <Route path="/gapzeo" element={<Suspense fallback={<RouteSkeleton />}><MetaAssessmentTool /></Suspense>} />
+              {/* Legacy alias — keeps old links working */}
               <Route path="/meta-assessment" element={<Suspense fallback={<RouteSkeleton />}><MetaAssessmentTool /></Suspense>} />
 
               {/* Catch-all: every Journey service id (nis2-dora, virtual-ciso, …) renders ChatView */}

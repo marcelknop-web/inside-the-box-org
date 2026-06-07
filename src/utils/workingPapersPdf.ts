@@ -134,6 +134,9 @@ export async function generateWorkingPapersPdf(data: WorkingPapersPdfData): Prom
     confidentialLabel: `CONFIDENTIAL — Working Papers — ${profile.name}`,
     pageLabel: 'Page',
     draftWatermark: 'DRAFT',
+    runningHeader: true,
+    documentLabel: `${profile.name} Working Papers`,
+
   });
 
   const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });

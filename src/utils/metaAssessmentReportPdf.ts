@@ -227,6 +227,10 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     confidentialLabel: `${t('confidential', lang)} — ${profile.name} ${profile.name && tr(profile.regulation, lang) ? '·' : ''} ${tr(profile.regulation, lang)}`.trim(),
     pageLabel: t('page', lang),
     draftWatermark: t('draft', lang),
+    runningHeader: true,
+    documentLabel: profile.name,
+
+
   });
 
   const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });

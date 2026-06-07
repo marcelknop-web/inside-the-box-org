@@ -36,10 +36,10 @@ type Phase = 'standard' | 'intake' | 'analyzing' | 'report';
 // Assessment Engine; AI provides an interpretation & advisory layer only.
 function ui(_lang: Lang) {
   return {
-    section: '/ INTERNAL AUDIT & COMPLIANCE READINESS',
-    headline: 'AI-Powered Internal Audit & Compliance Readiness Platform',
-    sub: 'Pick a standard → intake → compliance assessment → AI insights → reporting.',
-    valueProp: 'The Assessment Engine determines compliance. The AI Insight Engine explains why issues exist, how they connect, which matter most and what to prioritise — it never alters findings, scores or risks.',
+    section: '/ GAPZEO — INTERNAL AUDIT & COMPLIANCE READINESS',
+    headline: 'GapZeo — AI-Powered Internal Audit & Compliance Readiness',
+    sub: 'GapZeo closes the gap from zero to audit-ready: pick a standard → intake → compliance assessment → AI insights → reporting.',
+    valueProp: 'GapZeo\'s Assessment Engine determines compliance. The AI Insight Engine explains why issues exist, how they connect, which matter most and what to prioritise — it never alters findings, scores or risks.',
     chooseStandard: 'Choose a standard',
     soon: 'Soon',
     open: 'Start',
@@ -1665,8 +1665,8 @@ const MetaAssessmentTool = () => {
 
   return (
     <SiteChrome>
-      <PasswordGate storageKey="assessment-tools" label="Meta Assessment">
-        <PageMeta title="AI-Powered Internal Audit & Compliance Readiness Platform — Inside the Box" description="Rule-based compliance assessment with an AI insight & advisory layer: pick a standard, intake, compliance assessment, AI insights, reporting." />
+      <PasswordGate storageKey="assessment-tools" label="GapZeo">
+        <PageMeta title="GapZeo — AI-Powered Internal Audit & Compliance Readiness — Inside the Box" description="GapZeo turns any standard into an audit-ready assessment: rule-based compliance with an AI insight & advisory layer — intake, assessment, AI insights and board-ready reporting." />
         <Helmet><meta name="robots" content="noindex,nofollow" /></Helmet>
 
         <main className="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
