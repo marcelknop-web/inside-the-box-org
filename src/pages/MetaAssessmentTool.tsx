@@ -666,12 +666,15 @@ function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
                   )}
                 </button>
               ))}
-            </div>
-            <div className="flex justify-end pt-1">
-              <button onClick={() => setTestCaseOpen(false)} className="text-xs font-mono text-muted-foreground hover:text-foreground transition-colors">
-                {u.back} ✕
+              <button
+                onClick={() => setTestCaseOpen(false)}
+                className="text-left rounded-lg border border-dashed border-border bg-transparent hover:border-foreground/40 hover:bg-secondary/30 transition-colors px-3 py-2.5"
+              >
+                <div className="text-sm font-semibold text-foreground">{u.testCaseSkip}</div>
+                <div className="text-xs text-muted-foreground mt-0.5 leading-snug">{u.testCaseSkipHint}</div>
               </button>
             </div>
+
           </div>
         </div>
       )}
