@@ -35,31 +35,34 @@ export function renderWorkingPapers(pdf: PdfDoc, wp: WorkingPapers, opts?: { sec
     pdf.statusBadge(r.deterministicResult);
     pdf.y += 4;
 
+    pdf.sectionLabel('Control Objective');
+    pdf.bodyText(`${r.name}${r.article ? `  (${r.article})` : ''}`);
+
     pdf.sectionLabel('Assessment Question');
     pdf.bodyText(r.assessmentQuestion);
 
-    pdf.sectionLabel('Assessment Questions & Responses');
+    pdf.sectionLabel('Answer');
     if (r.inputs.length) {
       r.inputs.forEach((inp, k) => {
-        pdf.fieldInline('Question', inp.question);
-        pdf.fieldInline('Answer', inp.answer);
+        pdf.fieldInline(inp.question, inp.answer);
         if (k < r.inputs.length - 1) pdf.y += 2;
       });
     } else {
       pdf.bodyText('No rule-linked intake inputs recorded.');
     }
-    pdf.fieldInline('Comment', r.supportingComments || '—');
+    if (r.supportingComments) pdf.fieldInline('Comment', r.supportingComments);
 
-    pdf.sectionLabel('Evidence Management');
-    pdf.fieldInline('Evidence Type', r.evidenceTypeLabel);
-    pdf.fieldInline('Evidence Name', r.evidenceName);
-    pdf.fieldInline('Evidence Source', r.evidenceSource);
-    pdf.fieldInline('Evidence Strength', r.evidenceStrengthLabel);
-    pdf.sectionLabel('Evidence Description');
+    pdf.sectionLabel('Evidence');
+    pdf.fieldInline('Type', r.evidenceTypeLabel);
+    pdf.fieldInline('Name', r.evidenceName);
+    pdf.fieldInline('Source', r.evidenceSource);
+    pdf.fieldInline('Strength', r.evidenceStrengthLabel);
     pdf.bodyText(r.evidenceSubmitted || 'None');
 
-    pdf.sectionLabel('Assessment Rule (deterministic)');
+    pdf.sectionLabel('Result Logic');
     r.ruleLogic.forEach((line) => pdf.bulletItem(line));
+
+    pdf.sectionLabel('Result');
     pdf.fieldInline('Deterministic Result', r.resultLabel);
 
     pdf.sectionLabel('Risk Traceability');
