@@ -1486,11 +1486,94 @@ export class PdfDoc {
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
   }
 
+  /* ── Running header / footer (chapter & topic orientation) ── */
+
+  /** Return the text of the last mark active on or before `page`. */
+  private activeMark(marks: { page: number; text: string }[], page: number): string {
+    let val = '';
+    for (const m of marks) {
+      if (m.page <= page) val = m.text;
+      else break;
+    }
+    return val;
+  }
+
+  /** Truncate text with an ellipsis so it fits within maxWidth (mm). */
+  private fitText(text: string, maxWidth: number): string {
+    if (!text) return '';
+    if (this.doc.getTextWidth(text) <= maxWidth) return text;
+    let t = text;
+    while (t.length > 1 && this.doc.getTextWidth(t + '…') > maxWidth) t = t.slice(0, -1);
+    return t.trimEnd() + '…';
+  }
+
+  /**
+   * Stamp professional running headers (active chapter + topic) and footers
+   * (confidential note + page X / Y) on every content page. The cover page
+   * (page 1) is intentionally skipped. Only used when opts.runningHeader is set.
+   */
+  finalize(): void {
+    if (!this.opts.runningHeader) return;
+    const d = this.doc;
+    const total = d.getNumberOfPages();
+    const contentPages = total - 1; // exclude the cover
+    const docLabel = (this.opts.documentLabel || this.opts.reportPrefix || '').toUpperCase();
+
+    for (let p = 2; p <= total; p++) {
+      d.setPage(p);
+      const chapter = this.activeMark(this.chapterMarks, p);
+      const section = this.activeMark(this.sectionMarks, p);
+
+      /* ── Header ── */
+      // Document label / report id, top-right
+      d.setFont(this.headFont, 'normal');
+      d.setFontSize(6);
+      d.setTextColor(...C.light);
+      const rightLabel = docLabel ? `${docLabel} · ${this.reportId}` : this.reportId;
+      d.text(rightLabel, LAYOUT.RIGHT, LAYOUT.TOP - 13.5, { align: 'right' });
+
+      // Chapter (bold navy) — gives the reader their location at a glance
+      if (chapter) {
+        d.setFont(this.headFont, 'bold');
+        d.setFontSize(7);
+        d.setTextColor(...C.navy);
+        d.text(this.fitText(chapter, LAYOUT.WIDTH - 48), LAYOUT.LEFT, LAYOUT.TOP - 13.5);
+      }
+
+      // Topic / sub-section (lighter), directly under the chapter
+      if (section) {
+        d.setFont(this.headFont, 'normal');
+        d.setFontSize(6.4);
+        d.setTextColor(...C.mid);
+        d.text(this.fitText(section, LAYOUT.WIDTH), LAYOUT.LEFT, LAYOUT.TOP - 9.8);
+      }
+
+      // Header separator rule (full width)
+      d.setDrawColor(...C.rule);
+      d.setLineWidth(0.3);
+      d.line(LAYOUT.LEFT, LAYOUT.TOP - 7, LAYOUT.RIGHT, LAYOUT.TOP - 7);
+
+      /* ── Footer ── */
+      d.setDrawColor(...C.rule);
+      d.setLineWidth(0.3);
+      d.line(LAYOUT.LEFT, LAYOUT.BOTTOM + 5, LAYOUT.RIGHT, LAYOUT.BOTTOM + 5);
+
+      d.setFont(this.headFont, 'normal');
+      d.setFontSize(LAYOUT.FOOTER_SIZE);
+      d.setTextColor(...C.light);
+      d.text(this.fitText(this.opts.confidentialLabel, LAYOUT.WIDTH - 40), LAYOUT.LEFT, LAYOUT.BOTTOM + 9);
+      d.text(`${this.opts.pageLabel} ${p - 1} / ${contentPages}`, LAYOUT.RIGHT, LAYOUT.BOTTOM + 9, { align: 'right' });
+    }
+    d.setTextColor(...C.dark);
+  }
+
   /* ── Save ─────────────────────────────────────────────────── */
 
   save(filename: string): void {
+    this.finalize();
     this.doc.save(filename);
   }
+
 
   /* ── Getters for direct doc access ────────────────────────── */
   get bodyFontName(): string { return this.bodyFont; }
