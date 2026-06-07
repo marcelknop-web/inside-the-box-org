@@ -449,6 +449,7 @@ export function buildPresentationContent(type: PresentationType, input: Presenta
       cardReadinessDashboard(input),
       cardKeyFindings(input),
       cardControlOverview(input),
+      cardCmmiMatching(input),
       cardRiskLandscape(input),
       cardRootCauses(input, 6),
       cardHypotheses(input),
