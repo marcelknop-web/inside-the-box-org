@@ -484,6 +484,8 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     pdf.sectionLabel('Result');
     pdf.fieldInline('Deterministic Result', wpRec?.resultLabel || r.status);
     if (r.measure) { pdf.sectionLabel(t('measure', lang)); pdf.bodyText(r.measure); }
+    const note = auditorNotes?.[r.id]?.trim();
+    if (note) { pdf.sectionLabel('Auditor Evidence Note'); pdf.bodyText(note); }
     pdf.separator();
   });
 
