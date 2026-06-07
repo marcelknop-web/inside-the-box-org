@@ -1914,6 +1914,16 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
                   {r.gap && <div><span className="font-semibold text-destructive">{u.gap}: </span>{r.gap}</div>}
                   {r.rationale && <ReportField label={u.rationale}>{r.rationale}</ReportField>}
                   {r.measure && <div><span className="font-semibold text-primary">{u.measure}: </span>{r.measure}</div>}
+                  <div className="pt-1">
+                    <label className="block text-xs font-semibold text-highlight uppercase tracking-wide mb-1">{u.auditorNote}</label>
+                    <textarea
+                      value={auditorNotes[r.id] ?? ''}
+                      onChange={(e) => setNote(r.id, e.target.value)}
+                      rows={3}
+                      placeholder={u.auditorNotePlaceholder}
+                      className="w-full rounded-lg border border-primary/20 bg-background/60 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary/50 resize-y"
+                    />
+                  </div>
                 </div>
               </details>
             );
