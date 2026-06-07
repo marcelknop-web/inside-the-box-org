@@ -2,6 +2,7 @@ import type { StandardProfile } from './types';
 import { NIS2_PROFILE } from './nis2Profile';
 import { DORA_PROFILE } from './doraProfile';
 import { AIACT_PROFILE } from './aiActProfile';
+import { ISO27001_PROFILE } from './iso27001Profile';
 
 // ── Standard registry ───────────────────────────────────────────
 // Add new profiles here. `available: false` profiles render as a
@@ -25,7 +26,7 @@ function stub(id: string, name: string, icon: string, regulation: StandardProfil
   };
 }
 
-export const STANDARD_PROFILES: StandardProfile[] = [NIS2_PROFILE, DORA_PROFILE, AIACT_PROFILE, ...COMING_SOON];
+export const STANDARD_PROFILES: StandardProfile[] = [NIS2_PROFILE, DORA_PROFILE, AIACT_PROFILE, ISO27001_PROFILE, ...COMING_SOON];
 
 export function getProfile(id: string): StandardProfile | undefined {
   return STANDARD_PROFILES.find((p) => p.id === id);
