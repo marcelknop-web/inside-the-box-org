@@ -472,6 +472,7 @@ export function buildPresentationContent(type: PresentationType, input: Presenta
       cardRootCauses(input, 6),
       cardEvidenceStrength(input),
       cardAuditReadinessDimensions(input),
+      cardCmmiMatching(input),
       cardTraceabilitySummary(input),
       cardSystemicWeaknesses(input),
       cardManagementThemes(input),
