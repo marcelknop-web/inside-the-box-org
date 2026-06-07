@@ -93,7 +93,14 @@ Deno.serve(async (req) => {
       themeId: (body.themeId ?? DEFAULT_THEME_ID).toString().slice(0, 60),
       cardSplit: 'inputTextBreaks',
       exportAs: 'pdf',
-      additionalInstructions: (body.additionalInstructions ?? '').toString().slice(0, 2000),
+      additionalInstructions: [
+        (body.additionalInstructions ?? '').toString().slice(0, 1400),
+        // Hard rule: every graphic must carry meaning — no filler.
+        'CRITICAL GRAPHICS RULE: Every image, chart, diagram or icon must directly illustrate the specific content of its slide and add real informational value. ' +
+        'Prefer data-driven visuals — charts, tables, diagrams, process flows, matrices, comparisons — built from the actual numbers and findings on the slide. ' +
+        'Absolutely NO decorative, generic, abstract or "filler" stock-style imagery, no random people, handshakes, glowing shields, abstract tech swirls or unrelated metaphors. ' +
+        'If a slide has no data that a visual can meaningfully represent, use a clean diagram of its concept or no image at all rather than a decorative one.',
+      ].join('\n\n').slice(0, 2000),
       // ── Optimal generation parameters for board-ready visual decks ──
       textOptions: {
         amount: 'detailed',
@@ -104,8 +111,9 @@ Deno.serve(async (req) => {
       imageOptions: {
         source: 'aiGenerated',
         model: 'imagen-4-pro',
-        style: 'clean, corporate, professional, minimal infographic style',
+        style: 'precise, data-driven, informative infographics, charts and diagrams that depict the slide content exactly; clean, corporate, minimal; no decorative or generic filler imagery',
       },
+
       cardOptions: {
         dimensions: '16x9',
       },
