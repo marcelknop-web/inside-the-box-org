@@ -219,7 +219,13 @@
   }
 }
 
+@keyframes gz-step-fill {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
 @keyframes glow {
+
   from {
     box-shadow: var(--glow-subtle);
     filter: brightness(1);
