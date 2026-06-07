@@ -835,6 +835,134 @@ function InsightsPanel({ insights, computed, lang, u, reqMeta }: {
   );
 }
 
+// ── Working Papers & Assessment Traceability ────────────────────
+function WorkingPapersSection({ wp, u }: { wp: WorkingPapers; u: ReturnType<typeof ui> }) {
+  const [status, setStatus] = useState<'all' | ReqStatus>('all');
+  const [strength, setStrength] = useState<string>('all');
+  const [q, setQ] = useState('');
+
+  const records = useMemo(() => wp.records.filter((r) => {
+    if (status !== 'all' && r.deterministicResult !== status) return false;
+    if (strength !== 'all' && r.evidenceStrength !== strength) return false;
+    if (q.trim()) {
+      const s = q.trim().toLowerCase();
+      if (!`${r.requirementId} ${r.name} ${r.article}`.toLowerCase().includes(s)) return false;
+    }
+    return true;
+  }), [wp.records, status, strength, q]);
+
+  const statusOpts: ['all' | ReqStatus, string][] = [
+    ['all', u.filterAll], ['pass', u.passed], ['partial', u.partial], ['fail', u.gaps],
+  ];
+  const strengthOpts: [string, string][] = [
+    ['all', u.filterAll], ['very_high', u.evVeryHigh], ['high', u.evHigh],
+    ['medium', u.evMedium], ['low', u.evLow], ['none', u.evMissing],
+  ];
+
+  return (
+    <div>
+      <h2 className="font-mono text-xs tracking-[0.25em] uppercase text-highlight mb-1">{u.workingPapers}</h2>
+      <div className="text-[10px] text-muted-foreground font-mono mb-2">{ORIGIN.assessment}</div>
+      <p className="text-[11px] text-muted-foreground mb-3 max-w-2xl leading-relaxed">{u.workingPapersHint}</p>
+
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-2 mb-3">
+        <div className="flex gap-1">
+          {statusOpts.map(([v, l]) => (
+            <button key={v} onClick={() => setStatus(v)}
+              className={`text-[11px] px-2 py-1 rounded border font-mono ${status === v ? 'border-primary bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:border-primary/40'}`}>{l}</button>
+          ))}
+        </div>
+        <select value={strength} onChange={(e) => setStrength(e.target.value)}
+          className="text-[11px] bg-background border border-border rounded px-2 py-1 text-foreground">
+          {strengthOpts.map(([v, l]) => <option key={v} value={v}>{u.filterEvidence}: {l}</option>)}
+        </select>
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={u.searchPlaceholder}
+          className="text-[11px] bg-background border border-border rounded px-2 py-1 text-foreground flex-1 min-w-[160px]" />
+      </div>
+
+      {records.length === 0 ? (
+        <p className="text-sm text-muted-foreground py-4">{u.noWorkingPapers}</p>
+      ) : (
+        <div className="space-y-1.5">
+          {records.map((r) => {
+            const st = STATUS_STYLE[r.deterministicResult];
+            return (
+              <details key={r.requirementId} className="bg-background/40 border border-primary/15 rounded-lg overflow-hidden">
+                <summary className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-secondary/30">
+                  <span className="font-mono text-[11px] text-muted-foreground font-bold w-16 flex-shrink-0">{r.requirementId}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold text-foreground break-words">{r.name}</div>
+                    <div className="text-xs text-muted-foreground">{r.article}{r.generatedRiskId && <span> · {u.wpRisk}: {r.generatedRiskId}</span>}{r.referencedByAI && <span> · AI ✓</span>}</div>
+                  </div>
+                  <span className={`px-2 py-0.5 rounded text-xs font-bold border flex-shrink-0 ${st.cls}`}>{st.label.en}</span>
+                </summary>
+                <div className="border-t border-border bg-secondary/20 px-4 py-3 text-sm space-y-2.5">
+                  <ReportField label={u.wpQuestion}>{r.assessmentQuestion}</ReportField>
+                  <div className="bg-background/50 border border-border rounded-md px-3 py-2">
+                    <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">{u.wpUserInputs}</div>
+                    {r.inputs.length ? r.inputs.map((inp) => (
+                      <div key={inp.fieldId} className="text-foreground"><span className="text-muted-foreground">{inp.question}: </span>{inp.answer}</div>
+                    )) : <div className="text-muted-foreground">—</div>}
+                  </div>
+                  {r.supportingComments && <ReportField label={u.wpComments}>{r.supportingComments}</ReportField>}
+                  <div><span className="font-semibold text-muted-foreground">{u.wpEvidenceSubmitted}: </span>{r.evidenceSubmitted || u.wpNone} <span className="font-mono text-[10px] text-muted-foreground">({u.wpEvidenceStrength}: {r.evidenceStrengthLabel})</span></div>
+                  <div className="bg-background/50 border border-border rounded-md px-3 py-2">
+                    <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">{u.wpRuleLogic} · {r.ruleId}</div>
+                    {r.ruleLogic.map((line, i) => (
+                      <div key={i} className="font-mono text-xs text-foreground">{line}</div>
+                    ))}
+                    <div className="mt-1"><span className="font-semibold text-muted-foreground">{u.wpResult}: </span><span className="text-foreground">{r.resultLabel}</span></div>
+                  </div>
+                  {r.generatedRiskId && (
+                    <div><span className="font-semibold text-destructive">{u.wpRisk}: </span>{r.generatedRiskId} — <span className="font-mono text-xs">{r.riskFormula} = {r.riskScore}</span> ({r.riskRatingLabel})</div>
+                  )}
+                  <div><span className="font-semibold text-muted-foreground">{u.wpReferencedAi}: </span>{r.referencedByAI ? u.yes : u.no}{r.aiSections.length > 0 && <span className="text-muted-foreground"> — {r.aiSections.join(', ')}</span>}</div>
+                  <div className="font-mono text-[10px] text-muted-foreground pt-1 border-t border-border">
+                    {u.wpMetadata}: {r.assessmentId} · v{r.assessmentVersion} · {r.ruleId} · {r.assessor} · {new Date(r.timestamp).toLocaleString('en-GB')}
+                  </div>
+                </div>
+              </details>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Evidence Register */}
+      {wp.evidenceRegister.length > 0 && (
+        <div className="mt-5">
+          <h3 className="font-mono text-[11px] tracking-[0.2em] uppercase text-primary mb-1">{u.evidenceRegister}</h3>
+          <p className="text-[11px] text-muted-foreground mb-2">{u.evidenceRegisterHint}</p>
+          <div className="overflow-x-auto bg-background/40 border border-primary/15 rounded-lg">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-border text-muted-foreground font-mono uppercase tracking-wide">
+                  <th className="text-left px-3 py-2">{u.erId}</th>
+                  <th className="text-left px-3 py-2">{u.erRequirement}</th>
+                  <th className="text-left px-3 py-2">{u.erType}</th>
+                  <th className="text-left px-3 py-2">{u.wpEvidenceStrength}</th>
+                  <th className="text-left px-3 py-2">{u.erContribution}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {wp.evidenceRegister.map((e) => (
+                  <tr key={e.evidenceId} className="border-b border-border/50 last:border-0">
+                    <td className="px-3 py-2 font-mono text-foreground">{e.evidenceId}</td>
+                    <td className="px-3 py-2 text-foreground">{e.requirementId} <span className="text-muted-foreground">{e.requirementName}</span></td>
+                    <td className="px-3 py-2 text-muted-foreground">{e.typeLabel}</td>
+                    <td className="px-3 py-2 text-muted-foreground">{e.strengthLabel}</td>
+                    <td className="px-3 py-2 text-muted-foreground">{e.resultContributionLabel}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Report ──────────────────────────────────────────────────────
 function Report({ profile, lang, result, computed, answers, onRestart }: {
   profile: StandardProfile; lang: Lang; result: AssessmentResult;
