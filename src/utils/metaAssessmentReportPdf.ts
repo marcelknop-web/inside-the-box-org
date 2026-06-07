@@ -13,6 +13,8 @@ import type {
 } from '@/data/metaAssessment/types';
 import { tr } from '@/data/metaAssessment/types';
 import { readinessRatingLabel, attentionLabel } from '@/data/metaAssessment/engine';
+import { buildWorkingPapers, type WorkingPapers } from '@/data/metaAssessment/workingPapers';
+import { renderWorkingPapers } from '@/utils/workingPapersPdf';
 import { ORIGIN, REPORT_TITLE, type ReportMeta } from '@/data/metaAssessment/reportMeta';
 
 export interface MetaReportData {
