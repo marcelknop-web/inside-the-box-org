@@ -6,7 +6,7 @@
 //
 // Layer 1 (deterministic) is the source of truth; the AI insight layer is
 // rendered as clearly-marked explanatory commentary only.
-import { createPdfDoc } from '@/utils/pdfCore';
+import { createPdfDoc, C, LAYOUT } from '@/utils/pdfCore';
 import type {
   Lang, StandardProfile, IntakeAnswers,
   AssessmentResult, ComputedAssessment, InsightResult,
@@ -119,6 +119,7 @@ const T: Record<string, Record<Lang, string>> = {
     fr: "Plan d'action priorisé, dérivé des lacunes et des risques.",
   },
   roadmap: { de: 'Umsetzungs-Roadmap', en: 'Remediation Roadmap', fr: 'Feuille de route' },
+  remediationTimeline: { de: 'Umsetzungs-Zeitplan', en: 'Remediation Timeline', fr: 'Calendrier de mise en œuvre' },
   phase: { de: 'Phase', en: 'Phase', fr: 'Phase' },
   months: { de: 'Monate', en: 'months', fr: 'mois' },
   noRecs: { de: 'Keine offenen Maßnahmen — alle Anforderungen erfüllt.', en: 'No open measures — all requirements met.', fr: 'Aucune mesure ouverte — toutes les exigences sont satisfaites.' },
@@ -203,6 +204,89 @@ const PRIORITY_LABEL: Record<string, Record<Lang, string>> = {
   medium: { de: 'Mittel', en: 'Medium', fr: 'Moyen' },
   low: { de: 'Niedrig', en: 'Low', fr: 'Faible' },
 };
+
+// ── Remediation timeline (Gantt) ────────────────────────────────
+// Sequences the recommended workstreams across a 12-month horizon,
+// phased by priority bucket. Drawn deterministically from computed.roadmap.
+function drawGanttChart(pdf: any, computed: ComputedAssessment, lang: Lang): void {
+  const PHASE_SPAN: Record<string, [number, number]> = { '0-3': [0, 3], '3-6': [3, 6], '6-12': [6, 12] };
+  const COLOR: Record<string, [number, number, number]> = {
+    critical: C.fail, high: [205, 120, 40], medium: C.partial, low: C.accent,
+  };
+  type Lane = { title: string; start: number; end: number; priority: string };
+  const lanes: Lane[] = [];
+  computed.roadmap.forEach((bucket) => {
+    const [start, end] = PHASE_SPAN[bucket.phase] ?? [0, 12];
+    bucket.items.forEach((it) => lanes.push({ title: it.title, start, end, priority: it.priority }));
+  });
+  if (lanes.length === 0) return;
+
+  const TOTAL = 12;
+  const LABEL_W = 58;            // label column width (mm)
+  const chartX = LAYOUT.LEFT + LABEL_W;
+  const chartW = LAYOUT.RIGHT - chartX;
+  const rowH = 6;
+  const barH = 4;
+  const ticks = [0, 3, 6, 9, 12];
+  const mx = (m: number) => chartX + (m / TOTAL) * chartW;
+
+  pdf.heading(t('remediationTimeline', lang), 2);
+  pdf.checkSpace(14 + lanes.length * rowH);
+
+  const d = pdf.doc;
+  // Month axis labels
+  d.setFontSize(6.5);
+  d.setTextColor(...C.mid);
+  ticks.forEach((m) => {
+    const label = m === 0 ? '0' : `${m}`;
+    d.text(label, mx(m), pdf.y, { align: 'center' });
+  });
+  d.setFontSize(5.5);
+  d.text(t('months', lang).toUpperCase(), LAYOUT.RIGHT, pdf.y, { align: 'right' });
+  pdf.y += 2;
+
+  const gridTop = pdf.y;
+  const gridBottom = pdf.y + lanes.length * rowH;
+
+  // Vertical gridlines
+  d.setDrawColor(...C.rule);
+  d.setLineWidth(0.15);
+  ticks.forEach((m) => d.line(mx(m), gridTop, mx(m), gridBottom));
+
+  // Lanes
+  lanes.forEach((lane, i) => {
+    const rowY = gridTop + i * rowH;
+    const barY = rowY + (rowH - barH) / 2;
+    const x0 = mx(lane.start);
+    const w = mx(lane.end) - x0;
+    const col = COLOR[lane.priority] ?? C.accent;
+
+    // Label (truncated to fit)
+    d.setFontSize(6.8);
+    d.setTextColor(...C.dark);
+    const label = d.splitTextToSize(lane.title, LABEL_W - 4)[0];
+    d.text(label, LAYOUT.LEFT, barY + barH - 1);
+
+    // Bar
+    d.setFillColor(...col);
+    d.roundedRect(x0, barY, w, barH, 0.6, 0.6, 'F');
+  });
+
+  pdf.y = gridBottom + 3;
+
+  // Legend
+  d.setFontSize(6);
+  let lx = LAYOUT.LEFT;
+  (['critical', 'high', 'medium', 'low'] as const).forEach((p) => {
+    d.setFillColor(...(COLOR[p]));
+    d.roundedRect(lx, pdf.y - 2, 2.5, 2.5, 0.4, 0.4, 'F');
+    d.setTextColor(...C.mid);
+    d.text(PRIORITY_LABEL[p][lang], lx + 3.5, pdf.y);
+    lx += 3.5 + d.getTextWidth(PRIORITY_LABEL[p][lang]) + 6;
+  });
+  pdf.y += 5;
+  d.setTextColor(...C.dark);
+}
 
 function formatAnswer(field: { type: string; options?: { id: string; label: any }[] }, val: string | string[], lang: Lang): string {
   if (val == null) return '—';
@@ -488,6 +572,8 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
       pdf.sectionLabel(`${t('phase', lang)} ${bucket.phase} ${t('months', lang)}`);
       bucket.items.forEach((it) => pdf.bulletItem(`${PRIORITY_LABEL[it.priority][lang]} — ${it.title}`));
     });
+
+    drawGanttChart(pdf, computed, lang);
   }
 
   // ── 8 AI Analysis (explanatory) ─────────────────────────────
