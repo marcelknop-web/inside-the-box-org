@@ -120,14 +120,14 @@ Deno.serve(async (req) => {
       // ── Optimal generation parameters for board-ready visual decks ──
       textOptions: {
         amount: 'detailed',
-        tone: 'professional, executive, audit-grade',
+        tone: 'professional, executive, audit-grade, sober, McKinsey-style strategy consulting',
         audience: 'board members, executives, auditors and risk committees',
         language: (body.language ?? 'en').toString().slice(0, 10),
       },
       imageOptions: {
         source: 'aiGenerated',
         model: 'imagen-4-pro',
-        style: 'precise, data-driven, informative infographics, charts and diagrams that depict the slide content exactly; clean, corporate, minimal; no decorative or generic filler imagery',
+        style: 'minimal management-consulting (McKinsey/BCG/Bain) visuals: precise data-driven charts, 2x2 matrices, Harvey balls, process arrows and diagrams that depict the slide content exactly; restrained navy/grey/white corporate palette, generous white space, flat clean lines, no gradients, no shadows, no decorative or generic filler imagery',
       },
 
       cardOptions: {
