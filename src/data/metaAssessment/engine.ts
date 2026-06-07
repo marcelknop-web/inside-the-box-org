@@ -11,7 +11,7 @@ import type {
   EnrichedRisk, RiskRating, Recommendation, Priority, Effort, RoadmapBucket,
   RoadmapPhase, QualityResult, QualityIssue, EvidenceSummary, EvidenceItem,
   EvidenceType, EvidenceStrength, MaturityResult, MaturityLevel, ComputedAssessment,
-  CmmiLevel, CmmiCategoryMatch, CmmiMatching,
+  CmmiLevel, CmmiCategoryMatch, CmmiControlMatch, CmmiMatching,
   IntakeAnswers,
 } from './types';
 import { tr } from './types';
@@ -496,7 +496,12 @@ function cmmiFromPct(pct: number): CmmiLevel {
   return 1;
 }
 
-export function computeCmmi(profile: StandardProfile, score: ScoreResult, lang: Lang): CmmiMatching | null {
+export function computeCmmi(
+  profile: StandardProfile,
+  score: ScoreResult,
+  findings: AssessedRequirement[],
+  lang: Lang,
+): CmmiMatching | null {
   if (!profile.maturity?.enabled) return null;
   // Map the configured 0–5 maturity target onto the official 1–5 CMMI scale.
   const rawTarget = profile.maturity.target ?? 4;
@@ -515,10 +520,36 @@ export function computeCmmi(profile: StandardProfile, score: ScoreResult, lang: 
     };
   });
 
+  // Per-control matching: derive each control's CMMI level from its status.
+  // pass → 5 (Optimizing), partial → 3 (Defined), fail → 1 (Initial).
+  const STATUS_PCT: Record<AssessedRequirement['status'], number> = { pass: 100, partial: 50, fail: 0 };
+  const metaById = new Map(profile.requirements.map((r) => [r.id, r]));
+  const catName = new Map((profile.categories ?? []).map((c) => [c.id, t(c.name as L, lang)]));
+  const statusById = new Map(findings.map((f) => [f.id, f.status]));
+  const controls: CmmiControlMatch[] = profile.requirements.map((r) => {
+    const status = statusById.get(r.id) ?? 'fail';
+    const level = cmmiFromPct(STATUS_PCT[status]);
+    const meta = metaById.get(r.id);
+    const categoryId = meta?.categoryId ?? 'general';
+    return {
+      id: r.id,
+      name: tr(r.name, lang),
+      article: meta?.article ?? '',
+      categoryId,
+      categoryName: catName.get(categoryId) ?? categoryId,
+      status,
+      level,
+      label: t(CMMI_LABEL[level], lang),
+      target,
+      gap: Math.max(0, target - level),
+    };
+  });
+
   const overall = cmmiFromPct(score.weighted);
   return {
     enabled: true,
     categories,
+    controls,
     overall,
     overallLabel: t(CMMI_LABEL[overall], lang),
     target,
@@ -673,7 +704,7 @@ export function computeAssessment(
   const quality = runQuality(profile, findings, recommendations, risks, lang);
   const evidence = buildEvidence(profile, findings, lang);
   const maturity = computeMaturity(profile, score, lang);
-  const cmmi = computeCmmi(profile, score, lang);
+  const cmmi = computeCmmi(profile, score, findings, lang);
   const auditReadiness = computeAuditReadiness(profile, findings, score, evidence, lang);
   const attentionIndex = computeAttentionIndex(profile, findings, score, risks, lang);
   return { score, risks, recommendations, roadmap, quality, evidence, maturity, cmmi, auditReadiness, attentionIndex };

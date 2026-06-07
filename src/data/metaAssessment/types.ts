@@ -320,10 +320,35 @@ export interface CmmiCategoryMatch {
   gap: number;
 }
 
+/** Per-control CMMI maturity matching (derived from the control's status). */
+export interface CmmiControlMatch {
+  id: string;
+  /** control / requirement name */
+  name: string;
+  /** regulatory article reference, if any */
+  article: string;
+  /** category this control belongs to */
+  categoryId: string;
+  /** category display name */
+  categoryName: string;
+  /** deterministic assessment status of the control */
+  status: 'pass' | 'partial' | 'fail';
+  /** matched CMMI level (1–5) for this control */
+  level: CmmiLevel;
+  /** official CMMI level name */
+  label: string;
+  /** target CMMI level */
+  target: CmmiLevel;
+  /** levels short of target (0 = meets/exceeds) */
+  gap: number;
+}
+
 export interface CmmiMatching {
   enabled: boolean;
   /** per-category CMMI matching */
   categories: CmmiCategoryMatch[];
+  /** per-control CMMI matching */
+  controls: CmmiControlMatch[];
   /** overall CMMI level across the assessment */
   overall: CmmiLevel;
   overallLabel: string;
