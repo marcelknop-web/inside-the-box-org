@@ -25,7 +25,7 @@ export function renderWorkingPapers(pdf: PdfDoc, wp: WorkingPapers, opts?: { sec
   pdf.addBookmark(`${sp}Working Papers & Assessment Traceability`, 1);
   pdf.metaLine(ORIGIN.assessment);
   pdf.introText(
-    'For every requirement this working paper records exactly why it was assessed as Pass, Partial or Gap: the original user inputs, the deterministic rule applied, the generated risk and the AI sections that referenced the requirement. No assessment result is a black box.',
+    'For every requirement this working paper records exactly why it was assessed as Pass, Partial or Gap: each assessment question with the response given, the evidence recorded (type, name, source and strength), the deterministic rule applied, the generated risk and the AI sections that referenced the requirement. No assessment result is a black box.',
   );
 
   wp.records.forEach((r, i) => {
@@ -38,17 +38,25 @@ export function renderWorkingPapers(pdf: PdfDoc, wp: WorkingPapers, opts?: { sec
     pdf.sectionLabel('Assessment Question');
     pdf.bodyText(r.assessmentQuestion);
 
-    pdf.sectionLabel('Original User Inputs');
+    pdf.sectionLabel('Assessment Questions & Responses');
     if (r.inputs.length) {
-      r.inputs.forEach((inp) => pdf.fieldInline(inp.question, inp.answer));
+      r.inputs.forEach((inp, k) => {
+        pdf.fieldInline('Question', inp.question);
+        pdf.fieldInline('Answer', inp.answer);
+        if (k < r.inputs.length - 1) pdf.y += 2;
+      });
     } else {
       pdf.bodyText('No rule-linked intake inputs recorded.');
     }
-    if (r.supportingComments) { pdf.sectionLabel('Supporting Comments'); pdf.bodyText(r.supportingComments); }
+    pdf.fieldInline('Comment', r.supportingComments || '—');
 
-    pdf.sectionLabel('Evidence Submitted');
-    pdf.bodyText(r.evidenceSubmitted || 'None');
+    pdf.sectionLabel('Evidence Management');
+    pdf.fieldInline('Evidence Type', r.evidenceTypeLabel);
+    pdf.fieldInline('Evidence Name', r.evidenceName);
+    pdf.fieldInline('Evidence Source', r.evidenceSource);
     pdf.fieldInline('Evidence Strength', r.evidenceStrengthLabel);
+    pdf.sectionLabel('Evidence Description');
+    pdf.bodyText(r.evidenceSubmitted || 'None');
 
     pdf.sectionLabel('Assessment Rule (deterministic)');
     r.ruleLogic.forEach((line) => pdf.bulletItem(line));
