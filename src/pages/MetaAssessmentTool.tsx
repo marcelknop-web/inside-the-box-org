@@ -16,7 +16,7 @@ import { PageMeta } from '@/components/PageMeta';
 
 import { supabase } from '@/integrations/supabase/client';
 
-import { STANDARD_PROFILES, getProfile, tr, assess, MATURITY_LEVELS, maturityKey, readinessRatingLabel, attentionLabel, buildWorkingPapers } from '@/data/metaAssessment';
+import { STANDARD_PROFILES, getProfile, tr, assess, MATURITY_LEVELS, maturityKey, readinessRatingLabel, attentionLabel, buildWorkingPapers, cmmiLabel, CMMI_LEVELS } from '@/data/metaAssessment';
 import type {
   Lang, StandardProfile, IntakeField, IntakeAnswers,
   AssessmentResult, AssessedRequirement, ReqStatus,
@@ -153,6 +153,10 @@ function ui(_lang: Lang) {
     auditReadinessHint: 'Deterministic readiness ratings across documentation, operational, governance and evidence dimensions.',
     attentionIndex: 'Management attention index',
     attentionIndexHint: 'Overall level of management attention required, derived from risks and mandatory gaps.',
+    cmmiMatching: 'CMMI maturity matching',
+    cmmiHint: 'Per-category mapping to the official CMMI maturity scale (1 Initial → 5 Optimizing), with the gap to the target level.',
+    cmmiTarget: 'Target',
+    cmmiLevel: 'Level',
     attentionDrivers: 'Key drivers',
     evidenceStrength: 'Evidence strength overview',
     evidenceStrengthHint: 'Informational overview of the strength of evidence supporting the assessment. Does not affect scoring.',
@@ -1374,6 +1378,12 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
         takeaway: readyTake, summary: u.auditReadinessHint,
         data: { dimensions: computed.auditReadiness.dimensions },
       },
+      ...(computed.cmmi?.enabled ? [{
+        title: u.cmmiMatching, origin: ORIGIN.assessment, kind: 'cmmi' as const,
+        takeaway: `Overall CMMI level ${computed.cmmi.overall} (${computed.cmmi.overallLabel}) — target ${computed.cmmi.target}, ${computed.cmmi.gap === 0 ? 'met' : `${computed.cmmi.gap} level${computed.cmmi.gap === 1 ? '' : 's'} to close`}.`,
+        summary: u.cmmiHint,
+        data: { cmmi: computed.cmmi },
+      }] : []),
       {
         title: u.findings, origin: ORIGIN.assessment, kind: 'findings',
         takeaway: findTake, summary: `${pass} ${u.passed} · ${partial} ${u.partial} · ${fail} ${u.gaps}`,
@@ -1712,6 +1722,53 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
         </div>
       </div>
 
+      {/* CMMI maturity matching (per category, official 1–5 scale) */}
+      {computed.cmmi?.enabled && (
+        <div className="bg-background/40 border border-primary/15 rounded-lg p-5">
+          <div className="flex items-baseline justify-between flex-wrap gap-2 mb-1">
+            <h2 className="font-mono text-xs tracking-[0.25em] uppercase text-highlight">{u.cmmiMatching}</h2>
+            <span className="font-mono text-xs text-muted-foreground">
+              {u.cmmiLevel} {computed.cmmi.overall} · {computed.cmmi.overallLabel} · {u.cmmiTarget} {computed.cmmi.target}
+            </span>
+          </div>
+          <div className="text-[10px] text-muted-foreground font-mono mb-4">{ORIGIN.assessment}</div>
+
+          {/* CMMI level legend */}
+          <div className="grid grid-cols-5 gap-1 mb-4">
+            {CMMI_LEVELS.map(({ level }) => {
+              const active = level <= computed.cmmi!.overall;
+              return (
+                <div key={level} className={`rounded-md px-1 py-1.5 text-center border ${active ? 'border-primary/40 bg-primary/10' : 'border-border bg-secondary/30'}`}>
+                  <div className={`font-mono text-sm font-bold ${active ? 'text-primary' : 'text-muted-foreground'}`}>{level}</div>
+                  <div className="text-[9px] leading-tight text-muted-foreground mt-0.5">{cmmiLabel(level, lang)}</div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Per-category matching */}
+          <div className="space-y-2.5">
+            {computed.cmmi.categories.map((c) => {
+              const barCls = c.level >= 4 ? 'bg-green-500' : c.level === 3 ? 'bg-yellow-500' : c.level === 2 ? 'bg-orange-500' : 'bg-destructive';
+              return (
+                <div key={c.id} title={`${c.pct}% compliance · target level ${c.target}`}>
+                  <div className="flex items-center justify-between text-xs mb-1 gap-2">
+                    <span className="text-foreground font-medium truncate">{c.name}</span>
+                    <span className="font-mono text-muted-foreground whitespace-nowrap">
+                      L{c.level} {c.label}{c.gap > 0 ? ` · −${c.gap}` : ' ✓'}
+                    </span>
+                  </div>
+                  <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
+                    <div className={`h-full rounded-full ${barCls}`} style={{ width: `${(c.level / 5) * 100}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-3">{u.cmmiHint}</p>
+        </div>
+      )}
+
       {/* Findings */}
 
       <div>
@@ -1994,6 +2051,33 @@ function ChapterVisual({ ch }: { ch: { kind: string; data: any } }) {
               <div className="text-[10px] text-muted-foreground mt-0.5">{l}</div>
             </div>
           ))}
+        </div>
+      </div>
+    );
+  }
+  if (ch.kind === 'cmmi') {
+    const m = d.cmmi;
+    return (
+      <div className="space-y-3">
+        <div className="text-center">
+          <div className="text-4xl font-bold font-mono text-primary">L{m.overall}</div>
+          <div className="text-[10px] text-muted-foreground">{m.overallLabel} · target L{m.target}</div>
+        </div>
+        <div className="space-y-2">
+          {m.categories.map((c: any) => {
+            const barCls = c.level >= 4 ? 'bg-green-500' : c.level === 3 ? 'bg-yellow-500' : c.level === 2 ? 'bg-orange-500' : 'bg-destructive';
+            return (
+              <div key={c.id}>
+                <div className="flex items-center justify-between text-xs mb-1 gap-2">
+                  <span className="text-foreground truncate">{c.name}</span>
+                  <span className="font-mono text-muted-foreground whitespace-nowrap">L{c.level}{c.gap > 0 ? ` · −${c.gap}` : ' ✓'}</span>
+                </div>
+                <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
+                  <div className={`h-full rounded-full ${barCls}`} style={{ width: `${(c.level / 5) * 100}%` }} />
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     );
