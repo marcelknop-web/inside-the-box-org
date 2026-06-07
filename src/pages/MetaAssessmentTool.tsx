@@ -559,21 +559,39 @@ function ValidationActivities({ items, label }: { items?: string[]; label: strin
   );
 }
 
+// ── Accordion (progressive disclosure) context ──────────────────
+interface AccordionCtxType {
+  isOpen: (key: string) => boolean;
+  toggle: (key: string) => void;
+}
+const AccordionContext = createContext<AccordionCtxType | null>(null);
 
 function InsightSection({ title, children, layer = 'insight', confidence }: {
   title: string; children: React.ReactNode; layer?: LayerKind; confidence?: string;
 }) {
+  const ctx = useContext(AccordionContext);
+  const open = ctx ? ctx.isOpen(title) : true;
   return (
     <div className="border-t border-border/60 pt-4">
-      <div className="flex items-center gap-2 flex-wrap mb-3">
-        <h3 className="font-mono text-[11px] tracking-[0.2em] uppercase text-primary">{title}</h3>
+      <button
+        type="button"
+        onClick={() => ctx?.toggle(title)}
+        className="w-full flex items-center gap-2 flex-wrap text-left group"
+        aria-expanded={open}
+      >
+        <ChevronRight
+          size={14}
+          className={`text-primary flex-shrink-0 transition-transform ${open ? 'rotate-90' : ''}`}
+        />
+        <h3 className="font-mono text-[11px] tracking-[0.2em] uppercase text-primary group-hover:text-primary/80 transition-colors">{title}</h3>
         <LayerBadge kind={layer} />
         {confidence && <ConfidenceBadge level={confidence} />}
-      </div>
-      {children}
+      </button>
+      {open && <div className="mt-3">{children}</div>}
     </div>
   );
 }
+
 
 const RATING_CLS: Record<string, string> = {
   low: 'bg-green-500/10 text-green-400 border-green-500/20',
