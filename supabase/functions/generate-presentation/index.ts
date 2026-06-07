@@ -24,9 +24,22 @@ interface RequestBody {
 }
 
 // Fixed Gamma theme for every GapZero deck. Built-in Gamma themes use their
-// lowercase name as the theme ID. Defaults to "pearl" for a consistent,
-// board-ready look across all decks. Can be overridden per request.
-const DEFAULT_THEME_ID = 'pearl';
+// lowercase name as the theme ID. "oasis" is a clean, minimal, light theme with
+// generous white space and a restrained corporate palette — the closest built-in
+// match to a McKinsey / BCG / Bain consulting deck. Can be overridden per request.
+const DEFAULT_THEME_ID = 'oasis';
+
+// McKinsey-style layout & design directive applied to every deck.
+const MCKINSEY_LAYOUT_INSTRUCTIONS =
+  'LAYOUT & DESIGN — STRATEGY-CONSULTING STANDARD (McKinsey / BCG / Bain): ' +
+  'Design every slide like a top-tier management-consulting deck. ' +
+  'ACTION TITLES: each slide headline must be a full-sentence "so-what" takeaway that states the insight (e.g. "Governance gaps drive 60% of residual risk"), not a generic topic label. ' +
+  'STRUCTURE: one core message per slide, supported by a clean horizontal layout — 2 to 4 balanced columns, a left-to-right logical flow, or a clearly labelled framework/matrix. Use MECE groupings. ' +
+  'VISUAL SYSTEM: extremely restrained and corporate. Generous white space, strong alignment to a grid, consistent margins, a single accent colour used sparingly for emphasis, and a muted neutral palette (navy, grey, white). No gradients, no shadows, no rounded "playful" shapes. ' +
+  'DATA VISUALS: prefer crisp bar charts, stacked bars, Harvey balls, 2x2 matrices, waterfalls, simple tables and process arrows built from the actual numbers — clean axes, direct data labels, no chartjunk, no 3D, no legends when labels suffice. ' +
+  'TYPOGRAPHY: a clear hierarchy — bold concise titles, tight sub-points, no walls of text. Use short parallel bullet phrases, never paragraphs. ' +
+  'SOURCE NOTES: add a small, muted "Source:" / footnote line at the bottom of data slides where relevant. ' +
+  'Overall impression must read as boardroom-grade, sober, precise and authoritative.';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
