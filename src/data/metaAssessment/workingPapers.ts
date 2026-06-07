@@ -49,6 +49,10 @@ export interface WorkingPaperRecord {
   inputs: WorkingPaperInput[];
   supportingComments: string;
   evidenceSubmitted: string;
+  evidenceType: EvidenceType | 'none';
+  evidenceTypeLabel: string;
+  evidenceName: string;
+  evidenceSource: string;
   evidenceStrength: EvidenceStrength | 'none';
   evidenceStrengthLabel: string;
   ruleId: string;
