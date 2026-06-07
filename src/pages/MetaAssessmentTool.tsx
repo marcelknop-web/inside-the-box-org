@@ -610,6 +610,7 @@ function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
     const sc = profile.demoScenarios?.find((s) => s.id === id);
     if (!sc) return;
     setAnswers({ ...sc.answers });
+    setTestCaseOpen(false);
   }, [profile.demoScenarios]);
 
   const canNext = useMemo(() => {
