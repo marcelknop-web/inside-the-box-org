@@ -1690,7 +1690,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
                 <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-muted-foreground">{u.chapterLabel} {walkthroughStep + 1} / {total}</span>
                 <button onClick={close} className="text-[11px] font-mono text-muted-foreground hover:text-foreground transition-colors">{u.viewFullReport} ✕</button>
               </div>
-              <div>
+              <div className="min-h-[320px]">
                 <h2 className="font-mono text-sm tracking-[0.2em] uppercase text-highlight">{ch.title}</h2>
                 <div className="text-[10px] text-muted-foreground font-mono mt-1">{ch.origin}</div>
                 {/* Pyramid Principle: conclusion first */}
