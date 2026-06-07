@@ -119,6 +119,7 @@ const T: Record<string, Record<Lang, string>> = {
     fr: "Plan d'action priorisé, dérivé des lacunes et des risques.",
   },
   roadmap: { de: 'Umsetzungs-Roadmap', en: 'Remediation Roadmap', fr: 'Feuille de route' },
+  remediationTimeline: { de: 'Umsetzungs-Zeitplan', en: 'Remediation Timeline', fr: 'Calendrier de mise en œuvre' },
   phase: { de: 'Phase', en: 'Phase', fr: 'Phase' },
   months: { de: 'Monate', en: 'months', fr: 'mois' },
   noRecs: { de: 'Keine offenen Maßnahmen — alle Anforderungen erfüllt.', en: 'No open measures — all requirements met.', fr: 'Aucune mesure ouverte — toutes les exigences sont satisfaites.' },
