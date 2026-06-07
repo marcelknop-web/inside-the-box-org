@@ -24,6 +24,10 @@ export interface MetaReportData {
   entityName: string;
   insights?: InsightResult | null;
   reportMeta?: ReportMeta;
+  /** Internal Audit Mode — when true, append the Working Papers appendix. */
+  includeWorkingPapers?: boolean;
+  /** Pre-built working papers (falls back to building from the canonical data). */
+  workingPapers?: WorkingPapers;
 }
 
 /* ── tiny i18n ─────────────────────────────────────────────── */
