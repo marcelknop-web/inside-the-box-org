@@ -35,7 +35,7 @@ const GROUPS: Group[] = [
     },
     tools: [
       {
-        icon: Sparkles, path: '/gapzeo', protected: true, title: 'GapZero — AI-Powered Audit & Readiness Platform',
+        icon: Sparkles, path: '/gapzero', protected: true, title: 'GapZero — AI-Powered Audit & Readiness Platform',
         desc: {
           de: 'From zero to audit-ready. Pick a standard → intake → compliance assessment → AI insights → reporting. Rule-based compliance with an AI insight & advisory layer.',
           en: 'From zero to audit-ready. Pick a standard → intake → compliance assessment → AI insights → reporting. Rule-based compliance with an AI insight & advisory layer.',
