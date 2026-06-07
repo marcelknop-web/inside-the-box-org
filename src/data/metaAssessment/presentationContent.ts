@@ -26,7 +26,7 @@ import type {
   Confidence, EvidenceStrength,
 } from './types';
 import { tr } from './types';
-import { readinessRatingLabel, attentionLabel } from './engine';
+import { readinessRatingLabel, attentionLabel, cmmiLabel } from './engine';
 import type { ReportMeta } from './reportMeta';
 
 export type PresentationType = 'visual-executive' | 'consultant' | 'audit' | 'text';
@@ -361,6 +361,27 @@ function cardAuditReadinessDimensions(input: PresentationInput): Card {
   };
 }
 
+function cardCmmiMatching(input: PresentationInput): Card | null {
+  const cmmi = input.computed.cmmi;
+  if (!cmmi?.enabled) return null;
+  const items = cmmi.categories
+    .slice()
+    .sort((a, b) => a.level - b.level)
+    .map((c) => `**${c.name}:** L${c.level} ${c.label}${c.gap > 0 ? ` (−${c.gap} to target)` : ' ✓'}`);
+  return {
+    headline: 'CMMI Maturity Matching',
+    visual: 'Maturity ladder / radar: per-category CMMI level (1 Initial → 5 Optimizing) against target',
+    md: ['# CMMI Maturity Matching',
+      bullets([
+        `**Overall:** L${cmmi.overall} ${cmmi.overallLabel} · Target L${cmmi.target}${cmmi.gap > 0 ? ` (−${cmmi.gap})` : ' ✓'}`,
+        ...items,
+      ], 6),
+    ].join('\n\n'),
+  };
+}
+
+
+
 function cardTraceabilitySummary(input: PresentationInput): Card {
   const c = controlCounts(input);
   const ev = input.computed.evidence;
@@ -428,6 +449,7 @@ export function buildPresentationContent(type: PresentationType, input: Presenta
       cardReadinessDashboard(input),
       cardKeyFindings(input),
       cardControlOverview(input),
+      cardCmmiMatching(input),
       cardRiskLandscape(input),
       cardRootCauses(input, 6),
       cardHypotheses(input),
@@ -450,6 +472,7 @@ export function buildPresentationContent(type: PresentationType, input: Presenta
       cardRootCauses(input, 6),
       cardEvidenceStrength(input),
       cardAuditReadinessDimensions(input),
+      cardCmmiMatching(input),
       cardTraceabilitySummary(input),
       cardSystemicWeaknesses(input),
       cardManagementThemes(input),
