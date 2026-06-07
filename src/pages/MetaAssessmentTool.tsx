@@ -2055,6 +2055,33 @@ function ChapterVisual({ ch }: { ch: { kind: string; data: any } }) {
       </div>
     );
   }
+  if (ch.kind === 'cmmi') {
+    const m = d.cmmi;
+    return (
+      <div className="space-y-3">
+        <div className="text-center">
+          <div className="text-4xl font-bold font-mono text-primary">L{m.overall}</div>
+          <div className="text-[10px] text-muted-foreground">{m.overallLabel} · target L{m.target}</div>
+        </div>
+        <div className="space-y-2">
+          {m.categories.map((c: any) => {
+            const barCls = c.level >= 4 ? 'bg-green-500' : c.level === 3 ? 'bg-yellow-500' : c.level === 2 ? 'bg-orange-500' : 'bg-destructive';
+            return (
+              <div key={c.id}>
+                <div className="flex items-center justify-between text-xs mb-1 gap-2">
+                  <span className="text-foreground truncate">{c.name}</span>
+                  <span className="font-mono text-muted-foreground whitespace-nowrap">L{c.level}{c.gap > 0 ? ` · −${c.gap}` : ' ✓'}</span>
+                </div>
+                <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
+                  <div className={`h-full rounded-full ${barCls}`} style={{ width: `${(c.level / 5) * 100}%` }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
   if (ch.kind === 'readiness') {
     return (
       <div className="space-y-2.5">
