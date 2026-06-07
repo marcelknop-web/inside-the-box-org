@@ -228,7 +228,8 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     pageLabel: t('page', lang),
     draftWatermark: t('draft', lang),
     runningHeader: true,
-    documentLabel: `${profile.name} ${t('assessmentReport', lang) || ''}`.trim() || profile.name,
+    documentLabel: profile.name,
+
 
   });
 
