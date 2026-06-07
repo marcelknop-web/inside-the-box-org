@@ -15,6 +15,7 @@ import { ISO9001_PROFILE } from './iso9001Profile';
 import { IEC62443_PROFILE } from './iec62443Profile';
 import { SOC2_PROFILE } from './soc2Profile';
 import { PCIDSS_PROFILE } from './pciDssProfile';
+import { CRA_PROFILE } from './craProfile';
 
 // ── Standard registry ───────────────────────────────────────────
 // Add new profiles here. `available: false` profiles render as a
