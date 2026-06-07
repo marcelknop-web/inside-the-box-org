@@ -1685,12 +1685,12 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
         const close = () => { setWalkthroughActive(false); setWalkthroughDone(true); };
         return (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/85 backdrop-blur-sm p-4" role="dialog" aria-modal="true">
-            <div className="w-full max-w-lg bg-background border border-primary/30 rounded-xl shadow-2xl p-6 space-y-5">
-              <div className="flex items-center justify-between">
+            <div className="w-full max-w-lg h-[600px] max-h-[90vh] bg-background border border-primary/30 rounded-xl shadow-2xl p-6 flex flex-col">
+              <div className="flex items-center justify-between flex-shrink-0">
                 <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-muted-foreground">{u.chapterLabel} {walkthroughStep + 1} / {total}</span>
                 <button onClick={close} className="text-[11px] font-mono text-muted-foreground hover:text-foreground transition-colors">{u.viewFullReport} ✕</button>
               </div>
-              <div className="min-h-[320px]">
+              <div className="flex-1 overflow-y-auto min-h-0 mt-5">
                 <h2 className="font-mono text-sm tracking-[0.2em] uppercase text-highlight">{ch.title}</h2>
                 <div className="text-[10px] text-muted-foreground font-mono mt-1">{ch.origin}</div>
                 {/* Pyramid Principle: conclusion first */}
@@ -1700,12 +1700,12 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
                 {/* Context */}
                 <p className="text-xs text-muted-foreground leading-relaxed mt-4">{ch.summary}</p>
               </div>
-              <div className="flex items-center gap-1.5 pt-1">
+              <div className="flex items-center gap-1.5 pt-4 flex-shrink-0">
                 {reportChapters.map((_, i) => (
                   <span key={i} className={`h-1 flex-1 rounded-full ${i <= walkthroughStep ? 'bg-primary' : 'bg-secondary'}`} />
                 ))}
               </div>
-              <div className="flex items-center justify-between pt-1">
+              <div className="flex items-center justify-between pt-4 flex-shrink-0">
                 <button
                   onClick={() => setWalkthroughStep((s) => Math.max(0, s - 1))}
                   disabled={walkthroughStep === 0}
