@@ -1287,6 +1287,15 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
     return { ...r, article: meta?.article ?? '', name: meta ? tr(meta.name, lang) : r.id };
   }), [result, reqMeta, lang]);
 
+  // Auditor evidence notes, captured per obligation on the results screen and
+  // carried into the on-screen report and the PDF export.
+  const [auditorNotes, setAuditorNotes] = useState<Record<string, string>>({});
+  const setNote = useCallback((id: string, v: string) => {
+    setAuditorNotes((prev) => ({ ...prev, [id]: v }));
+  }, []);
+
+
+
   // ── Single source of truth: all displayed metrics come from the
   // deterministic `computed` object (the same one used by the PDF and
   // JSON export), never from a parallel calculation. This guarantees the
