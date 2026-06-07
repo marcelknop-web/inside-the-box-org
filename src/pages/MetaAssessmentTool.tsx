@@ -172,6 +172,11 @@ function ui(_lang: Lang) {
     internalAuditMode: 'Internal Audit Mode',
     includeWorkingPapers: 'Include Working Papers',
     includeWorkingPapersHint: 'When on, the report includes the complete traceability appendix (Internal Audit Report). When off, the executive-focused Management Report is generated.',
+    auditModeGateTitle: 'Before generating the report',
+    auditModeGateHint: 'Choose the report scope. You can still change this later before exporting.',
+    auditModeOn: 'On — Internal Audit Report',
+    auditModeOff: 'Off — Management Report',
+    continueToReport: 'Continue to report',
     filterAll: 'All',
     filterStatus: 'Status',
     filterEvidence: 'Evidence strength',
@@ -1229,6 +1234,8 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
   const [pdfBusy, setPdfBusy] = useState(false);
   const [wpBusy, setWpBusy] = useState(false);
   const [includeWorkingPapers, setIncludeWorkingPapers] = useState(true);
+  // Gate: ask the user to confirm the audit mode before the report is generated.
+  const [auditModeAsked, setAuditModeAsked] = useState(false);
 
   // Working papers are derived deterministically from the same canonical
   // result/computed objects, then enriched with AI references once insights load.
@@ -1328,12 +1335,13 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
   }, [computed, u, lang, pass, partial, fail, pct, merged.length, critRisks.length, workingPapers.records.length, insights]);
 
 
-  // Trigger the walkthrough once every required analysis has completed.
+  // Trigger the walkthrough once every required analysis has completed AND
+  // the user has confirmed the Internal Audit Mode in the pre-report gate.
   useEffect(() => {
-    if (insightsDone && !insightsBusy && !walkthroughDone) {
+    if (insightsDone && !insightsBusy && !walkthroughDone && auditModeAsked) {
       setWalkthroughActive(true);
     }
-  }, [insightsDone, insightsBusy, walkthroughDone]);
+  }, [insightsDone, insightsBusy, walkthroughDone, auditModeAsked]);
 
 
   const exportWorkingPapersJson = () => {
@@ -1450,6 +1458,35 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
   return (
     <div className="space-y-6">
       {/* Chapter walkthrough — presents each chapter as a pop-up before the full report */}
+      {/* Pre-report gate: confirm Internal Audit Mode before the report is generated */}
+      {insightsDone && !insightsBusy && !auditModeAsked && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/85 backdrop-blur-sm p-4" role="dialog" aria-modal="true">
+          <div className="w-full max-w-md bg-background border border-primary/30 rounded-xl shadow-2xl p-6 space-y-5">
+            <div>
+              <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-muted-foreground">{u.internalAuditMode}</span>
+              <h2 className="text-lg font-bold text-foreground mt-1">{u.auditModeGateTitle}</h2>
+              <p className="text-xs text-muted-foreground leading-relaxed mt-2">{u.auditModeGateHint}</p>
+            </div>
+            <div className="flex items-center justify-between gap-3 bg-background/40 border border-primary/15 rounded-lg px-4 py-3">
+              <div>
+                <div className="text-sm font-semibold text-foreground flex items-center gap-2"><ClipboardList size={15} className="text-primary" /> {u.includeWorkingPapers}</div>
+                <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">{includeWorkingPapers ? u.auditModeOn : u.auditModeOff}</p>
+              </div>
+              <button onClick={() => setIncludeWorkingPapers((v) => !v)}
+                className={`flex-shrink-0 w-11 h-6 rounded-full border-2 border-transparent transition-colors ${includeWorkingPapers ? 'bg-primary' : 'bg-input'}`}>
+                <span className={`block w-5 h-5 rounded-full bg-background shadow transition-transform ${includeWorkingPapers ? 'translate-x-5' : 'translate-x-0'}`} />
+              </button>
+            </div>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">{u.includeWorkingPapersHint}</p>
+            <div className="flex justify-end">
+              <button onClick={() => setAuditModeAsked(true)} className="inline-flex items-center gap-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold px-4 py-2 hover:opacity-90 transition-opacity">
+                {u.continueToReport} <ChevronRight size={15} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {walkthroughActive && reportChapters.length > 0 && (() => {
         const total = reportChapters.length;
         const ch = reportChapters[Math.min(walkthroughStep, total - 1)];
