@@ -1059,6 +1059,39 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
   }, [loadInsights]);
 
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [wpBusy, setWpBusy] = useState(false);
+  const [includeWorkingPapers, setIncludeWorkingPapers] = useState(true);
+
+  // Working papers are derived deterministically from the same canonical
+  // result/computed objects, then enriched with AI references once insights load.
+  const workingPapers = useMemo(
+    () => buildWorkingPapers(profile, answers, result, computed, insights, docMeta, lang),
+    [profile, answers, result, computed, insights, docMeta, lang],
+  );
+
+  const exportWorkingPapersJson = () => {
+    const payload = { meta: { ...docMeta, standard: profile.id, entityName }, workingPapers };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${profile.id}-working-papers.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+
+  const exportWorkingPapersPdf = async () => {
+    const check = validateConsistency(result, computed);
+    if (!check.ok) { alert(`${u.consistencyError}\n\n${check.errors.join('\n')}`); return; }
+    setWpBusy(true);
+    try {
+      await generateWorkingPapersPdf({ profile, lang, result, computed, answers, entityName, insights, reportMeta: docMeta });
+    } catch (e) {
+      console.error('Working papers PDF failed', e);
+      alert(u.pdfError);
+    } finally {
+      setWpBusy(false);
+    }
+  };
   const exportPdf = async () => {
     // Consistency gate — never generate a report from divergent data.
     const check = validateConsistency(result, computed);
