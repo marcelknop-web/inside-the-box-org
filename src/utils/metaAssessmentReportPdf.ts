@@ -6,7 +6,7 @@
 //
 // Layer 1 (deterministic) is the source of truth; the AI insight layer is
 // rendered as clearly-marked explanatory commentary only.
-import { createPdfDoc } from '@/utils/pdfCore';
+import { createPdfDoc, C, LAYOUT } from '@/utils/pdfCore';
 import type {
   Lang, StandardProfile, IntakeAnswers,
   AssessmentResult, ComputedAssessment, InsightResult,
