@@ -95,6 +95,18 @@ function ui(_lang: Lang) {
     roadmapRationale: 'Roadmap rationale',
     auditorQuestions: 'Deepening audit questions',
     insightsError: 'AI analysis failed. Please retry.',
+    // ── progressive disclosure controls ──
+    viewLabel: 'View',
+    viewExecutive: 'Executive',
+    viewManagement: 'Management',
+    viewAudit: 'Internal Audit',
+    viewFull: 'Full detail',
+    viewExecutiveHint: 'Board-level: narrative and key insights only.',
+    viewManagementHint: 'Management themes, programs and roadmap.',
+    viewAuditHint: 'Root causes, systemic patterns, hypotheses, audit questions.',
+    viewFullHint: 'Everything expanded.',
+    expandAll: 'Expand all',
+    collapseAll: 'Collapse all',
     // ── advisory layer (virtual internal auditor / advisor) ──
     consultantView: 'Consultant & Internal Audit View',
     consultantHint: 'In-depth advisory analysis: root causes, themes, programs.',
