@@ -355,8 +355,7 @@ function AiWaitModal({
 
         {/* Guided tour through the report while the AI works */}
         <div className="rounded-lg border border-primary/15 bg-background/40 p-4 min-h-[132px]">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-muted-foreground">{u.guideWhileYouWait}</span>
+          <div className="flex items-center justify-end mb-2">
             <span className="font-mono text-[10px] text-muted-foreground">{idx + 1} / {steps.length}</span>
           </div>
           {/* per-step timing bar — fills over the dwell time so the user can pace reading */}
