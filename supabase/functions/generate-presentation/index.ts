@@ -41,6 +41,15 @@ const MCKINSEY_LAYOUT_INSTRUCTIONS =
   'SOURCE NOTES: add a small, muted "Source:" / footnote line at the bottom of data slides where relevant. ' +
   'Overall impression must read as boardroom-grade, sober, precise and authoritative.';
 
+// Quality bar applied to every deck — enforces precision and a premium finish.
+const QUALITY_INSTRUCTIONS =
+  'QUALITY BAR — NON-NEGOTIABLE: The deck must look and read like a finished, paid-for engagement deliverable from a tier-1 consultancy. Reject anything that feels generic, templated, vague or "AI-generated". ' +
+  'PRECISION: Be concrete and specific on every slide. Always use the exact figures, percentages, ratings, control IDs, article references, category names and CMMI levels provided in the content — never round them away, never replace them with vague qualifiers like "several", "many" or "some". Every claim must be traceable to a number or finding in the source content. ' +
+  'NO FLUFF: Cut filler words, hedging and throat-clearing. Each bullet is one crisp, parallel, information-dense phrase. No empty intros, no "in conclusion", no restating the title. If a slide does not earn its place with a distinct insight, merge it. ' +
+  'CONSISTENCY: Identical terminology, capitalisation, number formatting (e.g. 1 decimal for CMMI levels, % with no space), date format and label style across all slides. The same concept always uses the same word. ' +
+  'HIERARCHY: A single dominant message per slide, with supporting evidence visibly subordinate. The reader must grasp the "so-what" in under three seconds. ' +
+  'SELF-CHECK BEFORE FINISHING: re-read every slide and remove any vagueness, any unsupported claim, any decorative filler, any duplicated point, and any text that overflows or crowds the layout. The final deck must be tight, accurate, scannable and visually pristine.';
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -109,6 +118,7 @@ Deno.serve(async (req) => {
       additionalInstructions: [
         (body.additionalInstructions ?? '').toString().slice(0, 1000),
         MCKINSEY_LAYOUT_INSTRUCTIONS,
+        QUALITY_INSTRUCTIONS,
         // Hard rule: every graphic must carry meaning — no filler.
         'TEXT EDITING RULE: You MAY rephrase, tighten and clarify the slide text so it reads well and makes sense on a slide — fix awkward phrasing, shorten run-ons, improve flow. ' +
         'But NEVER change the meaning, the facts, the numbers, the findings, the ratings or the conclusions. No new claims, no invented data, no altered results — wording only. ' +
@@ -116,11 +126,11 @@ Deno.serve(async (req) => {
         'Prefer data-driven visuals — charts, tables, diagrams, process flows, matrices, comparisons — built from the actual numbers and findings on the slide. ' +
         'Absolutely NO decorative, generic, abstract or "filler" stock-style imagery, no random people, handshakes, glowing shields, abstract tech swirls or unrelated metaphors. ' +
         'If a slide has no data that a visual can meaningfully represent, use a clean diagram of its concept or no image at all rather than a decorative one.',
-      ].join('\n\n').slice(0, 3000),
+      ].join('\n\n').slice(0, 4000),
       // ── Optimal generation parameters for board-ready visual decks ──
       textOptions: {
         amount: 'detailed',
-        tone: 'professional, executive, audit-grade, sober, McKinsey-style strategy consulting',
+        tone: 'professional, executive, audit-grade, sober, precise, McKinsey-style strategy consulting; zero fluff, evidence-led',
         audience: 'board members, executives, auditors and risk committees',
         language: (body.language ?? 'en').toString().slice(0, 10),
       },
