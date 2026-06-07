@@ -107,7 +107,8 @@ Deno.serve(async (req) => {
       cardSplit: 'inputTextBreaks',
       exportAs: 'pdf',
       additionalInstructions: [
-        (body.additionalInstructions ?? '').toString().slice(0, 1400),
+        (body.additionalInstructions ?? '').toString().slice(0, 1000),
+        MCKINSEY_LAYOUT_INSTRUCTIONS,
         // Hard rule: every graphic must carry meaning — no filler.
         'TEXT EDITING RULE: You MAY rephrase, tighten and clarify the slide text so it reads well and makes sense on a slide — fix awkward phrasing, shorten run-ons, improve flow. ' +
         'But NEVER change the meaning, the facts, the numbers, the findings, the ratings or the conclusions. No new claims, no invented data, no altered results — wording only. ' +
@@ -115,7 +116,7 @@ Deno.serve(async (req) => {
         'Prefer data-driven visuals — charts, tables, diagrams, process flows, matrices, comparisons — built from the actual numbers and findings on the slide. ' +
         'Absolutely NO decorative, generic, abstract or "filler" stock-style imagery, no random people, handshakes, glowing shields, abstract tech swirls or unrelated metaphors. ' +
         'If a slide has no data that a visual can meaningfully represent, use a clean diagram of its concept or no image at all rather than a decorative one.',
-      ].join('\n\n').slice(0, 2000),
+      ].join('\n\n').slice(0, 3000),
       // ── Optimal generation parameters for board-ready visual decks ──
       textOptions: {
         amount: 'detailed',
