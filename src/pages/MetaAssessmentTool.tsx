@@ -485,6 +485,13 @@ function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
     });
   }, [profile.demoAnswers, step]);
 
+  // Test cases: pick a full scenario on the first step (fills every step).
+  const pickScenario = useCallback((id: string) => {
+    const sc = profile.demoScenarios?.find((s) => s.id === id);
+    if (!sc) return;
+    setAnswers({ ...sc.answers });
+  }, [profile.demoScenarios]);
+
   const canNext = useMemo(() => step.fields.every((f) => {
     if (!f.required) return true;
     const v = answers[f.id];
