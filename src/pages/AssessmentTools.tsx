@@ -29,13 +29,13 @@ interface Group {
 const GROUPS: Group[] = [
   {
     label: {
-      de: 'GapZeo — Internal Audit & Compliance Readiness (Beta)',
-      en: 'GapZeo — Internal Audit & Compliance Readiness (Beta)',
-      fr: 'GapZeo — Internal Audit & Compliance Readiness (Beta)',
+      de: 'GapZero — Internal Audit & Compliance Readiness (Beta)',
+      en: 'GapZero — Internal Audit & Compliance Readiness (Beta)',
+      fr: 'GapZero — Internal Audit & Compliance Readiness (Beta)',
     },
     tools: [
       {
-        icon: Sparkles, path: '/gapzeo', protected: true, title: 'GapZeo — AI-Powered Audit & Readiness Platform',
+        icon: Sparkles, path: '/gapzero', protected: true, title: 'GapZero — AI-Powered Audit & Readiness Platform',
         desc: {
           de: 'From zero to audit-ready. Pick a standard → intake → compliance assessment → AI insights → reporting. Rule-based compliance with an AI insight & advisory layer.',
           en: 'From zero to audit-ready. Pick a standard → intake → compliance assessment → AI insights → reporting. Rule-based compliance with an AI insight & advisory layer.',
