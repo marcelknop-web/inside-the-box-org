@@ -3,9 +3,10 @@ import { Helmet } from 'react-helmet-async';
 import {
   ArrowRight, ArrowLeft, Loader2, Sparkles, ShieldCheck, Network, Car,
   CreditCard, Factory, Server, RotateCcw, Lock, AlertTriangle, CheckCircle2,
-  Download, FileText,
+  Download, FileText, ClipboardList,
 } from 'lucide-react';
 import { generateMetaAssessmentPdf } from '@/utils/metaAssessmentReportPdf';
+import { generateWorkingPapersPdf } from '@/utils/workingPapersPdf';
 import { buildReportMeta, validateConsistency, ORIGIN, REPORT_TITLE } from '@/data/metaAssessment/reportMeta';
 import { LucideIcon } from 'lucide-react';
 import { SiteChrome } from '@/components/SiteChrome';
@@ -14,12 +15,13 @@ import { PageMeta } from '@/components/PageMeta';
 
 import { supabase } from '@/integrations/supabase/client';
 
-import { STANDARD_PROFILES, getProfile, tr, assess, MATURITY_LEVELS, maturityKey, readinessRatingLabel, attentionLabel } from '@/data/metaAssessment';
+import { STANDARD_PROFILES, getProfile, tr, assess, MATURITY_LEVELS, maturityKey, readinessRatingLabel, attentionLabel, buildWorkingPapers } from '@/data/metaAssessment';
 import type {
   Lang, StandardProfile, IntakeField, IntakeAnswers,
   AssessmentResult, AssessedRequirement, ReqStatus,
   ComputedAssessment, Recommendation, InsightResult,
 } from '@/data/metaAssessment/types';
+import type { WorkingPapers, WorkingPaperRecord } from '@/data/metaAssessment/workingPapers';
 
 const ICONS: Record<string, LucideIcon> = {
   Network, Sparkles, Car, CreditCard, Factory, Server, ShieldCheck,
@@ -145,6 +147,48 @@ function ui(_lang: Lang) {
     observation: 'Observation',
     implication: 'Implication',
     recommendation: 'Recommendation',
+    // ── Working Papers & Assessment Traceability ──
+    workingPapers: 'Working Papers & Assessment Traceability',
+    workingPapersHint: 'Full audit trail: every Pass / Partial / Gap is traceable to the original inputs, the deterministic rule, the generated risk and the AI sections that referenced it.',
+    internalAuditMode: 'Internal Audit Mode',
+    includeWorkingPapers: 'Include Working Papers',
+    includeWorkingPapersHint: 'When on, the report includes the complete traceability appendix (Internal Audit Report). When off, the executive-focused Management Report is generated.',
+    filterAll: 'All',
+    filterStatus: 'Status',
+    filterEvidence: 'Evidence strength',
+    filterSearch: 'Requirement / Article',
+    searchPlaceholder: 'Filter by ID, name or article…',
+    wpQuestion: 'Assessment Question',
+    wpUserInputs: 'Original User Inputs',
+    wpAnswer: 'Answer',
+    wpComments: 'Supporting Comments',
+    wpEvidenceSubmitted: 'Evidence Submitted',
+    wpEvidenceStrength: 'Evidence Strength',
+    wpRuleId: 'Rule ID',
+    wpRuleLogic: 'Assessment Rule',
+    wpResult: 'Deterministic Result',
+    wpRisk: 'Generated Risk',
+    wpRiskFormula: 'Risk Formula',
+    wpReferencedAi: 'Referenced by AI',
+    wpAiSections: 'AI Sections',
+    wpMetadata: 'Audit Trail Metadata',
+    wpAssessmentId: 'Assessment ID',
+    wpAssessor: 'Assessor',
+    wpSource: 'Source System',
+    wpTimestamp: 'Timestamp',
+    wpNone: 'None',
+    yes: 'Yes',
+    no: 'No',
+    evidenceRegister: 'Evidence Register',
+    evidenceRegisterHint: 'Appendix mapping every evidence item to its requirement, type, strength and assessment contribution.',
+    erId: 'Evidence ID',
+    erRequirement: 'Requirement',
+    erType: 'Type',
+    erUsedFor: 'Used For',
+    erContribution: 'Result Contribution',
+    exportWorkingPapers: 'Export Working Papers',
+    exportWorkingPapersJson: 'Working Papers (JSON)',
+    noWorkingPapers: 'No working papers match the current filters.',
   };
 }
 
@@ -791,6 +835,134 @@ function InsightsPanel({ insights, computed, lang, u, reqMeta }: {
   );
 }
 
+// ── Working Papers & Assessment Traceability ────────────────────
+function WorkingPapersSection({ wp, u }: { wp: WorkingPapers; u: ReturnType<typeof ui> }) {
+  const [status, setStatus] = useState<'all' | ReqStatus>('all');
+  const [strength, setStrength] = useState<string>('all');
+  const [q, setQ] = useState('');
+
+  const records = useMemo(() => wp.records.filter((r) => {
+    if (status !== 'all' && r.deterministicResult !== status) return false;
+    if (strength !== 'all' && r.evidenceStrength !== strength) return false;
+    if (q.trim()) {
+      const s = q.trim().toLowerCase();
+      if (!`${r.requirementId} ${r.name} ${r.article}`.toLowerCase().includes(s)) return false;
+    }
+    return true;
+  }), [wp.records, status, strength, q]);
+
+  const statusOpts: ['all' | ReqStatus, string][] = [
+    ['all', u.filterAll], ['pass', u.passed], ['partial', u.partial], ['fail', u.gaps],
+  ];
+  const strengthOpts: [string, string][] = [
+    ['all', u.filterAll], ['very_high', u.evVeryHigh], ['high', u.evHigh],
+    ['medium', u.evMedium], ['low', u.evLow], ['none', u.evMissing],
+  ];
+
+  return (
+    <div>
+      <h2 className="font-mono text-xs tracking-[0.25em] uppercase text-highlight mb-1">{u.workingPapers}</h2>
+      <div className="text-[10px] text-muted-foreground font-mono mb-2">{ORIGIN.assessment}</div>
+      <p className="text-[11px] text-muted-foreground mb-3 max-w-2xl leading-relaxed">{u.workingPapersHint}</p>
+
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-2 mb-3">
+        <div className="flex gap-1">
+          {statusOpts.map(([v, l]) => (
+            <button key={v} onClick={() => setStatus(v)}
+              className={`text-[11px] px-2 py-1 rounded border font-mono ${status === v ? 'border-primary bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:border-primary/40'}`}>{l}</button>
+          ))}
+        </div>
+        <select value={strength} onChange={(e) => setStrength(e.target.value)}
+          className="text-[11px] bg-background border border-border rounded px-2 py-1 text-foreground">
+          {strengthOpts.map(([v, l]) => <option key={v} value={v}>{u.filterEvidence}: {l}</option>)}
+        </select>
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={u.searchPlaceholder}
+          className="text-[11px] bg-background border border-border rounded px-2 py-1 text-foreground flex-1 min-w-[160px]" />
+      </div>
+
+      {records.length === 0 ? (
+        <p className="text-sm text-muted-foreground py-4">{u.noWorkingPapers}</p>
+      ) : (
+        <div className="space-y-1.5">
+          {records.map((r) => {
+            const st = STATUS_STYLE[r.deterministicResult];
+            return (
+              <details key={r.requirementId} className="bg-background/40 border border-primary/15 rounded-lg overflow-hidden">
+                <summary className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-secondary/30">
+                  <span className="font-mono text-[11px] text-muted-foreground font-bold w-16 flex-shrink-0">{r.requirementId}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold text-foreground break-words">{r.name}</div>
+                    <div className="text-xs text-muted-foreground">{r.article}{r.generatedRiskId && <span> · {u.wpRisk}: {r.generatedRiskId}</span>}{r.referencedByAI && <span> · AI ✓</span>}</div>
+                  </div>
+                  <span className={`px-2 py-0.5 rounded text-xs font-bold border flex-shrink-0 ${st.cls}`}>{st.label.en}</span>
+                </summary>
+                <div className="border-t border-border bg-secondary/20 px-4 py-3 text-sm space-y-2.5">
+                  <ReportField label={u.wpQuestion}>{r.assessmentQuestion}</ReportField>
+                  <div className="bg-background/50 border border-border rounded-md px-3 py-2">
+                    <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">{u.wpUserInputs}</div>
+                    {r.inputs.length ? r.inputs.map((inp) => (
+                      <div key={inp.fieldId} className="text-foreground"><span className="text-muted-foreground">{inp.question}: </span>{inp.answer}</div>
+                    )) : <div className="text-muted-foreground">—</div>}
+                  </div>
+                  {r.supportingComments && <ReportField label={u.wpComments}>{r.supportingComments}</ReportField>}
+                  <div><span className="font-semibold text-muted-foreground">{u.wpEvidenceSubmitted}: </span>{r.evidenceSubmitted || u.wpNone} <span className="font-mono text-[10px] text-muted-foreground">({u.wpEvidenceStrength}: {r.evidenceStrengthLabel})</span></div>
+                  <div className="bg-background/50 border border-border rounded-md px-3 py-2">
+                    <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">{u.wpRuleLogic} · {r.ruleId}</div>
+                    {r.ruleLogic.map((line, i) => (
+                      <div key={i} className="font-mono text-xs text-foreground">{line}</div>
+                    ))}
+                    <div className="mt-1"><span className="font-semibold text-muted-foreground">{u.wpResult}: </span><span className="text-foreground">{r.resultLabel}</span></div>
+                  </div>
+                  {r.generatedRiskId && (
+                    <div><span className="font-semibold text-destructive">{u.wpRisk}: </span>{r.generatedRiskId} — <span className="font-mono text-xs">{r.riskFormula} = {r.riskScore}</span> ({r.riskRatingLabel})</div>
+                  )}
+                  <div><span className="font-semibold text-muted-foreground">{u.wpReferencedAi}: </span>{r.referencedByAI ? u.yes : u.no}{r.aiSections.length > 0 && <span className="text-muted-foreground"> — {r.aiSections.join(', ')}</span>}</div>
+                  <div className="font-mono text-[10px] text-muted-foreground pt-1 border-t border-border">
+                    {u.wpMetadata}: {r.assessmentId} · v{r.assessmentVersion} · {r.ruleId} · {r.assessor} · {new Date(r.timestamp).toLocaleString('en-GB')}
+                  </div>
+                </div>
+              </details>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Evidence Register */}
+      {wp.evidenceRegister.length > 0 && (
+        <div className="mt-5">
+          <h3 className="font-mono text-[11px] tracking-[0.2em] uppercase text-primary mb-1">{u.evidenceRegister}</h3>
+          <p className="text-[11px] text-muted-foreground mb-2">{u.evidenceRegisterHint}</p>
+          <div className="overflow-x-auto bg-background/40 border border-primary/15 rounded-lg">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-border text-muted-foreground font-mono uppercase tracking-wide">
+                  <th className="text-left px-3 py-2">{u.erId}</th>
+                  <th className="text-left px-3 py-2">{u.erRequirement}</th>
+                  <th className="text-left px-3 py-2">{u.erType}</th>
+                  <th className="text-left px-3 py-2">{u.wpEvidenceStrength}</th>
+                  <th className="text-left px-3 py-2">{u.erContribution}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {wp.evidenceRegister.map((e) => (
+                  <tr key={e.evidenceId} className="border-b border-border/50 last:border-0">
+                    <td className="px-3 py-2 font-mono text-foreground">{e.evidenceId}</td>
+                    <td className="px-3 py-2 text-foreground">{e.requirementId} <span className="text-muted-foreground">{e.requirementName}</span></td>
+                    <td className="px-3 py-2 text-muted-foreground">{e.typeLabel}</td>
+                    <td className="px-3 py-2 text-muted-foreground">{e.strengthLabel}</td>
+                    <td className="px-3 py-2 text-muted-foreground">{e.resultContributionLabel}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Report ──────────────────────────────────────────────────────
 function Report({ profile, lang, result, computed, answers, onRestart }: {
   profile: StandardProfile; lang: Lang; result: AssessmentResult;
@@ -887,6 +1059,39 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
   }, [loadInsights]);
 
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [wpBusy, setWpBusy] = useState(false);
+  const [includeWorkingPapers, setIncludeWorkingPapers] = useState(true);
+
+  // Working papers are derived deterministically from the same canonical
+  // result/computed objects, then enriched with AI references once insights load.
+  const workingPapers = useMemo(
+    () => buildWorkingPapers(profile, answers, result, computed, insights, docMeta, lang),
+    [profile, answers, result, computed, insights, docMeta, lang],
+  );
+
+  const exportWorkingPapersJson = () => {
+    const payload = { meta: { ...docMeta, standard: profile.id, entityName }, workingPapers };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${profile.id}-working-papers.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+
+  const exportWorkingPapersPdf = async () => {
+    const check = validateConsistency(result, computed);
+    if (!check.ok) { alert(`${u.consistencyError}\n\n${check.errors.join('\n')}`); return; }
+    setWpBusy(true);
+    try {
+      await generateWorkingPapersPdf({ profile, lang, result, computed, answers, entityName, insights, reportMeta: docMeta });
+    } catch (e) {
+      console.error('Working papers PDF failed', e);
+      alert(u.pdfError);
+    } finally {
+      setWpBusy(false);
+    }
+  };
   const exportPdf = async () => {
     // Consistency gate — never generate a report from divergent data.
     const check = validateConsistency(result, computed);
@@ -897,7 +1102,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
     }
     setPdfBusy(true);
     try {
-      await generateMetaAssessmentPdf({ profile, lang, result, computed, answers, entityName, insights, reportMeta: docMeta });
+      await generateMetaAssessmentPdf({ profile, lang, result, computed, answers, entityName, insights, reportMeta: docMeta, includeWorkingPapers, workingPapers });
     } catch (e) {
       console.error('PDF generation failed', e);
       alert(u.pdfError);
@@ -1027,6 +1232,9 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
         </div>
       </div>
 
+      {/* Working Papers & Assessment Traceability (after Findings, before Risk Landscape) */}
+      <WorkingPapersSection wp={workingPapers} u={u} />
+
       {/* Risks — rendered from the canonical computed.risks (same scores/ratings as PDF) */}
       {computed.risks.length > 0 && (
         <div>
@@ -1122,12 +1330,30 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
       </div>
 
 
+      {/* Internal Audit Mode toggle */}
+      <div className="flex items-center justify-between gap-3 bg-background/40 border border-primary/15 rounded-lg px-4 py-3">
+        <div>
+          <div className="text-sm font-semibold text-foreground flex items-center gap-2"><ClipboardList size={15} className="text-primary" /> {u.internalAuditMode}: {u.includeWorkingPapers}</div>
+          <p className="text-[11px] text-muted-foreground mt-0.5 max-w-xl leading-relaxed">{u.includeWorkingPapersHint}</p>
+        </div>
+        <button onClick={() => setIncludeWorkingPapers((v) => !v)}
+          className={`flex-shrink-0 w-11 h-6 rounded-full border-2 border-transparent transition-colors ${includeWorkingPapers ? 'bg-primary' : 'bg-input'}`}>
+          <span className={`block w-5 h-5 rounded-full bg-background shadow transition-transform ${includeWorkingPapers ? 'translate-x-5' : 'translate-x-0'}`} />
+        </button>
+      </div>
+
       <div className="flex flex-wrap gap-3 pt-2">
         {insights && (
           <button onClick={exportPdf} disabled={pdfBusy} className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
             {pdfBusy ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />} {u.exportPdf}
           </button>
         )}
+        <button onClick={exportWorkingPapersPdf} disabled={wpBusy} className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80 disabled:opacity-60">
+          {wpBusy ? <Loader2 size={14} className="animate-spin" /> : <ClipboardList size={14} />} {u.exportWorkingPapers}
+        </button>
+        <button onClick={exportWorkingPapersJson} className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80">
+          <Download size={14} /> {u.exportWorkingPapersJson}
+        </button>
         <button onClick={exportJson} className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80">
           <Download size={14} /> {u.exportJson}
         </button>

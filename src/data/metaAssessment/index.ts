@@ -33,3 +33,4 @@ export function getProfile(id: string): StandardProfile | undefined {
 
 export * from './types';
 export * from './engine';
+export * from './workingPapers';

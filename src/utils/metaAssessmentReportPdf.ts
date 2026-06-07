@@ -13,6 +13,8 @@ import type {
 } from '@/data/metaAssessment/types';
 import { tr } from '@/data/metaAssessment/types';
 import { readinessRatingLabel, attentionLabel } from '@/data/metaAssessment/engine';
+import { buildWorkingPapers, type WorkingPapers } from '@/data/metaAssessment/workingPapers';
+import { renderWorkingPapers } from '@/utils/workingPapersPdf';
 import { ORIGIN, REPORT_TITLE, type ReportMeta } from '@/data/metaAssessment/reportMeta';
 
 export interface MetaReportData {
@@ -24,6 +26,10 @@ export interface MetaReportData {
   entityName: string;
   insights?: InsightResult | null;
   reportMeta?: ReportMeta;
+  /** Internal Audit Mode — when true, append the Working Papers appendix. */
+  includeWorkingPapers?: boolean;
+  /** Pre-built working papers (falls back to building from the canonical data). */
+  workingPapers?: WorkingPapers;
 }
 
 /* ── tiny i18n ─────────────────────────────────────────────── */
