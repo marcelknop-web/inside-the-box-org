@@ -1378,6 +1378,12 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
         takeaway: readyTake, summary: u.auditReadinessHint,
         data: { dimensions: computed.auditReadiness.dimensions },
       },
+      ...(computed.cmmi?.enabled ? [{
+        title: u.cmmiMatching, origin: ORIGIN.assessment, kind: 'cmmi' as const,
+        takeaway: `Overall CMMI level ${computed.cmmi.overall} (${computed.cmmi.overallLabel}) — target ${computed.cmmi.target}, ${computed.cmmi.gap === 0 ? 'met' : `${computed.cmmi.gap} level${computed.cmmi.gap === 1 ? '' : 's'} to close`}.`,
+        summary: u.cmmiHint,
+        data: { cmmi: computed.cmmi },
+      }] : []),
       {
         title: u.findings, origin: ORIGIN.assessment, kind: 'findings',
         takeaway: findTake, summary: `${pass} ${u.passed} · ${partial} ${u.partial} · ${fail} ${u.gaps}`,
