@@ -90,7 +90,7 @@ Deno.serve(async (req) => {
       inputText,
       textMode: 'preserve',
       format: 'presentation',
-      themeName: (body.themeName ?? DEFAULT_THEME).toString().slice(0, 60),
+      themeId: (body.themeId ?? DEFAULT_THEME_ID).toString().slice(0, 60),
       cardSplit: 'inputTextBreaks',
       exportAs: 'pdf',
       additionalInstructions: (body.additionalInstructions ?? '').toString().slice(0, 2000),
