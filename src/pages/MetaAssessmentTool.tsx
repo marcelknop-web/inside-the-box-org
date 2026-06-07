@@ -1765,6 +1765,40 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
               );
             })}
           </div>
+
+          {/* Per-control maturity */}
+          {computed.cmmi.controls.length > 0 && (
+            <div className="mt-5">
+              <h3 className="font-mono text-[11px] tracking-[0.2em] uppercase text-muted-foreground mb-2">{u.cmmiControls}</h3>
+              <div className="space-y-3">
+                {[...new Set(computed.cmmi.controls.map((c) => c.categoryId))].map((catId) => {
+                  const items = computed.cmmi!.controls.filter((c) => c.categoryId === catId);
+                  return (
+                    <div key={catId}>
+                      <div className="text-[10px] font-mono text-highlight/80 mb-1">{items[0].categoryName}</div>
+                      <div className="space-y-1">
+                        {items.map((c) => {
+                          const dotCls = c.level >= 4 ? 'bg-green-500' : c.level === 3 ? 'bg-yellow-500' : c.level === 2 ? 'bg-orange-500' : 'bg-destructive';
+                          return (
+                            <div key={c.id} className="flex items-center justify-between gap-2 text-[11px] border-b border-border/40 py-1">
+                              <span className="text-foreground/90 truncate">
+                                {c.article ? <span className="font-mono text-muted-foreground mr-1">{c.article}</span> : null}
+                                {c.name}
+                              </span>
+                              <span className="flex items-center gap-1.5 font-mono text-muted-foreground whitespace-nowrap">
+                                <span className={`inline-block w-1.5 h-1.5 rounded-full ${dotCls}`} />
+                                L{c.level} {c.label}{c.gap > 0 ? ` · −${c.gap}` : ' ✓'}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           <p className="text-[11px] text-muted-foreground mt-3">{u.cmmiHint}</p>
         </div>
       )}
