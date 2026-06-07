@@ -507,6 +507,30 @@ function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
         <span className="text-xs text-muted-foreground flex-shrink-0 font-mono">{sub + 1}/{profile.intake.length}</span>
       </div>
 
+      {sub === 0 && profile.demoScenarios && profile.demoScenarios.length > 0 && (
+        <div className="border border-primary/20 bg-primary/[0.04] rounded-lg p-4 mb-5">
+          <div className="flex items-center gap-1.5 text-xs font-mono uppercase tracking-wide text-primary mb-1">
+            <Sparkles size={13} /> {u.testCases}
+          </div>
+          <div className="text-xs text-muted-foreground mb-3">{u.testCasesHint}</div>
+          <div className="grid gap-2 sm:grid-cols-3">
+            {profile.demoScenarios.map((sc) => (
+              <button
+                key={sc.id}
+                onClick={() => pickScenario(sc.id)}
+                className="text-left rounded-lg border border-border bg-background/40 hover:border-primary/50 hover:bg-primary/[0.06] transition-colors px-3 py-2.5"
+              >
+                <div className="text-sm font-semibold text-foreground">{tr(sc.label, lang)}</div>
+                {sc.description && (
+                  <div className="text-xs text-muted-foreground mt-0.5 leading-snug">{tr(sc.description, lang)}</div>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+
       <div className="text-base font-bold text-foreground font-mono">{tr(step.title, lang)}</div>
       {step.subtitle && <div className="text-sm text-muted-foreground mt-0.5 mb-3">{tr(step.subtitle, lang)}</div>}
       {step.info && (
