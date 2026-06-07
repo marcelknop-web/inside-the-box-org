@@ -1234,6 +1234,8 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
   const [pdfBusy, setPdfBusy] = useState(false);
   const [wpBusy, setWpBusy] = useState(false);
   const [includeWorkingPapers, setIncludeWorkingPapers] = useState(true);
+  // Gate: ask the user to confirm the audit mode before the report is generated.
+  const [auditModeAsked, setAuditModeAsked] = useState(false);
 
   // Working papers are derived deterministically from the same canonical
   // result/computed objects, then enriched with AI references once insights load.
