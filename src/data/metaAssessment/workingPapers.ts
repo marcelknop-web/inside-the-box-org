@@ -35,6 +35,22 @@ const RISK_RATING_LABEL: Record<string, Record<Lang, string>> = {
 
 const trL = (x: Record<Lang, string>, lang: Lang) => x[lang] ?? x.en;
 
+/** Plain-language provenance for a classified evidence type (never fabricated). */
+function evidenceSourceFor(type: EvidenceType | 'none', lang: Lang): string {
+  const map: Record<EvidenceType | 'none', Record<Lang, string>> = {
+    none: { de: 'Kein Nachweis', en: 'No evidence', fr: 'Aucune preuve' },
+    statement: { de: 'Selbstauskunft (Intake)', en: 'Self-assessment (intake)', fr: 'Auto-évaluation (intake)' },
+    screenshot: { de: 'Hochgeladener Screenshot (referenziert im Intake)', en: 'Uploaded screenshot (referenced in intake)', fr: 'Capture téléversée (référencée dans l’intake)' },
+    document: { de: 'Dokumentennachweis (referenziert im Intake)', en: 'Documented evidence (referenced in intake)', fr: 'Preuve documentée (référencée dans l’intake)' },
+    policy: { de: 'Richtliniendokument (referenziert im Intake)', en: 'Policy document (referenced in intake)', fr: 'Document de politique (référencé dans l’intake)' },
+    procedure: { de: 'Verfahrensdokument (referenziert im Intake)', en: 'Procedure document (referenced in intake)', fr: 'Document de procédure (référencé dans l’intake)' },
+    log: { de: 'Protokoll / Systemnachweis (referenziert im Intake)', en: 'Log / system record (referenced in intake)', fr: 'Journal / preuve système (référencé dans l’intake)' },
+    audit_report: { de: 'Externer Audit-/Prüfbericht (referenziert im Intake)', en: 'External audit/assurance report (referenced in intake)', fr: 'Rapport d’audit externe (référencé dans l’intake)' },
+  };
+  return trL(map[type], lang);
+}
+
+
 export interface WorkingPaperInput {
   fieldId: string;
   question: string;
