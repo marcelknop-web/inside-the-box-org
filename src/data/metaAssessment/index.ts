@@ -21,7 +21,6 @@ import { PCIDSS_PROFILE } from './pciDssProfile';
 // "coming soon" tile so the roadmap is visible without being usable.
 
 const COMING_SOON: StandardProfile[] = [
-  stub('iec62443', 'IEC 62443', 'Factory', { de: 'OT-Security', en: 'OT security', fr: 'Sécurité OT' }),
   stub('cra', 'CRA', 'Server', { de: 'Cyber Resilience Act', en: 'Cyber Resilience Act', fr: 'Cyber Resilience Act' }),
 ];
 
