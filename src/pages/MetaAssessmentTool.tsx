@@ -66,6 +66,8 @@ function ui(_lang: Lang) {
     gap: 'Gap',
     measure: 'Recommended measure',
     rationale: 'Rationale',
+    auditorNote: 'Auditor evidence note',
+    auditorNotePlaceholder: 'Add evidence references, audit observations or context for this obligation … (included in the report & PDF)',
     riskLandscape: 'Risk landscape',
     exportJson: 'Export result (JSON)',
     exportPdf: 'Report as PDF',
