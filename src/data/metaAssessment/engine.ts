@@ -704,7 +704,7 @@ export function computeAssessment(
   const quality = runQuality(profile, findings, recommendations, risks, lang);
   const evidence = buildEvidence(profile, findings, lang);
   const maturity = computeMaturity(profile, score, lang);
-  const cmmi = computeCmmi(profile, score, lang);
+  const cmmi = computeCmmi(profile, score, findings, lang);
   const auditReadiness = computeAuditReadiness(profile, findings, score, evidence, lang);
   const attentionIndex = computeAttentionIndex(profile, findings, score, risks, lang);
   return { score, risks, recommendations, roadmap, quality, evidence, maturity, cmmi, auditReadiness, attentionIndex };
