@@ -11,13 +11,14 @@ import { ISO22301_PROFILE } from './iso22301Profile';
 import { ISO42001_PROFILE } from './iso42001Profile';
 import { VENDOR_SECURITY_PROFILE } from './vendorSecurityProfile';
 import { CIS_CONTROLS_PROFILE } from './cisControlsProfile';
+import { SOC2_PROFILE } from './soc2Profile';
+import { PCIDSS_PROFILE } from './pciDssProfile';
 
 // ── Standard registry ───────────────────────────────────────────
 // Add new profiles here. `available: false` profiles render as a
 // "coming soon" tile so the roadmap is visible without being usable.
 
 const COMING_SOON: StandardProfile[] = [
-  stub('pcidss', 'PCI-DSS', 'CreditCard', { de: 'Payment Card Industry DSS', en: 'Payment Card Industry DSS', fr: 'Payment Card Industry DSS' }),
   stub('iec62443', 'IEC 62443', 'Factory', { de: 'OT-Security', en: 'OT security', fr: 'Sécurité OT' }),
   stub('cra', 'CRA', 'Server', { de: 'Cyber Resilience Act', en: 'Cyber Resilience Act', fr: 'Cyber Resilience Act' }),
 ];
@@ -33,7 +34,7 @@ function stub(id: string, name: string, icon: string, regulation: StandardProfil
   };
 }
 
-export const STANDARD_PROFILES: StandardProfile[] = [NIS2_PROFILE, DORA_PROFILE, AIACT_PROFILE, ISO27001_PROFILE, ISO22301_PROFILE, ISO42001_PROFILE, IACS_E26_PROFILE, IACS_E27_PROFILE, MARITIME_CYBER_PROFILE, TISAX_PROFILE, VENDOR_SECURITY_PROFILE, CIS_CONTROLS_PROFILE, ...COMING_SOON];
+export const STANDARD_PROFILES: StandardProfile[] = [NIS2_PROFILE, DORA_PROFILE, AIACT_PROFILE, ISO27001_PROFILE, ISO22301_PROFILE, ISO42001_PROFILE, IACS_E26_PROFILE, IACS_E27_PROFILE, MARITIME_CYBER_PROFILE, TISAX_PROFILE, SOC2_PROFILE, PCIDSS_PROFILE, VENDOR_SECURITY_PROFILE, CIS_CONTROLS_PROFILE, ...COMING_SOON];
 
 export function getProfile(id: string): StandardProfile | undefined {
   return STANDARD_PROFILES.find((p) => p.id === id);
