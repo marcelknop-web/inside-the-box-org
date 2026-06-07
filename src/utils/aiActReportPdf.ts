@@ -420,5 +420,5 @@ export async function generateAiActReport(data: AiActReportData): Promise<void> 
 
   // ── Save ──
   const safeName = (intakeData.entityName || 'Report').replace(/[^0-9A-Za-z]/g, '_');
-  pdf.doc.save(`AI-Act-Readiness_${safeName}_${today.replace(/[^0-9A-Za-z]/g, '-')}.pdf`);
+  pdf.save(`AI-Act-Readiness_${safeName}_${today.replace(/[^0-9A-Za-z]/g, '-')}.pdf`);
 }
