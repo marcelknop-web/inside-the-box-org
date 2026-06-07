@@ -254,14 +254,15 @@ function ui(_lang: Lang) {
     // ── guided waiting (shown while AI works) ──
     guideWhileYouWait: 'While you wait — what your report contains',
     guideSteps: [
-      { title: 'Management attention index', body: 'One signal: action needed now, or posture under control.' },
-      { title: 'Audit readiness', body: 'Readiness across every dimension — and the weakest link.' },
-      { title: 'Findings & compliance', body: 'Pass, Partial or Gap — scored by rules, never by AI.' },
-      { title: 'Risks', body: 'Gaps become rated risks. Tackle the critical ones first.' },
-      { title: 'Evidence base', body: 'What is backed by evidence and what still needs proof.' },
-      { title: 'Working papers & traceability', body: 'Every conclusion tied to input, rule and proof.' },
-      { title: 'AI insights & advisory', body: 'Explains the results — advisory only, never changes a finding.' },
+      { title: 'Management attention index', body: 'Act now, or under control.' },
+      { title: 'Audit readiness', body: 'Readiness per dimension + weakest link.' },
+      { title: 'Findings & compliance', body: 'Pass · Partial · Gap — rule-scored.' },
+      { title: 'Risks', body: 'Gaps rated — critical ones first.' },
+      { title: 'Evidence base', body: 'What is proven vs. still open.' },
+      { title: 'Working papers & traceability', body: 'Each conclusion tied to its proof.' },
+      { title: 'AI insights & advisory', body: 'Explains results — never alters a finding.' },
     ] as { title: string; body: string }[],
+
   };
 }
 
@@ -624,7 +625,7 @@ function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
   }, [field, answers]);
 
   return (
-    <div>
+    <div className="flex flex-col min-h-[440px]">
       <div className="flex items-center gap-2 mb-5">
         {questions.map((_, i) => (
           <div key={i} className={`h-1.5 rounded-full flex-1 transition-all ${i < q ? 'bg-primary' : i === q ? 'bg-primary/60' : 'bg-secondary'}`} />
@@ -696,7 +697,7 @@ function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
         <FieldView key={field.id} field={field} value={answers[field.id]} onChange={(v) => setVal(field.id, v)} lang={lang} answers={answers} setVal={setVal} />
       </div>
 
-      <div className="flex justify-between items-center pt-6">
+      <div className="flex justify-between items-center pt-6 mt-auto border-t border-border/40">
         <div className="flex items-center gap-2">
           <button onClick={() => (q === 0 ? onBack() : setQ(q - 1))}
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors font-mono">
@@ -1689,7 +1690,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
                 <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-muted-foreground">{u.chapterLabel} {walkthroughStep + 1} / {total}</span>
                 <button onClick={close} className="text-[11px] font-mono text-muted-foreground hover:text-foreground transition-colors">{u.viewFullReport} ✕</button>
               </div>
-              <div>
+              <div className="min-h-[320px]">
                 <h2 className="font-mono text-sm tracking-[0.2em] uppercase text-highlight">{ch.title}</h2>
                 <div className="text-[10px] text-muted-foreground font-mono mt-1">{ch.origin}</div>
                 {/* Pyramid Principle: conclusion first */}
