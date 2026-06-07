@@ -401,6 +401,9 @@ const VISUAL_TONE =
   'Style it like a deliverable from an internal-audit function, a Big-Four consulting firm, a cybersecurity advisory practice or a virtual-CISO engagement — board, audit-committee and risk-committee ready. ' +
   'Preserve every fact, figure, percentage and finding exactly as provided — never invent data, findings or risks. The deck must be presentation-ready with no manual editing.';
 
+const STUDIO_DESIGN =
+  ' CARD DESIGN MODE: STUDIO. Use Gamma\'s "Studio" card design mode for an editorial, design-led look — bold, deliberate compositions with strong visual hierarchy, generous whitespace, large expressive headlines, full-bleed accent imagery and refined typography. Every card must look like a hand-crafted studio-designed slide rather than an auto-generated template.';
+
 const TEXT_TONE =
   'Produce a polished, management-ready deck that reads like a deliverable from an internal audit, cybersecurity consulting and virtual-CISO practice. ' +
   'Use a clean, professional corporate style with clear headlines, concise bullets and subtle data emphasis. ' +
