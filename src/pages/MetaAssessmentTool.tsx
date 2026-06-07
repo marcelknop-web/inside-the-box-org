@@ -696,7 +696,7 @@ function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
         <FieldView key={field.id} field={field} value={answers[field.id]} onChange={(v) => setVal(field.id, v)} lang={lang} answers={answers} setVal={setVal} />
       </div>
 
-      <div className="flex justify-between items-center pt-6">
+      <div className="flex justify-between items-center pt-6 mt-auto border-t border-border/40 mt-6">
         <div className="flex items-center gap-2">
           <button onClick={() => (q === 0 ? onBack() : setQ(q - 1))}
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors font-mono">
