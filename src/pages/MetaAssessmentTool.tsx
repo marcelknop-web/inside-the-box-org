@@ -1335,12 +1335,13 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
   }, [computed, u, lang, pass, partial, fail, pct, merged.length, critRisks.length, workingPapers.records.length, insights]);
 
 
-  // Trigger the walkthrough once every required analysis has completed.
+  // Trigger the walkthrough once every required analysis has completed AND
+  // the user has confirmed the Internal Audit Mode in the pre-report gate.
   useEffect(() => {
-    if (insightsDone && !insightsBusy && !walkthroughDone) {
+    if (insightsDone && !insightsBusy && !walkthroughDone && auditModeAsked) {
       setWalkthroughActive(true);
     }
-  }, [insightsDone, insightsBusy, walkthroughDone]);
+  }, [insightsDone, insightsBusy, walkthroughDone, auditModeAsked]);
 
 
   const exportWorkingPapersJson = () => {
