@@ -26,7 +26,7 @@ import type {
   Confidence, EvidenceStrength,
 } from './types';
 import { tr } from './types';
-import { readinessRatingLabel, attentionLabel } from './engine';
+import { readinessRatingLabel, attentionLabel, cmmiLabel } from './engine';
 import type { ReportMeta } from './reportMeta';
 
 export type PresentationType = 'visual-executive' | 'consultant' | 'audit' | 'text';
