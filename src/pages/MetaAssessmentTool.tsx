@@ -1293,10 +1293,10 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
     chs.push({
       title: u.aiAnalysis, origin: ORIGIN.insight, kind: 'stat',
       summary: u.aiNote,
-      data: { value: insights ? (insights.executiveInsights?.length ?? 0) + (insights.rootCauses?.length ?? 0) : 0, label: u.aiAnalysis, icon: 'sparkles' },
+      data: { value: insights ? (insights.executiveInsights?.topWeaknesses?.length ?? 0) + (insights.rootCauses?.length ?? 0) : 0, label: u.aiAnalysis, icon: 'sparkles' },
     });
     return chs;
-  }, [computed, u, lang, pass, partial, fail, pct, merged.length, critRisks.length, workingPapers.length, insights]);
+  }, [computed, u, lang, pass, partial, fail, pct, merged.length, critRisks.length, workingPapers.records.length, insights]);
 
   // Trigger the walkthrough once every required analysis has completed.
   useEffect(() => {
