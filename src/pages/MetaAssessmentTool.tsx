@@ -1330,12 +1330,30 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
       </div>
 
 
+      {/* Internal Audit Mode toggle */}
+      <div className="flex items-center justify-between gap-3 bg-background/40 border border-primary/15 rounded-lg px-4 py-3">
+        <div>
+          <div className="text-sm font-semibold text-foreground flex items-center gap-2"><ClipboardList size={15} className="text-primary" /> {u.internalAuditMode}: {u.includeWorkingPapers}</div>
+          <p className="text-[11px] text-muted-foreground mt-0.5 max-w-xl leading-relaxed">{u.includeWorkingPapersHint}</p>
+        </div>
+        <button onClick={() => setIncludeWorkingPapers((v) => !v)}
+          className={`flex-shrink-0 w-11 h-6 rounded-full border-2 border-transparent transition-colors ${includeWorkingPapers ? 'bg-primary' : 'bg-input'}`}>
+          <span className={`block w-5 h-5 rounded-full bg-background shadow transition-transform ${includeWorkingPapers ? 'translate-x-5' : 'translate-x-0'}`} />
+        </button>
+      </div>
+
       <div className="flex flex-wrap gap-3 pt-2">
         {insights && (
           <button onClick={exportPdf} disabled={pdfBusy} className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
             {pdfBusy ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />} {u.exportPdf}
           </button>
         )}
+        <button onClick={exportWorkingPapersPdf} disabled={wpBusy} className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80 disabled:opacity-60">
+          {wpBusy ? <Loader2 size={14} className="animate-spin" /> : <ClipboardList size={14} />} {u.exportWorkingPapers}
+        </button>
+        <button onClick={exportWorkingPapersJson} className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80">
+          <Download size={14} /> {u.exportWorkingPapersJson}
+        </button>
         <button onClick={exportJson} className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80">
           <Download size={14} /> {u.exportJson}
         </button>
