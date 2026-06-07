@@ -11,6 +11,7 @@ import type {
   EnrichedRisk, RiskRating, Recommendation, Priority, Effort, RoadmapBucket,
   RoadmapPhase, QualityResult, QualityIssue, EvidenceSummary, EvidenceItem,
   EvidenceType, EvidenceStrength, MaturityResult, MaturityLevel, ComputedAssessment,
+  CmmiLevel, CmmiCategoryMatch, CmmiMatching,
   IntakeAnswers,
 } from './types';
 import { tr } from './types';
