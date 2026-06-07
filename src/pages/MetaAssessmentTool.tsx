@@ -204,14 +204,16 @@ function ui(_lang: Lang) {
     noWorkingPapers: 'No working papers match the current filters.',
     // ── Executive presentation (Gamma) ──
     genPresentation: 'Generate Presentation',
-    presentationTitle: 'Executive Presentation',
-    presentationHint: 'Transform this assessment into an executive-ready deck via Gamma. Slide content is generated from the assessment, risk and AI insight engines — not raw report text.',
-    deckExecutive: 'Executive Summary Deck',
-    deckExecutiveHint: '10-slide management summary (default).',
-    deckBoard: 'Board Presentation',
-    deckBoardHint: 'Max 10 slides · risk, resilience, regulatory exposure & strategy.',
-    deckConsultant: 'Consultant Presentation',
-    deckConsultantHint: 'Max 15 slides · adds root causes, hypotheses, validation & observations.',
+    presentationTitle: 'Visual Executive Presentation',
+    presentationHint: 'Transform this assessment into a visually compelling, board-ready deck via Gamma — visual first, text second. Slides are generated from the assessment, risk and AI insight engines (not raw report text) with charts, heatmaps, scorecards and timelines, and adapt automatically to the framework.',
+    deckExecutive: 'Visual Executive Deck',
+    deckExecutiveHint: 'Default · max 10 slides · board & management · visual-first scorecards, heatmaps, timelines.',
+    deckConsultant: 'Consultant Deck',
+    deckConsultantHint: 'Max 15 slides · consultants & CISOs · adds root causes, hypotheses, validation & observations.',
+    deckAudit: 'Internal Audit Deck',
+    deckAuditHint: 'Max 20 slides · audit, compliance & risk · findings, evidence strength & traceability.',
+    deckText: 'Text Mode (classic)',
+    deckTextHint: 'Secondary · narrative-friendly text deck · max 10 slides.',
     presentationType: 'Presentation type',
     generating: 'Generating presentation …',
     generatingHint: 'This can take 1–3 minutes. Please keep this screen open.',
@@ -1237,7 +1239,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
   };
 
   // ── Executive presentation (Gamma) ──
-  const [deckType, setDeckType] = useState<PresentationType>('executive');
+  const [deckType, setDeckType] = useState<PresentationType>('visual-executive');
   const [deckStatus, setDeckStatus] = useState<'idle' | 'generating' | 'ready' | 'error'>('idle');
   const [deckUrl, setDeckUrl] = useState<string | null>(null);
   const [deckPdfUrl, setDeckPdfUrl] = useState<string | null>(null);
@@ -1529,11 +1531,12 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
           <p className="text-[11px] text-muted-foreground mt-0.5 max-w-2xl leading-relaxed">{u.presentationHint}</p>
         </div>
 
-        <div className="grid sm:grid-cols-3 gap-3">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {([
-            ['executive', u.deckExecutive, u.deckExecutiveHint],
-            ['board', u.deckBoard, u.deckBoardHint],
+            ['visual-executive', u.deckExecutive, u.deckExecutiveHint],
             ['consultant', u.deckConsultant, u.deckConsultantHint],
+            ['audit', u.deckAudit, u.deckAuditHint],
+            ['text', u.deckText, u.deckTextHint],
           ] as [PresentationType, string, string][]).map(([id, label, hint]) => {
             const active = deckType === id;
             return (
