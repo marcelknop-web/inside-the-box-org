@@ -22,7 +22,6 @@ import { CRA_PROFILE } from './craProfile';
 // "coming soon" tile so the roadmap is visible without being usable.
 
 const COMING_SOON: StandardProfile[] = [
-  stub('cra', 'CRA', 'Server', { de: 'Cyber Resilience Act', en: 'Cyber Resilience Act', fr: 'Cyber Resilience Act' }),
 ];
 
 function stub(id: string, name: string, icon: string, regulation: StandardProfile['regulation']): StandardProfile {
@@ -36,7 +35,7 @@ function stub(id: string, name: string, icon: string, regulation: StandardProfil
   };
 }
 
-export const STANDARD_PROFILES: StandardProfile[] = [NIS2_PROFILE, DORA_PROFILE, AIACT_PROFILE, ISO27001_PROFILE, ISO22301_PROFILE, ISO9001_PROFILE, ISO42001_PROFILE, IACS_E26_PROFILE, IACS_E27_PROFILE, MARITIME_CYBER_PROFILE, TISAX_PROFILE, SOC2_PROFILE, PCIDSS_PROFILE, VENDOR_SECURITY_PROFILE, CIS_CONTROLS_PROFILE, IEC62443_PROFILE, ...COMING_SOON];
+export const STANDARD_PROFILES: StandardProfile[] = [NIS2_PROFILE, DORA_PROFILE, AIACT_PROFILE, ISO27001_PROFILE, ISO22301_PROFILE, ISO9001_PROFILE, ISO42001_PROFILE, IACS_E26_PROFILE, IACS_E27_PROFILE, MARITIME_CYBER_PROFILE, TISAX_PROFILE, SOC2_PROFILE, PCIDSS_PROFILE, VENDOR_SECURITY_PROFILE, CIS_CONTROLS_PROFILE, IEC62443_PROFILE, CRA_PROFILE, ...COMING_SOON];
 
 export function getProfile(id: string): StandardProfile | undefined {
   return STANDARD_PROFILES.find((p) => p.id === id);
