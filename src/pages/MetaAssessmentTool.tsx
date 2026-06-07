@@ -87,6 +87,8 @@ function ui(_lang: Lang) {
     deterministicNote: 'Rule-based compliance assessment (audit-safe, no AI).',
     recommendations: 'Recommendation plan',
     roadmap: 'Roadmap',
+    remediationTimeline: 'Remediation Timeline',
+    remediationTimelineHint: 'Sequenced delivery plan of the recommended workstreams across a 12-month horizon, phased by priority.',
     // ── AI insight & advisory layer ──
     aiAnalysis: 'AI Insights & Advisory',
     aiNote: 'AI interpretation layer — it explains the rule-based compliance results and never determines, modifies or overrides compliance status, scores or risks.',
