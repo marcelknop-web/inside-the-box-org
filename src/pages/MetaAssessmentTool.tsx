@@ -3,11 +3,12 @@ import { Helmet } from 'react-helmet-async';
 import {
   ArrowRight, ArrowLeft, Loader2, Sparkles, ShieldCheck, Network, Car,
   CreditCard, Factory, Server, RotateCcw, Lock, AlertTriangle, CheckCircle2,
-  Download, FileText, ClipboardList,
+  Download, FileText, ClipboardList, Presentation, ExternalLink,
 } from 'lucide-react';
 import { generateMetaAssessmentPdf } from '@/utils/metaAssessmentReportPdf';
 import { generateWorkingPapersPdf } from '@/utils/workingPapersPdf';
 import { buildReportMeta, validateConsistency, ORIGIN, REPORT_TITLE } from '@/data/metaAssessment/reportMeta';
+import { buildPresentationContent, type PresentationType } from '@/data/metaAssessment/presentationContent';
 import { LucideIcon } from 'lucide-react';
 import { SiteChrome } from '@/components/SiteChrome';
 import { PasswordGate } from '@/components/PasswordGate';
@@ -189,8 +190,27 @@ function ui(_lang: Lang) {
     exportWorkingPapers: 'Export Working Papers',
     exportWorkingPapersJson: 'Working Papers (JSON)',
     noWorkingPapers: 'No working papers match the current filters.',
+    // ── Executive presentation (Gamma) ──
+    genPresentation: 'Generate Presentation',
+    presentationTitle: 'Executive Presentation',
+    presentationHint: 'Transform this assessment into an executive-ready deck via Gamma. Slide content is generated from the assessment, risk and AI insight engines — not raw report text.',
+    deckExecutive: 'Executive Summary Deck',
+    deckExecutiveHint: '10-slide management summary (default).',
+    deckBoard: 'Board Presentation',
+    deckBoardHint: 'Max 10 slides · risk, resilience, regulatory exposure & strategy.',
+    deckConsultant: 'Consultant Presentation',
+    deckConsultantHint: 'Max 15 slides · adds root causes, hypotheses, validation & observations.',
+    presentationType: 'Presentation type',
+    generating: 'Generating presentation …',
+    generatingHint: 'This can take 1–3 minutes. Please keep this screen open.',
+    presentationReady: 'Presentation Ready',
+    openInGamma: 'Open in Gamma',
+    downloadDeckPdf: 'Download PDF',
+    presentationFailed: 'Presentation generation failed.',
+    retry: 'Retry',
   };
 }
+
 
 // ── Layer / confidence labelling (fact vs interpretation) ───────
 type LayerKind = 'fact' | 'insight' | 'hypothesis' | 'recommendation';
@@ -1111,6 +1131,59 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
     }
   };
 
+  // ── Executive presentation (Gamma) ──
+  const [deckType, setDeckType] = useState<PresentationType>('executive');
+  const [deckStatus, setDeckStatus] = useState<'idle' | 'generating' | 'ready' | 'error'>('idle');
+  const [deckUrl, setDeckUrl] = useState<string | null>(null);
+  const [deckPdfUrl, setDeckPdfUrl] = useState<string | null>(null);
+
+  const generatePresentation = useCallback(async () => {
+    // Never lose assessment results — only the presentation state changes.
+    setDeckStatus('generating');
+    setDeckUrl(null);
+    setDeckPdfUrl(null);
+    try {
+      const content = buildPresentationContent(deckType, {
+        profile, lang, result, computed, answers, entityName, insights, reportMeta: docMeta,
+      });
+      const { data, error } = await supabase.functions.invoke('generate-presentation', {
+        body: {
+          action: 'start',
+          inputText: content.inputText,
+          title: content.title,
+          additionalInstructions: content.additionalInstructions,
+          numCards: content.numCards,
+        },
+      });
+      if (error) throw error;
+      const generationId = (data as { generationId?: string })?.generationId;
+      if (!generationId) throw new Error('No generation id returned');
+
+      // Poll for completion (up to ~3.5 min).
+      const maxAttempts = 42;
+      for (let i = 0; i < maxAttempts; i++) {
+        await new Promise((r) => setTimeout(r, 5000));
+        const { data: poll, error: pollErr } = await supabase.functions.invoke('generate-presentation', {
+          body: { action: 'status', generationId },
+        });
+        if (pollErr) continue;
+        const status = (poll as { status?: string }).status;
+        if (status === 'completed') {
+          const p = poll as { gammaUrl?: string; exportUrl?: string };
+          setDeckUrl(p.gammaUrl ?? null);
+          setDeckPdfUrl(p.exportUrl ?? null);
+          setDeckStatus('ready');
+          return;
+        }
+        if (status === 'failed') throw new Error('Gamma generation failed');
+      }
+      throw new Error('Generation timed out');
+    } catch (e) {
+      console.error('presentation generation failed', e);
+      setDeckStatus('error');
+    }
+  }, [deckType, profile, lang, result, computed, answers, entityName, insights, docMeta]);
+
 
   return (
     <div className="space-y-6">
@@ -1341,6 +1414,89 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
           <span className={`block w-5 h-5 rounded-full bg-background shadow transition-transform ${includeWorkingPapers ? 'translate-x-5' : 'translate-x-0'}`} />
         </button>
       </div>
+
+      {/* Executive presentation (Gamma) */}
+      <div className="bg-background/40 border border-primary/15 rounded-lg p-5 space-y-4">
+        <div>
+          <div className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <Presentation size={15} className="text-primary" /> {u.presentationTitle}
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-0.5 max-w-2xl leading-relaxed">{u.presentationHint}</p>
+        </div>
+
+        <div className="grid sm:grid-cols-3 gap-3">
+          {([
+            ['executive', u.deckExecutive, u.deckExecutiveHint],
+            ['board', u.deckBoard, u.deckBoardHint],
+            ['consultant', u.deckConsultant, u.deckConsultantHint],
+          ] as [PresentationType, string, string][]).map(([id, label, hint]) => {
+            const active = deckType === id;
+            return (
+              <button key={id} type="button" onClick={() => setDeckType(id)}
+                disabled={deckStatus === 'generating'}
+                className={`text-left rounded-lg border p-3 transition-colors disabled:opacity-60 ${active ? 'border-primary bg-primary/10' : 'border-border bg-background/50 hover:border-primary/40'}`}>
+                <div className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  {active && <CheckCircle2 size={13} className="text-primary" />} {label}
+                </div>
+                <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">{hint}</p>
+              </button>
+            );
+          })}
+        </div>
+
+        {deckStatus === 'generating' && (
+          <div className="flex items-center gap-3 text-sm text-foreground bg-background/50 border border-border rounded-lg px-4 py-3">
+            <Loader2 size={16} className="animate-spin text-primary" />
+            <div>
+              <div className="font-semibold">{u.generating}</div>
+              <div className="text-[11px] text-muted-foreground">{u.generatingHint}</div>
+            </div>
+          </div>
+        )}
+
+        {deckStatus === 'ready' && (
+          <div className="bg-primary/10 border border-primary/30 rounded-lg px-4 py-3 space-y-3">
+            <div className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <CheckCircle2 size={15} className="text-primary" /> {u.presentationReady}
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {deckUrl && (
+                <a href={deckUrl} target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90">
+                  <ExternalLink size={14} /> {u.openInGamma}
+                </a>
+              )}
+              {deckPdfUrl && (
+                <a href={deckPdfUrl} target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80">
+                  <Download size={14} /> {u.downloadDeckPdf}
+                </a>
+              )}
+            </div>
+          </div>
+        )}
+
+        {deckStatus === 'error' && (
+          <div className="bg-destructive/10 border border-destructive/30 rounded-lg px-4 py-3 flex items-center justify-between gap-3">
+            <div className="text-sm font-semibold text-destructive flex items-center gap-2">
+              <AlertTriangle size={15} /> {u.presentationFailed}
+            </div>
+            <button onClick={generatePresentation}
+              className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80">
+              <RotateCcw size={14} /> {u.retry}
+            </button>
+          </div>
+        )}
+
+        <div>
+          <button onClick={generatePresentation} disabled={deckStatus === 'generating'}
+            className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
+            {deckStatus === 'generating' ? <Loader2 size={14} className="animate-spin" /> : <Presentation size={14} />} {u.genPresentation}
+          </button>
+        </div>
+      </div>
+
+
 
       <div className="flex flex-wrap gap-3 pt-2">
         {insights && (
