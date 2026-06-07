@@ -323,28 +323,34 @@ export class PdfDoc {
 
     const d = this.doc;
 
-    // Top rule — thin accent line
-    d.setDrawColor(...C.navy);
-    d.setLineWidth(0.5);
-    d.line(LAYOUT.LEFT, LAYOUT.TOP - 10, LAYOUT.LEFT + 28, LAYOUT.TOP - 10);
+    // When runningHeader is enabled, headers & footers are stamped once in
+    // finalize() (so they can reflect the active chapter/topic and total page
+    // count). Otherwise draw the classic per-page header/footer here.
+    if (!this.opts.runningHeader) {
+      // Top rule — thin accent line
+      d.setDrawColor(...C.navy);
+      d.setLineWidth(0.5);
+      d.line(LAYOUT.LEFT, LAYOUT.TOP - 10, LAYOUT.LEFT + 28, LAYOUT.TOP - 10);
 
-    // Subtle top-right report ID
-    d.setFontSize(5.5);
-    d.setTextColor(...C.light);
-    d.setFont(this.headFont, 'normal');
-    d.text(this.reportId, LAYOUT.RIGHT, LAYOUT.TOP - 10, { align: 'right' });
+      // Subtle top-right report ID
+      d.setFontSize(5.5);
+      d.setTextColor(...C.light);
+      d.setFont(this.headFont, 'normal');
+      d.text(this.reportId, LAYOUT.RIGHT, LAYOUT.TOP - 10, { align: 'right' });
 
-    // Footer
-    d.setFontSize(LAYOUT.FOOTER_SIZE);
-    d.setTextColor(...C.light);
-    d.setFont(this.headFont, 'normal');
-    d.text(this.opts.confidentialLabel, LAYOUT.LEFT, LAYOUT.BOTTOM + 9);
-    d.text(`${this.opts.pageLabel} ${this.pageNum}`, LAYOUT.RIGHT, LAYOUT.BOTTOM + 9, { align: 'right' });
+      // Footer
+      d.setFontSize(LAYOUT.FOOTER_SIZE);
+      d.setTextColor(...C.light);
+      d.setFont(this.headFont, 'normal');
+      d.text(this.opts.confidentialLabel, LAYOUT.LEFT, LAYOUT.BOTTOM + 9);
+      d.text(`${this.opts.pageLabel} ${this.pageNum}`, LAYOUT.RIGHT, LAYOUT.BOTTOM + 9, { align: 'right' });
 
-    // Bottom hairline
-    d.setDrawColor(...C.rule);
-    d.setLineWidth(0.1);
-    d.line(LAYOUT.LEFT, LAYOUT.BOTTOM + 5, LAYOUT.RIGHT, LAYOUT.BOTTOM + 5);
+      // Bottom hairline
+      d.setDrawColor(...C.rule);
+      d.setLineWidth(0.1);
+      d.line(LAYOUT.LEFT, LAYOUT.BOTTOM + 5, LAYOUT.RIGHT, LAYOUT.BOTTOM + 5);
+    }
+
 
     d.setTextColor(...C.dark);
 
