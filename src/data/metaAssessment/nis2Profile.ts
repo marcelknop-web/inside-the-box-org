@@ -201,4 +201,83 @@ export const NIS2_PROFILE: StandardProfile = {
     measures__mat__training: 'existing',
     measures__mat__audit: 'certified',
   },
+  demoScenarios: [
+    {
+      id: 'mature',
+      label: { de: 'Versorger — auditreif', en: 'Utility — audit-ready', fr: 'Distributeur — prêt pour l’audit' },
+      description: {
+        de: 'Großer Energie-/Wasserversorger mit reifem ISMS und wenigen Lücken.',
+        en: 'Large energy/water utility with a mature ISMS and few gaps.',
+        fr: 'Grand distributeur énergie/eau avec SMSI mature et peu de lacunes.',
+      },
+      answers: {
+        entityName: 'Acme Utilities GmbH',
+        sectors: ['energy', 'water'],
+        classification: 'essential',
+        description:
+          'Regional energy and water utility with approx. 850 employees. Operates electricity, gas and water distribution networks, SCADA / control systems and a customer portal. On-premises data centre plus Microsoft 365 cloud. Critical systems: network control centre, billing system (SAP IS-U), GIS.',
+        supplyChain: ['cloud', 'software', 'ot'],
+        roles: ['mgmt', 'ciso', 'dpo', 'risk', 'irt'],
+        knownIssues:
+          'BCM plan exists, but no full recovery test since 2023. Supplier contracts lack uniform security clauses. Vulnerability scans cover IT but only partially OT.',
+        measures: ['riskpolicy', 'incident', 'bcm', 'supplychainsec', 'vuln', 'crypto', 'mfa', 'training', 'audit'],
+        measures__mat__riskpolicy: 'audited',
+        measures__mat__incident: 'documented',
+        measures__mat__bcm: 'documented',
+        measures__mat__supplychainsec: 'documented',
+        measures__mat__vuln: 'audited',
+        measures__mat__crypto: 'documented',
+        measures__mat__mfa: 'documented',
+        measures__mat__training: 'documented',
+        measures__mat__audit: 'certified',
+      },
+    },
+    {
+      id: 'developing',
+      label: { de: 'Hersteller — im Aufbau', en: 'Manufacturer — developing', fr: 'Fabricant — en développement' },
+      description: {
+        de: 'Mittelständischer Produktionsbetrieb mit Teil-Maßnahmen und Doku-Lücken.',
+        en: 'Mid-size manufacturer with partial controls and documentation gaps.',
+        fr: 'PME industrielle avec mesures partielles et lacunes documentaires.',
+      },
+      answers: {
+        entityName: 'Norddeutsche Maschinenbau AG',
+        sectors: ['manufacturing'],
+        classification: 'important',
+        description:
+          'Mid-size mechanical-engineering company with approx. 420 employees and two production sites. Mixed IT/OT environment with networked CNC machines, an ERP system and a cloud-based CAD/PLM platform. Security is driven by a small IT team without a dedicated CISO.',
+        supplyChain: ['cloud', 'software', 'ot'],
+        roles: ['mgmt', 'ciso'],
+        knownIssues:
+          'No formal risk-management process; policies are partly informal. Incident handling is ad hoc without a defined escalation path. No regular awareness training. Backups exist but restore tests are irregular.',
+        measures: ['riskpolicy', 'incident', 'bcm', 'vuln'],
+        measures__mat__riskpolicy: 'existing',
+        measures__mat__incident: 'existing',
+        measures__mat__bcm: 'existing',
+        measures__mat__vuln: 'existing',
+      },
+    },
+    {
+      id: 'early',
+      label: { de: 'Digitaldienst — Frühphase', en: 'Digital service — early stage', fr: 'Service numérique — phase initiale' },
+      description: {
+        de: 'Kleiner Digitaldienstleister, kaum formalisierte Maßnahmen, viele Lücken.',
+        en: 'Small digital service provider with few formal controls and many gaps.',
+        fr: 'Petit prestataire numérique, peu de mesures formelles, nombreuses lacunes.',
+      },
+      answers: {
+        entityName: 'Cloudwerk Solutions GmbH',
+        sectors: ['digital'],
+        classification: 'unsure',
+        description:
+          'Fast-growing SaaS provider with approx. 60 employees offering a B2B scheduling platform. Fully cloud-native on a single hyperscaler, small engineering-led team. Security has so far been handled informally alongside product development.',
+        supplyChain: ['cloud', 'software'],
+        roles: ['mgmt'],
+        knownIssues:
+          'No documented risk analysis or security policies. No incident-response plan and no defined reporting process. MFA only on some admin accounts. No business-continuity plan and no security audits performed.',
+        measures: ['crypto'],
+        measures__mat__crypto: 'existing',
+      },
+    },
+  ],
 };
