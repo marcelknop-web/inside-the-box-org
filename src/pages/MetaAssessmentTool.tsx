@@ -44,6 +44,8 @@ function ui(_lang: Lang) {
     soon: 'Soon',
     open: 'Start',
     demo: 'Demo',
+    testCases: 'Load a test case',
+    testCasesHint: 'Pre-fill the whole intake with a realistic example, then review and run.',
     back: 'Back',
     next: 'Next',
     run: 'Run compliance assessment',
