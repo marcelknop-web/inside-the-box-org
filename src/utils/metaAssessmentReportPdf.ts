@@ -354,15 +354,49 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   pdf.metaLine(ORIGIN.assessment);
   pdf.introText(t('findingsIntro', lang));
 
+  // Single source of truth for the per-requirement structure: reuse the
+  // working-paper records so every PDF type renders findings with the same
+  // Control Objective → Assessment Question → Answer → Evidence → Result Logic → Result layout.
+  const wpSource = workingPapers ?? buildWorkingPapers(profile, answers, result, computed, insights ?? null, reportMeta, lang);
+  const wpById = new Map(wpSource.records.map((rec) => [rec.requirementId, rec]));
+
   merged.forEach((r, i) => {
     pdf.checkSpace(40);
+    const wpRec = wpById.get(r.id);
     pdf.heading(`4.${i + 1}  ${r.id} — ${r.name}`, 3);
     pdf.metaLine(`${t('colRef', lang)}: ${r.article || '—'}`);
     pdf.statusBadge(r.status);
     pdf.y += 4;
-    if (r.evidence) { pdf.sectionLabel(t('observation', lang)); pdf.bodyText(r.evidence); }
-    if (r.gap) { pdf.sectionLabel(t('gap', lang)); pdf.bodyText(r.gap); }
-    if (r.rationale) { pdf.sectionLabel(t('rationale', lang)); pdf.bodyText(r.rationale); }
+
+    pdf.sectionLabel('Control Objective');
+    pdf.bodyText(`${r.name}${r.article ? `  (${r.article})` : ''}`);
+
+    pdf.sectionLabel('Assessment Question');
+    pdf.bodyText(wpRec?.assessmentQuestion || `Has the organization implemented and evidenced "${r.name}" as required by ${r.article || profile.name}?`);
+
+    pdf.sectionLabel('Answer');
+    if (wpRec && wpRec.inputs.length) {
+      wpRec.inputs.forEach((inp, k) => {
+        pdf.fieldInline(inp.question, inp.answer);
+        if (k < wpRec.inputs.length - 1) pdf.y += 2;
+      });
+    } else {
+      pdf.bodyText('No rule-linked intake inputs recorded.');
+    }
+
+    pdf.sectionLabel('Evidence');
+    pdf.bodyText(wpRec?.evidenceSubmitted || r.evidence || 'None');
+
+    pdf.sectionLabel('Result Logic');
+    if (wpRec && wpRec.ruleLogic.length) {
+      wpRec.ruleLogic.forEach((line) => pdf.bulletItem(line));
+    } else if (r.rationale) {
+      pdf.bodyText(r.rationale);
+    }
+    if (r.gap) pdf.bodyText(r.gap);
+
+    pdf.sectionLabel('Result');
+    pdf.fieldInline('Deterministic Result', wpRec?.resultLabel || r.status);
     if (r.measure) { pdf.sectionLabel(t('measure', lang)); pdf.bodyText(r.measure); }
     pdf.separator();
   });
