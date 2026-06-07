@@ -82,12 +82,17 @@ function extractPercents(md: string): { raw: string; value: number; isInteger: b
   return out;
 }
 
-/** Extracts every CMMI level token (L1–L5). */
+/** Extracts every CMMI level token (L1–L5).
+ *  Risk-likelihood tokens ("L2 × I4 (8)") use the same "L<n>" notation but are
+ *  NOT CMMI levels, so we strip risk tuples before matching to avoid false
+ *  positives. We also ignore "L" tokens directly followed by a risk operator
+ *  (e.g. "L3 ×") as a defensive fallback. */
 function extractLevels(md: string): { raw: string; value: number; isInteger: boolean }[] {
+  const cleaned = md.replace(/L\s?\d+\s*[×x]\s*I\s?\d+\s*\(\d+\)/g, ' ');
   const out: { raw: string; value: number; isInteger: boolean }[] = [];
-  const re = /\bL\s?(\d+(?:\.\d+)?)\b/g;
+  const re = /\bL\s?(\d+(?:\.\d+)?)\b(?!\s*[×x]\s*I)/g;
   let m: RegExpExecArray | null;
-  while ((m = re.exec(md))) {
+  while ((m = re.exec(cleaned))) {
     const value = parseFloat(m[1]);
     out.push({ raw: m[0], value, isInteger: Number.isInteger(value) });
   }
