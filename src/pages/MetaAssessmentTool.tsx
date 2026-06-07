@@ -90,6 +90,7 @@ function ui(_lang: Lang) {
     aiNote: 'AI interpretation layer — it explains the rule-based compliance results and never determines, modifies or overrides compliance status, scores or risks.',
     loadInsights: 'Load AI Insights',
     loadingInsights: 'AI is analysing the results …',
+    insightsModalNote: 'This can take up to a minute. Please keep this window open — the analysis cannot be interrupted.',
     execNarrative: 'Executive narrative',
     rootCauses: 'Root causes',
     gapClusters: 'Core themes (gap clusters)',
