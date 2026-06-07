@@ -29,7 +29,7 @@ function stub(id: string, name: string, icon: string, regulation: StandardProfil
   };
 }
 
-export const STANDARD_PROFILES: StandardProfile[] = [NIS2_PROFILE, DORA_PROFILE, AIACT_PROFILE, ISO27001_PROFILE, IACS_E26_PROFILE, IACS_E27_PROFILE, MARITIME_CYBER_PROFILE, ...COMING_SOON];
+export const STANDARD_PROFILES: StandardProfile[] = [NIS2_PROFILE, DORA_PROFILE, AIACT_PROFILE, ISO27001_PROFILE, IACS_E26_PROFILE, IACS_E27_PROFILE, MARITIME_CYBER_PROFILE, TISAX_PROFILE, ...COMING_SOON];
 
 export function getProfile(id: string): StandardProfile | undefined {
   return STANDARD_PROFILES.find((p) => p.id === id);
