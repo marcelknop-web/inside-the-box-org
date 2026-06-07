@@ -226,6 +226,16 @@ export function buildWorkingPapers(
     const evidenceStrengthLabel = evItem
       ? trL(EVIDENCE_STRENGTH_LABEL[evItem.strength] as Record<Lang, string>, lang)
       : { de: 'Kein Nachweis', en: 'No Evidence', fr: 'Aucune preuve' }[lang];
+    const evidenceType: EvidenceType | 'none' = evItem ? evItem.type : 'none';
+    const evidenceTypeLabel = evItem
+      ? trL(EVIDENCE_TYPE_LABEL[evItem.type] as Record<Lang, string>, lang)
+      : { de: 'Kein Nachweis', en: 'No Evidence', fr: 'Aucune preuve' }[lang];
+    // Honest, derived reference + provenance (never a fabricated file name/version).
+    const evidenceName = evItem
+      ? `${name} — ${trL(EVIDENCE_TYPE_LABEL[evItem.type] as Record<Lang, string>, lang)}`
+      : { de: 'Kein Nachweis', en: 'No Evidence', fr: 'Aucune preuve' }[lang];
+    const evidenceSource = evidenceSourceFor(evItem ? evItem.type : 'none', lang);
+
 
     // Generated risk traceability.
     const riskId = riskIdByReq.get(f.id) ?? null;
