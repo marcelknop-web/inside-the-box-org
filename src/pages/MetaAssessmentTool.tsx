@@ -1244,19 +1244,59 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
 
   const reportChapters = useMemo(() => {
     const ai = computed.attentionIndex;
-    const chs: { title: string; origin: string; summary: string }[] = [
-      { title: u.attentionIndex, origin: ORIGIN.assessment, summary: `${attentionLabel(ai.level, lang)} — ${ai.counts.critical} critical · ${ai.counts.high} high · ${ai.counts.medium} medium · ${ai.counts.low} low.` },
-      { title: u.auditReadiness, origin: ORIGIN.assessment, summary: u.auditReadinessHint },
-      { title: u.findings, origin: ORIGIN.assessment, summary: `${pass} passed · ${partial} partial · ${fail} gaps across ${merged.length} requirements.` },
-      { title: u.workingPapers, origin: ORIGIN.assessment, summary: u.workingPapersHint },
+    const ev = computed.evidence;
+    const evTotal = merged.length || 1;
+    type Chapter = { title: string; origin: string; summary: string; kind: string; data: any };
+    const chs: Chapter[] = [
+      {
+        title: u.attentionIndex, origin: ORIGIN.assessment, kind: 'attention',
+        summary: u.attentionIndexHint,
+        data: { level: ai.level, label: attentionLabel(ai.level, lang), counts: ai.counts },
+      },
+      {
+        title: u.auditReadiness, origin: ORIGIN.assessment, kind: 'readiness',
+        summary: u.auditReadinessHint,
+        data: { dimensions: computed.auditReadiness.dimensions },
+      },
+      {
+        title: u.findings, origin: ORIGIN.assessment, kind: 'findings',
+        summary: `${pass} ${u.passed} · ${partial} ${u.partial} · ${fail} ${u.gaps}`,
+        data: { pass, partial, fail, total: merged.length, pct },
+      },
+      {
+        title: u.workingPapers, origin: ORIGIN.assessment, kind: 'stat',
+        summary: u.workingPapersHint,
+        data: { value: workingPapers.length, label: u.workingPapers, icon: 'clipboard' },
+      },
     ];
     if (computed.risks.length > 0) {
-      chs.push({ title: u.riskLandscape, origin: ORIGIN.risk, summary: `${computed.risks.length} risks identified · ${critRisks.length} critical.` });
+      chs.push({
+        title: u.riskLandscape, origin: ORIGIN.risk, kind: 'risks',
+        summary: `${computed.risks.length} risks · ${critRisks.length} ${u.critical}`,
+        data: { risks: [...computed.risks].sort((a, b) => b.score - a.score).slice(0, 5), total: computed.risks.length, crit: critRisks.length },
+      });
     }
-    chs.push({ title: u.evidenceStrength, origin: ORIGIN.assessment, summary: u.evidenceStrengthHint });
-    chs.push({ title: u.aiAnalysis, origin: ORIGIN.insight, summary: u.aiNote });
+    chs.push({
+      title: u.evidenceStrength, origin: ORIGIN.assessment, kind: 'evidence',
+      summary: u.evidenceStrengthHint,
+      data: {
+        rows: [
+          { label: u.evVeryHigh, count: ev.byStrength.very_high, cls: 'bg-green-500' },
+          { label: u.evHigh, count: ev.byStrength.high, cls: 'bg-cyan-500' },
+          { label: u.evMedium, count: ev.byStrength.medium, cls: 'bg-yellow-500' },
+          { label: u.evLow, count: ev.byStrength.low, cls: 'bg-orange-500' },
+          { label: u.evMissing, count: ev.missing.length, cls: 'bg-destructive' },
+        ],
+        total: evTotal,
+      },
+    });
+    chs.push({
+      title: u.aiAnalysis, origin: ORIGIN.insight, kind: 'stat',
+      summary: u.aiNote,
+      data: { value: insights ? (insights.executiveInsights?.length ?? 0) + (insights.rootCauses?.length ?? 0) : 0, label: u.aiAnalysis, icon: 'sparkles' },
+    });
     return chs;
-  }, [computed, u, lang, pass, partial, fail, merged.length, critRisks.length]);
+  }, [computed, u, lang, pass, partial, fail, pct, merged.length, critRisks.length, workingPapers.length, insights]);
 
   // Trigger the walkthrough once every required analysis has completed.
   useEffect(() => {
