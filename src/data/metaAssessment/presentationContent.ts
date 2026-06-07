@@ -361,6 +361,24 @@ function cardAuditReadinessDimensions(input: PresentationInput): Card {
   };
 }
 
+function cardCmmiMatching(input: PresentationInput): Card | null {
+  const cmmi = input.computed.cmmi;
+  if (!cmmi?.enabled) return null;
+  const items = cmmi.categories
+    .slice()
+    .sort((a, b) => a.level - b.level)
+    .map((c) => `**${c.name}:** L${c.level} ${c.label}${c.gap > 0 ? ` (−${c.gap} to target)` : ' ✓'}`);
+  return {
+    headline: 'CMMI Maturity Matching',
+    visual: 'Maturity ladder / radar: per-category CMMI level (1 Initial → 5 Optimizing) against target',
+    md: ['# CMMI Maturity Matching',
+      bullets([
+        `**Overall:** L${cmmi.overall} ${cmmi.overallLabel} · Target L${cmmi.target}${cmmi.gap > 0 ? ` (−${cmmi.gap})` : ' ✓'}`,
+        ...items,
+      ], 6),
+    ].join('\n\n'),
+  };
+
 function cardTraceabilitySummary(input: PresentationInput): Card {
   const c = controlCounts(input);
   const ev = input.computed.evidence;
