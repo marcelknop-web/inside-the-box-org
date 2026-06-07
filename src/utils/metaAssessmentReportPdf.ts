@@ -30,6 +30,8 @@ export interface MetaReportData {
   includeWorkingPapers?: boolean;
   /** Pre-built working papers (falls back to building from the canonical data). */
   workingPapers?: WorkingPapers;
+  /** Auditor free-text evidence notes per obligation (requirement id → note). */
+  auditorNotes?: Record<string, string>;
 }
 
 /* ── tiny i18n ─────────────────────────────────────────────── */
@@ -301,7 +303,7 @@ function formatAnswer(field: { type: string; options?: { id: string; label: any 
 }
 
 export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<void> {
-  const { profile, result, computed, answers, entityName, insights, reportMeta, includeWorkingPapers, workingPapers } = data;
+  const { profile, result, computed, answers, entityName, insights, reportMeta, includeWorkingPapers, workingPapers, auditorNotes } = data;
   // The report is produced in English only, independent of the UI language.
   const lang: Lang = 'en';
 
@@ -482,6 +484,8 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     pdf.sectionLabel('Result');
     pdf.fieldInline('Deterministic Result', wpRec?.resultLabel || r.status);
     if (r.measure) { pdf.sectionLabel(t('measure', lang)); pdf.bodyText(r.measure); }
+    const note = auditorNotes?.[r.id]?.trim();
+    if (note) { pdf.sectionLabel('Auditor Evidence Note'); pdf.bodyText(note); }
     pdf.separator();
   });
 

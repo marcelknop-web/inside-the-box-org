@@ -66,6 +66,8 @@ function ui(_lang: Lang) {
     gap: 'Gap',
     measure: 'Recommended measure',
     rationale: 'Rationale',
+    auditorNote: 'Auditor evidence note',
+    auditorNotePlaceholder: 'Add evidence references, audit observations or context for this obligation … (included in the report & PDF)',
     riskLandscape: 'Risk landscape',
     exportJson: 'Export result (JSON)',
     exportPdf: 'Report as PDF',
@@ -1285,6 +1287,15 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
     return { ...r, article: meta?.article ?? '', name: meta ? tr(meta.name, lang) : r.id };
   }), [result, reqMeta, lang]);
 
+  // Auditor evidence notes, captured per obligation on the results screen and
+  // carried into the on-screen report and the PDF export.
+  const [auditorNotes, setAuditorNotes] = useState<Record<string, string>>({});
+  const setNote = useCallback((id: string, v: string) => {
+    setAuditorNotes((prev) => ({ ...prev, [id]: v }));
+  }, []);
+
+
+
   // ── Single source of truth: all displayed metrics come from the
   // deterministic `computed` object (the same one used by the PDF and
   // JSON export), never from a parallel calculation. This guarantees the
@@ -1542,7 +1553,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
     }
     setPdfBusy(true);
     try {
-      await generateMetaAssessmentPdf({ profile, lang, result, computed, answers, entityName, insights, reportMeta: docMeta, includeWorkingPapers, workingPapers });
+      await generateMetaAssessmentPdf({ profile, lang, result, computed, answers, entityName, insights, reportMeta: docMeta, includeWorkingPapers, workingPapers, auditorNotes });
     } catch (e) {
       console.error('PDF generation failed', e);
       alert(u.pdfError);
@@ -1903,6 +1914,16 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
                   {r.gap && <div><span className="font-semibold text-destructive">{u.gap}: </span>{r.gap}</div>}
                   {r.rationale && <ReportField label={u.rationale}>{r.rationale}</ReportField>}
                   {r.measure && <div><span className="font-semibold text-primary">{u.measure}: </span>{r.measure}</div>}
+                  <div className="pt-1">
+                    <label className="block text-xs font-semibold text-highlight uppercase tracking-wide mb-1">{u.auditorNote}</label>
+                    <textarea
+                      value={auditorNotes[r.id] ?? ''}
+                      onChange={(e) => setNote(r.id, e.target.value)}
+                      rows={3}
+                      placeholder={u.auditorNotePlaceholder}
+                      className="w-full rounded-lg border border-primary/20 bg-background/60 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary/50 resize-y"
+                    />
+                  </div>
                 </div>
               </details>
             );
