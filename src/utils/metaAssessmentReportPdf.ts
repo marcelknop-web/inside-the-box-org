@@ -57,6 +57,7 @@ const T: Record<string, Record<Lang, string>> = {
   sec7: { de: '7  Maßnahmen und Roadmap', en: '7  Recommendations and Roadmap', fr: '7  Recommandations et feuille de route' },
   sec8: { de: '8  AI Insights & Advisory', en: '8  AI Insights & Advisory', fr: '8  AI Insights & Advisory' },
   sec9: { de: '9  Conclusion', en: '9  Conclusion', fr: '9  Conclusion' },
+  secWP: { de: 'Anhang A  Arbeitspapiere & Nachvollziehbarkeit', en: 'Appendix A  Working Papers & Traceability', fr: 'Annexe A  Documents de travail & traçabilité' },
 
   howProduced: { de: 'How This Assessment Was Produced', en: 'How This Assessment Was Produced', fr: 'How This Assessment Was Produced' },
   whyMatters: { de: 'Why This Matters', en: 'Why This Matters', fr: 'Why This Matters' },
@@ -216,7 +217,7 @@ function formatAnswer(field: { type: string; options?: { id: string; label: any 
 }
 
 export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<void> {
-  const { profile, result, computed, answers, entityName, insights, reportMeta } = data;
+  const { profile, result, computed, answers, entityName, insights, reportMeta, includeWorkingPapers, workingPapers } = data;
   // The report is produced in English only, independent of the UI language.
   const lang: Lang = 'en';
 
@@ -252,6 +253,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     t('sec5', lang), t('sec6', lang), t('sec7', lang),
     ...(insights ? [t('sec8', lang)] : []),
     t('sec9', lang),
+    ...(includeWorkingPapers ? [t('secWP', lang)] : []),
   ]);
 
   const merged = result.requirements.map((r) => {
@@ -640,6 +642,14 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     pdf.fieldInline('Generated', new Date(reportMeta.generatedAt).toLocaleString('en-GB'));
     pdf.fieldInline('Assessment Engine', reportMeta.assessmentEngineVersion);
     pdf.fieldInline('AI Insight Engine', reportMeta.aiInsightEngineVersion);
+  }
+
+  // ── Appendix A  Working Papers & Traceability (Internal Audit Mode) ──
+  if (includeWorkingPapers) {
+    const wp = workingPapers
+      ?? buildWorkingPapers(profile, answers, result, computed, insights, reportMeta, lang);
+    pdf.newPage();
+    renderWorkingPapers(pdf, wp);
   }
 
   pdf.save(`${profile.id}-assessment-${entityName.replace(/[^a-z0-9]/gi, '_').slice(0, 30)}.pdf`);
