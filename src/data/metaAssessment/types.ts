@@ -375,6 +375,8 @@ export interface ComputedAssessment {
   quality: QualityResult;
   evidence: EvidenceSummary;
   maturity: MaturityResult | null;
+  /** deterministic per-category CMMI maturity matching (official 1–5 scale) */
+  cmmi: CmmiMatching | null;
   /** deterministic audit-readiness ratings (Documentation / Operational / Governance / Evidence) */
   auditReadiness: AuditReadiness;
   /** deterministic management attention index for the executive summary */
