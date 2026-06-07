@@ -24,9 +24,22 @@ interface RequestBody {
 }
 
 // Fixed Gamma theme for every GapZero deck. Built-in Gamma themes use their
-// lowercase name as the theme ID. Defaults to "pearl" for a consistent,
-// board-ready look across all decks. Can be overridden per request.
-const DEFAULT_THEME_ID = 'pearl';
+// lowercase name as the theme ID. "oasis" is a clean, minimal, light theme with
+// generous white space and a restrained corporate palette — the closest built-in
+// match to a McKinsey / BCG / Bain consulting deck. Can be overridden per request.
+const DEFAULT_THEME_ID = 'oasis';
+
+// McKinsey-style layout & design directive applied to every deck.
+const MCKINSEY_LAYOUT_INSTRUCTIONS =
+  'LAYOUT & DESIGN — STRATEGY-CONSULTING STANDARD (McKinsey / BCG / Bain): ' +
+  'Design every slide like a top-tier management-consulting deck. ' +
+  'ACTION TITLES: each slide headline must be a full-sentence "so-what" takeaway that states the insight (e.g. "Governance gaps drive 60% of residual risk"), not a generic topic label. ' +
+  'STRUCTURE: one core message per slide, supported by a clean horizontal layout — 2 to 4 balanced columns, a left-to-right logical flow, or a clearly labelled framework/matrix. Use MECE groupings. ' +
+  'VISUAL SYSTEM: extremely restrained and corporate. Generous white space, strong alignment to a grid, consistent margins, a single accent colour used sparingly for emphasis, and a muted neutral palette (navy, grey, white). No gradients, no shadows, no rounded "playful" shapes. ' +
+  'DATA VISUALS: prefer crisp bar charts, stacked bars, Harvey balls, 2x2 matrices, waterfalls, simple tables and process arrows built from the actual numbers — clean axes, direct data labels, no chartjunk, no 3D, no legends when labels suffice. ' +
+  'TYPOGRAPHY: a clear hierarchy — bold concise titles, tight sub-points, no walls of text. Use short parallel bullet phrases, never paragraphs. ' +
+  'SOURCE NOTES: add a small, muted "Source:" / footnote line at the bottom of data slides where relevant. ' +
+  'Overall impression must read as boardroom-grade, sober, precise and authoritative.';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -94,7 +107,8 @@ Deno.serve(async (req) => {
       cardSplit: 'inputTextBreaks',
       exportAs: 'pdf',
       additionalInstructions: [
-        (body.additionalInstructions ?? '').toString().slice(0, 1400),
+        (body.additionalInstructions ?? '').toString().slice(0, 1000),
+        MCKINSEY_LAYOUT_INSTRUCTIONS,
         // Hard rule: every graphic must carry meaning — no filler.
         'TEXT EDITING RULE: You MAY rephrase, tighten and clarify the slide text so it reads well and makes sense on a slide — fix awkward phrasing, shorten run-ons, improve flow. ' +
         'But NEVER change the meaning, the facts, the numbers, the findings, the ratings or the conclusions. No new claims, no invented data, no altered results — wording only. ' +
@@ -102,18 +116,18 @@ Deno.serve(async (req) => {
         'Prefer data-driven visuals — charts, tables, diagrams, process flows, matrices, comparisons — built from the actual numbers and findings on the slide. ' +
         'Absolutely NO decorative, generic, abstract or "filler" stock-style imagery, no random people, handshakes, glowing shields, abstract tech swirls or unrelated metaphors. ' +
         'If a slide has no data that a visual can meaningfully represent, use a clean diagram of its concept or no image at all rather than a decorative one.',
-      ].join('\n\n').slice(0, 2000),
+      ].join('\n\n').slice(0, 3000),
       // ── Optimal generation parameters for board-ready visual decks ──
       textOptions: {
         amount: 'detailed',
-        tone: 'professional, executive, audit-grade',
+        tone: 'professional, executive, audit-grade, sober, McKinsey-style strategy consulting',
         audience: 'board members, executives, auditors and risk committees',
         language: (body.language ?? 'en').toString().slice(0, 10),
       },
       imageOptions: {
         source: 'aiGenerated',
         model: 'imagen-4-pro',
-        style: 'precise, data-driven, informative infographics, charts and diagrams that depict the slide content exactly; clean, corporate, minimal; no decorative or generic filler imagery',
+        style: 'minimal management-consulting (McKinsey/BCG/Bain) visuals: precise data-driven charts, 2x2 matrices, Harvey balls, process arrows and diagrams that depict the slide content exactly; restrained navy/grey/white corporate palette, generous white space, flat clean lines, no gradients, no shadows, no decorative or generic filler imagery',
       },
 
       cardOptions: {
