@@ -1173,8 +1173,7 @@ export class PdfDoc {
     this.doc.text(title, LAYOUT.LEFT, this.y);
     this.y += 12;
 
-    // Entries with dot leaders
-    const dotRight = LAYOUT.RIGHT;
+    // Entries — labels now; dot leaders + page numbers stamped in save().
     entries.forEach(entry => {
       if (entry === null || entry === '') { this.y += 4; return; }
       const isSub = entry.startsWith('    ');
