@@ -11,6 +11,8 @@ import { ISO22301_PROFILE } from './iso22301Profile';
 import { ISO42001_PROFILE } from './iso42001Profile';
 import { VENDOR_SECURITY_PROFILE } from './vendorSecurityProfile';
 import { CIS_CONTROLS_PROFILE } from './cisControlsProfile';
+import { ISO9001_PROFILE } from './iso9001Profile';
+import { IEC62443_PROFILE } from './iec62443Profile';
 import { SOC2_PROFILE } from './soc2Profile';
 import { PCIDSS_PROFILE } from './pciDssProfile';
 
