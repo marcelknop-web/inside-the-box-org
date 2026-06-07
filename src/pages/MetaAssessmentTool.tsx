@@ -669,7 +669,7 @@ function InsightsPanel({ insights, computed, lang, u, reqMeta }: {
   }), [u, allKeys]);
 
   const [view, setView] = useState<InsightView>('executive');
-  const [openSet, setOpenSet] = useState<Set<string>>(() => new Set(presets.executive));
+  const [openSet, setOpenSet] = useState<Set<string>>(() => new Set());
 
   const applyView = (v: InsightView) => { setView(v); setOpenSet(new Set(presets[v])); };
   const toggle = useCallback((key: string) => {
