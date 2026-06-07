@@ -1266,7 +1266,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
       {
         title: u.workingPapers, origin: ORIGIN.assessment, kind: 'stat',
         summary: u.workingPapersHint,
-        data: { value: workingPapers.length, label: u.workingPapers, icon: 'clipboard' },
+        data: { value: workingPapers.records.length, label: u.workingPapers, icon: 'clipboard' },
       },
     ];
     if (computed.risks.length > 0) {
