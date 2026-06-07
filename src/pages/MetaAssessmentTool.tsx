@@ -217,6 +217,8 @@ function ui(_lang: Lang) {
     presentationType: 'Presentation type',
     generating: 'Generating presentation …',
     generatingHint: 'This can take 1–3 minutes. Please keep this screen open.',
+    analyzingDeck: 'Results are being analyzed by AI …',
+    analyzingDeckHint: 'Building your visual executive deck. This can take 1–3 minutes — please keep this screen open.',
     presentationReady: 'Presentation Ready',
     openInGamma: 'Open in Gamma',
     downloadDeckPdf: 'Download PDF',
