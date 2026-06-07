@@ -956,6 +956,7 @@ function InsightsPanel({ insights, computed, lang, u, reqMeta }: {
         </ul>
       </InsightSection>
     </div>
+    </AccordionContext.Provider>
   );
 }
 
