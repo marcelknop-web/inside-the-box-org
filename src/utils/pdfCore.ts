@@ -407,6 +407,16 @@ export class PdfDoc {
     const minKeepWith = level === 1 ? 30 : level === 2 ? 22 : 18;
     this.checkSpace(minKeepWith);
 
+    // Record running-header marks (chapter = level 1, topic = level 2).
+    const cleanTitle = text.replace(/\s+/g, ' ').trim();
+    if (level === 1) {
+      this.chapterMarks.push({ page: this.pageNum, text: cleanTitle });
+      this.sectionMarks.push({ page: this.pageNum, text: '' }); // reset topic on new chapter
+    } else if (level === 2) {
+      this.sectionMarks.push({ page: this.pageNum, text: cleanTitle });
+    }
+
+
     if (level === 1) {
       this.y += spaceBefore[1];
       this.doc.setDrawColor(...C.navy);
