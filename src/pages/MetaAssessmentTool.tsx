@@ -1543,16 +1543,32 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
         </div>
 
         {insightsBusy && (
-          <div className="py-3 space-y-2">
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
-              <span className="flex items-center gap-2"><Loader2 size={14} className="animate-spin" /> {u.loadingInsights}</span>
-              <span className="font-mono text-xs">{insightsProgress}%</span>
-            </div>
-            <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
-              <div className="h-full bg-primary rounded-full transition-all duration-500 ease-out" style={{ width: `${insightsProgress}%` }} />
+          <div
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-background/85 backdrop-blur-sm p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-busy="true"
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+            tabIndex={-1}
+          >
+            <div className="w-full max-w-md bg-background border border-primary/30 rounded-xl shadow-2xl p-6 space-y-4">
+              <div className="flex items-center gap-2">
+                <Loader2 size={18} className="animate-spin text-primary" />
+                <h3 className="font-mono text-xs tracking-[0.25em] uppercase text-highlight">{u.aiAnalysis}</h3>
+              </div>
+              <div className="flex items-center justify-between text-sm text-muted-foreground">
+                <span>{u.loadingInsights}</span>
+                <span className="font-mono text-xs">{insightsProgress}%</span>
+              </div>
+              <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
+                <div className="h-full bg-primary rounded-full transition-all duration-500 ease-out" style={{ width: `${insightsProgress}%` }} />
+              </div>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">{u.analyzingDeckHint}</p>
             </div>
           </div>
         )}
+
 
         {insights && (
           <InsightsPanel insights={insights} computed={computed} lang={lang} u={u} reqMeta={reqMeta} />
