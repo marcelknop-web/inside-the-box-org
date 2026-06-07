@@ -1978,6 +1978,9 @@ function ChapterVisual({ ch }: { ch: { kind: string; data: any } }) {
     );
   }
   return null;
+}
+
+
 
 // ── Page ────────────────────────────────────────────────────────
 const MetaAssessmentTool = () => {
