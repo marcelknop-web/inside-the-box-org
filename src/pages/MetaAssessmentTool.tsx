@@ -1437,6 +1437,28 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
         total: evTotal,
       },
     });
+    // ── Remediation timeline (Gantt) — sequence the recommended workstreams ──
+    if (computed.recommendations.length > 0) {
+      const PHASE_SPAN: Record<string, [number, number]> = { '0-3': [0, 3], '3-6': [3, 6], '6-12': [6, 12] };
+      const prioColor: Record<string, string> = {
+        critical: 'bg-destructive', high: 'bg-orange-500', medium: 'bg-yellow-500', low: 'bg-primary',
+      };
+      const lanes: { title: string; start: number; end: number; cls: string; priority: string }[] = [];
+      computed.roadmap.forEach((bucket) => {
+        const [start, end] = PHASE_SPAN[bucket.phase] ?? [0, 12];
+        bucket.items.forEach((it) => {
+          lanes.push({ title: it.title, start, end, cls: prioColor[it.priority] ?? 'bg-primary', priority: it.priority });
+        });
+      });
+      const shown = lanes.slice(0, 10);
+      const phaseCount = computed.roadmap.filter((b) => b.items.length > 0).length;
+      chs.push({
+        title: u.remediationTimeline, origin: ORIGIN.assessment, kind: 'gantt',
+        takeaway: `${shown.length} workstream${shown.length === 1 ? '' : 's'} sequenced across ${phaseCount} phase${phaseCount === 1 ? '' : 's'} over a 12-month horizon.`,
+        summary: u.remediationTimelineHint,
+        data: { lanes: shown, extra: lanes.length - shown.length },
+      });
+    }
     const aiCount = insights ? (insights.executiveInsights?.topWeaknesses?.length ?? 0) + (insights.rootCauses?.length ?? 0) : 0;
     chs.push({
       title: u.aiAnalysis, origin: ORIGIN.insight, kind: 'stat',
