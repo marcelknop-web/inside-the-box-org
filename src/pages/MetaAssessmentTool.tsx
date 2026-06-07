@@ -1237,6 +1237,35 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
     [profile, answers, result, computed, insights, docMeta, lang],
   );
 
+  // ── Chapter walkthrough (shown once, after all required analysis is done) ──
+  const [walkthroughStep, setWalkthroughStep] = useState(0);
+  const [walkthroughActive, setWalkthroughActive] = useState(false);
+  const [walkthroughDone, setWalkthroughDone] = useState(false);
+
+  const reportChapters = useMemo(() => {
+    const ai = computed.attentionIndex;
+    const chs: { title: string; origin: string; summary: string }[] = [
+      { title: u.attentionIndex, origin: ORIGIN.assessment, summary: `${attentionLabel(ai.level, lang)} — ${ai.counts.critical} critical · ${ai.counts.high} high · ${ai.counts.medium} medium · ${ai.counts.low} low.` },
+      { title: u.auditReadiness, origin: ORIGIN.assessment, summary: u.auditReadinessHint },
+      { title: u.findings, origin: ORIGIN.assessment, summary: `${pass} passed · ${partial} partial · ${fail} gaps across ${merged.length} requirements.` },
+      { title: u.workingPapers, origin: ORIGIN.assessment, summary: u.workingPapersHint },
+    ];
+    if (computed.risks.length > 0) {
+      chs.push({ title: u.riskLandscape, origin: ORIGIN.risk, summary: `${computed.risks.length} risks identified · ${critRisks.length} critical.` });
+    }
+    chs.push({ title: u.evidenceStrength, origin: ORIGIN.assessment, summary: u.evidenceStrengthHint });
+    chs.push({ title: u.aiAnalysis, origin: ORIGIN.insight, summary: u.aiNote });
+    return chs;
+  }, [computed, u, lang, pass, partial, fail, merged.length, critRisks.length]);
+
+  // Trigger the walkthrough once every required analysis has completed.
+  useEffect(() => {
+    if (insightsDone && !insightsBusy && !walkthroughDone) {
+      setWalkthroughActive(true);
+    }
+  }, [insightsDone, insightsBusy, walkthroughDone]);
+
+
   const exportWorkingPapersJson = () => {
     const payload = { meta: { ...docMeta, standard: profile.id, entityName }, workingPapers };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
