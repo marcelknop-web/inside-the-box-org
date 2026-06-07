@@ -25,7 +25,7 @@ export function renderWorkingPapers(pdf: PdfDoc, wp: WorkingPapers, opts?: { sec
   pdf.addBookmark(`${sp}Working Papers & Assessment Traceability`, 1);
   pdf.metaLine(ORIGIN.assessment);
   pdf.introText(
-    'For every requirement this working paper records exactly why it was assessed as Pass, Partial or Gap: the original user inputs, the deterministic rule applied, the generated risk and the AI sections that referenced the requirement. No assessment result is a black box.',
+    'For every requirement this working paper records exactly why it was assessed as Pass, Partial or Gap: each assessment question with the response given, the evidence recorded (type, name, source and strength), the deterministic rule applied, the generated risk and the AI sections that referenced the requirement. No assessment result is a black box.',
   );
 
   wp.records.forEach((r, i) => {
