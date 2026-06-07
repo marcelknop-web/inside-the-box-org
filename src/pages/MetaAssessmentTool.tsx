@@ -1102,7 +1102,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
     }
     setPdfBusy(true);
     try {
-      await generateMetaAssessmentPdf({ profile, lang, result, computed, answers, entityName, insights, reportMeta: docMeta });
+      await generateMetaAssessmentPdf({ profile, lang, result, computed, answers, entityName, insights, reportMeta: docMeta, includeWorkingPapers, workingPapers });
     } catch (e) {
       console.error('PDF generation failed', e);
       alert(u.pdfError);
