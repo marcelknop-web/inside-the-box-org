@@ -1566,9 +1566,51 @@ export class PdfDoc {
     d.setTextColor(...C.dark);
   }
 
+  /**
+   * Stamp right-aligned page numbers and clean dot leaders onto the table of
+   * contents. Runs after the whole document is built so every chapter's final
+   * page is known. Leaders stop on a consistent tab stop just before the
+   * number, giving an even, professional appearance.
+   */
+  private stampToc(): void {
+    if (!this.tocEntries.length) return;
+    const d = this.doc;
+    const marks = [...this.chapterMarks, ...this.sectionMarks];
+    const norm = (s: string) => s.replace(/\s+/g, ' ').trim();
+
+    for (const e of this.tocEntries) {
+      d.setPage(e.page);
+      const target = marks.find((m) => norm(m.text) === norm(e.label));
+
+      let numW = 0;
+      if (target) {
+        // Reader-facing page number matches the footer (cover excluded when
+        // running headers are active).
+        const shown = this.opts.runningHeader ? target.page - 1 : target.page;
+        const pageStr = String(shown);
+        d.setFont(this.headFont, 'normal');
+        d.setFontSize(9);
+        d.setTextColor(...C.mid);
+        numW = d.getTextWidth(pageStr);
+        d.text(pageStr, LAYOUT.RIGHT, e.y, { align: 'right' });
+      }
+
+      const leaderEnd = target ? LAYOUT.RIGHT - numW - 2.5 : LAYOUT.RIGHT;
+      if (e.dotStart < leaderEnd - 5) {
+        d.setDrawColor(...C.rule);
+        d.setLineDashPattern([0.4, 1.4], 0);
+        d.setLineWidth(0.15);
+        d.line(e.dotStart, e.y - 0.5, leaderEnd, e.y - 0.5);
+        d.setLineDashPattern([], 0);
+      }
+    }
+    d.setTextColor(...C.dark);
+  }
+
   /* ── Save ─────────────────────────────────────────────────── */
 
   save(filename: string): void {
+    this.stampToc();
     this.finalize();
     this.doc.save(filename);
   }
