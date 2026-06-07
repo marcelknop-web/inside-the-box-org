@@ -524,6 +524,9 @@ export function computeCmmi(profile: StandardProfile, score: ScoreResult, lang: 
     target,
     gap: Math.max(0, target - overall),
   };
+}
+
+
 
 // ════════════════════════════════════════════════════════════════
 // AUDIT READINESS ENGINE  (deterministic — Documentation / Operational
