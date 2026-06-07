@@ -1565,7 +1565,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
               <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
                 <div className="h-full bg-primary rounded-full transition-all duration-500 ease-out" style={{ width: `${insightsProgress}%` }} />
               </div>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">{u.analyzingDeckHint}</p>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">{u.insightsModalNote}</p>
             </div>
           </div>
         )}
