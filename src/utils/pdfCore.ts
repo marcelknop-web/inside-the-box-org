@@ -1530,7 +1530,7 @@ export class PdfDoc {
       d.setFontSize(6);
       d.setTextColor(...C.light);
       const rightLabel = docLabel ? `${docLabel} · ${this.reportId}` : this.reportId;
-      d.text(rightLabel, LAYOUT.RIGHT, LAYOUT.TOP - 13.5, { align: 'right' });
+      d.text(this.fitText(rightLabel, 60), LAYOUT.RIGHT, LAYOUT.TOP - 13.5, { align: 'right' });
 
       // Chapter (bold navy) — gives the reader their location at a glance
       if (chapter) {
