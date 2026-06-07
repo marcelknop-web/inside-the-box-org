@@ -624,7 +624,7 @@ function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
   }, [field, answers]);
 
   return (
-    <div>
+    <div className="flex flex-col min-h-[440px]">
       <div className="flex items-center gap-2 mb-5">
         {questions.map((_, i) => (
           <div key={i} className={`h-1.5 rounded-full flex-1 transition-all ${i < q ? 'bg-primary' : i === q ? 'bg-primary/60' : 'bg-secondary'}`} />
