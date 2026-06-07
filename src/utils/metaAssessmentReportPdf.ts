@@ -303,7 +303,7 @@ function formatAnswer(field: { type: string; options?: { id: string; label: any 
 }
 
 export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<void> {
-  const { profile, result, computed, answers, entityName, insights, reportMeta, includeWorkingPapers, workingPapers } = data;
+  const { profile, result, computed, answers, entityName, insights, reportMeta, includeWorkingPapers, workingPapers, auditorNotes } = data;
   // The report is produced in English only, independent of the UI language.
   const lang: Lang = 'en';
 
