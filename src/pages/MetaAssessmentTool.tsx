@@ -48,6 +48,8 @@ function ui(_lang: Lang) {
     demo: 'Demo',
     testCases: 'Load a test case',
     testCasesHint: 'Pre-fill the whole intake with a realistic example, then review and run.',
+    testCaseSkip: 'Do not apply — fill in manually',
+    testCaseSkipHint: 'Start from a blank intake and enter your own answers.',
     back: 'Back',
     next: 'Next',
     run: 'Run compliance assessment',
