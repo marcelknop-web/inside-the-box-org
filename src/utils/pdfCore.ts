@@ -1186,16 +1186,12 @@ export class PdfDoc {
       this.doc.setTextColor(isSub ? C.dark[0] : C.navy[0], isSub ? C.dark[1] : C.navy[1], isSub ? C.dark[2] : C.navy[2]);
       this.doc.text(label, LAYOUT.LEFT + xOffset, this.y);
 
-      // Dot leader line
+      // Record the entry; the dot leader and page number are stamped in
+      // save() once each heading's final page is known, so leaders stop
+      // cleanly before a right-aligned page number on a consistent tab stop.
       const tw = this.doc.getTextWidth(label);
       const dotStart = LAYOUT.LEFT + xOffset + tw + 3;
-      if (dotStart < dotRight - 5) {
-        this.doc.setDrawColor(...C.rule);
-        this.doc.setLineDashPattern([0.4, 1.4], 0);
-        this.doc.setLineWidth(0.15);
-        this.doc.line(dotStart, this.y - 0.5, dotRight, this.y - 0.5);
-        this.doc.setLineDashPattern([], 0);
-      }
+      this.tocEntries.push({ page: this.pageNum, y: this.y, dotStart, label });
 
       this.y += isSub ? 7.5 : 8.5;
     });
