@@ -9,6 +9,8 @@ import { MARITIME_CYBER_PROFILE } from './maritimeCyberProfile';
 import { TISAX_PROFILE } from './tisaxProfile';
 import { ISO22301_PROFILE } from './iso22301Profile';
 import { ISO42001_PROFILE } from './iso42001Profile';
+import { VENDOR_SECURITY_PROFILE } from './vendorSecurityProfile';
+import { CIS_CONTROLS_PROFILE } from './cisControlsProfile';
 
 // ── Standard registry ───────────────────────────────────────────
 // Add new profiles here. `available: false` profiles render as a
