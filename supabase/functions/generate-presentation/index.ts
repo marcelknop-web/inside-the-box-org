@@ -88,7 +88,7 @@ Deno.serve(async (req) => {
 
     const payload: Record<string, unknown> = {
       inputText,
-      textMode: 'preserve',
+      textMode: 'condense',
       format: 'presentation',
       themeId: (body.themeId ?? DEFAULT_THEME_ID).toString().slice(0, 60),
       cardSplit: 'inputTextBreaks',
