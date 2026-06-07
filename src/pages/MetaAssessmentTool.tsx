@@ -1491,6 +1491,15 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
 
   // ── Executive presentation (Gamma) ──
   const [deckType, setDeckType] = useState<PresentationType>('visual-executive');
+
+  // Automatic slide-metric validation — checks every slide's figures, units
+  // and rounding against the canonical source metrics for the selected deck type.
+  const slideValidation = useMemo(
+    () => validateSlideMetrics(deckType, {
+      profile, lang, result, computed, answers, entityName, insights, reportMeta: docMeta,
+    }),
+    [deckType, profile, lang, result, computed, answers, entityName, insights, docMeta],
+  );
   const [deckStatus, setDeckStatus] = useState<'idle' | 'generating' | 'ready' | 'error'>('idle');
   const [deckUrl, setDeckUrl] = useState<string | null>(null);
   const [deckPdfUrl, setDeckPdfUrl] = useState<string | null>(null);
