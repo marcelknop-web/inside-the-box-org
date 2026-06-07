@@ -36,10 +36,10 @@ type Phase = 'standard' | 'intake' | 'analyzing' | 'report';
 // Assessment Engine; AI provides an interpretation & advisory layer only.
 function ui(_lang: Lang) {
   return {
-    section: '/ INTERNAL AUDIT & COMPLIANCE READINESS',
-    headline: 'AI-Powered Internal Audit & Compliance Readiness Platform',
-    sub: 'Pick a standard → intake → compliance assessment → AI insights → reporting.',
-    valueProp: 'The Assessment Engine determines compliance. The AI Insight Engine explains why issues exist, how they connect, which matter most and what to prioritise — it never alters findings, scores or risks.',
+    section: '/ GAPZEO — INTERNAL AUDIT & COMPLIANCE READINESS',
+    headline: 'GapZeo — AI-Powered Internal Audit & Compliance Readiness',
+    sub: 'GapZeo closes the gap from zero to audit-ready: pick a standard → intake → compliance assessment → AI insights → reporting.',
+    valueProp: 'GapZeo\'s Assessment Engine determines compliance. The AI Insight Engine explains why issues exist, how they connect, which matter most and what to prioritise — it never alters findings, scores or risks.',
     chooseStandard: 'Choose a standard',
     soon: 'Soon',
     open: 'Start',
