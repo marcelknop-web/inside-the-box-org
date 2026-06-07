@@ -17,15 +17,16 @@ interface RequestBody {
   title?: string;
   additionalInstructions?: string;
   numCards?: number;
-  themeName?: string;
+  themeId?: string;
   language?: string;
   // status
   generationId?: string;
 }
 
-// Fixed Gamma theme for every GapZero deck. Can be overridden per request, but
-// defaults to "Pearl" for a consistent, board-ready look across all decks.
-const DEFAULT_THEME = 'Pearl';
+// Fixed Gamma theme for every GapZero deck. Built-in Gamma themes use their
+// lowercase name as the theme ID. Defaults to "pearl" for a consistent,
+// board-ready look across all decks. Can be overridden per request.
+const DEFAULT_THEME_ID = 'pearl';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
