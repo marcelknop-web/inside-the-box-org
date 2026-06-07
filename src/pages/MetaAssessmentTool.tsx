@@ -1531,11 +1531,12 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
           <p className="text-[11px] text-muted-foreground mt-0.5 max-w-2xl leading-relaxed">{u.presentationHint}</p>
         </div>
 
-        <div className="grid sm:grid-cols-3 gap-3">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {([
-            ['executive', u.deckExecutive, u.deckExecutiveHint],
-            ['board', u.deckBoard, u.deckBoardHint],
+            ['visual-executive', u.deckExecutive, u.deckExecutiveHint],
             ['consultant', u.deckConsultant, u.deckConsultantHint],
+            ['audit', u.deckAudit, u.deckAuditHint],
+            ['text', u.deckText, u.deckTextHint],
           ] as [PresentationType, string, string][]).map(([id, label, hint]) => {
             const active = deckType === id;
             return (
