@@ -473,6 +473,59 @@ export function computeMaturity(profile: StandardProfile, score: ScoreResult, la
 }
 
 // ════════════════════════════════════════════════════════════════
+// CMMI MATURITY MATCHING  (official 1–5 scale, per category)
+// ════════════════════════════════════════════════════════════════
+const CMMI_LABEL: Record<CmmiLevel, L> = {
+  1: { de: 'Initial', en: 'Initial', fr: 'Initial' },
+  2: { de: 'Gesteuert', en: 'Managed', fr: 'Géré' },
+  3: { de: 'Definiert', en: 'Defined', fr: 'Défini' },
+  4: { de: 'Quantitativ gesteuert', en: 'Quantitatively Managed', fr: 'Géré quantitativement' },
+  5: { de: 'Optimierend', en: 'Optimizing', fr: 'En optimisation' },
+};
+
+export const cmmiLabel = (l: CmmiLevel, lang: Lang) => t(CMMI_LABEL[l], lang);
+
+export const CMMI_LEVELS: { level: CmmiLevel; label: L }[] =
+  ([1, 2, 3, 4, 5] as CmmiLevel[]).map((level) => ({ level, label: CMMI_LABEL[level] }));
+
+function cmmiFromPct(pct: number): CmmiLevel {
+  if (pct >= 90) return 5;
+  if (pct >= 70) return 4;
+  if (pct >= 50) return 3;
+  if (pct >= 25) return 2;
+  return 1;
+}
+
+export function computeCmmi(profile: StandardProfile, score: ScoreResult, lang: Lang): CmmiMatching | null {
+  if (!profile.maturity?.enabled) return null;
+  // Map the configured 0–5 maturity target onto the official 1–5 CMMI scale.
+  const rawTarget = profile.maturity.target ?? 4;
+  const target = Math.min(5, Math.max(1, rawTarget)) as CmmiLevel;
+
+  const categories: CmmiCategoryMatch[] = score.categories.map((c) => {
+    const level = cmmiFromPct(c.pct);
+    return {
+      id: c.id,
+      name: c.name,
+      level,
+      label: t(CMMI_LABEL[level], lang),
+      pct: c.pct,
+      target,
+      gap: Math.max(0, target - level),
+    };
+  });
+
+  const overall = cmmiFromPct(score.weighted);
+  return {
+    enabled: true,
+    categories,
+    overall,
+    overallLabel: t(CMMI_LABEL[overall], lang),
+    target,
+    gap: Math.max(0, target - overall),
+  };
+
+// ════════════════════════════════════════════════════════════════
 // AUDIT READINESS ENGINE  (deterministic — Documentation / Operational
 // / Governance / Evidence). Never produced by the AI.
 // ════════════════════════════════════════════════════════════════
