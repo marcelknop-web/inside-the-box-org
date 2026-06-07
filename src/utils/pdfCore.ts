@@ -282,6 +282,11 @@ export class PdfDoc {
   private headFont: string;
   private dataFont: string;
 
+  // Running-header tracking: which chapter (level-1) and topic (level-2)
+  // is active on each page, so finalize() can stamp the right header text.
+  private chapterMarks: { page: number; text: string }[] = [];
+  private sectionMarks: { page: number; text: string }[] = [];
+
   constructor(opts: PdfDocOptions) {
     this.doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
     this.opts = opts;
