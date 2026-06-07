@@ -1245,6 +1245,17 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
   const [deckStatus, setDeckStatus] = useState<'idle' | 'generating' | 'ready' | 'error'>('idle');
   const [deckUrl, setDeckUrl] = useState<string | null>(null);
   const [deckPdfUrl, setDeckPdfUrl] = useState<string | null>(null);
+  const [deckProgress, setDeckProgress] = useState(0);
+
+  // Animate a professional progress bar while the deck is generated (creeps toward 95%).
+  useEffect(() => {
+    if (deckStatus !== 'generating') return;
+    setDeckProgress((p) => (p > 0 && p < 95 ? p : 6));
+    const id = setInterval(() => {
+      setDeckProgress((p) => (p < 95 ? p + Math.max(1, Math.round((95 - p) * 0.04)) : p));
+    }, 1400);
+    return () => clearInterval(id);
+  }, [deckStatus]);
 
   const generatePresentation = useCallback(async () => {
     // Never lose assessment results — only the presentation state changes.
