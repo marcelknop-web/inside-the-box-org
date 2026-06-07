@@ -154,6 +154,7 @@ function ui(_lang: Lang) {
     attentionIndex: 'Management attention index',
     attentionIndexHint: 'Overall level of management attention required, derived from risks and mandatory gaps.',
     cmmiMatching: 'CMMI maturity matching',
+    cmmiControls: 'Per-control maturity',
     cmmiHint: 'Per-category mapping to the official CMMI maturity scale (1 Initial → 5 Optimizing), with the gap to the target level.',
     cmmiTarget: 'Target',
     cmmiLevel: 'Level',
