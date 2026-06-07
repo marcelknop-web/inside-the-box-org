@@ -235,6 +235,17 @@ function ui(_lang: Lang) {
     downloadDeckPdf: 'Download PDF',
     presentationFailed: 'Presentation generation failed.',
     retry: 'Retry',
+    // ── guided waiting (shown while AI works) ──
+    guideWhileYouWait: 'While you wait — what your report contains',
+    guideSteps: [
+      { title: 'Management attention index', body: 'A single signal telling leadership whether action is required now or the posture is under control.' },
+      { title: 'Audit readiness', body: 'How prepared you are across every readiness dimension — and which dimension is weakest.' },
+      { title: 'Findings & compliance', body: 'Each requirement scored Pass, Partial or Gap by deterministic rules — never by AI.' },
+      { title: 'Risks', body: 'Gaps converted into rated risks so you can prioritise the critical ones first.' },
+      { title: 'Evidence base', body: 'Which requirements are supported by evidence and which still need follow-up.' },
+      { title: 'Working papers & traceability', body: 'Every conclusion linked back to your inputs, the rule applied and the evidence behind it.' },
+      { title: 'AI insights & advisory', body: 'An interpretation layer that explains the results — advisory only, it never changes a finding.' },
+    ] as { title: string; body: string }[],
   };
 }
 
@@ -279,6 +290,60 @@ const STATUS_STYLE: Record<ReqStatus, { cls: string; label: Record<Lang, string>
   partial: { cls: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20', label: { de: 'Teilweise', en: 'Partial', fr: 'Partiel' } },
   fail: { cls: 'bg-destructive/10 text-destructive border-destructive/20', label: { de: 'Lücke', en: 'Gap', fr: 'Lacune' } },
 };
+// ── Guided AI waiting modal (used for every AI wait) ────────────
+function AiWaitModal({
+  title, label, note, progress, u,
+}: {
+  title: string; label: string; note: string; progress: number; u: ReturnType<typeof ui>;
+}) {
+  const steps = u.guideSteps;
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setIdx((i) => (i + 1) % steps.length), 3800);
+    return () => clearInterval(t);
+  }, [steps.length]);
+  const step = steps[idx];
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-background/85 backdrop-blur-sm p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-busy="true"
+      onClick={(e) => e.stopPropagation()}
+      onKeyDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+      tabIndex={-1}
+    >
+      <div className="w-full max-w-md bg-background border border-primary/30 rounded-xl shadow-2xl p-6 space-y-4">
+        <div className="flex items-center gap-2">
+          <Loader2 size={18} className="animate-spin text-primary" />
+          <h3 className="font-mono text-xs tracking-[0.25em] uppercase text-highlight">{title}</h3>
+        </div>
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <span>{label}</span>
+          <span className="font-mono text-xs">{progress}%</span>
+        </div>
+        <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
+          <div className="h-full bg-primary rounded-full transition-all duration-500 ease-out" style={{ width: `${progress}%` }} />
+        </div>
+
+        {/* Guided tour through the report while the AI works */}
+        <div className="rounded-lg border border-primary/15 bg-background/40 p-4 min-h-[104px]">
+          <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-2">{u.guideWhileYouWait}</div>
+          <div className="text-sm font-semibold text-foreground">{step.title}</div>
+          <p className="text-[12px] text-muted-foreground mt-1 leading-relaxed">{step.body}</p>
+          <div className="flex items-center gap-1.5 mt-3">
+            {steps.map((_, i) => (
+              <span key={i} className={`h-1.5 rounded-full transition-all ${i === idx ? 'w-5 bg-primary' : 'w-1.5 bg-secondary'}`} />
+            ))}
+          </div>
+        </div>
+
+        <p className="text-[11px] text-muted-foreground leading-relaxed">{note}</p>
+      </div>
+    </div>
+  );
+}
+
 
 // ── Architecture explanation (engine separation) ────────────────
 function ArchitectureNote({ u }: { u: ReturnType<typeof ui> }) {
@@ -1736,30 +1801,13 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
         </div>
 
         {insightsBusy && (
-          <div
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-background/85 backdrop-blur-sm p-4"
-            role="dialog"
-            aria-modal="true"
-            aria-busy="true"
-            onClick={(e) => e.stopPropagation()}
-            onKeyDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-            tabIndex={-1}
-          >
-            <div className="w-full max-w-md bg-background border border-primary/30 rounded-xl shadow-2xl p-6 space-y-4">
-              <div className="flex items-center gap-2">
-                <Loader2 size={18} className="animate-spin text-primary" />
-                <h3 className="font-mono text-xs tracking-[0.25em] uppercase text-highlight">{u.aiAnalysis}</h3>
-              </div>
-              <div className="flex items-center justify-between text-sm text-muted-foreground">
-                <span>{u.loadingInsights}</span>
-                <span className="font-mono text-xs">{insightsProgress}%</span>
-              </div>
-              <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
-                <div className="h-full bg-primary rounded-full transition-all duration-500 ease-out" style={{ width: `${insightsProgress}%` }} />
-              </div>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">{u.insightsModalNote}</p>
-            </div>
-          </div>
+          <AiWaitModal
+            title={u.aiAnalysis}
+            label={u.loadingInsights}
+            note={u.insightsModalNote}
+            progress={insightsProgress}
+            u={u}
+          />
         )}
 
 
@@ -1784,23 +1832,14 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
       {/* Executive presentation (Gamma) */}
       <div className="bg-background/40 border border-primary/15 rounded-lg p-5 space-y-4">
         {deckStatus === 'generating' ? (
-          /* While generating, show the AI-analysis step exclusively. */
-          <div className="py-6 px-2">
-            <div className="flex items-center gap-3 text-foreground">
-              <Loader2 size={18} className="animate-spin text-primary shrink-0" />
-              <div className="text-base font-semibold">{u.analyzingDeck}</div>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1.5 ml-[30px]">{u.analyzingDeckHint}</p>
-            <div className="mt-5 ml-[30px] max-w-xl">
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[11px] font-mono uppercase tracking-wide text-muted-foreground">AI analysis</span>
-                <span className="text-xs font-mono text-primary">{deckProgress}%</span>
-              </div>
-              <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
-                <div className="h-full bg-primary rounded-full transition-all duration-700 ease-out" style={{ width: `${deckProgress}%` }} />
-              </div>
-            </div>
-          </div>
+          /* Waiting is shown as a guided pop-up overlay. */
+          <AiWaitModal
+            title={u.aiAnalysis}
+            label={u.analyzingDeck}
+            note={u.analyzingDeckHint}
+            progress={deckProgress}
+            u={u}
+          />
         ) : (
           <>
             <div>
