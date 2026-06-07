@@ -1131,6 +1131,59 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
     }
   };
 
+  // ── Executive presentation (Gamma) ──
+  const [deckType, setDeckType] = useState<PresentationType>('executive');
+  const [deckStatus, setDeckStatus] = useState<'idle' | 'generating' | 'ready' | 'error'>('idle');
+  const [deckUrl, setDeckUrl] = useState<string | null>(null);
+  const [deckPdfUrl, setDeckPdfUrl] = useState<string | null>(null);
+
+  const generatePresentation = useCallback(async () => {
+    // Never lose assessment results — only the presentation state changes.
+    setDeckStatus('generating');
+    setDeckUrl(null);
+    setDeckPdfUrl(null);
+    try {
+      const content = buildPresentationContent(deckType, {
+        profile, lang, result, computed, answers, entityName, insights, reportMeta: docMeta,
+      });
+      const { data, error } = await supabase.functions.invoke('generate-presentation', {
+        body: {
+          action: 'start',
+          inputText: content.inputText,
+          title: content.title,
+          additionalInstructions: content.additionalInstructions,
+          numCards: content.numCards,
+        },
+      });
+      if (error) throw error;
+      const generationId = (data as { generationId?: string })?.generationId;
+      if (!generationId) throw new Error('No generation id returned');
+
+      // Poll for completion (up to ~3.5 min).
+      const maxAttempts = 42;
+      for (let i = 0; i < maxAttempts; i++) {
+        await new Promise((r) => setTimeout(r, 5000));
+        const { data: poll, error: pollErr } = await supabase.functions.invoke('generate-presentation', {
+          body: { action: 'status', generationId },
+        });
+        if (pollErr) continue;
+        const status = (poll as { status?: string }).status;
+        if (status === 'completed') {
+          const p = poll as { gammaUrl?: string; exportUrl?: string };
+          setDeckUrl(p.gammaUrl ?? null);
+          setDeckPdfUrl(p.exportUrl ?? null);
+          setDeckStatus('ready');
+          return;
+        }
+        if (status === 'failed') throw new Error('Gamma generation failed');
+      }
+      throw new Error('Generation timed out');
+    } catch (e) {
+      console.error('presentation generation failed', e);
+      setDeckStatus('error');
+    }
+  }, [deckType, profile, lang, result, computed, answers, entityName, insights, docMeta]);
+
 
   return (
     <div className="space-y-6">
