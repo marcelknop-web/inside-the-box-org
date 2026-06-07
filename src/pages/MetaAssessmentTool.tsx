@@ -254,14 +254,15 @@ function ui(_lang: Lang) {
     // ── guided waiting (shown while AI works) ──
     guideWhileYouWait: 'While you wait — what your report contains',
     guideSteps: [
-      { title: 'Management attention index', body: 'One signal: action needed now, or posture under control.' },
-      { title: 'Audit readiness', body: 'Readiness across every dimension — and the weakest link.' },
-      { title: 'Findings & compliance', body: 'Pass, Partial or Gap — scored by rules, never by AI.' },
-      { title: 'Risks', body: 'Gaps become rated risks. Tackle the critical ones first.' },
-      { title: 'Evidence base', body: 'What is backed by evidence and what still needs proof.' },
-      { title: 'Working papers & traceability', body: 'Every conclusion tied to input, rule and proof.' },
-      { title: 'AI insights & advisory', body: 'Explains the results — advisory only, never changes a finding.' },
+      { title: 'Management attention index', body: 'Act now, or under control.' },
+      { title: 'Audit readiness', body: 'Readiness per dimension + weakest link.' },
+      { title: 'Findings & compliance', body: 'Pass · Partial · Gap — rule-scored.' },
+      { title: 'Risks', body: 'Gaps rated — critical ones first.' },
+      { title: 'Evidence base', body: 'What is proven vs. still open.' },
+      { title: 'Working papers & traceability', body: 'Each conclusion tied to its proof.' },
+      { title: 'AI insights & advisory', body: 'Explains results — never alters a finding.' },
     ] as { title: string; body: string }[],
+
   };
 }
 
