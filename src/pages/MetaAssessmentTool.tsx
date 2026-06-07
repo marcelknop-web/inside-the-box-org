@@ -91,6 +91,9 @@ function ui(_lang: Lang) {
     loadInsights: 'Load AI Insights',
     loadingInsights: 'AI is analysing the results …',
     insightsModalNote: 'This can take up to a minute. Please keep this window open — the analysis cannot be interrupted.',
+    chapterLabel: 'Chapter',
+    walkthroughIntro: 'Your report is ready. Review each chapter, one at a time.',
+    viewFullReport: 'View full report',
     execNarrative: 'Executive narrative',
     rootCauses: 'Root causes',
     gapClusters: 'Core themes (gap clusters)',
@@ -1181,6 +1184,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
   const [insights, setInsights] = useState<InsightResult | null>(null);
   const [insightsBusy, setInsightsBusy] = useState(false);
   const [insightsProgress, setInsightsProgress] = useState(0);
+  const [insightsDone, setInsightsDone] = useState(false);
 
   // Animate a progress bar while the AI analysis runs (creeps toward 90%).
   useEffect(() => {
@@ -1214,6 +1218,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
       alert(u.insightsError);
     } finally {
       setInsightsBusy(false);
+      setInsightsDone(true);
     }
   }, [profile, lang, computed, result, u.insightsError]);
 
@@ -1231,6 +1236,35 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
     () => buildWorkingPapers(profile, answers, result, computed, insights, docMeta, lang),
     [profile, answers, result, computed, insights, docMeta, lang],
   );
+
+  // ── Chapter walkthrough (shown once, after all required analysis is done) ──
+  const [walkthroughStep, setWalkthroughStep] = useState(0);
+  const [walkthroughActive, setWalkthroughActive] = useState(false);
+  const [walkthroughDone, setWalkthroughDone] = useState(false);
+
+  const reportChapters = useMemo(() => {
+    const ai = computed.attentionIndex;
+    const chs: { title: string; origin: string; summary: string }[] = [
+      { title: u.attentionIndex, origin: ORIGIN.assessment, summary: `${attentionLabel(ai.level, lang)} — ${ai.counts.critical} critical · ${ai.counts.high} high · ${ai.counts.medium} medium · ${ai.counts.low} low.` },
+      { title: u.auditReadiness, origin: ORIGIN.assessment, summary: u.auditReadinessHint },
+      { title: u.findings, origin: ORIGIN.assessment, summary: `${pass} passed · ${partial} partial · ${fail} gaps across ${merged.length} requirements.` },
+      { title: u.workingPapers, origin: ORIGIN.assessment, summary: u.workingPapersHint },
+    ];
+    if (computed.risks.length > 0) {
+      chs.push({ title: u.riskLandscape, origin: ORIGIN.risk, summary: `${computed.risks.length} risks identified · ${critRisks.length} critical.` });
+    }
+    chs.push({ title: u.evidenceStrength, origin: ORIGIN.assessment, summary: u.evidenceStrengthHint });
+    chs.push({ title: u.aiAnalysis, origin: ORIGIN.insight, summary: u.aiNote });
+    return chs;
+  }, [computed, u, lang, pass, partial, fail, merged.length, critRisks.length]);
+
+  // Trigger the walkthrough once every required analysis has completed.
+  useEffect(() => {
+    if (insightsDone && !insightsBusy && !walkthroughDone) {
+      setWalkthroughActive(true);
+    }
+  }, [insightsDone, insightsBusy, walkthroughDone]);
+
 
   const exportWorkingPapersJson = () => {
     const payload = { meta: { ...docMeta, standard: profile.id, entityName }, workingPapers };
@@ -1345,6 +1379,52 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
 
   return (
     <div className="space-y-6">
+      {/* Chapter walkthrough — presents each chapter as a pop-up before the full report */}
+      {walkthroughActive && reportChapters.length > 0 && (() => {
+        const total = reportChapters.length;
+        const ch = reportChapters[Math.min(walkthroughStep, total - 1)];
+        const isLast = walkthroughStep >= total - 1;
+        const close = () => { setWalkthroughActive(false); setWalkthroughDone(true); };
+        return (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/85 backdrop-blur-sm p-4" role="dialog" aria-modal="true">
+            <div className="w-full max-w-lg bg-background border border-primary/30 rounded-xl shadow-2xl p-6 space-y-5">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-muted-foreground">{u.chapterLabel} {walkthroughStep + 1} / {total}</span>
+                <button onClick={close} className="text-[11px] font-mono text-muted-foreground hover:text-foreground transition-colors">{u.viewFullReport} ✕</button>
+              </div>
+              <div>
+                <h2 className="font-mono text-sm tracking-[0.2em] uppercase text-highlight">{ch.title}</h2>
+                <div className="text-[10px] text-muted-foreground font-mono mt-1">{ch.origin}</div>
+                <p className="text-sm text-foreground leading-relaxed mt-4">{ch.summary}</p>
+              </div>
+              <div className="flex items-center gap-1.5 pt-1">
+                {reportChapters.map((_, i) => (
+                  <span key={i} className={`h-1 flex-1 rounded-full ${i <= walkthroughStep ? 'bg-primary' : 'bg-secondary'}`} />
+                ))}
+              </div>
+              <div className="flex items-center justify-between pt-1">
+                <button
+                  onClick={() => setWalkthroughStep((s) => Math.max(0, s - 1))}
+                  disabled={walkthroughStep === 0}
+                  className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                >
+                  <ArrowLeft size={15} /> {u.back}
+                </button>
+                {isLast ? (
+                  <button onClick={close} className="inline-flex items-center gap-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold px-4 py-2 hover:opacity-90 transition-opacity">
+                    {u.viewFullReport} <ChevronRight size={15} />
+                  </button>
+                ) : (
+                  <button onClick={() => setWalkthroughStep((s) => Math.min(total - 1, s + 1))} className="inline-flex items-center gap-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold px-4 py-2 hover:opacity-90 transition-opacity">
+                    {u.next} <ArrowRight size={15} />
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       <div className="bg-background/40 border-l-4 border-primary border border-primary/15 rounded-lg p-5">
         <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide font-mono">{profile.name} — {tr(profile.regulation, lang)}</div>
         <div className="text-lg font-bold text-foreground mt-0.5">{entityName}</div>
