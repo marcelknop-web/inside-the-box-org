@@ -1379,6 +1379,52 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
 
   return (
     <div className="space-y-6">
+      {/* Chapter walkthrough — presents each chapter as a pop-up before the full report */}
+      {walkthroughActive && reportChapters.length > 0 && (() => {
+        const total = reportChapters.length;
+        const ch = reportChapters[Math.min(walkthroughStep, total - 1)];
+        const isLast = walkthroughStep >= total - 1;
+        const close = () => { setWalkthroughActive(false); setWalkthroughDone(true); };
+        return (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/85 backdrop-blur-sm p-4" role="dialog" aria-modal="true">
+            <div className="w-full max-w-lg bg-background border border-primary/30 rounded-xl shadow-2xl p-6 space-y-5">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-muted-foreground">{u.chapterLabel} {walkthroughStep + 1} / {total}</span>
+                <button onClick={close} className="text-[11px] font-mono text-muted-foreground hover:text-foreground transition-colors">{u.viewFullReport} ✕</button>
+              </div>
+              <div>
+                <h2 className="font-mono text-sm tracking-[0.2em] uppercase text-highlight">{ch.title}</h2>
+                <div className="text-[10px] text-muted-foreground font-mono mt-1">{ch.origin}</div>
+                <p className="text-sm text-foreground leading-relaxed mt-4">{ch.summary}</p>
+              </div>
+              <div className="flex items-center gap-1.5 pt-1">
+                {reportChapters.map((_, i) => (
+                  <span key={i} className={`h-1 flex-1 rounded-full ${i <= walkthroughStep ? 'bg-primary' : 'bg-secondary'}`} />
+                ))}
+              </div>
+              <div className="flex items-center justify-between pt-1">
+                <button
+                  onClick={() => setWalkthroughStep((s) => Math.max(0, s - 1))}
+                  disabled={walkthroughStep === 0}
+                  className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                >
+                  <ArrowLeft size={15} /> {u.back}
+                </button>
+                {isLast ? (
+                  <button onClick={close} className="inline-flex items-center gap-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold px-4 py-2 hover:opacity-90 transition-opacity">
+                    {u.viewFullReport} <ChevronRight size={15} />
+                  </button>
+                ) : (
+                  <button onClick={() => setWalkthroughStep((s) => Math.min(total - 1, s + 1))} className="inline-flex items-center gap-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold px-4 py-2 hover:opacity-90 transition-opacity">
+                    {u.next} <ArrowRight size={15} />
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       <div className="bg-background/40 border-l-4 border-primary border border-primary/15 rounded-lg p-5">
         <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide font-mono">{profile.name} — {tr(profile.regulation, lang)}</div>
         <div className="text-lg font-bold text-foreground mt-0.5">{entityName}</div>
