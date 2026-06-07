@@ -25,7 +25,7 @@ function stub(id: string, name: string, icon: string, regulation: StandardProfil
   };
 }
 
-export const STANDARD_PROFILES: StandardProfile[] = [NIS2_PROFILE, DORA_PROFILE, ...COMING_SOON];
+export const STANDARD_PROFILES: StandardProfile[] = [NIS2_PROFILE, DORA_PROFILE, AIACT_PROFILE, ...COMING_SOON];
 
 export function getProfile(id: string): StandardProfile | undefined {
   return STANDARD_PROFILES.find((p) => p.id === id);
