@@ -583,6 +583,9 @@ function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
   );
 
   const [q, setQ] = useState(0);
+  // Test-case picker shown as a pop-up at the start of the intake.
+  const hasScenarios = !!profile.demoScenarios && profile.demoScenarios.length > 0;
+  const [testCaseOpen, setTestCaseOpen] = useState(hasScenarios);
   const current = questions[q];
   const { step, field, firstInStep } = current;
   const isLast = q === questions.length - 1;
