@@ -17,9 +17,15 @@ interface RequestBody {
   title?: string;
   additionalInstructions?: string;
   numCards?: number;
+  themeName?: string;
+  language?: string;
   // status
   generationId?: string;
 }
+
+// Fixed Gamma theme for every GapZero deck. Can be overridden per request, but
+// defaults to "Pearl" for a consistent, board-ready look across all decks.
+const DEFAULT_THEME = 'Pearl';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -83,12 +89,33 @@ Deno.serve(async (req) => {
       inputText,
       textMode: 'preserve',
       format: 'presentation',
+      themeName: (body.themeName ?? DEFAULT_THEME).toString().slice(0, 60),
       cardSplit: 'inputTextBreaks',
       exportAs: 'pdf',
       additionalInstructions: (body.additionalInstructions ?? '').toString().slice(0, 2000),
+      // ── Optimal generation parameters for board-ready visual decks ──
+      textOptions: {
+        amount: 'detailed',
+        tone: 'professional, executive, audit-grade',
+        audience: 'board members, executives, auditors and risk committees',
+        language: (body.language ?? 'en').toString().slice(0, 10),
+      },
+      imageOptions: {
+        source: 'aiGenerated',
+        model: 'imagen-4-pro',
+        style: 'clean, corporate, professional, minimal infographic style',
+      },
+      cardOptions: {
+        dimensions: '16x9',
+      },
+      sharingOptions: {
+        workspaceAccess: 'view',
+        externalAccess: 'view',
+      },
     };
     if (body.title) payload.title = body.title.toString().slice(0, 200);
     if (body.numCards) payload.numCards = Math.min(60, Math.max(1, Number(body.numCards)));
+
 
     const startRes = await fetch(`${GAMMA_BASE}/generations`, {
       method: 'POST',
