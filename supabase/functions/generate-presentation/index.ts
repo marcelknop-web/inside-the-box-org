@@ -88,7 +88,7 @@ Deno.serve(async (req) => {
 
     const payload: Record<string, unknown> = {
       inputText,
-      textMode: 'preserve',
+      textMode: 'condense',
       format: 'presentation',
       themeId: (body.themeId ?? DEFAULT_THEME_ID).toString().slice(0, 60),
       cardSplit: 'inputTextBreaks',
@@ -96,6 +96,8 @@ Deno.serve(async (req) => {
       additionalInstructions: [
         (body.additionalInstructions ?? '').toString().slice(0, 1400),
         // Hard rule: every graphic must carry meaning — no filler.
+        'TEXT EDITING RULE: You MAY rephrase, tighten and clarify the slide text so it reads well and makes sense on a slide — fix awkward phrasing, shorten run-ons, improve flow. ' +
+        'But NEVER change the meaning, the facts, the numbers, the findings, the ratings or the conclusions. No new claims, no invented data, no altered results — wording only. ' +
         'CRITICAL GRAPHICS RULE: Every image, chart, diagram or icon must directly illustrate the specific content of its slide and add real informational value. ' +
         'Prefer data-driven visuals — charts, tables, diagrams, process flows, matrices, comparisons — built from the actual numbers and findings on the slide. ' +
         'Absolutely NO decorative, generic, abstract or "filler" stock-style imagery, no random people, handshakes, glowing shields, abstract tech swirls or unrelated metaphors. ' +
