@@ -298,10 +298,20 @@ function AiWaitModal({
 }) {
   const steps = u.guideSteps;
   const [idx, setIdx] = useState(0);
+
+  // Dwell time scaled to reading length so every step is comfortably readable.
+  const dwell = (i: number) => {
+    const len = (steps[i].title.length + steps[i].body.length);
+    return Math.min(9000, Math.max(5000, Math.round(len * 45))); // ~5–9s per step
+  };
+
+  // Advance through the series in order; loop back once the last step is shown.
   useEffect(() => {
-    const t = setInterval(() => setIdx((i) => (i + 1) % steps.length), 3800);
-    return () => clearInterval(t);
-  }, [steps.length]);
+    const t = setTimeout(() => setIdx((i) => (i + 1) % steps.length), dwell(idx));
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idx, steps.length]);
+
   const step = steps[idx];
   return (
     <div
@@ -327,16 +337,28 @@ function AiWaitModal({
         </div>
 
         {/* Guided tour through the report while the AI works */}
-        <div className="rounded-lg border border-primary/15 bg-background/40 p-4 min-h-[104px]">
-          <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-2">{u.guideWhileYouWait}</div>
-          <div className="text-sm font-semibold text-foreground">{step.title}</div>
-          <p className="text-[12px] text-muted-foreground mt-1 leading-relaxed">{step.body}</p>
+        <div className="rounded-lg border border-primary/15 bg-background/40 p-4 min-h-[132px]">
+          <div className="flex items-center justify-between mb-2">
+            <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-muted-foreground">{u.guideWhileYouWait}</span>
+            <span className="font-mono text-[10px] text-muted-foreground">{idx + 1} / {steps.length}</span>
+          </div>
+          {/* per-step timing bar — fills over the dwell time so the user can pace reading */}
+          <div className="h-0.5 w-full rounded-full bg-secondary overflow-hidden mb-3">
+            <div
+              key={idx}
+              className="h-full bg-primary/70 rounded-full"
+              style={{ animation: `gz-step-fill ${dwell(idx)}ms linear forwards` }}
+            />
+          </div>
+          <div key={`t-${idx}`} className="text-sm font-semibold text-foreground animate-fade-in">{step.title}</div>
+          <p key={`b-${idx}`} className="text-[12px] text-muted-foreground mt-1 leading-relaxed animate-fade-in">{step.body}</p>
           <div className="flex items-center gap-1.5 mt-3">
             {steps.map((_, i) => (
               <span key={i} className={`h-1.5 rounded-full transition-all ${i === idx ? 'w-5 bg-primary' : 'w-1.5 bg-secondary'}`} />
             ))}
           </div>
         </div>
+
 
         <p className="text-[11px] text-muted-foreground leading-relaxed">{note}</p>
       </div>
