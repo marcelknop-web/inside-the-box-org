@@ -287,6 +287,10 @@ export class PdfDoc {
   private chapterMarks: { page: number; text: string }[] = [];
   private sectionMarks: { page: number; text: string }[] = [];
 
+  // Table-of-contents entries recorded at render time. Page numbers and dot
+  // leaders are stamped in save() once every heading's final page is known.
+  private tocEntries: { page: number; y: number; dotStart: number; label: string }[] = [];
+
   constructor(opts: PdfDocOptions) {
     this.doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
     this.opts = opts;
