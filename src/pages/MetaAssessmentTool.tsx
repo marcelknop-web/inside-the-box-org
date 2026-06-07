@@ -1722,6 +1722,53 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
         </div>
       </div>
 
+      {/* CMMI maturity matching (per category, official 1–5 scale) */}
+      {computed.cmmi?.enabled && (
+        <div className="bg-background/40 border border-primary/15 rounded-lg p-5">
+          <div className="flex items-baseline justify-between flex-wrap gap-2 mb-1">
+            <h2 className="font-mono text-xs tracking-[0.25em] uppercase text-highlight">{u.cmmiMatching}</h2>
+            <span className="font-mono text-xs text-muted-foreground">
+              {u.cmmiLevel} {computed.cmmi.overall} · {computed.cmmi.overallLabel} · {u.cmmiTarget} {computed.cmmi.target}
+            </span>
+          </div>
+          <div className="text-[10px] text-muted-foreground font-mono mb-4">{ORIGIN.assessment}</div>
+
+          {/* CMMI level legend */}
+          <div className="grid grid-cols-5 gap-1 mb-4">
+            {CMMI_LEVELS.map(({ level }) => {
+              const active = level <= computed.cmmi!.overall;
+              return (
+                <div key={level} className={`rounded-md px-1 py-1.5 text-center border ${active ? 'border-primary/40 bg-primary/10' : 'border-border bg-secondary/30'}`}>
+                  <div className={`font-mono text-sm font-bold ${active ? 'text-primary' : 'text-muted-foreground'}`}>{level}</div>
+                  <div className="text-[9px] leading-tight text-muted-foreground mt-0.5">{cmmiLabel(level, lang)}</div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Per-category matching */}
+          <div className="space-y-2.5">
+            {computed.cmmi.categories.map((c) => {
+              const barCls = c.level >= 4 ? 'bg-green-500' : c.level === 3 ? 'bg-yellow-500' : c.level === 2 ? 'bg-orange-500' : 'bg-destructive';
+              return (
+                <div key={c.id} title={`${c.pct}% compliance · target level ${c.target}`}>
+                  <div className="flex items-center justify-between text-xs mb-1 gap-2">
+                    <span className="text-foreground font-medium truncate">{c.name}</span>
+                    <span className="font-mono text-muted-foreground whitespace-nowrap">
+                      L{c.level} {c.label}{c.gap > 0 ? ` · −${c.gap}` : ' ✓'}
+                    </span>
+                  </div>
+                  <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
+                    <div className={`h-full rounded-full ${barCls}`} style={{ width: `${(c.level / 5) * 100}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-3">{u.cmmiHint}</p>
+        </div>
+      )}
+
       {/* Findings */}
 
       <div>
