@@ -1308,7 +1308,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
           title: content.title,
           additionalInstructions: content.additionalInstructions,
           numCards: content.numCards,
-          themeName: 'Pearl',
+          themeId: 'pearl',
           language: lang,
         },
       });
