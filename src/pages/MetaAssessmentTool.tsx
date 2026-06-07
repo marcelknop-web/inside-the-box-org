@@ -599,6 +599,8 @@ const RATING_CLS: Record<string, string> = {
   high: 'bg-destructive/10 text-destructive border-destructive/20',
 };
 
+type InsightView = 'executive' | 'management' | 'audit' | 'full';
+
 function InsightsPanel({ insights, computed, lang, u, reqMeta }: {
   insights: InsightResult; computed: ComputedAssessment; lang: Lang;
   u: ReturnType<typeof ui>; reqMeta: Map<string, StandardProfile['requirements'][number]>;
@@ -609,13 +611,85 @@ function InsightsPanel({ insights, computed, lang, u, reqMeta }: {
     if (r === 'high') return 'High';
     return 'Medium';
   };
+
+  // ── Progressive disclosure: section keys + view presets ──
+  const allKeys = useMemo(() => [
+    u.execNarrative, u.execInsights, u.rootCauses, u.gapClusters, u.managementThemes,
+    u.transformationPrograms, u.businessImpact, u.maturityInsights, u.managementRoadmap,
+    u.crossControl, u.systemicWeaknesses, u.hypotheses, u.consultantObservations,
+    u.roadmapRationale, u.auditorQuestions, u.confidenceSummary, u.insightLimitations,
+  ], [u]);
+
+  const presets = useMemo<Record<InsightView, string[]>>(() => ({
+    executive: [u.execNarrative, u.execInsights],
+    management: [u.execNarrative, u.execInsights, u.managementThemes, u.transformationPrograms, u.businessImpact, u.managementRoadmap, u.maturityInsights],
+    audit: [u.rootCauses, u.gapClusters, u.crossControl, u.systemicWeaknesses, u.hypotheses, u.auditorQuestions, u.consultantObservations, u.confidenceSummary, u.roadmapRationale, u.insightLimitations],
+    full: allKeys,
+  }), [u, allKeys]);
+
+  const [view, setView] = useState<InsightView>('executive');
+  const [openSet, setOpenSet] = useState<Set<string>>(() => new Set(presets.executive));
+
+  const applyView = (v: InsightView) => { setView(v); setOpenSet(new Set(presets[v])); };
+  const toggle = useCallback((key: string) => {
+    setOpenSet((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key); else next.add(key);
+      return next;
+    });
+  }, []);
+  const ctx = useMemo<AccordionCtxType>(() => ({
+    isOpen: (key: string) => openSet.has(key),
+    toggle,
+  }), [openSet, toggle]);
+
+  const views: [InsightView, string, string][] = [
+    ['executive', u.viewExecutive, u.viewExecutiveHint],
+    ['management', u.viewManagement, u.viewManagementHint],
+    ['audit', u.viewAudit, u.viewAuditHint],
+    ['full', u.viewFull, u.viewFullHint],
+  ];
+
   return (
+    <AccordionContext.Provider value={ctx}>
     <div className="mt-5 space-y-5">
+      {/* View modes + expand / collapse controls */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap gap-1.5" role="tablist" aria-label={u.viewLabel}>
+          {views.map(([id, label, hint]) => (
+            <button
+              key={id}
+              type="button"
+              title={hint}
+              onClick={() => applyView(id)}
+              className={`font-mono text-[11px] uppercase tracking-wider px-2.5 py-1.5 rounded-md border transition-colors ${
+                view === id
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-background/40 text-muted-foreground border-border hover:text-foreground hover:border-primary/40'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <div className="flex gap-1.5">
+          <button type="button" onClick={() => { setView('full'); setOpenSet(new Set(allKeys)); }}
+            className="font-mono text-[11px] uppercase tracking-wider px-2.5 py-1.5 rounded-md border border-border bg-background/40 text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors">
+            {u.expandAll}
+          </button>
+          <button type="button" onClick={() => setOpenSet(new Set())}
+            className="font-mono text-[11px] uppercase tracking-wider px-2.5 py-1.5 rounded-md border border-border bg-background/40 text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors">
+            {u.collapseAll}
+          </button>
+        </div>
+      </div>
+
       {insights.executiveNarrative && (
         <InsightSection title={u.execNarrative}>
           <p className="text-sm text-foreground leading-relaxed">{insights.executiveNarrative}</p>
         </InsightSection>
       )}
+
 
       {ei && (ei.topWeaknesses.length || ei.topStrengths.length || ei.managementFocus.length) ? (
         <InsightSection title={u.execInsights} layer="insight" confidence={insights.confidence?.executiveInsights}>
