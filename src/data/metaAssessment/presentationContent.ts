@@ -54,7 +54,7 @@ export interface PresentationContent {
 }
 
 /** A single slide: concise markdown plus the preferred visual structure. */
-interface Card {
+export interface Card {
   /** slide headline (without the leading '# ') used for the visual map */
   headline: string;
   /** full slide markdown */
