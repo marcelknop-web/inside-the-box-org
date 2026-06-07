@@ -3,6 +3,8 @@ import { NIS2_PROFILE } from './nis2Profile';
 import { DORA_PROFILE } from './doraProfile';
 import { AIACT_PROFILE } from './aiActProfile';
 import { ISO27001_PROFILE } from './iso27001Profile';
+import { IACS_E26_PROFILE } from './iacsE26Profile';
+import { IACS_E27_PROFILE } from './iacsE27Profile';
 
 // ── Standard registry ───────────────────────────────────────────
 // Add new profiles here. `available: false` profiles render as a
