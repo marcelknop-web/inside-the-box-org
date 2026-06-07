@@ -43,6 +43,7 @@ function ui(_lang: Lang) {
     sub: 'GapZero closes the gap from zero to audit-ready: pick a standard → intake → compliance assessment → AI insights → reporting.',
     valueProp: 'GapZero\'s Assessment Engine determines compliance. The AI Insight Engine explains why issues exist, how they connect, which matter most and what to prioritise — it never alters findings, scores or risks.',
     chooseStandard: 'Choose a standard',
+    moreStandards: 'More Standards',
     soon: 'Soon',
     open: 'Start',
     demo: 'Demo',
