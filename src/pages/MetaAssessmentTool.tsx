@@ -2286,6 +2286,58 @@ function ChapterVisual({ ch }: { ch: { kind: string; data: any } }) {
       </div>
     );
   }
+  if (ch.kind === 'gantt') {
+    const TOTAL = 12;
+    const ticks = [0, 3, 6, 9, 12];
+    const phaseLabel = (start: number) => start === 0 ? '0–3 mo' : start === 3 ? '3–6 mo' : '6–12 mo';
+    return (
+      <div className="space-y-3">
+        {/* Month axis */}
+        <div className="relative ml-[42%] h-4">
+          {ticks.map((m) => (
+            <div key={m} className="absolute top-0 -translate-x-1/2 text-[9px] font-mono text-muted-foreground" style={{ left: `${(m / TOTAL) * 100}%` }}>
+              {m}
+            </div>
+          ))}
+        </div>
+        {/* Lanes */}
+        <div className="space-y-1.5">
+          {d.lanes.map((lane: any, i: number) => {
+            const left = (lane.start / TOTAL) * 100;
+            const width = ((lane.end - lane.start) / TOTAL) * 100;
+            return (
+              <div key={i} className="flex items-center gap-2">
+                <span className="w-[40%] shrink-0 truncate text-[11px] text-foreground" title={lane.title}>{lane.title}</span>
+                <div className="relative flex-1 h-5 rounded bg-secondary/50 overflow-hidden">
+                  {/* phase gridlines */}
+                  {ticks.slice(1, -1).map((m) => (
+                    <div key={m} className="absolute top-0 bottom-0 w-px bg-border/60" style={{ left: `${(m / TOTAL) * 100}%` }} />
+                  ))}
+                  <div
+                    className={`absolute top-0.5 bottom-0.5 rounded ${lane.cls} flex items-center justify-end pr-1.5`}
+                    style={{ left: `${left}%`, width: `${width}%` }}
+                  >
+                    <span className="text-[8px] font-mono text-white/90 whitespace-nowrap">{phaseLabel(lane.start)}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {d.extra > 0 && (
+          <div className="text-[10px] text-muted-foreground text-right">+{d.extra} more workstream{d.extra === 1 ? '' : 's'}</div>
+        )}
+        {/* Legend */}
+        <div className="flex flex-wrap gap-x-3 gap-y-1 pt-1">
+          {[['Critical', 'bg-destructive'], ['High', 'bg-orange-500'], ['Medium', 'bg-yellow-500'], ['Low', 'bg-primary']].map(([l, c]) => (
+            <span key={l} className="flex items-center gap-1 text-[9px] text-muted-foreground">
+              <span className={`inline-block w-2.5 h-2.5 rounded-sm ${c}`} /> {l}
+            </span>
+          ))}
+        </div>
+      </div>
+    );
+  }
   if (ch.kind === 'stat') {
     const Icon = d.icon === 'sparkles' ? Sparkles : ClipboardList;
     return (
