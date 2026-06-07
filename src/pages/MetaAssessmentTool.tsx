@@ -1218,6 +1218,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
       alert(u.insightsError);
     } finally {
       setInsightsBusy(false);
+      setInsightsDone(true);
     }
   }, [profile, lang, computed, result, u.insightsError]);
 
