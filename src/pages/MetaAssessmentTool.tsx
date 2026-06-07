@@ -1293,6 +1293,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
           const p = poll as { gammaUrl?: string; exportUrl?: string };
           setDeckUrl(p.gammaUrl ?? null);
           setDeckPdfUrl(p.exportUrl ?? null);
+          setDeckProgress(100);
           setDeckStatus('ready');
           return;
         }
