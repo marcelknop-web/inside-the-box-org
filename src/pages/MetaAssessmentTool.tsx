@@ -238,13 +238,13 @@ function ui(_lang: Lang) {
     // ── guided waiting (shown while AI works) ──
     guideWhileYouWait: 'While you wait — what your report contains',
     guideSteps: [
-      { title: 'Management attention index', body: 'A single signal telling leadership whether action is required now or the posture is under control.' },
-      { title: 'Audit readiness', body: 'How prepared you are across every readiness dimension — and which dimension is weakest.' },
-      { title: 'Findings & compliance', body: 'Each requirement scored Pass, Partial or Gap by deterministic rules — never by AI.' },
-      { title: 'Risks', body: 'Gaps converted into rated risks so you can prioritise the critical ones first.' },
-      { title: 'Evidence base', body: 'Which requirements are supported by evidence and which still need follow-up.' },
-      { title: 'Working papers & traceability', body: 'Every conclusion linked back to your inputs, the rule applied and the evidence behind it.' },
-      { title: 'AI insights & advisory', body: 'An interpretation layer that explains the results — advisory only, it never changes a finding.' },
+      { title: 'Management attention index', body: 'One signal: action needed now, or posture under control.' },
+      { title: 'Audit readiness', body: 'Readiness across every dimension — and the weakest link.' },
+      { title: 'Findings & compliance', body: 'Pass, Partial or Gap — scored by rules, never by AI.' },
+      { title: 'Risks', body: 'Gaps become rated risks. Tackle the critical ones first.' },
+      { title: 'Evidence base', body: 'What is backed by evidence and what still needs proof.' },
+      { title: 'Working papers & traceability', body: 'Every conclusion tied to input, rule and proof.' },
+      { title: 'AI insights & advisory', body: 'Explains the results — advisory only, never changes a finding.' },
     ] as { title: string; body: string }[],
   };
 }
