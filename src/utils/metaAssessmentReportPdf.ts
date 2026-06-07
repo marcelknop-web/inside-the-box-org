@@ -489,6 +489,8 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
       pdf.sectionLabel(`${t('phase', lang)} ${bucket.phase} ${t('months', lang)}`);
       bucket.items.forEach((it) => pdf.bulletItem(`${PRIORITY_LABEL[it.priority][lang]} — ${it.title}`));
     });
+
+    drawGanttChart(pdf, computed, lang);
   }
 
   // ── 8 AI Analysis (explanatory) ─────────────────────────────
