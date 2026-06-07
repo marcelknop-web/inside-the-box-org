@@ -9,6 +9,8 @@ import { generateMetaAssessmentPdf } from '@/utils/metaAssessmentReportPdf';
 import { generateWorkingPapersPdf } from '@/utils/workingPapersPdf';
 import { buildReportMeta, validateConsistency, ORIGIN, REPORT_TITLE } from '@/data/metaAssessment/reportMeta';
 import { buildPresentationContent, type PresentationType } from '@/data/metaAssessment/presentationContent';
+import { validateSlideMetrics } from '@/data/metaAssessment/slideValidation';
+import QualityCheckPanel from '@/components/QualityCheckPanel';
 import { LucideIcon } from 'lucide-react';
 import { SiteChrome } from '@/components/SiteChrome';
 import { PasswordGate } from '@/components/PasswordGate';
@@ -222,6 +224,9 @@ function ui(_lang: Lang) {
     genPresentation: 'Generate Presentation',
     presentationTitle: 'Visual Executive Presentation',
     presentationHint: 'Transform this assessment into a visually compelling, board-ready deck via Gamma — visual first, text second. Slides are generated from the assessment, risk and AI insight engines (not raw report text) with charts, heatmaps, scorecards and timelines, and adapt automatically to the framework.',
+    slideValidationTitle: 'Slide Metric Validation',
+    slideValidationHint: 'Every slide is automatically checked for correct figures, units and rounding against the source metrics before the deck is generated.',
+    slideValidationBlock: 'Critical metric mismatches were found. Fix the underlying assessment data before generating the deck.',
     deckExecutive: 'Visual Executive Deck',
     deckExecutiveHint: 'Default · max 10 slides · board & management · visual-first scorecards, heatmaps, timelines.',
     deckConsultant: 'Consultant Deck',
@@ -1486,6 +1491,15 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
 
   // ── Executive presentation (Gamma) ──
   const [deckType, setDeckType] = useState<PresentationType>('visual-executive');
+
+  // Automatic slide-metric validation — checks every slide's figures, units
+  // and rounding against the canonical source metrics for the selected deck type.
+  const slideValidation = useMemo(
+    () => validateSlideMetrics(deckType, {
+      profile, lang, result, computed, answers, entityName, insights, reportMeta: docMeta,
+    }),
+    [deckType, profile, lang, result, computed, answers, entityName, insights, docMeta],
+  );
   const [deckStatus, setDeckStatus] = useState<'idle' | 'generating' | 'ready' | 'error'>('idle');
   const [deckUrl, setDeckUrl] = useState<string | null>(null);
   const [deckPdfUrl, setDeckPdfUrl] = useState<string | null>(null);
@@ -2017,9 +2031,28 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
               </div>
             )}
 
+            {/* Automatic slide-metric validation */}
+            <div className="space-y-2">
+              <div>
+                <div className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <CheckCircle2 size={15} className="text-primary" /> {u.slideValidationTitle}
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-0.5 max-w-2xl leading-relaxed">{u.slideValidationHint}</p>
+              </div>
+              <QualityCheckPanel
+                result={slideValidation.result}
+                fixLogs={[]}
+                categories={slideValidation.categories}
+              />
+              {slideValidation.result.criticalErrors > 0 && (
+                <p className="text-[11px] text-destructive leading-relaxed">{u.slideValidationBlock}</p>
+              )}
+            </div>
+
             <div>
               <button onClick={generatePresentation}
-                className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90">
+                disabled={slideValidation.result.criticalErrors > 0}
+                className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed">
                 <Presentation size={14} /> {u.genPresentation}
               </button>
             </div>

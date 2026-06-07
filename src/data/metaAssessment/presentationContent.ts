@@ -54,7 +54,7 @@ export interface PresentationContent {
 }
 
 /** A single slide: concise markdown plus the preferred visual structure. */
-interface Card {
+export interface Card {
   /** slide headline (without the leading '# ') used for the visual map */
   headline: string;
   /** full slide markdown */
@@ -436,11 +436,12 @@ function visualMap(cards: Card[]): string {
     cards.map((c) => `"${c.headline}" → ${c.visual}`).join('; ') + '.';
 }
 
-export function buildPresentationContent(type: PresentationType, input: PresentationInput): PresentationContent {
-  const { entityName, profile } = input;
+/**
+ * Selects the ordered list of populated cards for a deck type.
+ * Exposed so the slide-metric validator can check each slide independently.
+ */
+export function selectPresentationCards(type: PresentationType, input: PresentationInput): Card[] {
   let cards: (Card | null)[];
-  let tone: string;
-  let limitNote: string;
 
   if (type === 'consultant') {
     cards = [
@@ -460,8 +461,6 @@ export function buildPresentationContent(type: PresentationType, input: Presenta
       cardRoadmap(input),
       cardManagementDecisions(input),
     ];
-    tone = VISUAL_TONE;
-    limitNote = ' CONSULTANT AUDIENCE: working advisory deck. Visually distinguish deterministic facts from analytical interpretation (root causes, hypotheses, systemic weaknesses and observations are advisory). Hard limit of 15 slides.';
   } else if (type === 'audit') {
     cards = [
       cardOverview(input),
@@ -480,8 +479,6 @@ export function buildPresentationContent(type: PresentationType, input: Presenta
       cardRoadmap(input),
       cardManagementDecisions(input),
     ];
-    tone = VISUAL_TONE;
-    limitNote = ' INTERNAL AUDIT AUDIENCE: audit-committee / compliance / risk deck. Emphasise findings, evidence strength, audit readiness and traceability with audit-focused visuals. Every finding must trace to a response and evidence. Hard limit of 20 slides.';
   } else if (type === 'text') {
     cards = [
       cardOverview(input),
@@ -495,8 +492,6 @@ export function buildPresentationContent(type: PresentationType, input: Presenta
       cardRoadmap(input),
       cardManagementDecisions(input),
     ];
-    tone = TEXT_TONE;
-    limitNote = ' TEXT MODE: a more detailed, narrative-friendly executive deck. Hard limit of 10 slides.';
   } else {
     // visual-executive (default)
     cards = [
@@ -511,11 +506,41 @@ export function buildPresentationContent(type: PresentationType, input: Presenta
       cardRoadmap(input),
       cardManagementDecisions(input),
     ];
-    tone = VISUAL_TONE;
-    limitNote = ' EXECUTIVE / BOARD AUDIENCE: minimise jargon and acronyms; frame everything as business risk, resilience, regulatory exposure and strategic decisions. Hard limit of 10 slides.';
   }
 
-  const present = cards.filter((c): c is Card => !!c && !!c.md && c.md.trim().length > 0);
+  return cards.filter((c): c is Card => !!c && !!c.md && c.md.trim().length > 0);
+}
+
+function toneFor(type: PresentationType): { tone: string; limitNote: string } {
+  if (type === 'consultant') {
+    return {
+      tone: VISUAL_TONE,
+      limitNote: ' CONSULTANT AUDIENCE: working advisory deck. Visually distinguish deterministic facts from analytical interpretation (root causes, hypotheses, systemic weaknesses and observations are advisory). Hard limit of 15 slides.',
+    };
+  }
+  if (type === 'audit') {
+    return {
+      tone: VISUAL_TONE,
+      limitNote: ' INTERNAL AUDIT AUDIENCE: audit-committee / compliance / risk deck. Emphasise findings, evidence strength, audit readiness and traceability with audit-focused visuals. Every finding must trace to a response and evidence. Hard limit of 20 slides.',
+    };
+  }
+  if (type === 'text') {
+    return {
+      tone: TEXT_TONE,
+      limitNote: ' TEXT MODE: a more detailed, narrative-friendly executive deck. Hard limit of 10 slides.',
+    };
+  }
+  return {
+    tone: VISUAL_TONE,
+    limitNote: ' EXECUTIVE / BOARD AUDIENCE: minimise jargon and acronyms; frame everything as business risk, resilience, regulatory exposure and strategic decisions. Hard limit of 10 slides.',
+  };
+}
+
+export function buildPresentationContent(type: PresentationType, input: PresentationInput): PresentationContent {
+  const { entityName, profile } = input;
+  const present = selectPresentationCards(type, input);
+  const { tone, limitNote } = toneFor(type);
+
 
   let additionalInstructions = tone + limitNote + frameworkVisualGuidance(profile);
   if (type !== 'text') additionalInstructions += STUDIO_DESIGN + visualMap(present);
