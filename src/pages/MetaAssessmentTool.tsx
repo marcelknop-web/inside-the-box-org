@@ -2031,9 +2031,28 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
               </div>
             )}
 
+            {/* Automatic slide-metric validation */}
+            <div className="space-y-2">
+              <div>
+                <div className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <CheckCircle2 size={15} className="text-primary" /> {u.slideValidationTitle}
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-0.5 max-w-2xl leading-relaxed">{u.slideValidationHint}</p>
+              </div>
+              <QualityCheckPanel
+                result={slideValidation.result}
+                fixLogs={[]}
+                categories={slideValidation.categories}
+              />
+              {slideValidation.result.criticalErrors > 0 && (
+                <p className="text-[11px] text-destructive leading-relaxed">{u.slideValidationBlock}</p>
+              )}
+            </div>
+
             <div>
               <button onClick={generatePresentation}
-                className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90">
+                disabled={slideValidation.result.criticalErrors > 0}
+                className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed">
                 <Presentation size={14} /> {u.genPresentation}
               </button>
             </div>
