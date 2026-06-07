@@ -1,9 +1,9 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, createContext, useContext } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   ArrowRight, ArrowLeft, Loader2, Sparkles, ShieldCheck, Network, Car,
   CreditCard, Factory, Server, RotateCcw, Lock, AlertTriangle, CheckCircle2,
-  Download, FileText, ClipboardList, Presentation, ExternalLink,
+  Download, FileText, ClipboardList, Presentation, ExternalLink, ChevronRight,
 } from 'lucide-react';
 import { generateMetaAssessmentPdf } from '@/utils/metaAssessmentReportPdf';
 import { generateWorkingPapersPdf } from '@/utils/workingPapersPdf';
@@ -95,6 +95,18 @@ function ui(_lang: Lang) {
     roadmapRationale: 'Roadmap rationale',
     auditorQuestions: 'Deepening audit questions',
     insightsError: 'AI analysis failed. Please retry.',
+    // ── progressive disclosure controls ──
+    viewLabel: 'View',
+    viewExecutive: 'Executive',
+    viewManagement: 'Management',
+    viewAudit: 'Internal Audit',
+    viewFull: 'Full detail',
+    viewExecutiveHint: 'Board-level: narrative and key insights only.',
+    viewManagementHint: 'Management themes, programs and roadmap.',
+    viewAuditHint: 'Root causes, systemic patterns, hypotheses, audit questions.',
+    viewFullHint: 'Everything expanded.',
+    expandAll: 'Expand all',
+    collapseAll: 'Collapse all',
     // ── advisory layer (virtual internal auditor / advisor) ──
     consultantView: 'Consultant & Internal Audit View',
     consultantHint: 'In-depth advisory analysis: root causes, themes, programs.',
@@ -547,27 +559,47 @@ function ValidationActivities({ items, label }: { items?: string[]; label: strin
   );
 }
 
+// ── Accordion (progressive disclosure) context ──────────────────
+interface AccordionCtxType {
+  isOpen: (key: string) => boolean;
+  toggle: (key: string) => void;
+}
+const AccordionContext = createContext<AccordionCtxType | null>(null);
 
 function InsightSection({ title, children, layer = 'insight', confidence }: {
   title: string; children: React.ReactNode; layer?: LayerKind; confidence?: string;
 }) {
+  const ctx = useContext(AccordionContext);
+  const open = ctx ? ctx.isOpen(title) : true;
   return (
     <div className="border-t border-border/60 pt-4">
-      <div className="flex items-center gap-2 flex-wrap mb-3">
-        <h3 className="font-mono text-[11px] tracking-[0.2em] uppercase text-primary">{title}</h3>
+      <button
+        type="button"
+        onClick={() => ctx?.toggle(title)}
+        className="w-full flex items-center gap-2 flex-wrap text-left group"
+        aria-expanded={open}
+      >
+        <ChevronRight
+          size={14}
+          className={`text-primary flex-shrink-0 transition-transform ${open ? 'rotate-90' : ''}`}
+        />
+        <h3 className="font-mono text-[11px] tracking-[0.2em] uppercase text-primary group-hover:text-primary/80 transition-colors">{title}</h3>
         <LayerBadge kind={layer} />
         {confidence && <ConfidenceBadge level={confidence} />}
-      </div>
-      {children}
+      </button>
+      {open && <div className="mt-3">{children}</div>}
     </div>
   );
 }
+
 
 const RATING_CLS: Record<string, string> = {
   low: 'bg-green-500/10 text-green-400 border-green-500/20',
   medium: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
   high: 'bg-destructive/10 text-destructive border-destructive/20',
 };
+
+type InsightView = 'executive' | 'management' | 'audit' | 'full';
 
 function InsightsPanel({ insights, computed, lang, u, reqMeta }: {
   insights: InsightResult; computed: ComputedAssessment; lang: Lang;
@@ -579,13 +611,85 @@ function InsightsPanel({ insights, computed, lang, u, reqMeta }: {
     if (r === 'high') return 'High';
     return 'Medium';
   };
+
+  // ── Progressive disclosure: section keys + view presets ──
+  const allKeys = useMemo(() => [
+    u.execNarrative, u.execInsights, u.rootCauses, u.gapClusters, u.managementThemes,
+    u.transformationPrograms, u.businessImpact, u.maturityInsights, u.managementRoadmap,
+    u.crossControl, u.systemicWeaknesses, u.hypotheses, u.consultantObservations,
+    u.roadmapRationale, u.auditorQuestions, u.confidenceSummary, u.insightLimitations,
+  ], [u]);
+
+  const presets = useMemo<Record<InsightView, string[]>>(() => ({
+    executive: [u.execNarrative, u.execInsights],
+    management: [u.execNarrative, u.execInsights, u.managementThemes, u.transformationPrograms, u.businessImpact, u.managementRoadmap, u.maturityInsights],
+    audit: [u.rootCauses, u.gapClusters, u.crossControl, u.systemicWeaknesses, u.hypotheses, u.auditorQuestions, u.consultantObservations, u.confidenceSummary, u.roadmapRationale, u.insightLimitations],
+    full: allKeys,
+  }), [u, allKeys]);
+
+  const [view, setView] = useState<InsightView>('executive');
+  const [openSet, setOpenSet] = useState<Set<string>>(() => new Set(presets.executive));
+
+  const applyView = (v: InsightView) => { setView(v); setOpenSet(new Set(presets[v])); };
+  const toggle = useCallback((key: string) => {
+    setOpenSet((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key); else next.add(key);
+      return next;
+    });
+  }, []);
+  const ctx = useMemo<AccordionCtxType>(() => ({
+    isOpen: (key: string) => openSet.has(key),
+    toggle,
+  }), [openSet, toggle]);
+
+  const views: [InsightView, string, string][] = [
+    ['executive', u.viewExecutive, u.viewExecutiveHint],
+    ['management', u.viewManagement, u.viewManagementHint],
+    ['audit', u.viewAudit, u.viewAuditHint],
+    ['full', u.viewFull, u.viewFullHint],
+  ];
+
   return (
+    <AccordionContext.Provider value={ctx}>
     <div className="mt-5 space-y-5">
+      {/* View modes + expand / collapse controls */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap gap-1.5" role="tablist" aria-label={u.viewLabel}>
+          {views.map(([id, label, hint]) => (
+            <button
+              key={id}
+              type="button"
+              title={hint}
+              onClick={() => applyView(id)}
+              className={`font-mono text-[11px] uppercase tracking-wider px-2.5 py-1.5 rounded-md border transition-colors ${
+                view === id
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-background/40 text-muted-foreground border-border hover:text-foreground hover:border-primary/40'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <div className="flex gap-1.5">
+          <button type="button" onClick={() => { setView('full'); setOpenSet(new Set(allKeys)); }}
+            className="font-mono text-[11px] uppercase tracking-wider px-2.5 py-1.5 rounded-md border border-border bg-background/40 text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors">
+            {u.expandAll}
+          </button>
+          <button type="button" onClick={() => setOpenSet(new Set())}
+            className="font-mono text-[11px] uppercase tracking-wider px-2.5 py-1.5 rounded-md border border-border bg-background/40 text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors">
+            {u.collapseAll}
+          </button>
+        </div>
+      </div>
+
       {insights.executiveNarrative && (
         <InsightSection title={u.execNarrative}>
           <p className="text-sm text-foreground leading-relaxed">{insights.executiveNarrative}</p>
         </InsightSection>
       )}
+
 
       {ei && (ei.topWeaknesses.length || ei.topStrengths.length || ei.managementFocus.length) ? (
         <InsightSection title={u.execInsights} layer="insight" confidence={insights.confidence?.executiveInsights}>
@@ -852,6 +956,7 @@ function InsightsPanel({ insights, computed, lang, u, reqMeta }: {
         </ul>
       </InsightSection>
     </div>
+    </AccordionContext.Provider>
   );
 }
 
