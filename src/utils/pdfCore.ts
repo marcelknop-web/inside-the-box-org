@@ -263,6 +263,11 @@ export interface PdfDocOptions {
   confidentialLabel: string;
   pageLabel: string;
   draftWatermark: string;
+  /** When true, professional running headers (chapter • topic) and footers
+   *  (page X / Y) are stamped on every content page in finalize()/save(). */
+  runningHeader?: boolean;
+  /** Optional short document label shown at top-right of every page header. */
+  documentLabel?: string;
 }
 
 export class PdfDoc {
