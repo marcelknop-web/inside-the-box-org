@@ -3,11 +3,12 @@ import { Helmet } from 'react-helmet-async';
 import {
   ArrowRight, ArrowLeft, Loader2, Sparkles, ShieldCheck, Network, Car,
   CreditCard, Factory, Server, RotateCcw, Lock, AlertTriangle, CheckCircle2,
-  Download, FileText, ClipboardList,
+  Download, FileText, ClipboardList, Presentation, ExternalLink,
 } from 'lucide-react';
 import { generateMetaAssessmentPdf } from '@/utils/metaAssessmentReportPdf';
 import { generateWorkingPapersPdf } from '@/utils/workingPapersPdf';
 import { buildReportMeta, validateConsistency, ORIGIN, REPORT_TITLE } from '@/data/metaAssessment/reportMeta';
+import { buildPresentationContent, type PresentationType } from '@/data/metaAssessment/presentationContent';
 import { LucideIcon } from 'lucide-react';
 import { SiteChrome } from '@/components/SiteChrome';
 import { PasswordGate } from '@/components/PasswordGate';
@@ -189,8 +190,27 @@ function ui(_lang: Lang) {
     exportWorkingPapers: 'Export Working Papers',
     exportWorkingPapersJson: 'Working Papers (JSON)',
     noWorkingPapers: 'No working papers match the current filters.',
+    // ── Executive presentation (Gamma) ──
+    genPresentation: 'Generate Presentation',
+    presentationTitle: 'Executive Presentation',
+    presentationHint: 'Transform this assessment into an executive-ready deck via Gamma. Slide content is generated from the assessment, risk and AI insight engines — not raw report text.',
+    deckExecutive: 'Executive Summary Deck',
+    deckExecutiveHint: '10-slide management summary (default).',
+    deckBoard: 'Board Presentation',
+    deckBoardHint: 'Max 10 slides · risk, resilience, regulatory exposure & strategy.',
+    deckConsultant: 'Consultant Presentation',
+    deckConsultantHint: 'Max 15 slides · adds root causes, hypotheses, validation & observations.',
+    presentationType: 'Presentation type',
+    generating: 'Generating presentation …',
+    generatingHint: 'This can take 1–3 minutes. Please keep this screen open.',
+    presentationReady: 'Presentation Ready',
+    openInGamma: 'Open in Gamma',
+    downloadDeckPdf: 'Download PDF',
+    presentationFailed: 'Presentation generation failed.',
+    retry: 'Retry',
   };
 }
+
 
 // ── Layer / confidence labelling (fact vs interpretation) ───────
 type LayerKind = 'fact' | 'insight' | 'hypothesis' | 'recommendation';
