@@ -43,6 +43,7 @@ function ui(_lang: Lang) {
     sub: 'GapZero closes the gap from zero to audit-ready: pick a standard → intake → compliance assessment → AI insights → reporting.',
     valueProp: 'GapZero\'s Assessment Engine determines compliance. The AI Insight Engine explains why issues exist, how they connect, which matter most and what to prioritise — it never alters findings, scores or risks.',
     chooseStandard: 'Choose a standard',
+    moreStandards: 'More Standards',
     soon: 'Soon',
     open: 'Start',
     demo: 'Demo',
@@ -405,42 +406,123 @@ function ArchitectureNote({ u }: { u: ReturnType<typeof ui> }) {
   );
 }
 
+// ── Standard categories ─────────────────────────────────────────
+// Thematic grouping for the standard selector. A standard may appear in
+// more than one category (e.g. IEC 62443, SOC 2, Vendor Security).
+const STANDARD_CATEGORIES: { label: Record<Lang, string>; ids: string[] }[] = [
+  {
+    label: {
+      en: 'Cybersecurity & Information Security',
+      de: 'Cybersecurity & Informationssicherheit',
+      fr: 'Cybersécurité & sécurité de l\'information',
+    },
+    ids: ['nis2', 'iso27001', 'ciscontrols', 'iec62443', 'soc2', 'pcidss'],
+  },
+  {
+    label: {
+      en: 'Operational Resilience & Business Continuity',
+      de: 'Operative Resilienz & Business Continuity',
+      fr: 'Résilience opérationnelle & continuité d\'activité',
+    },
+    ids: ['dora', 'iso22301', 'vendorsec'],
+  },
+  {
+    label: {
+      en: 'AI Governance & Compliance',
+      de: 'KI-Governance & Compliance',
+      fr: 'Gouvernance & conformité IA',
+    },
+    ids: ['aiact', 'iso42001'],
+  },
+  {
+    label: {
+      en: 'Maritime Cyber Security',
+      de: 'Maritime Cyber-Sicherheit',
+      fr: 'Cybersécurité maritime',
+    },
+    ids: ['maritimecyber', 'iacse26', 'iacse27'],
+  },
+  {
+    label: {
+      en: 'Supply Chain & Third-Party Assurance',
+      de: 'Lieferkette & Drittparteien-Assurance',
+      fr: 'Chaîne d\'approvisionnement & assurance tierce',
+    },
+    ids: ['vendorsec', 'tisax'],
+  },
+  {
+    label: {
+      en: 'Product Security & Secure Development',
+      de: 'Produktsicherheit & sichere Entwicklung',
+      fr: 'Sécurité produit & développement sécurisé',
+    },
+    ids: ['cra', 'iec62443', 'soc2'],
+  },
+];
+
 // ── Standard selector ───────────────────────────────────────────
 function StandardSelect({ lang, onPick }: { lang: Lang; onPick: (p: StandardProfile) => void }) {
   const u = ui(lang);
-  return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {STANDARD_PROFILES.map((p) => {
-        const Icon = ICONS[p.icon] ?? ShieldCheck;
-        return (
-          <button
-            key={p.id}
-            disabled={!p.available}
-            onClick={() => p.available && onPick(p)}
-            className={`group text-left bg-background/40 border rounded-lg p-5 transition-colors ${
-              p.available ? 'border-primary/15 hover:border-primary/40' : 'border-border/40 opacity-55 cursor-not-allowed'
-            }`}
-          >
-            <div className="flex items-start gap-3.5">
-              <Icon size={20} className="mt-0.5 flex-shrink-0 text-primary opacity-75" />
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="font-mono text-[15px] text-foreground leading-tight">{p.name}</h3>
-                  {!p.available && (
-                    <span className="font-mono text-[9px] uppercase tracking-wider text-muted-foreground border border-border/60 rounded px-1.5 py-0.5">{u.soon}</span>
-                  )}
-                </div>
-                <p className="text-[13px] text-muted-foreground mt-1.5 leading-relaxed">{tr(p.description, lang)}</p>
-                {p.available && (
-                  <span className="inline-flex items-center gap-1 mt-3 font-mono text-xs text-primary group-hover:gap-2 transition-all">
-                    {u.open}<ArrowRight size={13} />
-                  </span>
-                )}
-              </div>
+
+  const card = (p: StandardProfile) => {
+    const Icon = ICONS[p.icon] ?? ShieldCheck;
+    return (
+      <button
+        key={p.id}
+        disabled={!p.available}
+        onClick={() => p.available && onPick(p)}
+        className={`group text-left bg-background/40 border rounded-lg p-5 transition-colors ${
+          p.available ? 'border-primary/15 hover:border-primary/40' : 'border-border/40 opacity-55 cursor-not-allowed'
+        }`}
+      >
+        <div className="flex items-start gap-3.5">
+          <Icon size={20} className="mt-0.5 flex-shrink-0 text-primary opacity-75" />
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="font-mono text-[15px] text-foreground leading-tight">{p.name}</h3>
+              {!p.available && (
+                <span className="font-mono text-[9px] uppercase tracking-wider text-muted-foreground border border-border/60 rounded px-1.5 py-0.5">{u.soon}</span>
+              )}
             </div>
-          </button>
+            <p className="text-[13px] text-muted-foreground mt-1.5 leading-relaxed">{tr(p.description, lang)}</p>
+            {p.available && (
+              <span className="inline-flex items-center gap-1 mt-3 font-mono text-xs text-primary group-hover:gap-2 transition-all">
+                {u.open}<ArrowRight size={13} />
+              </span>
+            )}
+          </div>
+        </div>
+      </button>
+    );
+  };
+
+  const categorizedIds = new Set(STANDARD_CATEGORIES.flatMap((c) => c.ids));
+  const uncategorized = STANDARD_PROFILES.filter((p) => !categorizedIds.has(p.id));
+
+  return (
+    <div className="space-y-10">
+      {STANDARD_CATEGORIES.map((cat) => {
+        const profiles = cat.ids
+          .map((id) => STANDARD_PROFILES.find((p) => p.id === id))
+          .filter((p): p is StandardProfile => Boolean(p));
+        if (!profiles.length) return null;
+        return (
+          <section key={cat.label.en}>
+            <h2 className="font-mono text-[11px] tracking-[0.2em] uppercase text-primary mb-4">{cat.label[lang]}</h2>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {profiles.map(card)}
+            </div>
+          </section>
         );
       })}
+      {uncategorized.length > 0 && (
+        <section>
+          <h2 className="font-mono text-[11px] tracking-[0.2em] uppercase text-primary mb-4">{u.moreStandards}</h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {uncategorized.map(card)}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
