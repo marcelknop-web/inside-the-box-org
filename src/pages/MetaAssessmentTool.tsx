@@ -1262,6 +1262,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
     setDeckStatus('generating');
     setDeckUrl(null);
     setDeckPdfUrl(null);
+    setDeckProgress(6);
     try {
       const content = buildPresentationContent(deckType, {
         profile, lang, result, computed, answers, entityName, insights, reportMeta: docMeta,
