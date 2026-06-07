@@ -569,51 +569,60 @@ function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
   onFinish: (a: IntakeAnswers) => void; onBack: () => void;
 }) {
   const u = ui(lang);
-  const [sub, setSub] = useState(0);
   const [answers, setAnswers] = useState<IntakeAnswers>(initial ?? {});
-  const step = profile.intake[sub];
-  const isLast = sub === profile.intake.length - 1;
+
+  // Flatten all steps into one-question-per-screen to prevent information overflow.
+  const questions = useMemo(
+    () =>
+      profile.intake.flatMap((s, si) =>
+        s.fields.map((f, fi) => ({ step: s, field: f, si, firstInStep: fi === 0 })),
+      ),
+    [profile.intake],
+  );
+
+  const [q, setQ] = useState(0);
+  const current = questions[q];
+  const { step, field, firstInStep } = current;
+  const isLast = q === questions.length - 1;
 
   const setVal = useCallback((id: string, v: string | string[]) => {
     setAnswers((prev) => ({ ...prev, [id]: v }));
   }, []);
 
-  // Demo: fill only the current step's fields with test data (like DORA/NIS2/E26)
+  // Demo: fill only the current question's field with test data.
   const fillDemo = useCallback(() => {
     const demo = profile.demoAnswers;
     if (!demo) return;
     setAnswers((prev) => {
       const next = { ...prev };
-      for (const f of step.fields) {
-        if (f.id in demo) next[f.id] = demo[f.id];
-      }
+      if (field.id in demo) next[field.id] = demo[field.id];
       return next;
     });
-  }, [profile.demoAnswers, step]);
+  }, [profile.demoAnswers, field]);
 
-  // Test cases: pick a full scenario on the first step (fills every step).
+  // Test cases: pick a full scenario on the first question (fills every field).
   const pickScenario = useCallback((id: string) => {
     const sc = profile.demoScenarios?.find((s) => s.id === id);
     if (!sc) return;
     setAnswers({ ...sc.answers });
   }, [profile.demoScenarios]);
 
-  const canNext = useMemo(() => step.fields.every((f) => {
-    if (!f.required) return true;
-    const v = answers[f.id];
+  const canNext = useMemo(() => {
+    if (!field.required) return true;
+    const v = answers[field.id];
     return Array.isArray(v) ? v.length > 0 : !!(v && String(v).trim());
-  }), [step, answers]);
+  }, [field, answers]);
 
   return (
     <div>
       <div className="flex items-center gap-2 mb-5">
-        {profile.intake.map((_, i) => (
-          <div key={i} className={`h-1.5 rounded-full flex-1 transition-all ${i < sub ? 'bg-primary' : i === sub ? 'bg-primary/60' : 'bg-secondary'}`} />
+        {questions.map((_, i) => (
+          <div key={i} className={`h-1.5 rounded-full flex-1 transition-all ${i < q ? 'bg-primary' : i === q ? 'bg-primary/60' : 'bg-secondary'}`} />
         ))}
-        <span className="text-xs text-muted-foreground flex-shrink-0 font-mono">{sub + 1}/{profile.intake.length}</span>
+        <span className="text-xs text-muted-foreground flex-shrink-0 font-mono">{q + 1}/{questions.length}</span>
       </div>
 
-      {sub === 0 && profile.demoScenarios && profile.demoScenarios.length > 0 && (
+      {q === 0 && profile.demoScenarios && profile.demoScenarios.length > 0 && (
         <div className="border border-primary/20 bg-primary/[0.04] rounded-lg p-4 mb-5">
           <div className="flex items-center gap-1.5 text-xs font-mono uppercase tracking-wide text-primary mb-1">
             <Sparkles size={13} /> {u.testCases}
@@ -636,22 +645,23 @@ function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
         </div>
       )}
 
-
-      <div className="text-base font-bold text-foreground font-mono">{tr(step.title, lang)}</div>
-      {step.subtitle && <div className="text-sm text-muted-foreground mt-0.5 mb-3">{tr(step.subtitle, lang)}</div>}
-      {step.info && (
-        <div className="border border-primary/20 bg-primary/10 rounded-lg px-4 py-3 text-sm text-foreground mb-4">💡 {tr(step.info, lang)}</div>
+      {firstInStep && (
+        <>
+          <div className="text-base font-bold text-foreground font-mono">{tr(step.title, lang)}</div>
+          {step.subtitle && <div className="text-sm text-muted-foreground mt-0.5 mb-3">{tr(step.subtitle, lang)}</div>}
+          {step.info && (
+            <div className="border border-primary/20 bg-primary/10 rounded-lg px-4 py-3 text-sm text-foreground mb-4">💡 {tr(step.info, lang)}</div>
+          )}
+        </>
       )}
 
       <div className="space-y-5">
-        {step.fields.map((f) => (
-          <FieldView key={f.id} field={f} value={answers[f.id]} onChange={(v) => setVal(f.id, v)} lang={lang} answers={answers} setVal={setVal} />
-        ))}
+        <FieldView key={field.id} field={field} value={answers[field.id]} onChange={(v) => setVal(field.id, v)} lang={lang} answers={answers} setVal={setVal} />
       </div>
 
       <div className="flex justify-between items-center pt-6">
         <div className="flex items-center gap-2">
-          <button onClick={() => (sub === 0 ? onBack() : setSub(sub - 1))}
+          <button onClick={() => (q === 0 ? onBack() : setQ(q - 1))}
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors font-mono">
             <ArrowLeft size={14} /> {u.back}
           </button>
@@ -662,7 +672,7 @@ function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
             </button>
           )}
         </div>
-        <button disabled={!canNext} onClick={() => (isLast ? onFinish(answers) : setSub(sub + 1))}
+        <button disabled={!canNext} onClick={() => (isLast ? onFinish(answers) : setQ(q + 1))}
           className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-40">
           {isLast ? u.run : u.next} {isLast ? <Sparkles size={14} /> : <ArrowRight size={14} />}
         </button>
