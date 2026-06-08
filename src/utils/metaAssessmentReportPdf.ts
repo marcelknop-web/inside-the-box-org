@@ -32,6 +32,8 @@ export interface MetaReportData {
   workingPapers?: WorkingPapers;
   /** Auditor free-text evidence notes per obligation (requirement id → note). */
   auditorNotes?: Record<string, string>;
+  /** Executive Brief — when true, produce a concise ~2-page management summary only. */
+  executiveBrief?: boolean;
 }
 
 /* ── tiny i18n ─────────────────────────────────────────────── */
