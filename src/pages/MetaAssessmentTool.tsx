@@ -1468,7 +1468,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
 
   const [pdfBusy, setPdfBusy] = useState(false);
   const [wpBusy, setWpBusy] = useState(false);
-  const [includeWorkingPapers, setIncludeWorkingPapers] = useState(true);
+  const [includeWorkingPapers, setIncludeWorkingPapers] = useState(false);
   // Gate: ask the user to confirm the audit mode before the report is generated.
   const [auditModeAsked, setAuditModeAsked] = useState(false);
 
