@@ -672,6 +672,9 @@ export class PdfDoc {
     const color = status === 'pass' ? C.pass : status === 'partial' ? C.partial : C.fail;
     const startX = x ?? LAYOUT.LEFT;
 
+    // Top padding so the badge never overlaps the preceding line of text.
+    this.y += 2.5;
+
     this.doc.setFont(this.headFont, 'bold');
     this.doc.setFontSize(6);
     const badgeW = this.doc.getTextWidth(label) + 5;
