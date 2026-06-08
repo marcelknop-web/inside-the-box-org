@@ -538,6 +538,16 @@ function textCardExecutiveSummary(input: PresentationInput): Card {
 
 /* ── deck assembly ─────────────────────────────────────────────── */
 
+const EXECUTIVE_TONE =
+  'BOARD-LEVEL EXECUTIVE BRIEFING MODE. Produce a board-level executive briefing in the style of a top-tier management-consulting deck (McKinsey / BCG / Bain / Gartner Executive Briefings) — NOT an audit, compliance or internal-control report. ' +
+  'EXECUTIVE STORY FIRST: never open with controls, articles, clauses, findings or assessment details. Lead with the business conclusion, the management message and the decision required. Every slide must answer "So what?" with a clear business takeaway. ' +
+  'VISUAL OVER TEXT: at least 70% visual communication, at most 30% text. Prefer scorecards, KPI tiles, traffic lights, risk matrices, heatmaps, transformation maps, maturity diagrams, timelines, prioritization (impact vs effort) matrices, before/after visuals, operating-model graphics and executive dashboards. Avoid long paragraphs, bullet-heavy pages, audit-style findings tables and compliance checklists. ' +
+  'MANAGEMENT LANGUAGE: use business risk, operational impact, regulatory exposure, resilience, strategic priority, investment priority and business outcome. Avoid control objective, requirement mapping, assessment finding, audit observation and clause interpretation in the main deck. ' +
+  'AUDIT DETAIL BELONGS IN THE APPENDIX ONLY: keep detailed findings, controls, articles, requirement mappings and evidence out of the main executive slides and place them in the clearly-labelled appendix slides at the end. ' +
+  'GAMMA VISUAL MODE: always use Gamma\'s most visual, infographic-led presentation style — executive dashboards, management scorecards and strategic consulting visuals over text slides. ' +
+  'FRAMEWORK AGNOSTIC: this executive storytelling structure stays identical across every framework; only the content changes. ' +
+  'Preserve every fact, figure, percentage and finding exactly as provided — never invent data, findings or risks. The deck must be board-ready with no manual editing.';
+
 const VISUAL_TONE =
   'VISUAL EXECUTIVE MODE. Produce a visually compelling executive presentation — NOT a report-style or text-heavy slide deck. ' +
   'Visual first, text second: an executive must grasp each slide in seconds and the key messages in under 5 minutes without reading a report. ' +
