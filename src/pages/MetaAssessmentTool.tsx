@@ -224,8 +224,8 @@ function ui(_lang: Lang) {
     erType: 'Type',
     erUsedFor: 'Used For',
     erContribution: 'Result Contribution',
-    exportWorkingPapers: 'Export Working Papers',
-    exportWorkingPapersJson: 'Working Papers (JSON)',
+    exportWorkingPapers: 'Download Working Papers',
+    exportWorkingPapersJson: 'Download Working Papers (JSON)',
     noWorkingPapers: 'No working papers match the current filters.',
     // ── Executive presentation (Gamma) ──
     genPresentation: 'Generate Presentation',
