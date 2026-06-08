@@ -2199,13 +2199,15 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
               )}
             </div>
 
-            <div>
-              <button onClick={generatePresentation}
-                disabled={slideValidation.result.criticalErrors > 0}
-                className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed">
-                <Presentation size={14} /> {u.genPresentation}
-              </button>
-            </div>
+            {deckStatus !== 'ready' && (
+              <div>
+                <button onClick={generatePresentation}
+                  disabled={slideValidation.result.criticalErrors > 0}
+                  className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed">
+                  <Presentation size={14} /> {u.genPresentation}
+                </button>
+              </div>
+            )}
           </>
         )}
       </div>
