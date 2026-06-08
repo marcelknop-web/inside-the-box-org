@@ -17,9 +17,12 @@ import { consultantProfiles } from '@/data/consultantProfiles';
 export const SiteChrome = ({
   children,
   onBrandClick,
+  hideLanguageSwitch,
 }: {
   children: ReactNode;
   onBrandClick?: () => void;
+  /** Hide the language switcher (for English-only pages like GapZero). */
+  hideLanguageSwitch?: boolean;
 }) => {
   const { language, setLanguage, t } = useLanguage();
   const navigate = useNavigate();
