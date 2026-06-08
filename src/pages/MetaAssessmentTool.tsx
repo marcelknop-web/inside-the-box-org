@@ -1468,7 +1468,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
 
   const [pdfBusy, setPdfBusy] = useState(false);
   const [wpBusy, setWpBusy] = useState(false);
-  const [includeWorkingPapers, setIncludeWorkingPapers] = useState(true);
+  const [includeWorkingPapers, setIncludeWorkingPapers] = useState(false);
   // Gate: ask the user to confirm the audit mode before the report is generated.
   const [auditModeAsked, setAuditModeAsked] = useState(false);
 
@@ -2018,8 +2018,8 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
         </div>
       </div>
 
-      {/* Working Papers & Assessment Traceability (after Findings, before Risk Landscape) */}
-      <WorkingPapersSection wp={workingPapers} u={u} />
+      {/* Working Papers & Assessment Traceability — only when Internal Audit Mode is on */}
+      {includeWorkingPapers && <WorkingPapersSection wp={workingPapers} u={u} />}
 
       {/* Risks — rendered from the canonical computed.risks (same scores/ratings as PDF) */}
       {computed.risks.length > 0 && (
