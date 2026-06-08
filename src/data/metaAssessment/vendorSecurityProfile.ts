@@ -24,9 +24,9 @@ export const VENDOR_SECURITY_PROFILE: StandardProfile = {
     fr: 'Gestion des risques tiers (TPRM)',
   },
   description: {
-    de: 'Audit-Workflow zur Sicherheitsbewertung von Lieferanten und Dienstleistern (Third-Party Risk Management).',
-    en: 'Conformity audit workflow for assessing the security posture of suppliers and service providers (third-party risk management).',
-    fr: "Flux d'audit de conformité pour évaluer la posture de sécurité des fournisseurs et prestataires (gestion des risques tiers).",
+    de: 'Sicherheitsbewertung von Lieferanten und Dienstleistern (TPRM).',
+    en: 'Security assessment of suppliers and service providers (TPRM).',
+    fr: "Évaluation de sécurité des fournisseurs et prestataires (TPRM).",
   },
   intake: [
     {

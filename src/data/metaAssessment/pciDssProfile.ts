@@ -24,9 +24,9 @@ export const PCIDSS_PROFILE: StandardProfile = {
     fr: 'Payment Card Industry Data Security Standard v4.0.1',
   },
   description: {
-    de: 'Readiness-Workflow für PCI DSS v4.0.1 entlang der 12 Kernanforderungen und sechs Kontrollziele für die Karteninhaberdaten-Umgebung (CDE).',
-    en: 'Readiness workflow for PCI DSS v4.0.1 along the 12 core requirements and six control objectives for the cardholder data environment (CDE).',
-    fr: "Flux de préparation PCI DSS v4.0.1 selon les 12 exigences et six objectifs de contrôle pour l'environnement des données de cartes (CDE).",
+    de: 'Readiness-Bewertung für PCI DSS v4.0.1 (12 Anforderungen, CDE).',
+    en: 'Readiness assessment for PCI DSS v4.0.1 (12 requirements, CDE).',
+    fr: "Évaluation de préparation PCI DSS v4.0.1 (12 exigences, CDE).",
   },
   intake: [
     {

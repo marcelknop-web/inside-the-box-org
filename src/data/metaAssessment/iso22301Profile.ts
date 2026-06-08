@@ -24,9 +24,9 @@ export const ISO22301_PROFILE: StandardProfile = {
     fr: 'ISO/IEC 22301:2019',
   },
   description: {
-    de: 'Audit-Workflow für ein Business-Continuity-Managementsystem (BCMS) nach ISO 22301.',
-    en: 'Conformity audit workflow for a Business Continuity Management System (BCMS) under ISO 22301.',
-    fr: "Flux d'audit de conformité pour un système de management de la continuité d'activité (SMCA) selon ISO 22301.",
+    de: 'Audit eines Business-Continuity-Managementsystems (ISO 22301).',
+    en: 'Audit of a Business Continuity Management System (ISO 22301).',
+    fr: "Audit d'un système de management de la continuité d'activité (ISO 22301).",
   },
   intake: [
     {

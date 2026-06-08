@@ -24,9 +24,9 @@ export const IEC62443_PROFILE: StandardProfile = {
     fr: 'Famille IEC 62443',
   },
   description: {
-    de: 'Bewertungs-Workflow für die Sicherheit industrieller Automatisierungssysteme nach IEC 62443.',
-    en: 'Assessment workflow for industrial automation and control systems security under IEC 62443.',
-    fr: "Flux d'évaluation pour la sécurité des systèmes d'automatisation industrielle selon IEC 62443.",
+    de: 'Sicherheitsbewertung industrieller Automatisierungssysteme (IEC 62443).',
+    en: 'Security assessment for industrial automation systems (IEC 62443).',
+    fr: "Évaluation de sécurité des systèmes d'automatisation industrielle (IEC 62443).",
   },
   intake: [
     {

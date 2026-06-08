@@ -25,9 +25,9 @@ export const CIS_CONTROLS_PROFILE: StandardProfile = {
     fr: 'CIS Controls v8 (IG1–IG3)',
   },
   description: {
-    de: 'Audit-Workflow für die 18 CIS Critical Security Controls v8 entlang der Implementation Groups (IG1–IG3).',
-    en: 'Conformity audit workflow for the 18 CIS Critical Security Controls v8 along the Implementation Groups (IG1–IG3).',
-    fr: "Flux d'audit de conformité pour les 18 CIS Critical Security Controls v8 selon les Implementation Groups (IG1–IG3).",
+    de: 'Bewertung gegen CIS Controls v8 und Implementation Groups (IG1–IG3).',
+    en: 'Assessment against CIS Controls v8 and Implementation Groups (IG1–IG3).',
+    fr: "Évaluation selon les CIS Controls v8 et Implementation Groups (IG1–IG3).",
   },
   intake: [
     {
