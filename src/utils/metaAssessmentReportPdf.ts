@@ -378,7 +378,7 @@ function buildRootCauseClusters(
 
 
 export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<void> {
-  const { profile, result, computed, answers, entityName, insights, reportMeta, includeWorkingPapers, workingPapers, auditorNotes } = data;
+  const { profile, result, computed, answers, entityName, insights, reportMeta, includeWorkingPapers, workingPapers, auditorNotes, executiveBrief } = data;
   // The report is produced in English only, independent of the UI language.
   const lang: Lang = 'en';
 
