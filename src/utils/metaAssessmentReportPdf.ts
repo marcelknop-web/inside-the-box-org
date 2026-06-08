@@ -873,7 +873,36 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     pdf.fieldInline('AI Insight Engine', reportMeta.aiInsightEngineVersion);
   }
 
+  // ── Appendix B  Scoring Methodology (transparency / defensibility) ──
+  pdf.newPage();
+  pdf.heading(t('secMethod', lang), 1);
+  pdf.addBookmark(t('secMethod', lang), 1);
+  pdf.metaLine(ORIGIN.assessment);
+  pdf.introText('This appendix documents exactly how every score and readiness percentage in this report is calculated, so each figure is fully reproducible from the recorded answers.');
+
+  pdf.heading('Control scoring', 2);
+  pdf.bulletItem('Each control is scored deterministically: Pass = 100, Partial = 50, Gap = 0.');
+  pdf.bulletItem('A control is Pass only when all required evidence tokens are present, Partial when some are present, Gap when none are.');
+
+  pdf.heading('Readiness score', 2);
+  pdf.bulletItem('Readiness % = weighted average of control scores, where each control carries its defined weight (default 1).');
+  pdf.bulletItem('Formula: sum(controlScore × weight) ÷ sum(weight), rounded to the nearest integer.');
+  pdf.bulletItem('Bands: Strong ≥ 80%, Substantial ≥ 60%, Developing ≥ 35%, Limited < 35%.');
+
+  pdf.heading('Audit readiness dimensions', 2);
+  pdf.fieldInline('Documentation', 'Controls backed by documented evidence (policy/procedure/document/audit report) ÷ total controls.');
+  pdf.fieldInline('Operational', 'The weighted compliance score — effectiveness of implemented controls.');
+  pdf.fieldInline('Governance', 'Average score of governance-related categories; overall score when no such category exists.');
+  pdf.fieldInline('Evidence', 'Coverage weighted by evidence strength (Low 25, Medium 50, High 75, Very high 100) ÷ total controls.');
+  pdf.metaLine('Overall audit readiness = mean of the four dimension percentages.');
+
+  pdf.heading('Risk scoring', 2);
+  pdf.bulletItem('One risk is derived per non-passing control. Risk score = Likelihood × Impact (1–5 scale).');
+  pdf.bulletItem('Default likelihood: 4 for a Gap, 3 for a Partial; impact defaults to 3 and can be tuned per control.');
+  pdf.bulletItem('Ratings: Critical ≥ 20, High ≥ 13, Medium ≥ 6, Low < 6.');
+
   // ── Appendix A  Working Papers & Traceability (Internal Audit Mode) ──
+
   if (includeWorkingPapers) {
     const wp = workingPapers
       ?? buildWorkingPapers(profile, answers, result, computed, insights, reportMeta, lang);
