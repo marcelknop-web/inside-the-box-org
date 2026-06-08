@@ -2190,13 +2190,13 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
       <div className="pt-2 space-y-4">
         <div className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground">Exports</div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {/* Management Report */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {/* 1. Report as PDF */}
           {insights && (
             <div className="bg-background/40 border border-border rounded-lg p-4 space-y-3">
               <div>
                 <div className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <FileText size={15} className="text-primary" /> Management Report
+                  <FileText size={15} className="text-primary" /> Report as PDF
                 </div>
                 <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Full board-ready assessment report.</p>
               </div>
@@ -2206,15 +2206,33 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
             </div>
           )}
 
-          {/* Executive Presentation (Gamma) */}
-          {deckStatus === 'ready' && (deckUrl || deckPdfUrl) && (
-            <div className="bg-background/40 border border-border rounded-lg p-4 space-y-3">
-              <div>
-                <div className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <Presentation size={15} className="text-primary" /> Executive Presentation
-                </div>
-                <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Visual slide deck generated via Gamma.</p>
+          {/* 2. Export working papers */}
+          <div className="bg-background/40 border border-border rounded-lg p-4 space-y-3">
+            <div>
+              <div className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <ClipboardList size={15} className="text-primary" /> Export working papers
               </div>
+              <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Audit traceability &amp; evidence register.</p>
+            </div>
+            <div className="flex flex-col gap-2">
+              <button onClick={exportWorkingPapersPdf} disabled={wpBusy} className="w-full inline-flex items-center justify-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80 disabled:opacity-60">
+                {wpBusy ? <Loader2 size={14} className="animate-spin" /> : <ClipboardList size={14} />} {u.exportWorkingPapers} (PDF)
+              </button>
+              <button onClick={exportWorkingPapersJson} className="w-full inline-flex items-center justify-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80">
+                <Download size={14} /> {u.exportWorkingPapersJson}
+              </button>
+            </div>
+          </div>
+
+          {/* 3. Generate presentation */}
+          <div className="bg-background/40 border border-border rounded-lg p-4 space-y-3">
+            <div>
+              <div className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <Presentation size={15} className="text-primary" /> Generate presentation
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Visual slide deck generated via Gamma.</p>
+            </div>
+            {deckStatus === 'ready' && (deckUrl || deckPdfUrl) ? (
               <div className="flex flex-col gap-2">
                 {deckUrl && (
                   <a href={deckUrl} target="_blank" rel="noopener noreferrer"
@@ -2229,32 +2247,25 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
                   </a>
                 )}
               </div>
-            </div>
-          )}
-
-          {/* Working Papers */}
-          <div className="bg-background/40 border border-border rounded-lg p-4 space-y-3">
-            <div>
-              <div className="text-sm font-semibold text-foreground flex items-center gap-2">
-                <ClipboardList size={15} className="text-primary" /> Working Papers
-              </div>
-              <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Audit traceability & evidence register.</p>
-            </div>
-            <div className="flex flex-col gap-2">
-              <button onClick={exportWorkingPapersPdf} disabled={wpBusy} className="w-full inline-flex items-center justify-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80 disabled:opacity-60">
-                {wpBusy ? <Loader2 size={14} className="animate-spin" /> : <ClipboardList size={14} />} {u.exportWorkingPapers} (PDF)
+            ) : deckStatus === 'error' ? (
+              <button onClick={generatePresentation}
+                className="w-full inline-flex items-center justify-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90">
+                <RotateCcw size={14} /> {u.retry}
               </button>
-              <button onClick={exportWorkingPapersJson} className="w-full inline-flex items-center justify-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80">
-                <Download size={14} /> {u.exportWorkingPapersJson}
+            ) : (
+              <button onClick={generatePresentation}
+                disabled={slideValidation.result.criticalErrors > 0}
+                className="w-full inline-flex items-center justify-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed">
+                <Presentation size={14} /> {u.genPresentation}
               </button>
-            </div>
+            )}
           </div>
 
-          {/* Raw Data */}
+          {/* 4. Raw data */}
           <div className="bg-background/40 border border-border rounded-lg p-4 space-y-3">
             <div>
               <div className="text-sm font-semibold text-foreground flex items-center gap-2">
-                <Download size={15} className="text-primary" /> Raw Data
+                <Download size={15} className="text-primary" /> Raw data
               </div>
               <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Machine-readable assessment result.</p>
             </div>
