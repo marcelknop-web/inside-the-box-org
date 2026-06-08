@@ -2129,8 +2129,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
 
       {/* Executive presentation (Gamma) */}
       <div className="bg-background/40 border border-primary/15 rounded-lg p-5 space-y-4">
-        {deckStatus === 'generating' ? (
-          /* Waiting is shown as a guided pop-up overlay. */
+        {deckStatus === 'generating' && (
           <AiWaitModal
             title={u.aiAnalysis}
             label={u.analyzingDeck}
@@ -2138,7 +2137,9 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
             progress={deckProgress}
             u={u}
           />
-        ) : (
+        )}
+
+        {deckStatus !== 'generating' && (
           <>
             <div>
               <div className="text-sm font-semibold text-foreground flex items-center gap-2">
@@ -2160,10 +2161,6 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
                 <div className="text-sm font-semibold text-destructive flex items-center gap-2">
                   <AlertTriangle size={15} /> {u.presentationFailed}
                 </div>
-                <button onClick={generatePresentation}
-                  className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80">
-                  <RotateCcw size={14} /> {u.retry}
-                </button>
               </div>
             )}
 
@@ -2184,16 +2181,6 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
                 <p className="text-[11px] text-destructive leading-relaxed">{u.slideValidationBlock}</p>
               )}
             </div>
-
-            {deckStatus !== 'ready' && (
-              <div>
-                <button onClick={generatePresentation}
-                  disabled={slideValidation.result.criticalErrors > 0}
-                  className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed">
-                  <Presentation size={14} /> {u.genPresentation}
-                </button>
-              </div>
-            )}
           </>
         )}
       </div>
