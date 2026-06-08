@@ -1764,6 +1764,25 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
       setPdfBusy(false);
     }
   };
+  const exportBrief = async () => {
+    const check = validateConsistency(result, computed);
+    if (!check.ok) {
+      console.error('Report consistency validation failed', check.errors);
+      alert(`${u.consistencyError}\n\n${check.errors.join('\n')}`);
+      return;
+    }
+    setBriefBusy(true);
+    try {
+      await generateMetaAssessmentPdf({ profile, lang, result, computed, answers, entityName, insights, reportMeta: docMeta, executiveBrief: true });
+    } catch (e) {
+      console.error('Executive brief generation failed', e);
+      alert(u.pdfError);
+    } finally {
+      setBriefBusy(false);
+    }
+  };
+
+
 
   // ── Executive presentation (Gamma) ──
   const [deckType, setDeckType] = useState<PresentationType>('visual-executive');
