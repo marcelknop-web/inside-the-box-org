@@ -2693,9 +2693,19 @@ const MetaAssessmentTool = () => {
         <PageMeta title="GapZero — AI-Powered Internal Audit & Compliance Readiness — Inside the Box" description="GapZero turns any standard into an audit-ready assessment: rule-based compliance with an AI insight & advisory layer — intake, assessment, AI insights and board-ready reporting." />
         <Helmet><meta name="robots" content="noindex,nofollow" /></Helmet>
 
+        {showIntro && <HowItWorksModal u={u} onClose={closeIntro} />}
+
         <main className="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
           <header className="mb-8">
-            <div className="font-mono text-[11px] tracking-[0.3em] uppercase text-primary mb-3">{u.section}</div>
+            <div className="flex items-start justify-between gap-3">
+              <div className="font-mono text-[11px] tracking-[0.3em] uppercase text-primary mb-3">{u.section}</div>
+              <button
+                onClick={() => setShowIntro(true)}
+                className="flex-shrink-0 inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors border border-border rounded-md px-2.5 py-1"
+              >
+                <Sparkles size={12} /> {u.archTitle}
+              </button>
+            </div>
             <h1 className="font-mono text-2xl sm:text-3xl md:text-4xl text-foreground leading-tight">
               {phase === 'standard' ? u.headline : `${profile?.name} — ${tr(profile?.fullName, lang)}`}
             </h1>
@@ -2705,20 +2715,8 @@ const MetaAssessmentTool = () => {
             )}
           </header>
 
-          {/* Phase nav */}
-          <div className="flex items-center gap-2 mb-8 font-mono text-[11px] uppercase tracking-wider">
-            {(['standard', 'intake', 'report'] as Phase[]).map((ph, i) => {
-              const order = ['standard', 'intake', 'report'];
-              const active = order.indexOf(phase) >= i;
-              const labels = { standard: u.chooseStandard, intake: 'Intake', report: 'Assessment & Report' };
-              return (
-                <div key={ph} className="flex items-center gap-2">
-                  {i > 0 && <span className="text-border">›</span>}
-                  <span className={active ? 'text-primary' : 'text-muted-foreground/50'}>{labels[ph]}</span>
-                </div>
-              );
-            })}
-          </div>
+          {/* Visual progress stepper */}
+          <ProgressStepper phase={phase} labels={[u.chooseStandard, 'Intake', 'Assessment & Report']} />
 
           {phase === 'standard' && (
             <>
