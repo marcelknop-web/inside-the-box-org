@@ -174,6 +174,12 @@ const T: Record<string, Record<Lang, string>> = {
     en: 'This report does not constitute a formal certification and does not replace assessment by a recognised authority. The compliance assessment is based on the information provided during intake.',
     fr: "Ce rapport ne constitue pas une certification formelle et ne remplace pas l'évaluation par un organisme reconnu. L'évaluation de conformité repose sur les informations fournies lors de l'admission.",
   },
+
+  rootCauseSummary: { de: 'Executive Root Causes', en: 'Executive Root Causes', fr: 'Executive Root Causes' },
+  affectedControls: { de: 'Affected Controls', en: 'Affected Controls', fr: 'Affected Controls' },
+  businessImpactCol: { de: 'Business Impact', en: 'Business Impact', fr: 'Business Impact' },
+  belowConformity: { de: 'Below Conformity', en: 'Below Conformity', fr: 'Below Conformity' },
+  secMethod: { de: 'Anhang B  Scoring-Methodik', en: 'Appendix B  Scoring Methodology', fr: 'Annexe B  Méthodologie de notation' },
 };
 
 function t(key: string, _lang: Lang): string {
