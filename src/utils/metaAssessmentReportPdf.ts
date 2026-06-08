@@ -412,17 +412,17 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     confidentialNote: t('confidential', lang),
   });
 
-  // ── TOC ─────────────────────────────────────────────────────
-  pdf.tableOfContents(t('toc', lang), [
-    t('sec1', lang), t('sec2', lang), t('sec3', lang), t('sec4', lang),
-    t('sec5', lang), t('sec6', lang), t('sec7', lang),
-    ...(insights ? [t('sec8', lang)] : []),
-    t('sec9', lang),
-    ...(includeWorkingPapers ? [t('secWP', lang)] : []),
-    t('secMethod', lang),
-
-
-  ]);
+  // ── TOC (skipped in Executive Brief mode) ───────────────────
+  if (!executiveBrief) {
+    pdf.tableOfContents(t('toc', lang), [
+      t('sec1', lang), t('sec2', lang), t('sec3', lang), t('sec4', lang),
+      t('sec5', lang), t('sec6', lang), t('sec7', lang),
+      ...(insights ? [t('sec8', lang)] : []),
+      t('sec9', lang),
+      ...(includeWorkingPapers ? [t('secWP', lang)] : []),
+      t('secMethod', lang),
+    ]);
+  }
 
   const merged = result.requirements.map((r) => {
     const meta = profile.requirements.find((x) => x.id === r.id);
@@ -433,6 +433,57 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   const partial = computed.score.counts.partial;
   const fail = computed.score.counts.fail;
   const pct = computed.score.weighted;
+
+  // ── Executive Brief — concise ~2-page management summary ─────
+  if (executiveBrief) {
+    pdf.newPage();
+    pdf.heading(t('sec1', lang), 1);
+    if (result.summary) pdf.bodyParagraph(result.summary);
+
+    pdf.kpiRow([
+      [`${pct}%`, t('readiness', lang)],
+      [String(pass), t('passed', lang)],
+      [String(partial), t('partial', lang)],
+      [String(fail), t('gaps', lang)],
+    ]);
+
+    pdf.sectionLabel(t('distribution', lang));
+    pdf.complianceBar(pass, partial, fail, {
+      pass: t('passed', lang), partial: t('partial', lang), fail: t('gaps', lang),
+      title: t('verdictOverview', lang),
+    });
+
+    // Executive Root Causes — the heart of the brief.
+    const briefClusters = buildRootCauseClusters(profile, merged, lang);
+    if (briefClusters.length) {
+      const open = fail + partial;
+      pdf.heading(t('rootCauseSummary', lang), 2);
+      pdf.introText(
+        `The ${open} open finding${open === 1 ? '' : 's'} concentrate in ${briefClusters.length} root-cause theme${briefClusters.length === 1 ? '' : 's'}. Resolving these themes addresses the majority of individual gaps.`,
+      );
+      briefClusters.slice(0, 5).forEach((c, i) => {
+        pdf.checkSpace(20);
+        pdf.heading(`RC${i + 1}  ${c.rootCause}`, 3);
+        pdf.fieldInline(t('affectedControls', lang), c.controlIds.join(', '));
+        pdf.fieldInline(t('belowConformity', lang), `${c.controlIds.length}  (${c.fail} gap${c.fail === 1 ? '' : 's'}, ${c.partial} partial)`);
+        pdf.bodyText(c.businessImpact);
+      });
+    }
+
+    // Top priority actions (first roadmap items).
+    const topActions: string[] = [];
+    computed.roadmap.forEach((bucket) => bucket.items.forEach((it) => topActions.push(`${PRIORITY_LABEL[it.priority][lang]} — ${it.title}`)));
+    if (topActions.length) {
+      pdf.heading('Top Priorities', 2);
+      topActions.slice(0, 6).forEach((a) => pdf.bulletItem(a));
+    }
+
+    pdf.bodyParagraph(t('disclaimer', lang));
+    pdf.save(`${profile.id}-executive-brief-${entityName.replace(/[^a-z0-9]/gi, '_').slice(0, 30)}.pdf`);
+    return;
+  }
+
+
 
   // ── 1 Executive Summary ─────────────────────────────────────
   pdf.newPage();
