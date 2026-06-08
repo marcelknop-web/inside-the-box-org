@@ -680,6 +680,9 @@ export function buildPresentationContent(type: PresentationType, input: Presenta
 
   let additionalInstructions = tone + limitNote + frameworkVisualGuidance(profile);
   if (type !== 'text') additionalInstructions += STUDIO_DESIGN + visualMap(present);
+  additionalInstructions +=
+    ` TITLE / COVER SLIDE: the very first (cover) slide MUST prominently display the framework name "${profile.name}" in the main title so the reader immediately knows which standard this assessment is about. ` +
+    `Always include "${profile.name}" in the cover headline (e.g. "${profile.name} — Information Security Readiness" or "${profile.name} Readiness: Action Required"), and show the organization "${entityName}" as the subtitle. Never produce a generic cover title that omits the framework name.`;
 
   const titleByType: Record<PresentationType, string> = {
     'visual-executive': `${profile.name} Executive Briefing — ${entityName}`,
