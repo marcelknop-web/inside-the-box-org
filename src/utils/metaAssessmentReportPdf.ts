@@ -174,6 +174,12 @@ const T: Record<string, Record<Lang, string>> = {
     en: 'This report does not constitute a formal certification and does not replace assessment by a recognised authority. The compliance assessment is based on the information provided during intake.',
     fr: "Ce rapport ne constitue pas une certification formelle et ne remplace pas l'évaluation par un organisme reconnu. L'évaluation de conformité repose sur les informations fournies lors de l'admission.",
   },
+
+  rootCauseSummary: { de: 'Executive Root Causes', en: 'Executive Root Causes', fr: 'Executive Root Causes' },
+  affectedControls: { de: 'Affected Controls', en: 'Affected Controls', fr: 'Affected Controls' },
+  businessImpactCol: { de: 'Business Impact', en: 'Business Impact', fr: 'Business Impact' },
+  belowConformity: { de: 'Below Conformity', en: 'Below Conformity', fr: 'Below Conformity' },
+  secMethod: { de: 'Anhang B  Scoring-Methodik', en: 'Appendix B  Scoring Methodology', fr: 'Annexe B  Méthodologie de notation' },
 };
 
 function t(key: string, _lang: Lang): string {
@@ -302,6 +308,73 @@ function formatAnswer(field: { type: string; options?: { id: string; label: any 
   return val || '—';
 }
 
+// ── Executive Root Cause clustering (deterministic) ─────────────
+// Reduces the individual gaps/partials to a small number of management
+// themes by grouping non-passing controls by their assessment category,
+// then attaches a plain-language business consequence per theme.
+type RootCauseCluster = {
+  rootCause: string;
+  controlIds: string[];
+  fail: number;
+  partial: number;
+  businessImpact: string;
+};
+
+// Maps a category name/id to a concise, plain-language business consequence.
+function businessImpactFor(key: string): string {
+  const k = key.toLowerCase();
+  if (/govern|leitung|polic|richtlin|politiq|aufsicht|oversight|account|management|organis/.test(k))
+    return 'Management blind spots and unclear accountability for compliance outcomes.';
+  if (/document|dokument|procedure|verfahren|record|nachweis/.test(k))
+    return 'Operational inconsistency and a weak audit trail under examination.';
+  if (/monitor|measur|metric|kpi|improv|verbesser|review|evidence|preuve/.test(k))
+    return 'No reliable evidence of performance or continual improvement.';
+  if (/train|awareness|schulung|competen|skill|personal/.test(k))
+    return 'Elevated human-error and capability risk across the workforce.';
+  if (/incident|response|continuit|notfall|recover|resilien|crisis/.test(k))
+    return 'Slower detection of and recovery from disruptions and incidents.';
+  if (/access|identit|zugang|berecht|authentic|privile/.test(k))
+    return 'Increased likelihood of unauthorised access to critical systems.';
+  if (/supplier|vendor|third|lieferant|procure|beschaff|outsourc/.test(k))
+    return 'Unmanaged third-party and supply-chain exposure.';
+  if (/asset|inventory|configur|patch|vulnerab|technical|netz|network/.test(k))
+    return 'Technical debt and exploitable weaknesses in the environment.';
+  return 'Increased likelihood of non-conformities and findings in this domain.';
+}
+
+function buildRootCauseClusters(
+  profile: StandardProfile,
+  merged: { id: string; status: string }[],
+  lang: Lang,
+): RootCauseCluster[] {
+  const metaById = new Map(profile.requirements.map((r) => [r.id, r]));
+  const catName = new Map((profile.categories ?? []).map((c) => [c.id, tr(c.name, lang)]));
+  const groups = new Map<string, RootCauseCluster>();
+
+  merged.forEach((r) => {
+    if (r.status === 'pass') return;
+    const meta = metaById.get(r.id);
+    const catId = meta?.categoryId ?? 'general';
+    const label = catName.get(catId) ?? (catId === 'general' ? 'General' : catId);
+    const cur = groups.get(catId) ?? {
+      rootCause: `Insufficient ${label}`,
+      controlIds: [],
+      fail: 0,
+      partial: 0,
+      businessImpact: businessImpactFor(`${label} ${catId}`),
+    };
+    cur.controlIds.push(r.id);
+    if (r.status === 'fail') cur.fail++;
+    else cur.partial++;
+    groups.set(catId, cur);
+  });
+
+  return [...groups.values()].sort(
+    (a, b) => (b.controlIds.length - a.controlIds.length) || (b.fail - a.fail),
+  );
+}
+
+
 export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<void> {
   const { profile, result, computed, answers, entityName, insights, reportMeta, includeWorkingPapers, workingPapers, auditorNotes } = data;
   // The report is produced in English only, independent of the UI language.
@@ -344,6 +417,9 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     ...(insights ? [t('sec8', lang)] : []),
     t('sec9', lang),
     ...(includeWorkingPapers ? [t('secWP', lang)] : []),
+    t('secMethod', lang),
+
+
   ]);
 
   const merged = result.requirements.map((r) => {
@@ -395,7 +471,29 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     pdf.metaLine(d.basis);
   });
 
+  // ── Executive Root Causes (deterministic clustering) ─────────
+  // Reduces many individual gaps to a few management themes so a reader
+  // grasps the whole problem in seconds.
+  const clusters = buildRootCauseClusters(profile, merged, lang);
+  if (clusters.length) {
+    const open = fail + partial;
+    pdf.heading(t('rootCauseSummary', lang), 2);
+    pdf.metaLine(ORIGIN.assessment);
+    pdf.introText(
+      `The ${open} open finding${open === 1 ? '' : 's'} concentrate in ${clusters.length} root-cause theme${clusters.length === 1 ? '' : 's'}. Resolving these themes addresses the majority of individual gaps.`,
+    );
+    clusters.slice(0, 6).forEach((c, i) => {
+      pdf.checkSpace(20);
+      pdf.heading(`RC${i + 1}  ${c.rootCause}`, 3);
+      pdf.fieldInline(t('affectedControls', lang), c.controlIds.join(', '));
+      pdf.fieldInline(t('belowConformity', lang), `${c.controlIds.length}  (${c.fail} gap${c.fail === 1 ? '' : 's'}, ${c.partial} partial)`);
+      pdf.sectionLabel(t('businessImpactCol', lang));
+      pdf.bodyText(c.businessImpact);
+    });
+  }
+
   // ── Why This Matters (translate results into business language) ──
+
   pdf.heading(t('whyMatters', lang), 2);
   pdf.bodyParagraph(
     'This section translates the assessment results into business language for executives, board members and management teams. It frames the findings in terms of business impact, regulatory exposure, operational consequences, financial implications and strategic priorities — not just a score.',
@@ -548,10 +646,14 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     });
     pdf.y += 2;
     [...risks].sort((a, b) => b.score - a.score).forEach((r) => {
-      pdf.checkSpace(12);
+      pdf.checkSpace(16);
       pdf.statusBadge(r.rating === 'low' ? 'pass' : r.rating === 'medium' ? 'partial' : 'fail');
       pdf.metaLine(`${r.id} · ${r.name}  (${t('impact', lang)} ${r.impact} × ${t('likelihood', lang)} ${r.likelihood} = ${r.score})`);
+      // Business consequence — translate the control deficiency into a plain
+      // statement of what could happen to the organisation.
+      pdf.bodyText(`Business consequence: ${businessImpactFor(`${r.category} ${r.name}`)}`);
     });
+
   }
 
   // ── 7 Recommendations and Roadmap ───────────────────────────
@@ -779,6 +881,35 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     pdf.newPage();
     renderWorkingPapers(pdf, wp);
   }
+
+  // ── Appendix B  Scoring Methodology (transparency / defensibility) ──
+  pdf.newPage();
+  pdf.heading(t('secMethod', lang), 1);
+  pdf.addBookmark(t('secMethod', lang), 1);
+  pdf.metaLine(ORIGIN.assessment);
+  pdf.introText('This appendix documents exactly how every score and readiness percentage in this report is calculated, so each figure is fully reproducible from the recorded answers.');
+
+  pdf.heading('Control scoring', 2);
+  pdf.bulletItem('Each control is scored deterministically: Pass = 100, Partial = 50, Gap = 0.');
+  pdf.bulletItem('A control is Pass only when all required evidence tokens are present, Partial when some are present, Gap when none are.');
+
+  pdf.heading('Readiness score', 2);
+  pdf.bulletItem('Readiness % = weighted average of control scores, where each control carries its defined weight (default 1).');
+  pdf.bulletItem('Formula: sum(controlScore × weight) ÷ sum(weight), rounded to the nearest integer.');
+  pdf.bulletItem('Bands: Strong ≥ 80%, Substantial ≥ 60%, Developing ≥ 35%, Limited < 35%.');
+
+  pdf.heading('Audit readiness dimensions', 2);
+  pdf.fieldInline('Documentation', 'Controls backed by documented evidence (policy/procedure/document/audit report) ÷ total controls.');
+  pdf.fieldInline('Operational', 'The weighted compliance score — effectiveness of implemented controls.');
+  pdf.fieldInline('Governance', 'Average score of governance-related categories; overall score when no such category exists.');
+  pdf.fieldInline('Evidence', 'Coverage weighted by evidence strength (Low 25, Medium 50, High 75, Very high 100) ÷ total controls.');
+  pdf.metaLine('Overall audit readiness = mean of the four dimension percentages.');
+
+  pdf.heading('Risk scoring', 2);
+  pdf.bulletItem('One risk is derived per non-passing control. Risk score = Likelihood × Impact (1–5 scale).');
+  pdf.bulletItem('Default likelihood: 4 for a Gap, 3 for a Partial; impact defaults to 3 and can be tuned per control.');
+  pdf.bulletItem('Ratings: Critical ≥ 20, High ≥ 13, Medium ≥ 6, Low < 6.');
+
 
   pdf.save(`${profile.id}-assessment-${entityName.replace(/[^a-z0-9]/gi, '_').slice(0, 30)}.pdf`);
 }
