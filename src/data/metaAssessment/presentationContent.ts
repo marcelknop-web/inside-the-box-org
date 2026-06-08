@@ -657,8 +657,8 @@ function toneFor(type: PresentationType): { tone: string; limitNote: string } {
     };
   }
   return {
-    tone: VISUAL_TONE,
-    limitNote: ' EXECUTIVE / BOARD AUDIENCE: minimise jargon and acronyms; frame everything as business risk, resilience, regulatory exposure and strategic decisions. Hard limit of 10 slides.',
+    tone: EXECUTIVE_TONE,
+    limitNote: ' EXECUTIVE / BOARD AUDIENCE: a McKinsey/BCG/Bain-style board briefing. Open with the business conclusion and the decision required, never with controls or findings. Frame everything as business risk, operational impact, regulatory exposure, resilience and strategic/investment priority. Keep all audit detail (findings, controls, articles, evidence) in the clearly-labelled appendix slides only. Hard limit of 10 slides.',
   };
 }
 
