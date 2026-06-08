@@ -385,6 +385,9 @@ function AiWaitModal({
 
 
 // ── Architecture explanation (engine separation) ────────────────
+// Icon per engine, used in the intro modal flow visualization.
+const ENGINE_ICONS: LucideIcon[] = [ShieldCheck, AlertTriangle, Sparkles, FileText];
+
 function ArchitectureNote({ u }: { u: ReturnType<typeof ui> }) {
   return (
     <div className="mb-8 bg-background/40 border border-primary/15 rounded-lg p-5">
@@ -405,6 +408,138 @@ function ArchitectureNote({ u }: { u: ReturnType<typeof ui> }) {
     </div>
   );
 }
+
+// ── Intro modal: "How this platform works" ──────────────────────
+// Shown as a pop-up before the page starts. The 4-engine pipeline is
+// visualized with numbered, icon-led steps for fast comprehension.
+function HowItWorksModal({ u, onClose }: { u: ReturnType<typeof ui>; onClose: () => void }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-fade-in"
+      role="dialog"
+      aria-modal="true"
+      aria-label={u.archTitle}
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-card border border-primary/25 rounded-xl shadow-2xl p-6 sm:p-8 animate-scale-in"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
+          aria-label="Close"
+        >
+          <X size={18} />
+        </button>
+
+        <div className="font-mono text-[11px] tracking-[0.3em] uppercase text-primary mb-2">/ GAPZERO</div>
+        <h2 className="font-mono text-xl sm:text-2xl text-foreground leading-tight mb-2">{u.archTitle}</h2>
+        <p className="text-sm text-muted-foreground leading-relaxed mb-6 max-w-xl">{u.valueProp}</p>
+
+        <ol className="space-y-3 mb-6">
+          {u.archEngines.map((label, i) => {
+            const Icon = ENGINE_ICONS[i] ?? ShieldCheck;
+            const [title, desc] = label.split(' — ');
+            return (
+              <li key={label} className="relative flex items-start gap-4">
+                {/* connector line */}
+                {i < u.archEngines.length - 1 && (
+                  <span className="absolute left-[19px] top-10 bottom-[-14px] w-px bg-primary/25" aria-hidden />
+                )}
+                <div className="flex-shrink-0 relative">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center">
+                    <Icon size={18} className="text-primary" />
+                  </div>
+                  <span className="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-primary text-primary-foreground font-mono text-[10px] flex items-center justify-center font-bold">
+                    {i + 1}
+                  </span>
+                </div>
+                <div className="pt-1">
+                  <div className="font-mono text-sm text-foreground leading-tight">{title}</div>
+                  {desc && <div className="text-xs text-muted-foreground mt-0.5 leading-snug">{desc}</div>}
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+
+        <div className="flex items-start gap-2 bg-secondary/40 border border-border rounded-lg px-4 py-3 mb-6">
+          <Lock size={14} className="text-highlight flex-shrink-0 mt-0.5" />
+          <p className="text-xs text-muted-foreground leading-relaxed">{u.archNote}</p>
+        </div>
+
+        <button
+          onClick={onClose}
+          className="w-full font-mono text-sm uppercase tracking-wider bg-primary text-primary-foreground rounded-lg px-4 py-3 hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+        >
+          {u.chooseStandard}
+          <ArrowRight size={16} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Visual progress stepper ─────────────────────────────────────
+const STEP_ICONS: LucideIcon[] = [ClipboardList, FileText, ShieldCheck];
+
+function ProgressStepper({ phase, labels }: { phase: Phase; labels: string[] }) {
+  const order: Phase[] = ['standard', 'intake', 'report'];
+  const currentIndex = order.indexOf(phase === 'analyzing' ? 'intake' : phase);
+
+  return (
+    <div className="mb-8">
+      <div className="flex items-center">
+        {labels.map((label, i) => {
+          const Icon = STEP_ICONS[i] ?? ClipboardList;
+          const done = i < currentIndex;
+          const active = i === currentIndex;
+          return (
+            <div key={label} className="flex items-center flex-1 last:flex-none">
+              <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
+                <div
+                  className={`w-9 h-9 rounded-full flex items-center justify-center border transition-colors ${
+                    done
+                      ? 'bg-primary border-primary text-primary-foreground'
+                      : active
+                      ? 'bg-primary/15 border-primary text-primary'
+                      : 'bg-secondary/40 border-border text-muted-foreground/60'
+                  }`}
+                >
+                  {done ? <CheckCircle2 size={18} /> : <Icon size={16} />}
+                </div>
+                <span
+                  className={`font-mono text-[10px] uppercase tracking-wider text-center leading-tight max-w-[80px] ${
+                    active ? 'text-primary' : done ? 'text-foreground' : 'text-muted-foreground/50'
+                  }`}
+                >
+                  {label}
+                </span>
+              </div>
+              {i < labels.length - 1 && (
+                <div className="flex-1 h-px mx-2 mb-5 bg-border relative overflow-hidden">
+                  <div
+                    className={`absolute inset-0 bg-primary transition-transform duration-500 origin-left ${
+                      i < currentIndex ? 'scale-x-100' : 'scale-x-0'
+                    }`}
+                  />
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 
 // ── Standard categories ─────────────────────────────────────────
 // Thematic grouping for the standard selector. A standard may appear in
