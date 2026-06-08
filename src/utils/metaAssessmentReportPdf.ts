@@ -468,7 +468,29 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     pdf.metaLine(d.basis);
   });
 
+  // ── Executive Root Causes (deterministic clustering) ─────────
+  // Reduces many individual gaps to a few management themes so a reader
+  // grasps the whole problem in seconds.
+  const clusters = buildRootCauseClusters(profile, merged, lang);
+  if (clusters.length) {
+    const open = fail + partial;
+    pdf.heading(t('rootCauseSummary', lang), 2);
+    pdf.metaLine(ORIGIN.assessment);
+    pdf.introText(
+      `The ${open} open finding${open === 1 ? '' : 's'} concentrate in ${clusters.length} root-cause theme${clusters.length === 1 ? '' : 's'}. Resolving these themes addresses the majority of individual gaps.`,
+    );
+    clusters.slice(0, 6).forEach((c, i) => {
+      pdf.checkSpace(20);
+      pdf.heading(`RC${i + 1}  ${c.rootCause}`, 3);
+      pdf.fieldInline(t('affectedControls', lang), c.controlIds.join(', '));
+      pdf.fieldInline(t('belowConformity', lang), `${c.controlIds.length}  (${c.fail} gap${c.fail === 1 ? '' : 's'}, ${c.partial} partial)`);
+      pdf.sectionLabel(t('businessImpactCol', lang));
+      pdf.bodyText(c.businessImpact);
+    });
+  }
+
   // ── Why This Matters (translate results into business language) ──
+
   pdf.heading(t('whyMatters', lang), 2);
   pdf.bodyParagraph(
     'This section translates the assessment results into business language for executives, board members and management teams. It frames the findings in terms of business impact, regulatory exposure, operational consequences, financial implications and strategic priorities — not just a score.',
