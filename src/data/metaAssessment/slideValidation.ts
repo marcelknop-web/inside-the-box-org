@@ -178,7 +178,7 @@ export function validateSlideMetrics(type: PresentationType, input: Presentation
     }
 
     // ── 5. Control overview: pass + partial + gap = total ──
-    if (card.headline === 'Control Overview') {
+    if (card.headline.includes('Control Overview')) {
       const { pass, partial, gap, total } = canon.counts;
       const ok = pass + partial + gap === total;
       checks.push({

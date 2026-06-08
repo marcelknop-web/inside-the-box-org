@@ -275,6 +275,130 @@ function cardManagementDecisions(input: PresentationInput): Card {
   };
 }
 
+/* ── board-level executive cards (consulting-style, visual-first) ── */
+
+function topRiskOf(input: PresentationInput) {
+  return [...input.computed.risks].sort((a, b) => b.score - a.score)[0];
+}
+
+function biggestOpportunity(input: PresentationInput): string {
+  const progs = input.insights?.transformationPrograms ?? [];
+  const rank = (r?: string) => (r === 'high' ? 3 : r === 'medium' ? 2 : 1);
+  const best = [...progs].sort(
+    (a, b) => (rank(b.businessValue) - rank(b.complexity)) - (rank(a.businessValue) - rank(a.complexity)),
+  )[0];
+  if (best) return best.title;
+  const theme = input.insights?.managementThemes?.[0];
+  if (theme?.improvementOpportunity) return theme.improvementOpportunity;
+  return input.insights?.executiveInsights?.topStrengths?.[0] || 'Strengthen control maturity';
+}
+
+function recommendedDecision(input: PresentationInput): string {
+  const ei = input.insights?.executiveInsights;
+  return ei?.managementFocus?.[0]
+    || input.computed.recommendations.find((r) => r.priority === 'critical' || r.priority === 'high')?.title
+    || 'Fund the prioritized remediation program';
+}
+
+function cardExecutiveSummary(input: PresentationInput): Card {
+  const { computed } = input;
+  const pct = computed.score.weighted;
+  const att = computed.attentionIndex;
+  const topRisk = topRiskOf(input);
+  return {
+    headline: 'Executive Summary',
+    visual: 'Single-page executive scorecard: readiness as the hero metric plus KPI tiles for management attention, biggest risk, biggest opportunity and the recommended decision',
+    md: ['# Executive Summary', bullets([
+      `**Readiness score:** ${pct}% — ${readinessLabelText(computed)} ${gauge(pct)}`,
+      `**Management Attention Index:** ${cap(attentionLabel(att.level, 'en'))}`,
+      `**Biggest risk:** ${topRisk ? `${topRisk.name} (${cap(topRisk.rating)})` : 'No critical risk identified'}`,
+      `**Biggest opportunity:** ${biggestOpportunity(input)}`,
+      `**Recommended decision:** ${recommendedDecision(input)}`,
+    ])].join('\n\n'),
+  };
+}
+
+function cardKeyMessages(input: PresentationInput): Card {
+  const { computed, insights, result } = input;
+  const ei = insights?.executiveInsights;
+  const topRisk = topRiskOf(input);
+  const att = computed.attentionIndex;
+  const candidates: (string | undefined)[] = [
+    ei?.managementFocus?.[0],
+    topRisk ? `${topRisk.name} is the dominant business exposure (${cap(topRisk.rating)})` : undefined,
+    ei?.highestBusinessRisks?.[0],
+    `Regulatory exposure requires ${cap(attentionLabel(att.level, 'en'))} management attention`,
+    biggestOpportunity(input) ? `Opportunity: ${biggestOpportunity(input)}` : undefined,
+    result.summary ? result.summary.split('. ')[0] + '.' : undefined,
+  ];
+  const msgs = candidates.filter((x): x is string => !!x && x.trim().length > 0).slice(0, 3);
+  return {
+    headline: 'What Management Needs To Know',
+    visual: 'Three bold key-message tiles, one core management message each',
+    md: ['# What Management Needs To Know', bullets(msgs, 3)].join('\n\n'),
+  };
+}
+
+function cardBusinessImpact(input: PresentationInput): Card | null {
+  const bi = (input.insights?.businessImpact ?? []).slice(0, 4);
+  if (!bi.length) return null;
+  const items = bi.map((b) => `**${b.area}:** ${b.consequence}`);
+  return {
+    headline: 'Business Impact',
+    visual: 'Four-quadrant business-impact view (Operational, Financial, Regulatory, Reputational) with severity emphasis',
+    md: ['# Business Impact', bullets(items, 4)].join('\n\n'),
+  };
+}
+
+function cardRootCauseArchitecture(input: PresentationInput, max = 5): Card | null {
+  const rc = (input.insights?.rootCauses ?? []).filter((r) => isHighOrMedium(r.confidence) || !r.confidence).slice(0, max);
+  if (!rc.length) return null;
+  const items = rc.map((r) => `**${r.cause}** → ${r.symptom}`);
+  return {
+    headline: 'Root Cause Architecture',
+    visual: 'Cause → Effect → Business Consequence diagram linking root causes to symptoms and business outcomes',
+    md: ['# Root Cause Architecture', bullets(items, max)].join('\n\n'),
+  };
+}
+
+function cardStrategicPriorities(input: PresentationInput): Card | null {
+  const progs = (input.insights?.transformationPrograms ?? []).slice(0, 5);
+  if (!progs.length) return null;
+  const items = progs.map((p) => `**${p.title}** — impact ${cap(p.businessValue)}, effort ${cap(p.complexity)}`);
+  return {
+    headline: 'Strategic Priorities',
+    visual: 'Impact vs Effort prioritization matrix with each strategic initiative plotted',
+    md: ['# Strategic Priorities', bullets(items, 5)].join('\n\n'),
+  };
+}
+
+function cardTransformationRoadmap(input: PresentationInput): Card {
+  const r = cardRoadmap(input);
+  return {
+    headline: 'Transformation Program',
+    visual: 'Visual transformation roadmap across 0–3, 3–6 and 6–12 month horizons with 3–5 initiatives',
+    md: r.md.replace('# Roadmap', '# Transformation Program'),
+  };
+}
+
+function cardAppendixControlOverview(input: PresentationInput): Card {
+  const base = cardControlOverview(input);
+  return {
+    headline: 'Appendix · Control Overview',
+    visual: base.visual,
+    md: base.md.replace('# Control Overview', '# Appendix · Control Overview'),
+  };
+}
+
+function cardAppendixKeyFindings(input: PresentationInput): Card {
+  const base = cardKeyFindings(input);
+  return {
+    headline: 'Appendix · Key Findings',
+    visual: base.visual,
+    md: base.md.replace('# Key Findings', '# Appendix · Key Findings'),
+  };
+}
+
 /* ── consultant-only cards ─────────────────────────────────────── */
 
 function cardKeyFindings(input: PresentationInput): Card {
@@ -414,6 +538,16 @@ function textCardExecutiveSummary(input: PresentationInput): Card {
 
 /* ── deck assembly ─────────────────────────────────────────────── */
 
+const EXECUTIVE_TONE =
+  'BOARD-LEVEL EXECUTIVE BRIEFING MODE. Produce a board-level executive briefing in the style of a top-tier management-consulting deck (McKinsey / BCG / Bain / Gartner Executive Briefings) — NOT an audit, compliance or internal-control report. ' +
+  'EXECUTIVE STORY FIRST: never open with controls, articles, clauses, findings or assessment details. Lead with the business conclusion, the management message and the decision required. Every slide must answer "So what?" with a clear business takeaway. ' +
+  'VISUAL OVER TEXT: at least 70% visual communication, at most 30% text. Prefer scorecards, KPI tiles, traffic lights, risk matrices, heatmaps, transformation maps, maturity diagrams, timelines, prioritization (impact vs effort) matrices, before/after visuals, operating-model graphics and executive dashboards. Avoid long paragraphs, bullet-heavy pages, audit-style findings tables and compliance checklists. ' +
+  'MANAGEMENT LANGUAGE: use business risk, operational impact, regulatory exposure, resilience, strategic priority, investment priority and business outcome. Avoid control objective, requirement mapping, assessment finding, audit observation and clause interpretation in the main deck. ' +
+  'AUDIT DETAIL BELONGS IN THE APPENDIX ONLY: keep detailed findings, controls, articles, requirement mappings and evidence out of the main executive slides and place them in the clearly-labelled appendix slides at the end. ' +
+  'GAMMA VISUAL MODE: always use Gamma\'s most visual, infographic-led presentation style — executive dashboards, management scorecards and strategic consulting visuals over text slides. ' +
+  'FRAMEWORK AGNOSTIC: this executive storytelling structure stays identical across every framework; only the content changes. ' +
+  'Preserve every fact, figure, percentage and finding exactly as provided — never invent data, findings or risks. The deck must be board-ready with no manual editing.';
+
 const VISUAL_TONE =
   'VISUAL EXECUTIVE MODE. Produce a visually compelling executive presentation — NOT a report-style or text-heavy slide deck. ' +
   'Visual first, text second: an executive must grasp each slide in seconds and the key messages in under 5 minutes without reading a report. ' +
@@ -493,20 +627,22 @@ export function selectPresentationCards(type: PresentationType, input: Presentat
       cardManagementDecisions(input),
     ];
   } else {
-    // visual-executive (default)
+    // visual-executive (default) — board-level executive briefing
     cards = [
-      cardOverview(input),
-      cardBoardMessage(input),
-      cardReadinessDashboard(input),
-      cardControlOverview(input),
+      cardExecutiveSummary(input),
+      cardKeyMessages(input),
       cardRiskLandscape(input),
-      cardRootCauses(input, 5),
-      cardManagementThemes(input),
-      cardTransformationPrograms(input),
-      cardRoadmap(input),
+      cardBusinessImpact(input),
+      cardRootCauseArchitecture(input, 5),
+      cardStrategicPriorities(input),
+      cardTransformationRoadmap(input),
       cardManagementDecisions(input),
+      // appendix — audit detail kept out of the main executive story
+      cardAppendixControlOverview(input),
+      cardAppendixKeyFindings(input),
     ];
   }
+
 
   return cards.filter((c): c is Card => !!c && !!c.md && c.md.trim().length > 0);
 }
@@ -531,8 +667,8 @@ function toneFor(type: PresentationType): { tone: string; limitNote: string } {
     };
   }
   return {
-    tone: VISUAL_TONE,
-    limitNote: ' EXECUTIVE / BOARD AUDIENCE: minimise jargon and acronyms; frame everything as business risk, resilience, regulatory exposure and strategic decisions. Hard limit of 10 slides.',
+    tone: EXECUTIVE_TONE,
+    limitNote: ' EXECUTIVE / BOARD AUDIENCE: a McKinsey/BCG/Bain-style board briefing. Open with the business conclusion and the decision required, never with controls or findings. Frame everything as business risk, operational impact, regulatory exposure, resilience and strategic/investment priority. Keep all audit detail (findings, controls, articles, evidence) in the clearly-labelled appendix slides only. Hard limit of 10 slides.',
   };
 }
 
