@@ -643,10 +643,14 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     });
     pdf.y += 2;
     [...risks].sort((a, b) => b.score - a.score).forEach((r) => {
-      pdf.checkSpace(12);
+      pdf.checkSpace(16);
       pdf.statusBadge(r.rating === 'low' ? 'pass' : r.rating === 'medium' ? 'partial' : 'fail');
       pdf.metaLine(`${r.id} · ${r.name}  (${t('impact', lang)} ${r.impact} × ${t('likelihood', lang)} ${r.likelihood} = ${r.score})`);
+      // Business consequence — translate the control deficiency into a plain
+      // statement of what could happen to the organisation.
+      pdf.bodyText(`Business consequence: ${businessImpactFor(`${r.category} ${r.name}`)}`);
     });
+
   }
 
   // ── 7 Recommendations and Roadmap ───────────────────────────
