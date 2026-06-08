@@ -2710,22 +2710,16 @@ const MetaAssessmentTool = () => {
               {phase === 'standard' ? u.headline : `${profile?.name} — ${tr(profile?.fullName, lang)}`}
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground mt-3 max-w-2xl leading-relaxed">{u.sub}</p>
-            {phase === 'standard' && (
-              <p className="text-sm text-foreground/80 mt-3 max-w-2xl leading-relaxed">{u.valueProp}</p>
-            )}
           </header>
 
           {/* Visual progress stepper */}
           <ProgressStepper phase={phase} labels={[u.chooseStandard, 'Intake', 'Assessment & Report']} />
 
           {phase === 'standard' && (
-            <>
-              <ArchitectureNote u={u} />
-              <StandardSelect
-                lang={lang}
-                onPick={(p) => { setProfile(p); setAnswers({}); setPhase('intake'); }}
-              />
-            </>
+            <StandardSelect
+              lang={lang}
+              onPick={(p) => { setProfile(p); setAnswers({}); setPhase('intake'); }}
+            />
           )}
 
           {phase === 'intake' && profile && (
