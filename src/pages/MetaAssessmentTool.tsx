@@ -2341,6 +2341,21 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
             </div>
           )}
 
+          {/* 1b. Executive Brief (2-page) */}
+          <div className="bg-background/40 border border-border rounded-lg p-4 space-y-3">
+            <div>
+              <div className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <FileText size={15} className="text-primary" /> Executive Brief
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">2-page summary: score, root causes &amp; top priorities.</p>
+            </div>
+            <button onClick={exportBrief} disabled={briefBusy} className="w-full inline-flex items-center justify-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80 disabled:opacity-60">
+              {briefBusy ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />} Executive Brief
+            </button>
+          </div>
+
+
+
           {/* 2. Export working papers */}
           <div className="bg-background/40 border border-border rounded-lg p-4 space-y-3">
             <div>
