@@ -308,6 +308,73 @@ function formatAnswer(field: { type: string; options?: { id: string; label: any 
   return val || '—';
 }
 
+// ── Executive Root Cause clustering (deterministic) ─────────────
+// Reduces the individual gaps/partials to a small number of management
+// themes by grouping non-passing controls by their assessment category,
+// then attaches a plain-language business consequence per theme.
+type RootCauseCluster = {
+  rootCause: string;
+  controlIds: string[];
+  fail: number;
+  partial: number;
+  businessImpact: string;
+};
+
+// Maps a category name/id to a concise, plain-language business consequence.
+function businessImpactFor(key: string): string {
+  const k = key.toLowerCase();
+  if (/govern|leitung|polic|richtlin|politiq|aufsicht|oversight|account|management|organis/.test(k))
+    return 'Management blind spots and unclear accountability for compliance outcomes.';
+  if (/document|dokument|procedure|verfahren|record|nachweis/.test(k))
+    return 'Operational inconsistency and a weak audit trail under examination.';
+  if (/monitor|measur|metric|kpi|improv|verbesser|review|evidence|preuve/.test(k))
+    return 'No reliable evidence of performance or continual improvement.';
+  if (/train|awareness|schulung|competen|skill|personal/.test(k))
+    return 'Elevated human-error and capability risk across the workforce.';
+  if (/incident|response|continuit|notfall|recover|resilien|crisis/.test(k))
+    return 'Slower detection of and recovery from disruptions and incidents.';
+  if (/access|identit|zugang|berecht|authentic|privile/.test(k))
+    return 'Increased likelihood of unauthorised access to critical systems.';
+  if (/supplier|vendor|third|lieferant|procure|beschaff|outsourc/.test(k))
+    return 'Unmanaged third-party and supply-chain exposure.';
+  if (/asset|inventory|configur|patch|vulnerab|technical|netz|network/.test(k))
+    return 'Technical debt and exploitable weaknesses in the environment.';
+  return 'Increased likelihood of non-conformities and findings in this domain.';
+}
+
+function buildRootCauseClusters(
+  profile: StandardProfile,
+  merged: { id: string; status: string }[],
+  lang: Lang,
+): RootCauseCluster[] {
+  const metaById = new Map(profile.requirements.map((r) => [r.id, r]));
+  const catName = new Map((profile.categories ?? []).map((c) => [c.id, tr(c.name, lang)]));
+  const groups = new Map<string, RootCauseCluster>();
+
+  merged.forEach((r) => {
+    if (r.status === 'pass') return;
+    const meta = metaById.get(r.id);
+    const catId = meta?.categoryId ?? 'general';
+    const label = catName.get(catId) ?? (catId === 'general' ? 'General' : catId);
+    const cur = groups.get(catId) ?? {
+      rootCause: `Insufficient ${label}`,
+      controlIds: [],
+      fail: 0,
+      partial: 0,
+      businessImpact: businessImpactFor(`${label} ${catId}`),
+    };
+    cur.controlIds.push(r.id);
+    if (r.status === 'fail') cur.fail++;
+    else cur.partial++;
+    groups.set(catId, cur);
+  });
+
+  return [...groups.values()].sort(
+    (a, b) => (b.controlIds.length - a.controlIds.length) || (b.fail - a.fail),
+  );
+}
+
+
 export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<void> {
   const { profile, result, computed, answers, entityName, insights, reportMeta, includeWorkingPapers, workingPapers, auditorNotes } = data;
   // The report is produced in English only, independent of the UI language.
