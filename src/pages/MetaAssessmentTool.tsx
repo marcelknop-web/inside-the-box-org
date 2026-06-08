@@ -1582,6 +1582,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
   }, [loadInsights]);
 
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [briefBusy, setBriefBusy] = useState(false);
   const [wpBusy, setWpBusy] = useState(false);
   const [includeWorkingPapers, setIncludeWorkingPapers] = useState(false);
   // Gate: ask the user to confirm the audit mode before the report is generated.
