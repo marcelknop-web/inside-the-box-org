@@ -2148,23 +2148,9 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
             </div>
 
             {deckStatus === 'ready' && (
-              <div className="bg-primary/10 border border-primary/30 rounded-lg px-4 py-3 space-y-3">
+              <div className="bg-primary/10 border border-primary/30 rounded-lg px-4 py-3">
                 <div className="text-sm font-semibold text-foreground flex items-center gap-2">
                   <CheckCircle2 size={15} className="text-primary" /> {u.presentationReady}
-                </div>
-                <div className="flex flex-wrap gap-3">
-                  {deckUrl && (
-                    <a href={deckUrl} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90">
-                      <ExternalLink size={14} /> {u.openInGamma}
-                    </a>
-                  )}
-                  {deckPdfUrl && (
-                    <a href={deckPdfUrl} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80">
-                      <Download size={14} /> {u.downloadDeckPdf}
-                    </a>
-                  )}
                 </div>
               </div>
             )}
@@ -2219,6 +2205,18 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
           <button onClick={exportPdf} disabled={pdfBusy} className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
             {pdfBusy ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />} {u.exportPdf}
           </button>
+        )}
+        {deckStatus === 'ready' && deckUrl && (
+          <a href={deckUrl} target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80">
+            <ExternalLink size={14} /> {u.openInGamma}
+          </a>
+        )}
+        {deckStatus === 'ready' && deckPdfUrl && (
+          <a href={deckPdfUrl} target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80">
+            <Download size={14} /> {u.downloadDeckPdf}
+          </a>
         )}
         <button onClick={exportWorkingPapersPdf} disabled={wpBusy} className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80 disabled:opacity-60">
           {wpBusy ? <Loader2 size={14} className="animate-spin" /> : <ClipboardList size={14} />} {u.exportWorkingPapers}
