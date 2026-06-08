@@ -2147,26 +2147,6 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
               <p className="text-[11px] text-muted-foreground mt-0.5 max-w-2xl leading-relaxed">{u.presentationHint}</p>
             </div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              {([
-                ['visual-executive', u.deckExecutive, u.deckExecutiveHint],
-                ['consultant', u.deckConsultant, u.deckConsultantHint],
-                ['audit', u.deckAudit, u.deckAuditHint],
-                ['text', u.deckText, u.deckTextHint],
-              ] as [PresentationType, string, string][]).map(([id, label, hint]) => {
-                const active = deckType === id;
-                return (
-                  <button key={id} type="button" onClick={() => setDeckType(id)}
-                    className={`text-left rounded-lg border p-3 transition-colors ${active ? 'border-primary bg-primary/10' : 'border-border bg-background/50 hover:border-primary/40'}`}>
-                    <div className="text-sm font-semibold text-foreground flex items-center gap-2">
-                      {active && <CheckCircle2 size={13} className="text-primary" />} {label}
-                    </div>
-                    <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">{hint}</p>
-                  </button>
-                );
-              })}
-            </div>
-
             {deckStatus === 'ready' && (
               <div className="bg-primary/10 border border-primary/30 rounded-lg px-4 py-3 space-y-3">
                 <div className="text-sm font-semibold text-foreground flex items-center gap-2">
