@@ -2666,6 +2666,15 @@ const MetaAssessmentTool = () => {
   const [result, setResult] = useState<AssessmentResult | null>(null);
   const [computed, setComputed] = useState<ComputedAssessment | null>(null);
 
+  // "How this platform works" intro pop-up — shown once per browser, before the page starts.
+  const [showIntro, setShowIntro] = useState<boolean>(() => {
+    try { return localStorage.getItem('gapzero-intro-seen') !== '1'; } catch { return true; }
+  });
+  const closeIntro = useCallback(() => {
+    setShowIntro(false);
+    try { localStorage.setItem('gapzero-intro-seen', '1'); } catch { /* ignore */ }
+  }, []);
+
   // Layer 1: deterministic, instant, no AI. Identical answers → identical result.
   const runAssessment = useCallback((p: StandardProfile, a: IntakeAnswers) => {
     const { result: res, computed: comp } = assess(p, a, lang);
