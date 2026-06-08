@@ -388,26 +388,6 @@ function AiWaitModal({
 // Icon per engine, used in the intro modal flow visualization.
 const ENGINE_ICONS: LucideIcon[] = [ShieldCheck, AlertTriangle, Sparkles, FileText];
 
-function ArchitectureNote({ u }: { u: ReturnType<typeof ui> }) {
-  return (
-    <div className="mb-8 bg-background/40 border border-primary/15 rounded-lg p-5">
-      <h2 className="font-mono text-xs tracking-[0.25em] uppercase text-highlight mb-3">{u.archTitle}</h2>
-      <div className="flex flex-col sm:flex-row sm:items-stretch gap-2 sm:gap-0">
-        {u.archEngines.map((label, i) => (
-          <div key={label} className="flex items-center gap-2 sm:flex-1">
-            <div className="flex-1 bg-secondary/40 border border-border rounded-md px-3 py-2 text-xs text-foreground leading-snug">
-              {label}
-            </div>
-            {i < u.archEngines.length - 1 && (
-              <span className="text-primary font-mono hidden sm:inline">→</span>
-            )}
-          </div>
-        ))}
-      </div>
-      <p className="text-xs text-muted-foreground mt-3 leading-relaxed">{u.archNote}</p>
-    </div>
-  );
-}
 
 // ── Intro modal: "How this platform works" ──────────────────────
 // Shown as a pop-up before the page starts. The 4-engine pipeline is
@@ -2710,22 +2690,16 @@ const MetaAssessmentTool = () => {
               {phase === 'standard' ? u.headline : `${profile?.name} — ${tr(profile?.fullName, lang)}`}
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground mt-3 max-w-2xl leading-relaxed">{u.sub}</p>
-            {phase === 'standard' && (
-              <p className="text-sm text-foreground/80 mt-3 max-w-2xl leading-relaxed">{u.valueProp}</p>
-            )}
           </header>
 
           {/* Visual progress stepper */}
           <ProgressStepper phase={phase} labels={[u.chooseStandard, 'Intake', 'Assessment & Report']} />
 
           {phase === 'standard' && (
-            <>
-              <ArchitectureNote u={u} />
-              <StandardSelect
-                lang={lang}
-                onPick={(p) => { setProfile(p); setAnswers({}); setPhase('intake'); }}
-              />
-            </>
+            <StandardSelect
+              lang={lang}
+              onPick={(p) => { setProfile(p); setAnswers({}); setPhase('intake'); }}
+            />
           )}
 
           {phase === 'intake' && profile && (
