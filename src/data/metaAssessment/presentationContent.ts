@@ -275,6 +275,130 @@ function cardManagementDecisions(input: PresentationInput): Card {
   };
 }
 
+/* ── board-level executive cards (consulting-style, visual-first) ── */
+
+function topRiskOf(input: PresentationInput) {
+  return [...input.computed.risks].sort((a, b) => b.score - a.score)[0];
+}
+
+function biggestOpportunity(input: PresentationInput): string {
+  const progs = input.insights?.transformationPrograms ?? [];
+  const rank = (r?: string) => (r === 'high' ? 3 : r === 'medium' ? 2 : 1);
+  const best = [...progs].sort(
+    (a, b) => (rank(b.businessValue) - rank(b.complexity)) - (rank(a.businessValue) - rank(a.complexity)),
+  )[0];
+  if (best) return best.title;
+  const theme = input.insights?.managementThemes?.[0];
+  if (theme?.improvementOpportunity) return theme.improvementOpportunity;
+  return input.insights?.executiveInsights?.topStrengths?.[0] || 'Strengthen control maturity';
+}
+
+function recommendedDecision(input: PresentationInput): string {
+  const ei = input.insights?.executiveInsights;
+  return ei?.managementFocus?.[0]
+    || input.computed.recommendations.find((r) => r.priority === 'critical' || r.priority === 'high')?.title
+    || 'Fund the prioritized remediation program';
+}
+
+function cardExecutiveSummary(input: PresentationInput): Card {
+  const { computed } = input;
+  const pct = computed.score.weighted;
+  const att = computed.attentionIndex;
+  const topRisk = topRiskOf(input);
+  return {
+    headline: 'Executive Summary',
+    visual: 'Single-page executive scorecard: readiness as the hero metric plus KPI tiles for management attention, biggest risk, biggest opportunity and the recommended decision',
+    md: ['# Executive Summary', bullets([
+      `**Readiness score:** ${pct}% — ${readinessLabelText(computed)} ${gauge(pct)}`,
+      `**Management Attention Index:** ${cap(attentionLabel(att.level, 'en'))}`,
+      `**Biggest risk:** ${topRisk ? `${topRisk.name} (${cap(topRisk.rating)})` : 'No critical risk identified'}`,
+      `**Biggest opportunity:** ${biggestOpportunity(input)}`,
+      `**Recommended decision:** ${recommendedDecision(input)}`,
+    ])].join('\n\n'),
+  };
+}
+
+function cardKeyMessages(input: PresentationInput): Card {
+  const { computed, insights, result } = input;
+  const ei = insights?.executiveInsights;
+  const topRisk = topRiskOf(input);
+  const att = computed.attentionIndex;
+  const candidates: (string | undefined)[] = [
+    ei?.managementFocus?.[0],
+    topRisk ? `${topRisk.name} is the dominant business exposure (${cap(topRisk.rating)})` : undefined,
+    ei?.highestBusinessRisks?.[0],
+    `Regulatory exposure requires ${cap(attentionLabel(att.level, 'en'))} management attention`,
+    biggestOpportunity(input) ? `Opportunity: ${biggestOpportunity(input)}` : undefined,
+    result.summary ? result.summary.split('. ')[0] + '.' : undefined,
+  ];
+  const msgs = candidates.filter((x): x is string => !!x && x.trim().length > 0).slice(0, 3);
+  return {
+    headline: 'What Management Needs To Know',
+    visual: 'Three bold key-message tiles, one core management message each',
+    md: ['# What Management Needs To Know', bullets(msgs, 3)].join('\n\n'),
+  };
+}
+
+function cardBusinessImpact(input: PresentationInput): Card | null {
+  const bi = (input.insights?.businessImpact ?? []).slice(0, 4);
+  if (!bi.length) return null;
+  const items = bi.map((b) => `**${b.area}:** ${b.consequence}`);
+  return {
+    headline: 'Business Impact',
+    visual: 'Four-quadrant business-impact view (Operational, Financial, Regulatory, Reputational) with severity emphasis',
+    md: ['# Business Impact', bullets(items, 4)].join('\n\n'),
+  };
+}
+
+function cardRootCauseArchitecture(input: PresentationInput, max = 5): Card | null {
+  const rc = (input.insights?.rootCauses ?? []).filter((r) => isHighOrMedium(r.confidence) || !r.confidence).slice(0, max);
+  if (!rc.length) return null;
+  const items = rc.map((r) => `**${r.cause}** → ${r.symptom}`);
+  return {
+    headline: 'Root Cause Architecture',
+    visual: 'Cause → Effect → Business Consequence diagram linking root causes to symptoms and business outcomes',
+    md: ['# Root Cause Architecture', bullets(items, max)].join('\n\n'),
+  };
+}
+
+function cardStrategicPriorities(input: PresentationInput): Card | null {
+  const progs = (input.insights?.transformationPrograms ?? []).slice(0, 5);
+  if (!progs.length) return null;
+  const items = progs.map((p) => `**${p.title}** — impact ${cap(p.businessValue)}, effort ${cap(p.complexity)}`);
+  return {
+    headline: 'Strategic Priorities',
+    visual: 'Impact vs Effort prioritization matrix with each strategic initiative plotted',
+    md: ['# Strategic Priorities', bullets(items, 5)].join('\n\n'),
+  };
+}
+
+function cardTransformationRoadmap(input: PresentationInput): Card {
+  const r = cardRoadmap(input);
+  return {
+    headline: 'Transformation Program',
+    visual: 'Visual transformation roadmap across 0–3, 3–6 and 6–12 month horizons with 3–5 initiatives',
+    md: r.md.replace('# Roadmap', '# Transformation Program'),
+  };
+}
+
+function cardAppendixControlOverview(input: PresentationInput): Card {
+  const base = cardControlOverview(input);
+  return {
+    headline: 'Appendix · Control Overview',
+    visual: base.visual,
+    md: base.md.replace('# Control Overview', '# Appendix · Control Overview'),
+  };
+}
+
+function cardAppendixKeyFindings(input: PresentationInput): Card {
+  const base = cardKeyFindings(input);
+  return {
+    headline: 'Appendix · Key Findings',
+    visual: base.visual,
+    md: base.md.replace('# Key Findings', '# Appendix · Key Findings'),
+  };
+}
+
 /* ── consultant-only cards ─────────────────────────────────────── */
 
 function cardKeyFindings(input: PresentationInput): Card {
