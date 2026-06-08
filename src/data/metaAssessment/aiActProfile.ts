@@ -23,9 +23,9 @@ export const AIACT_PROFILE: StandardProfile = {
     fr: 'Règlement (UE) 2024/1689',
   },
   description: {
-    de: 'Audit-Workflow zur Konformität von KI-Systemen mit der EU-KI-Verordnung.',
-    en: 'Conformity audit workflow for AI systems under the EU AI Act.',
-    fr: "Flux d'audit de conformité des systèmes d'IA selon le règlement IA de l'UE.",
+    de: 'Konformitätsaudit für KI-Systeme nach der EU-KI-Verordnung.',
+    en: 'Conformity audit for AI systems under the EU AI Act.',
+    fr: "Audit de conformité des systèmes d'IA selon le règlement IA de l'UE.",
   },
   intake: [
     {

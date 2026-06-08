@@ -24,9 +24,9 @@ export const TISAX_PROFILE: StandardProfile = {
     fr: 'VDA ISA · ENX TISAX',
   },
   description: {
-    de: 'Audit-Workflow zur Informationssicherheit nach VDA ISA / TISAX, einschließlich Prototypen- und Datenschutz.',
-    en: 'Conformity audit workflow for information security under VDA ISA / TISAX, including prototype and data protection.',
-    fr: "Flux d'audit de conformité pour la sécurité de l'information selon VDA ISA / TISAX, y compris protection des prototypes et des données.",
+    de: 'Informationssicherheits-Audit nach VDA ISA / TISAX.',
+    en: 'Information security audit under VDA ISA / TISAX.',
+    fr: "Audit de sécurité de l'information selon VDA ISA / TISAX.",
   },
   intake: [
     {

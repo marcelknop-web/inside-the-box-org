@@ -21,9 +21,9 @@ export const NIS2_PROFILE: StandardProfile = {
     fr: 'Directive (UE) 2022/2555',
   },
   description: {
-    de: 'Audit-Workflow für wesentliche und wichtige Einrichtungen nach NIS-2.',
-    en: 'Audit workflow for essential and important entities under NIS-2.',
-    fr: "Flux d'audit pour entités essentielles et importantes selon NIS-2.",
+    de: 'Compliance-Bewertung für wesentliche und wichtige Einrichtungen (NIS-2).',
+    en: 'Compliance assessment for essential and important entities (NIS-2).',
+    fr: "Évaluation de conformité pour entités essentielles et importantes (NIS-2).",
   },
   intake: [
     {

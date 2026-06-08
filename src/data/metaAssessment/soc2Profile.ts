@@ -24,9 +24,9 @@ export const SOC2_PROFILE: StandardProfile = {
     fr: 'AICPA TSC 2017 (rév. 2022)',
   },
   description: {
-    de: 'Readiness-Workflow für SOC 2 entlang der Trust Services Criteria (Security/Common Criteria + Availability, Confidentiality, Processing Integrity, Privacy).',
-    en: 'Readiness workflow for SOC 2 along the Trust Services Criteria (Security/Common Criteria + Availability, Confidentiality, Processing Integrity, Privacy).',
-    fr: "Flux de préparation SOC 2 selon les Trust Services Criteria (Security/Common Criteria + Availability, Confidentiality, Processing Integrity, Privacy).",
+    de: 'Readiness-Bewertung für SOC 2 entlang der Trust Services Criteria.',
+    en: 'Readiness assessment for SOC 2 against the Trust Services Criteria.',
+    fr: "Évaluation de préparation SOC 2 selon les Trust Services Criteria.",
   },
   intake: [
     {

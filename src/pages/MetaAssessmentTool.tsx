@@ -40,8 +40,8 @@ function ui(_lang: Lang) {
   return {
     section: '/ GAPZERO — INTERNAL AUDIT & COMPLIANCE READINESS',
     headline: 'GapZero — AI-Powered Internal Audit & Compliance Readiness',
-    sub: 'GapZero closes the gap from zero to audit-ready: pick a standard → intake → compliance assessment → AI insights → reporting.',
-    valueProp: 'GapZero\'s Assessment Engine determines compliance. The AI Insight Engine explains why issues exist, how they connect, which matter most and what to prioritise — it never alters findings, scores or risks.',
+    sub: 'From zero to audit-ready: pick a standard, run the assessment, get AI insights and a report.',
+    valueProp: 'A rule-based engine decides compliance. AI explains and prioritises — it never alters findings, scores or risks.',
     chooseStandard: 'Choose a standard',
     moreStandards: 'More Standards',
     soon: 'Soon',
@@ -81,10 +81,10 @@ function ui(_lang: Lang) {
     // ── architecture (engine separation) ──
     archTitle: 'How this platform works',
     archEngines: [
-      'Deterministic Assessment Engine — source of truth',
-      'Risk Engine — risks derived from gaps',
-      'AI Insight Engine — interpretation layer',
-      'Reporting Engine — communication layer',
+      'Assessment Engine — source of truth',
+      'Risk Engine — risks from gaps',
+      'AI Insight Engine — interpretation',
+      'Reporting Engine — communication',
     ],
     archNote: 'AI is not responsible for compliance decisions. It explains results but never alters them.',
     // ── deterministic layer ──

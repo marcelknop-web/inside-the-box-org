@@ -23,9 +23,9 @@ export const CRA_PROFILE: StandardProfile = {
     fr: 'Règlement (UE) 2024/1689',
   },
   description: {
-    de: 'Konformitätsprüfung für Produkte mit digitalen Elementen nach dem Cyber Resilience Act — sichere Produktgestaltung, Schwachstellenmanagement, Meldewesen.',
-    en: 'Conformity assessment for products with digital elements under the Cyber Resilience Act — secure-by-design, vulnerability handling, reporting.',
-    fr: "Évaluation de conformité pour les produits comportant des éléments numériques selon le Cyber Resilience Act — sécurité dès la conception, gestion des vulnérabilités, notification.",
+    de: 'Konformitätsprüfung für Produkte mit digitalen Elementen nach dem Cyber Resilience Act.',
+    en: 'Conformity assessment for products with digital elements under the Cyber Resilience Act.',
+    fr: "Évaluation de conformité des produits à éléments numériques selon le Cyber Resilience Act.",
   },
   intake: [
     {

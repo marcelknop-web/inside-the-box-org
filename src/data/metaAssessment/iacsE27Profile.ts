@@ -25,9 +25,9 @@ export const IACS_E27_PROFILE: StandardProfile = {
     fr: 'Exigence unifiée IACS E27',
   },
   description: {
-    de: 'Audit-Workflow zur Cyber-Resilienz einzelner Bordsysteme & -ausrüstung (CBS) nach IACS UR E27.',
-    en: 'Conformity audit workflow for the cyber resilience of individual on-board systems & equipment (CBS) under IACS UR E27.',
-    fr: "Flux d'audit de conformité pour la cyber-résilience des systèmes & équipements de bord (CBS) selon IACS UR E27.",
+    de: 'Cyber-Resilienz-Audit für Bordsysteme & -ausrüstung (IACS UR E27).',
+    en: 'Cyber resilience audit for on-board systems & equipment (IACS UR E27).',
+    fr: "Audit de cyber-résilience des systèmes & équipements de bord (IACS UR E27).",
   },
   intake: [
     {

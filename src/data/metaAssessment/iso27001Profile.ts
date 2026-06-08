@@ -23,9 +23,9 @@ export const ISO27001_PROFILE: StandardProfile = {
     fr: 'ISO/IEC 27001:2022',
   },
   description: {
-    de: 'Audit-Workflow zur Konformität eines Informationssicherheits-Managementsystems mit ISO/IEC 27001.',
-    en: 'Conformity audit workflow for an information security management system under ISO/IEC 27001.',
-    fr: "Flux d'audit de conformité d'un système de management de la sécurité de l'information selon ISO/IEC 27001.",
+    de: 'Internes Audit und ISMS-Konformitätsbewertung (ISO 27001).',
+    en: 'Internal audit and ISMS conformity assessment (ISO 27001).',
+    fr: "Audit interne et évaluation de conformité du SMSI (ISO 27001).",
   },
   intake: [
     {

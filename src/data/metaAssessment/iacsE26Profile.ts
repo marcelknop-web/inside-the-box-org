@@ -24,9 +24,9 @@ export const IACS_E26_PROFILE: StandardProfile = {
     fr: 'Exigence unifiée IACS E26',
   },
   description: {
-    de: 'Audit-Workflow zur Cyber-Resilienz des Schiffes als Ganzes nach IACS UR E26.',
-    en: 'Conformity audit workflow for the cyber resilience of the vessel as a whole under IACS UR E26.',
-    fr: "Flux d'audit de conformité pour la cyber-résilience du navire dans son ensemble selon IACS UR E26.",
+    de: 'Cyber-Resilienz-Audit für das Schiff als Ganzes (IACS UR E26).',
+    en: 'Cyber resilience audit for the vessel as a whole (IACS UR E26).',
+    fr: "Audit de cyber-résilience du navire dans son ensemble (IACS UR E26).",
   },
   intake: [
     {

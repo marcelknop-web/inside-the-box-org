@@ -24,9 +24,9 @@ export const ISO42001_PROFILE: StandardProfile = {
     fr: 'ISO/IEC 42001:2023',
   },
   description: {
-    de: 'Audit-Workflow für ein KI-Managementsystem (AIMS) nach ISO/IEC 42001 mit verantwortungsvoller KI.',
-    en: 'Conformity audit workflow for an AI Management System (AIMS) under ISO/IEC 42001 with responsible AI.',
-    fr: "Flux d'audit de conformité pour un système de management de l'IA (AIMS) selon ISO/IEC 42001 avec IA responsable.",
+    de: 'Audit eines KI-Managementsystems (ISO 42001).',
+    en: 'Audit of an AI Management System (ISO 42001).',
+    fr: "Audit d'un système de management de l'IA (ISO 42001).",
   },
   intake: [
     {

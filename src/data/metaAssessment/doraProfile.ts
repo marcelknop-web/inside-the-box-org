@@ -22,9 +22,9 @@ export const DORA_PROFILE: StandardProfile = {
     fr: 'Règlement (UE) 2022/2554',
   },
   description: {
-    de: 'Audit-Workflow zur digitalen operationalen Resilienz für Finanzunternehmen nach DORA.',
-    en: 'Digital operational resilience audit workflow for financial entities under DORA.',
-    fr: "Flux d'audit de résilience opérationnelle numérique pour entités financières selon DORA.",
+    de: 'Digitale operationale Resilienz für Finanzunternehmen nach DORA.',
+    en: 'Digital operational resilience audit for financial entities (DORA).',
+    fr: "Audit de résilience opérationnelle numérique pour entités financières (DORA).",
   },
   intake: [
     {

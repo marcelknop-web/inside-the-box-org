@@ -25,9 +25,9 @@ export const MARITIME_CYBER_PROFILE: StandardProfile = {
     fr: 'Lignes directrices BIMCO · OMI MSC-FAL.1/Circ.3 · Résolution MSC.428(98)',
   },
   description: {
-    de: 'Audit-Workflow für die operative maritime Cyber-Risikosteuerung und deren Verankerung im SMS (ISM Code) nach BIMCO, IMO und MSC.428(98).',
-    en: 'Conformity audit workflow for operational maritime cyber risk management and its embedding in the SMS (ISM Code) under BIMCO, IMO and MSC.428(98).',
-    fr: "Flux d'audit de conformité pour la gestion opérationnelle des cyber-risques maritimes et son intégration au SGS (Code ISM) selon BIMCO, l'OMI et MSC.428(98).",
+    de: 'Audit der maritimen Cyber-Risikosteuerung im SMS (ISM Code, MSC.428(98)).',
+    en: 'Audit of maritime cyber risk management in the SMS (ISM Code, MSC.428(98)).',
+    fr: "Audit de la gestion des cyber-risques maritimes dans le SGS (Code ISM, MSC.428(98)).",
   },
   intake: [
     {
