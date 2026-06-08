@@ -2350,7 +2350,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
               <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">2-page summary: score, root causes &amp; top priorities.</p>
             </div>
             <button onClick={exportBrief} disabled={briefBusy} className="w-full inline-flex items-center justify-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80 disabled:opacity-60">
-              {briefBusy ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />} Executive Brief
+              {briefBusy ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />} Download Executive Brief (PDF)
             </button>
           </div>
 
