@@ -2200,36 +2200,88 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
 
 
 
-      <div className="flex flex-wrap gap-3 pt-2">
-        {insights && (
-          <button onClick={exportPdf} disabled={pdfBusy} className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
-            {pdfBusy ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />} {u.exportPdf}
+      <div className="pt-2 space-y-4">
+        <div className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground">Exports</div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {/* Management Report */}
+          {insights && (
+            <div className="bg-background/40 border border-border rounded-lg p-4 space-y-3">
+              <div>
+                <div className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <FileText size={15} className="text-primary" /> Management Report
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Full board-ready assessment report.</p>
+              </div>
+              <button onClick={exportPdf} disabled={pdfBusy} className="w-full inline-flex items-center justify-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
+                {pdfBusy ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />} {u.exportPdf}
+              </button>
+            </div>
+          )}
+
+          {/* Executive Presentation (Gamma) */}
+          {deckStatus === 'ready' && (deckUrl || deckPdfUrl) && (
+            <div className="bg-background/40 border border-border rounded-lg p-4 space-y-3">
+              <div>
+                <div className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <Presentation size={15} className="text-primary" /> Executive Presentation
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Visual slide deck generated via Gamma.</p>
+              </div>
+              <div className="flex flex-col gap-2">
+                {deckUrl && (
+                  <a href={deckUrl} target="_blank" rel="noopener noreferrer"
+                    className="w-full inline-flex items-center justify-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80">
+                    <ExternalLink size={14} /> {u.openInGamma}
+                  </a>
+                )}
+                {deckPdfUrl && (
+                  <a href={deckPdfUrl} target="_blank" rel="noopener noreferrer"
+                    className="w-full inline-flex items-center justify-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80">
+                    <Download size={14} /> Deck as PDF
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Working Papers */}
+          <div className="bg-background/40 border border-border rounded-lg p-4 space-y-3">
+            <div>
+              <div className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <ClipboardList size={15} className="text-primary" /> Working Papers
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Audit traceability & evidence register.</p>
+            </div>
+            <div className="flex flex-col gap-2">
+              <button onClick={exportWorkingPapersPdf} disabled={wpBusy} className="w-full inline-flex items-center justify-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80 disabled:opacity-60">
+                {wpBusy ? <Loader2 size={14} className="animate-spin" /> : <ClipboardList size={14} />} {u.exportWorkingPapers} (PDF)
+              </button>
+              <button onClick={exportWorkingPapersJson} className="w-full inline-flex items-center justify-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80">
+                <Download size={14} /> {u.exportWorkingPapersJson}
+              </button>
+            </div>
+          </div>
+
+          {/* Raw Data */}
+          <div className="bg-background/40 border border-border rounded-lg p-4 space-y-3">
+            <div>
+              <div className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <Download size={15} className="text-primary" /> Raw Data
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">Machine-readable assessment result.</p>
+            </div>
+            <button onClick={exportJson} className="w-full inline-flex items-center justify-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80">
+              <Download size={14} /> {u.exportJson}
+            </button>
+          </div>
+        </div>
+
+        <div className="pt-1">
+          <button onClick={onRestart} className="inline-flex items-center gap-2 text-sm font-mono text-muted-foreground hover:text-foreground transition-colors px-4 py-2">
+            <RotateCcw size={14} /> {u.restart}
           </button>
-        )}
-        {deckStatus === 'ready' && deckUrl && (
-          <a href={deckUrl} target="_blank" rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80">
-            <ExternalLink size={14} /> {u.openInGamma}
-          </a>
-        )}
-        {deckStatus === 'ready' && deckPdfUrl && (
-          <a href={deckPdfUrl} target="_blank" rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80">
-            <Download size={14} /> {u.downloadDeckPdf}
-          </a>
-        )}
-        <button onClick={exportWorkingPapersPdf} disabled={wpBusy} className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80 disabled:opacity-60">
-          {wpBusy ? <Loader2 size={14} className="animate-spin" /> : <ClipboardList size={14} />} {u.exportWorkingPapers}
-        </button>
-        <button onClick={exportWorkingPapersJson} className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80">
-          <Download size={14} /> {u.exportWorkingPapersJson}
-        </button>
-        <button onClick={exportJson} className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80">
-          <Download size={14} /> {u.exportJson}
-        </button>
-        <button onClick={onRestart} className="inline-flex items-center gap-2 text-sm font-mono text-muted-foreground hover:text-foreground transition-colors px-4 py-2">
-          <RotateCcw size={14} /> {u.restart}
-        </button>
+        </div>
       </div>
     </div>
   );
