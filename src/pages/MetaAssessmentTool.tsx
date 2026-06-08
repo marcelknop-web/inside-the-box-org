@@ -81,10 +81,10 @@ function ui(_lang: Lang) {
     // ── architecture (engine separation) ──
     archTitle: 'How this platform works',
     archEngines: [
-      'Deterministic Assessment Engine — source of truth',
-      'Risk Engine — risks derived from gaps',
-      'AI Insight Engine — interpretation layer',
-      'Reporting Engine — communication layer',
+      'Assessment Engine — source of truth',
+      'Risk Engine — risks from gaps',
+      'AI Insight Engine — interpretation',
+      'Reporting Engine — communication',
     ],
     archNote: 'AI is not responsible for compliance decisions. It explains results but never alters them.',
     // ── deterministic layer ──
