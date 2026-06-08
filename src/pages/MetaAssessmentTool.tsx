@@ -2393,7 +2393,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
                 {deckPdfUrl && (
                   <a href={deckPdfUrl} target="_blank" rel="noopener noreferrer"
                     className="w-full inline-flex items-center justify-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80">
-                    <Download size={14} /> Deck as PDF
+                    <Download size={14} /> Download Deck (PDF)
                   </a>
                 )}
               </div>
