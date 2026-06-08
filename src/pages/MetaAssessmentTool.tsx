@@ -1582,6 +1582,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
   }, [loadInsights]);
 
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [briefBusy, setBriefBusy] = useState(false);
   const [wpBusy, setWpBusy] = useState(false);
   const [includeWorkingPapers, setIncludeWorkingPapers] = useState(false);
   // Gate: ask the user to confirm the audit mode before the report is generated.
@@ -1763,6 +1764,25 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
       setPdfBusy(false);
     }
   };
+  const exportBrief = async () => {
+    const check = validateConsistency(result, computed);
+    if (!check.ok) {
+      console.error('Report consistency validation failed', check.errors);
+      alert(`${u.consistencyError}\n\n${check.errors.join('\n')}`);
+      return;
+    }
+    setBriefBusy(true);
+    try {
+      await generateMetaAssessmentPdf({ profile, lang, result, computed, answers, entityName, insights, reportMeta: docMeta, executiveBrief: true });
+    } catch (e) {
+      console.error('Executive brief generation failed', e);
+      alert(u.pdfError);
+    } finally {
+      setBriefBusy(false);
+    }
+  };
+
+
 
   // ── Executive presentation (Gamma) ──
   const [deckType, setDeckType] = useState<PresentationType>('visual-executive');
@@ -2320,6 +2340,21 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
               </button>
             </div>
           )}
+
+          {/* 1b. Executive Brief (2-page) */}
+          <div className="bg-background/40 border border-border rounded-lg p-4 space-y-3">
+            <div>
+              <div className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <FileText size={15} className="text-primary" /> Executive Brief
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">2-page summary: score, root causes &amp; top priorities.</p>
+            </div>
+            <button onClick={exportBrief} disabled={briefBusy} className="w-full inline-flex items-center justify-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80 disabled:opacity-60">
+              {briefBusy ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />} Executive Brief
+            </button>
+          </div>
+
+
 
           {/* 2. Export working papers */}
           <div className="bg-background/40 border border-border rounded-lg p-4 space-y-3">
