@@ -416,7 +416,9 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     t('sec5', lang), t('sec6', lang), t('sec7', lang),
     ...(insights ? [t('sec8', lang)] : []),
     t('sec9', lang),
+    t('secMethod', lang),
     ...(includeWorkingPapers ? [t('secWP', lang)] : []),
+
   ]);
 
   const merged = result.requirements.map((r) => {
