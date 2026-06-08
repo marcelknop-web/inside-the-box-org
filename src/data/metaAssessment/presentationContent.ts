@@ -617,20 +617,22 @@ export function selectPresentationCards(type: PresentationType, input: Presentat
       cardManagementDecisions(input),
     ];
   } else {
-    // visual-executive (default)
+    // visual-executive (default) — board-level executive briefing
     cards = [
-      cardOverview(input),
-      cardBoardMessage(input),
-      cardReadinessDashboard(input),
-      cardControlOverview(input),
+      cardExecutiveSummary(input),
+      cardKeyMessages(input),
       cardRiskLandscape(input),
-      cardRootCauses(input, 5),
-      cardManagementThemes(input),
-      cardTransformationPrograms(input),
-      cardRoadmap(input),
+      cardBusinessImpact(input),
+      cardRootCauseArchitecture(input, 5),
+      cardStrategicPriorities(input),
+      cardTransformationRoadmap(input),
       cardManagementDecisions(input),
+      // appendix — audit detail kept out of the main executive story
+      cardAppendixControlOverview(input),
+      cardAppendixKeyFindings(input),
     ];
   }
+
 
   return cards.filter((c): c is Card => !!c && !!c.md && c.md.trim().length > 0);
 }
