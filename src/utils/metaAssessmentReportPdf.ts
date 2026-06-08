@@ -873,6 +873,14 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     pdf.fieldInline('AI Insight Engine', reportMeta.aiInsightEngineVersion);
   }
 
+  // ── Appendix A  Working Papers & Traceability (Internal Audit Mode) ──
+  if (includeWorkingPapers) {
+    const wp = workingPapers
+      ?? buildWorkingPapers(profile, answers, result, computed, insights, reportMeta, lang);
+    pdf.newPage();
+    renderWorkingPapers(pdf, wp);
+  }
+
   // ── Appendix B  Scoring Methodology (transparency / defensibility) ──
   pdf.newPage();
   pdf.heading(t('secMethod', lang), 1);
@@ -901,14 +909,6 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   pdf.bulletItem('Default likelihood: 4 for a Gap, 3 for a Partial; impact defaults to 3 and can be tuned per control.');
   pdf.bulletItem('Ratings: Critical ≥ 20, High ≥ 13, Medium ≥ 6, Low < 6.');
 
-  // ── Appendix A  Working Papers & Traceability (Internal Audit Mode) ──
-
-  if (includeWorkingPapers) {
-    const wp = workingPapers
-      ?? buildWorkingPapers(profile, answers, result, computed, insights, reportMeta, lang);
-    pdf.newPage();
-    renderWorkingPapers(pdf, wp);
-  }
 
   pdf.save(`${profile.id}-assessment-${entityName.replace(/[^a-z0-9]/gi, '_').slice(0, 30)}.pdf`);
 }
