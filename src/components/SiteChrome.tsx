@@ -17,9 +17,12 @@ import { consultantProfiles } from '@/data/consultantProfiles';
 export const SiteChrome = ({
   children,
   onBrandClick,
+  hideLanguageSwitch,
 }: {
   children: ReactNode;
   onBrandClick?: () => void;
+  /** Hide the language switcher (for English-only pages like GapZero). */
+  hideLanguageSwitch?: boolean;
 }) => {
   const { language, setLanguage, t } = useLanguage();
   const navigate = useNavigate();
@@ -65,14 +68,16 @@ export const SiteChrome = ({
             >
               {lang === 'de' ? 'TEAM' : lang === 'fr' ? 'ÉQUIPE' : 'TEAM'}
             </button>
-            <button
-              onClick={() => setLanguage(nextLanguage(language))}
-              className="font-mono text-[12px] tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-              aria-label="Language"
-            >
-              <Languages className="w-3 h-3" />
-              {language.toUpperCase()}
-            </button>
+            {!hideLanguageSwitch && (
+              <button
+                onClick={() => setLanguage(nextLanguage(language))}
+                className="font-mono text-[12px] tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
+                aria-label="Language"
+              >
+                <Languages className="w-3 h-3" />
+                {language.toUpperCase()}
+              </button>
+            )}
           </div>
         </div>
       </header>
