@@ -100,7 +100,7 @@ const PHASES: Phase[] = [
   {
     id: 'lead',
     number: '03',
-    title: { en: 'LEAD', de: 'FÜHREN', fr: 'DIRIGER' },
+    title: { en: 'IMPLEMENT', de: 'UMSETZEN', fr: 'IMPLÉMENTER' },
     verb: {
       en: 'Clear responsibilities, effective governance.',
       de: 'Klare Verantwortung, wirksame Steuerung.',
@@ -120,7 +120,7 @@ const PHASES: Phase[] = [
   {
     id: 'train',
     number: '04',
-    title: { en: 'TRAIN', de: 'TRAINIEREN', fr: 'ENTRAÎNER' },
+    title: { en: 'EXERCISE', de: 'ÜBEN', fr: 'S\'ENTRAÎNER' },
     verb: {
       en: 'Realistic exercises for decisions under pressure.',
       de: 'Realitätsnahe Übungen für Entscheidungen unter Druck.',
