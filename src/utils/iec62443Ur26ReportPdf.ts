@@ -247,8 +247,8 @@ export async function generateIec62443Ur26Report(data: Iec62443ReportData): Prom
     ? noResidualScope
       ? `Auf Grundlage der durchgeführten Anwendbarkeitsprüfung wird festgestellt, dass für das Schiff bzw. System ${intakeData.facilityName} keine offenen Anforderungen der IACS UR E26 im Restumfang verbleiben.`
       : complianceRate >= 60
-      ? `Für das Schiff bzw. System ${intakeData.facilityName} verbleibt ein überschaubarer Restumfang anwendbarer Anforderungen der IACS UR E26. Die gewichtete Abdeckungsrate beträgt ${complianceRate} %. Die verbleibenden anwendbaren Anforderungen sind innerhalb der im Maßnahmenplan definierten Fristen zu behandeln.`
-      : `Für das Schiff bzw. System ${intakeData.facilityName} verbleibt ein wesentlicher Restumfang anwendbarer Anforderungen der IACS UR E26. Die gewichtete Abdeckungsrate von ${complianceRate} % liegt unterhalb des angestrebten Schwellenwerts. Eine umfassende Überarbeitung der CBS-Sicherheitsarchitektur ist vor dem nächsten Klasseerneuerungsbesuch zwingend erforderlich.`
+      ? `Für das Schiff bzw. System ${intakeData.facilityName} verbleibt ein überschaubarer Restumfang nicht bzw. teilweise erfüllter Anforderungen der IACS UR E26. Der Konformitätsgrad beträgt ${conf.score} %. Die verbleibenden Anforderungen sind innerhalb der im Maßnahmenplan definierten Fristen zu behandeln.`
+      : `Für das Schiff bzw. System ${intakeData.facilityName} verbleibt ein wesentlicher Restumfang nicht erfüllter Anforderungen der IACS UR E26. Der Konformitätsgrad von ${conf.score} % liegt unterhalb des angestrebten Schwellenwerts. Eine umfassende Überarbeitung der CBS-Sicherheitsarchitektur ist vor dem nächsten Klasseerneuerungsbesuch zwingend erforderlich.`
     : lang === 'fr'
     ? noResidualScope
       ? `Sur la base de l'évaluation d'applicabilité réalisée, il est constaté qu'aucune exigence de l'IACS UR E26 ne subsiste dans le périmètre résiduel du navire/système ${intakeData.facilityName}.`
