@@ -67,6 +67,13 @@ const I18N = {
   fr: { de: 'Anforderungskategorie', en: 'Requirement Category', fr: 'Catégorie d\'exigence' },
   reproducibility: { de: 'Reproduzierbarkeit', en: 'Reproducibility', fr: 'Reproductibilité' },
   evidenceQuality: { de: 'Evidenz-Qualität', en: 'Evidence Quality', fr: 'Qualité de la preuve' },
+  // ── Conformance (kept strictly separate from the risk rating) ──
+  conformanceScore: { de: 'Konformitätsgrad', en: 'Conformance Score', fr: 'Taux de conformité' },
+  met: { de: 'Erfüllt', en: 'Met', fr: 'Satisfait' },
+  partiallyMet: { de: 'Teilweise erfüllt', en: 'Partially met', fr: 'Partiellement satisfait' },
+  notMet: { de: 'Nicht erfüllt', en: 'Not met', fr: 'Non satisfait' },
+  conformanceTitle: { de: 'Konformität (Anforderungserfüllung)', en: 'Conformance (Requirement Compliance)', fr: 'Conformité (respect des exigences)' },
+  riskTitle: { de: 'Risikolage (getrennt von der Konformität)', en: 'Risk Landscape (separate from compliance)', fr: 'Situation de risque (distincte de la conformité)' },
 };
 
 type Lang = 'de' | 'en' | 'fr';
