@@ -17,6 +17,7 @@ import {
   PROTOCOL_OPTS, getSecurityMeasures, getSecurityCategories,
   getAttachTypes, IEC_THREATS, getReqs, FR_CATEGORIES, threatId,
   DEMO_SCENARIOS, computeCbsScores, deriveThreatsFromReqs, controlAppliesToCbs,
+  calibrateThreats, applyCompensatingControls, computeConformance,
   type IecThreat, type IecReq, type IecIntakeData, type MeasureEntry, EMPTY_INTAKE,
 } from '@/data/iec62443Ur26Data';
 import { extractDocumentText } from '@/lib/documentExtraction';
