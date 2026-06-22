@@ -258,8 +258,8 @@ export async function generateIec62443Ur26Report(data: Iec62443ReportData): Prom
     : noResidualScope
     ? `Based on the applicability review conducted, it is determined that no IACS UR E26 requirements remain within the residual scope of vessel/system ${intakeData.facilityName}.`
     : complianceRate >= 60
-    ? `A limited residual scope of applicable IACS UR E26 requirements remains for vessel/system ${intakeData.facilityName}. The weighted coverage rate is ${complianceRate}%. The remaining applicable requirements must be addressed within the timeframes defined in the remediation plan.`
-    : `A substantial residual scope of applicable IACS UR E26 requirements remains for vessel/system ${intakeData.facilityName}. The weighted coverage rate of ${complianceRate}% falls below the targeted threshold. A comprehensive overhaul of the CBS security architecture is required prior to the next class renewal survey.`;
+    ? `A limited residual scope of unmet or partially met IACS UR E26 requirements remains for vessel/system ${intakeData.facilityName}. The conformance score is ${conf.score}%. The remaining requirements must be addressed within the timeframes defined in the remediation plan.`
+    : `A substantial residual scope of unmet IACS UR E26 requirements remains for vessel/system ${intakeData.facilityName}. The conformance score of ${conf.score}% falls below the targeted threshold. A comprehensive overhaul of the CBS security architecture is required prior to the next class renewal survey.`;
 
   pdf.verdictBox(applicabilityVerdict);
 
