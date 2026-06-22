@@ -1422,7 +1422,10 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
   const effectiveReqs = useMemo<IecReq[]>(() => {
     const baseReqs = getReqs(intakeData?.assessmentType);
     // No document assessment performed → demo/sample baseline (intentional).
-    if (!docAssessments) return baseReqs;
+    // Compensating controls declared in the intake are still honoured.
+    if (!docAssessments) {
+      return applyCompensatingControls(baseReqs, intakeData?.measures, 'en').reqs;
+    }
     // A real, post-intake assessment ran: every finding MUST be grounded in the
     // assessment output only. Hardcoded demo evidence/gap/findings are NEVER used
     // as fallback here, so nothing is invented after the intake (Data Integrity Policy).
@@ -1433,7 +1436,7 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
       declared_document: 'Self-declared & document-verified',
       none: 'Not assessed',
     };
-    return baseReqs.map(r => {
+    const assessed = baseReqs.map(r => {
       const a = byId.get(r.id);
       // No assessment result for this control → present as not assessed, no demo content.
       if (!a) {
@@ -1470,13 +1473,18 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
         residualScopeNote: a.residualScopeNote || '',
       };
     });
-  }, [docAssessments, intakeData?.assessmentType]);
+    // Honour declared & documented compensating controls (Data Integrity Policy:
+    // only intake-declared measures, fully noted in the rationale).
+    return applyCompensatingControls(assessed, intakeData?.measures, 'en').reqs;
+  }, [docAssessments, intakeData?.assessmentType, intakeData?.measures]);
 
   // In a real run (documents analysed) threats are derived from the real control
   // assessment; otherwise the demo threat catalogue is shown (accepted demo data).
+  // Both paths run through the maritime risk calibration so likelihood, impact
+  // and score stay consistent everywhere.
   const docBased = docAssessments !== null;
   const activeThreats = useMemo<IecThreat[]>(
-    () => (docBased ? deriveThreatsFromReqs(effectiveReqs) : IEC_THREATS),
+    () => (docBased ? deriveThreatsFromReqs(effectiveReqs) : calibrateThreats(IEC_THREATS)),
     [docBased, effectiveReqs],
   );
 
