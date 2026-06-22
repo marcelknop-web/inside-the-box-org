@@ -3,7 +3,7 @@
  * Uses PdfDoc from pdfCore.ts for consistent, premium layout
  */
 import type { IecThreat, IecReq, IecIntakeData } from '@/data/iec62443Ur26Data';
-import { threatId, FR_CATEGORIES, computeCbsScores, controlAppliesToCbs } from '@/data/iec62443Ur26Data';
+import { threatId, FR_CATEGORIES, computeCbsScores, controlAppliesToCbs, computeConformance } from '@/data/iec62443Ur26Data';
 import type { ReviewSummary } from '@/data/iec62443Data';
 import type { QaCheck } from '@/utils/iec62443Ur26QualityCheck';
 import { createPdfDoc, LAYOUT, C, humanizeEvidence, evidenceProcedure } from '@/utils/pdfCore';
@@ -67,6 +67,13 @@ const I18N = {
   fr: { de: 'Anforderungskategorie', en: 'Requirement Category', fr: 'Catégorie d\'exigence' },
   reproducibility: { de: 'Reproduzierbarkeit', en: 'Reproducibility', fr: 'Reproductibilité' },
   evidenceQuality: { de: 'Evidenz-Qualität', en: 'Evidence Quality', fr: 'Qualité de la preuve' },
+  // ── Conformance (kept strictly separate from the risk rating) ──
+  conformanceScore: { de: 'Konformitätsgrad', en: 'Conformance Score', fr: 'Taux de conformité' },
+  met: { de: 'Erfüllt', en: 'Met', fr: 'Satisfait' },
+  partiallyMet: { de: 'Teilweise erfüllt', en: 'Partially met', fr: 'Partiellement satisfait' },
+  notMet: { de: 'Nicht erfüllt', en: 'Not met', fr: 'Non satisfait' },
+  conformanceTitle: { de: 'Konformität (Anforderungserfüllung)', en: 'Conformance (Requirement Compliance)', fr: 'Conformité (respect des exigences)' },
+  riskTitle: { de: 'Risikolage (getrennt von der Konformität)', en: 'Risk Landscape (separate from compliance)', fr: 'Situation de risque (distincte de la conformité)' },
 };
 
 type Lang = 'de' | 'en' | 'fr';
@@ -94,6 +101,10 @@ export async function generateIec62443Ur26Report(data: Iec62443ReportData): Prom
   const medRisks = threats.filter(th => { const s = th.likelihood * th.impact; return s >= 6 && s < 13; });
   const lowRisks = threats.filter(th => th.likelihood * th.impact < 6);
   const complianceRate = reqs.length > 0 ? Math.round(((passReqs.length + partialReqs.length * 0.5) / reqs.length) * 100) : 0;
+  // Conventional conformance KPI (Pass=100 · Partial=50 · Fail=0) reported with
+  // an explicit met / partially met / not-met breakdown so it can never be read
+  // as "only X % of E26 is in scope".
+  const conf = computeConformance(reqs);
 
   const pdf = await createPdfDoc({
     lang,
@@ -149,35 +160,38 @@ export async function generateIec62443Ur26Report(data: Iec62443ReportData): Prom
     : lang === 'de'
     ? noResidualScope
       ? `Im Rahmen der durchgeführten Anwendbarkeitsprüfung konnte festgestellt werden, dass für das Schiff bzw. System ${intakeData.facilityName} keine offenen Anforderungen im Restumfang (residual scope) der IACS UR E26 verbleiben.`
-      : `Die Anwendbarkeitsprüfung des Schiffs bzw. Systems ${intakeData.facilityName} ergibt eine Abdeckungsrate von ${complianceRate} % gegenüber den Anforderungen der IACS UR E26. Insgesamt wurden ${critRisks.length} kritische Risiken sowie ${failReqs.length} vollständig anwendbare Anforderungen im Restumfang festgestellt, die vorrangige Behandlung erfordern.`
+      : `Die Prüfung des Schiffs bzw. Systems ${intakeData.facilityName} ergibt einen Konformitätsgrad von ${conf.score} % gegenüber den Anforderungen der IACS UR E26 (${conf.pass} erfüllt, ${conf.partial} teilweise erfüllt, ${conf.fail} nicht erfüllt). Getrennt davon wurden ${critRisks.length} kritische Risiken festgestellt, die vorrangige Behandlung erfordern.`
     : lang === 'fr'
     ? noResidualScope
       ? `L'évaluation d'applicabilité a permis de constater qu'aucune exigence de l'IACS UR E26 ne subsiste dans le périmètre résiduel du navire/système ${intakeData.facilityName}.`
-      : `L'évaluation d'applicabilité du navire/système ${intakeData.facilityName} aboutit à un taux de couverture de ${complianceRate} % par rapport aux exigences de l'IACS UR E26. Au total, ${critRisks.length} risques critiques et ${failReqs.length} exigences pleinement applicables dans le périmètre résiduel ont été identifiés, nécessitant un traitement prioritaire.`
+      : `L'évaluation du navire/système ${intakeData.facilityName} aboutit à un taux de conformité de ${conf.score} % par rapport aux exigences de l'IACS UR E26 (${conf.pass} satisfaites, ${conf.partial} partiellement satisfaites, ${conf.fail} non satisfaites). Séparément, ${critRisks.length} risques critiques nécessitant un traitement prioritaire ont été identifiés.`
     : noResidualScope
     ? `The applicability review has determined that no IACS UR E26 requirements remain within the residual scope of vessel/system ${intakeData.facilityName}.`
-    : `The applicability review of vessel/system ${intakeData.facilityName} yields a coverage rate of ${complianceRate}% against the requirements of IACS UR E26. A total of ${critRisks.length} critical risks and ${failReqs.length} fully applicable requirements in residual scope were identified, requiring priority treatment.`;
+    : `The review of vessel/system ${intakeData.facilityName} yields a conformance score of ${conf.score}% against the requirements of IACS UR E26 (${conf.pass} met, ${conf.partial} partially met, ${conf.fail} not met). Separately, ${critRisks.length} critical risks were identified that require priority treatment.`;
 
   pdf.verdictBox(verdictText);
 
-  // Key Performance Indicators
-  pdf.heading(lang === 'de' ? 'Kennzahlen im Überblick' : lang === 'fr' ? 'Indicateurs clés' : 'Key Metrics', 2);
+  // ── Conformance (requirement compliance) — kept strictly separate from risk ──
+  pdf.heading(t(I18N.conformanceTitle, lang), 2);
+  pdf.kpiRow([
+    [`${conf.score} %`, t(I18N.conformanceScore, lang)],
+    [String(conf.pass), t(I18N.met, lang)],
+    [String(conf.partial), t(I18N.partiallyMet, lang)],
+    [String(conf.fail), t(I18N.notMet, lang)],
+  ]);
+  pdf.complianceBar(passReqs.length, partialReqs.length, failReqs.length, {
+    pass: t(I18N.met, lang), partial: t(I18N.partiallyMet, lang), fail: t(I18N.notMet, lang),
+    title: lang === 'de' ? 'IACS UR E26 Konformitätsverteilung' : lang === 'fr' ? 'Répartition de la conformité IACS UR E26' : 'IACS UR E26 Conformance Distribution',
+  });
+
+  // ── Risk landscape — a separate dimension from requirement conformance ──
+  pdf.heading(t(I18N.riskTitle, lang), 2);
   pdf.kpiRow([
     [String(threats.length), lang === 'de' ? 'Bedrohungen' : lang === 'fr' ? 'Menaces' : 'Threats'],
     [String(critRisks.length), lang === 'de' ? 'Kritisch (≥ 20)' : lang === 'fr' ? 'Critique (≥ 20)' : 'Critical (≥ 20)'],
-    [String(failReqs.length), lang === 'de' ? 'Anwendbar (Restumfang)' : lang === 'fr' ? 'Applicable (résiduel)' : 'Applicable (residual)'],
-    [`${complianceRate} %`, lang === 'de' ? 'Abdeckungsrate' : lang === 'fr' ? 'Taux de couverture' : 'Coverage Rate'],
+    [String(highRisks.length), lang === 'de' ? 'Hoch (13–19)' : lang === 'fr' ? 'Élevé (13–19)' : 'High (13–19)'],
+    [String(medRisks.length + lowRisks.length), lang === 'de' ? 'Mittel/Gering' : lang === 'fr' ? 'Moyen/Faible' : 'Medium/Low'],
   ]);
-
-  // Applicability Distribution
-  pdf.heading(lang === 'de' ? 'Anwendbarkeitsverteilung' : lang === 'fr' ? 'Répartition de l\'applicabilité' : 'Applicability Distribution', 2);
-  pdf.complianceBar(passReqs.length, partialReqs.length, failReqs.length, {
-    pass: t(I18N.pass, lang), partial: t(I18N.partial, lang), fail: t(I18N.fail, lang),
-    title: lang === 'de' ? 'IACS UR E26 Anwendbarkeitsverteilung' : lang === 'fr' ? 'Répartition de l\'applicabilité IACS UR E26' : 'IACS UR E26 Applicability Distribution',
-  });
-
-  // Risk Distribution
-  pdf.heading(lang === 'de' ? 'Risikoverteilung nach Schweregrad' : lang === 'fr' ? 'Répartition par sévérité' : 'Risk Severity Distribution', 2);
   pdf.riskDistribution(
     { critical: critRisks.length, high: highRisks.length, medium: medRisks.length, low: lowRisks.length },
     { critical: lang === 'de' ? 'Kritisch' : lang === 'fr' ? 'Critique' : 'Critical', high: lang === 'de' ? 'Hoch' : lang === 'fr' ? 'Élevé' : 'High', medium: lang === 'de' ? 'Mittel' : lang === 'fr' ? 'Moyen' : 'Medium', low: lang === 'de' ? 'Niedrig' : lang === 'fr' ? 'Faible' : 'Low', title: lang === 'de' ? 'Risikoverteilung' : lang === 'fr' ? 'Répartition des risques' : 'Risk Severity Distribution' },
@@ -233,25 +247,27 @@ export async function generateIec62443Ur26Report(data: Iec62443ReportData): Prom
     ? noResidualScope
       ? `Auf Grundlage der durchgeführten Anwendbarkeitsprüfung wird festgestellt, dass für das Schiff bzw. System ${intakeData.facilityName} keine offenen Anforderungen der IACS UR E26 im Restumfang verbleiben.`
       : complianceRate >= 60
-      ? `Für das Schiff bzw. System ${intakeData.facilityName} verbleibt ein überschaubarer Restumfang anwendbarer Anforderungen der IACS UR E26. Die gewichtete Abdeckungsrate beträgt ${complianceRate} %. Die verbleibenden anwendbaren Anforderungen sind innerhalb der im Maßnahmenplan definierten Fristen zu behandeln.`
-      : `Für das Schiff bzw. System ${intakeData.facilityName} verbleibt ein wesentlicher Restumfang anwendbarer Anforderungen der IACS UR E26. Die gewichtete Abdeckungsrate von ${complianceRate} % liegt unterhalb des angestrebten Schwellenwerts. Eine umfassende Überarbeitung der CBS-Sicherheitsarchitektur ist vor dem nächsten Klasseerneuerungsbesuch zwingend erforderlich.`
+      ? `Für das Schiff bzw. System ${intakeData.facilityName} verbleibt ein überschaubarer Restumfang nicht bzw. teilweise erfüllter Anforderungen der IACS UR E26. Der Konformitätsgrad beträgt ${conf.score} %. Die verbleibenden Anforderungen sind innerhalb der im Maßnahmenplan definierten Fristen zu behandeln.`
+      : `Für das Schiff bzw. System ${intakeData.facilityName} verbleibt ein wesentlicher Restumfang nicht erfüllter Anforderungen der IACS UR E26. Der Konformitätsgrad von ${conf.score} % liegt unterhalb des angestrebten Schwellenwerts. Eine umfassende Überarbeitung der CBS-Sicherheitsarchitektur ist vor dem nächsten Klasseerneuerungsbesuch zwingend erforderlich.`
     : lang === 'fr'
     ? noResidualScope
       ? `Sur la base de l'évaluation d'applicabilité réalisée, il est constaté qu'aucune exigence de l'IACS UR E26 ne subsiste dans le périmètre résiduel du navire/système ${intakeData.facilityName}.`
       : complianceRate >= 60
-      ? `Un périmètre résiduel limité d'exigences applicables de l'IACS UR E26 subsiste pour le navire/système ${intakeData.facilityName}. Le taux de couverture pondéré est de ${complianceRate} %. Les exigences applicables restantes doivent être traitées dans les délais définis dans le plan d'action.`
-      : `Un périmètre résiduel important d'exigences applicables de l'IACS UR E26 subsiste pour le navire/système ${intakeData.facilityName}. Le taux de couverture pondéré de ${complianceRate} % est inférieur au seuil visé. Une refonte complète de l'architecture de sécurité CBS est requise avant la prochaine visite de renouvellement de classe.`
+      ? `Un périmètre résiduel limité d'exigences non ou partiellement satisfaites de l'IACS UR E26 subsiste pour le navire/système ${intakeData.facilityName}. Le taux de conformité est de ${conf.score} %. Les exigences restantes doivent être traitées dans les délais définis dans le plan d'action.`
+      : `Un périmètre résiduel important d'exigences non satisfaites de l'IACS UR E26 subsiste pour le navire/système ${intakeData.facilityName}. Le taux de conformité de ${conf.score} % est inférieur au seuil visé. Une refonte complète de l'architecture de sécurité CBS est requise avant la prochaine visite de renouvellement de classe.`
     : noResidualScope
     ? `Based on the applicability review conducted, it is determined that no IACS UR E26 requirements remain within the residual scope of vessel/system ${intakeData.facilityName}.`
     : complianceRate >= 60
-    ? `A limited residual scope of applicable IACS UR E26 requirements remains for vessel/system ${intakeData.facilityName}. The weighted coverage rate is ${complianceRate}%. The remaining applicable requirements must be addressed within the timeframes defined in the remediation plan.`
-    : `A substantial residual scope of applicable IACS UR E26 requirements remains for vessel/system ${intakeData.facilityName}. The weighted coverage rate of ${complianceRate}% falls below the targeted threshold. A comprehensive overhaul of the CBS security architecture is required prior to the next class renewal survey.`;
+    ? `A limited residual scope of unmet or partially met IACS UR E26 requirements remains for vessel/system ${intakeData.facilityName}. The conformance score is ${conf.score}%. The remaining requirements must be addressed within the timeframes defined in the remediation plan.`
+    : `A substantial residual scope of unmet IACS UR E26 requirements remains for vessel/system ${intakeData.facilityName}. The conformance score of ${conf.score}% falls below the targeted threshold. A comprehensive overhaul of the CBS security architecture is required prior to the next class renewal survey.`;
 
   pdf.verdictBox(applicabilityVerdict);
 
   const methodNote = lang === 'de'
-    ? `Die Anwendbarkeitsmethodik gewichtet nicht anwendbare Anforderungen mit 100 %, teilweise anwendbare mit 50 % und vollständig anwendbare (Restumfang) mit 0 %. Aus der Verteilung von ${passReqs.length} nicht anwendbaren, ${partialReqs.length} teilweise anwendbaren und ${failReqs.length} vollständig anwendbaren Anforderungen bei insgesamt ${reqs.length} geprüften Anforderungen ergibt sich die gewichtete Abdeckungsrate von ${complianceRate} %.`
-    : `The applicability methodology weights not-applicable requirements at 100%, partially applicable at 50%, and fully applicable (residual scope) at 0%. From the distribution of ${passReqs.length} not applicable, ${partialReqs.length} partially applicable, and ${failReqs.length} fully applicable requirements out of ${reqs.length} reviewed requirements, a weighted coverage rate of ${complianceRate}% is derived.`;
+    ? `Der Konformitätsgrad wird als gewichteter Mittelwert berechnet: erfüllte Anforderungen mit 100 %, teilweise erfüllte mit 50 % und nicht erfüllte mit 0 %. Aus der Verteilung von ${conf.pass} erfüllten, ${conf.partial} teilweise erfüllten und ${conf.fail} nicht erfüllten Anforderungen bei insgesamt ${conf.total} geprüften Anforderungen ergibt sich ein Konformitätsgrad von ${conf.score} %. Der Konformitätsgrad bewertet ausschließlich die Anforderungserfüllung und ist von der Risikobewertung (Eintrittswahrscheinlichkeit × Auswirkung) getrennt zu betrachten.`
+    : lang === 'fr'
+    ? `Le taux de conformité est calculé comme une moyenne pondérée : exigences satisfaites à 100 %, partiellement satisfaites à 50 % et non satisfaites à 0 %. À partir de la répartition de ${conf.pass} satisfaites, ${conf.partial} partiellement satisfaites et ${conf.fail} non satisfaites sur ${conf.total} exigences évaluées, un taux de conformité de ${conf.score} % est obtenu. Le taux de conformité évalue uniquement le respect des exigences et doit être considéré séparément de l'évaluation du risque (probabilité × impact).`
+    : `The conformance score is calculated as a weighted average: requirements met at 100%, partially met at 50%, and not met at 0%. From the distribution of ${conf.pass} met, ${conf.partial} partially met, and ${conf.fail} not met out of ${conf.total} reviewed requirements, a conformance score of ${conf.score}% is derived. The conformance score measures requirement compliance only and is to be considered separately from the risk rating (likelihood × impact).`;
   pdf.bodyText(methodNote);
 
   /* 3. DETAILED FINDINGS */

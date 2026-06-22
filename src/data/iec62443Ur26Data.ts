@@ -573,7 +573,7 @@ export function deriveThreatsFromReqs(reqs: IecReq[]): IecThreat[] {
     .filter(r => r.status !== 'pass')
     .map((r, i) => {
       const li = STATUS_LI[r.status];
-      return {
+      return calibrateThreat({
         id: i + 1,
         fr: r.id.split('-')[0],
         name: r.name,
@@ -588,8 +588,151 @@ export function deriveThreatsFromReqs(reqs: IecReq[]): IecThreat[] {
         sources: [],
         evidenceQuality: 3,
         reproducibility: 'medium',
-      } as IecThreat;
+      } as IecThreat);
     });
+}
+
+// ── Maritime risk calibration ────────────────────────────────────────────────
+// Single source of truth so the displayed likelihood, the displayed impact and
+// the risk score (always likelihood × impact) stay consistent everywhere
+// (online matrix, threat cards and the PDF). The calibration reflects two
+// maritime realities the flat status→L/I mapping cannot capture:
+//   1. Loss of safety-critical OT (navigation/ECDIS, steering, propulsion,
+//      power management, recovery/manual operations) is SOLAS-relevant and
+//      must carry a high impact floor.
+//   2. Pure accountability findings (shared accounts, missing individual login,
+//      audit-trail gaps) matter but must not automatically reach "critical"
+//      severity when no safety-critical function is affected.
+const SAFETY_CRITICAL_RX = /navigat|ecdis|\bibs\b|steering|steuer|rudder|autopilot|propuls|antrieb|man(o|ö)euvr|man(o|ö)ver|power management|\bpms\b|dynamic position|\bdp\b|gnss|\bgps\b|recovery|manual op|gyro/i;
+const LOSS_OF_CONTROL_RX = /loss|verlust|cannot|kein|unable|fail|recovery|manual|outage|ausfall/i;
+const ACCOUNTABILITY_RX = /shared (account|bridge)|individual login|individual authentic|einzelanmeldung|per-user|accountability|audit trail|session (remain|timeout)|geteilte/i;
+
+function clampLI(n: number): number {
+  return Math.min(5, Math.max(1, Math.round(Number(n) || 1)));
+}
+
+export function calibrateThreat(th: IecThreat): IecThreat {
+  const hay = `${th.name} ${th.component} ${th.iecRef} ${th.path}`.toLowerCase();
+  let likelihood = clampLI(th.likelihood);
+  let impact = clampLI(th.impact);
+
+  const safetyCritical = SAFETY_CRITICAL_RX.test(hay);
+  const accountabilityOnly = ACCOUNTABILITY_RX.test(hay) && !safetyCritical;
+
+  if (safetyCritical) {
+    const lossOfControl = LOSS_OF_CONTROL_RX.test(hay);
+    impact = Math.max(impact, lossOfControl ? 5 : 4);
+  }
+  if (accountabilityOnly) {
+    impact = Math.min(impact, 3);
+  }
+
+  return { ...th, likelihood, impact };
+}
+
+export function calibrateThreats(threats: IecThreat[]): IecThreat[] {
+  return threats.map(calibrateThreat);
+}
+
+// ── Conformance score (clear, conventional audit KPI) ────────────────────────
+// Pass = 100, Partial = 50, Fail = 0, averaged over all reviewed requirements.
+// Reported alongside the explicit met / partial / not-met breakdown so a reader
+// can never mistake it for "only X % of E26 is in scope".
+export interface ConformanceResult {
+  pass: number;
+  partial: number;
+  fail: number;
+  total: number;
+  score: number; // 0-100, rounded
+}
+
+export function computeConformance(reqs: IecReq[]): ConformanceResult {
+  const pass = reqs.filter(r => r.status === 'pass').length;
+  const partial = reqs.filter(r => r.status === 'partial').length;
+  const fail = reqs.filter(r => r.status === 'fail').length;
+  const total = reqs.length;
+  const score = total > 0 ? Math.round(((pass * 100 + partial * 50) / total)) : 0;
+  return { pass, partial, fail, total, score };
+}
+
+// ── Compensating controls ────────────────────────────────────────────────────
+// A "fail" finding (no documented evidence) is lifted to "partial" when the
+// operator has *declared and documented* a security measure that plausibly
+// compensates the affected requirement category. Only real, intake-declared
+// measures are considered — nothing is invented (Data Integrity Policy). A note
+// is appended to the rationale so the compensating basis is fully traceable.
+const MEASURE_TO_CATEGORY: Record<string, string[]> = {
+  iac: ['IAC'],
+  uc: ['UC'],
+  si: ['SI'],
+  dc: ['DC'],
+  rdf: ['UTN'],
+  segmentation: ['UTN'],
+  monitoring: ['AL'],
+  patch: ['VM', 'SI'],
+  backup: ['RA'],
+  ra: ['RA'],
+  physical: ['UC'],
+  training: ['AT'],
+  vendor: ['TP'],
+  incident: ['IR'],
+  tre: ['IR', 'AL'],
+};
+
+const MEASURE_LABEL: Record<string, string> = {
+  iac: 'Identification & Authentication Control', uc: 'Use Control / Authorization',
+  si: 'System Integrity', dc: 'Data Confidentiality', rdf: 'Restricted Data Flow',
+  segmentation: 'Network Segmentation', monitoring: 'Security Monitoring & Logging',
+  patch: 'Patch & Vulnerability Management', backup: 'Backup & Recovery',
+  ra: 'Resource Availability', physical: 'Physical Security', training: 'Crew Training & Awareness',
+  vendor: 'Supplier / Vendor Management', incident: 'Incident Response Plan', tre: 'Timely Response to Events',
+};
+
+export interface CompensatingResult {
+  reqs: IecReq[];
+  notes: string[];
+}
+
+export function applyCompensatingControls(
+  reqs: IecReq[],
+  measures: Record<string, MeasureEntry> | undefined,
+  lang: 'de' | 'en' | 'fr' = 'en',
+): CompensatingResult {
+  const notes: string[] = [];
+  if (!measures) return { reqs, notes };
+
+  // Active + documented measures only — a measure that is neither active nor
+  // documented is not a usable compensating control.
+  const active = Object.entries(measures)
+    .filter(([, m]) => m && m.active && m.documented)
+    .map(([id]) => id);
+  if (active.length === 0) return { reqs, notes };
+
+  const coveredCats = new Set<string>();
+  active.forEach(id => (MEASURE_TO_CATEGORY[id] || []).forEach(c => coveredCats.add(c)));
+
+  const tt = (de: string, en: string, fr: string) => lang === 'de' ? de : lang === 'fr' ? fr : en;
+
+  const updated = reqs.map(r => {
+    if (r.status !== 'fail') return r;
+    const cat = r.id.split('-')[0];
+    if (!coveredCats.has(cat)) return r;
+    const measureIds = active.filter(id => (MEASURE_TO_CATEGORY[id] || []).includes(cat));
+    const labels = measureIds.map(id => MEASURE_LABEL[id] || id).join(', ');
+    const note = tt(
+      `Kompensierende Maßnahme berücksichtigt (erklärt und dokumentiert): ${labels}. Status von „nicht erfüllt" auf „teilweise erfüllt" angehoben; verbleibender Nachweisbedarf besteht weiterhin.`,
+      `Compensating control considered (declared and documented): ${labels}. Status raised from "not met" to "partially met"; residual evidence is still required.`,
+      `Mesure compensatoire prise en compte (déclarée et documentée) : ${labels}. Statut relevé de « non satisfait » à « partiellement satisfait » ; des preuves restent requises.`,
+    );
+    notes.push(`${r.id}: ${labels}`);
+    return {
+      ...r,
+      status: 'partial' as const,
+      rationale: (r.rationale ? r.rationale + ' — ' : '') + note,
+    };
+  });
+
+  return { reqs: updated, notes };
 }
 
 
