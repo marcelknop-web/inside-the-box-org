@@ -164,7 +164,7 @@ export async function generateIec62443Ur26Report(data: Iec62443ReportData): Prom
     : lang === 'fr'
     ? noResidualScope
       ? `L'évaluation d'applicabilité a permis de constater qu'aucune exigence de l'IACS UR E26 ne subsiste dans le périmètre résiduel du navire/système ${intakeData.facilityName}.`
-      : `L'évaluation d'applicabilité du navire/système ${intakeData.facilityName} aboutit à un taux de couverture de ${complianceRate} % par rapport aux exigences de l'IACS UR E26. Au total, ${critRisks.length} risques critiques et ${failReqs.length} exigences pleinement applicables dans le périmètre résiduel ont été identifiés, nécessitant un traitement prioritaire.`
+      : `L'évaluation du navire/système ${intakeData.facilityName} aboutit à un taux de conformité de ${conf.score} % par rapport aux exigences de l'IACS UR E26 (${conf.pass} satisfaites, ${conf.partial} partiellement satisfaites, ${conf.fail} non satisfaites). Séparément, ${critRisks.length} risques critiques nécessitant un traitement prioritaire ont été identifiés.`
     : noResidualScope
     ? `The applicability review has determined that no IACS UR E26 requirements remain within the residual scope of vessel/system ${intakeData.facilityName}.`
     : `The applicability review of vessel/system ${intakeData.facilityName} yields a coverage rate of ${complianceRate}% against the requirements of IACS UR E26. A total of ${critRisks.length} critical risks and ${failReqs.length} fully applicable requirements in residual scope were identified, requiring priority treatment.`;
