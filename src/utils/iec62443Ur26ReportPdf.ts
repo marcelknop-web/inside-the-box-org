@@ -160,7 +160,7 @@ export async function generateIec62443Ur26Report(data: Iec62443ReportData): Prom
     : lang === 'de'
     ? noResidualScope
       ? `Im Rahmen der durchgeführten Anwendbarkeitsprüfung konnte festgestellt werden, dass für das Schiff bzw. System ${intakeData.facilityName} keine offenen Anforderungen im Restumfang (residual scope) der IACS UR E26 verbleiben.`
-      : `Die Anwendbarkeitsprüfung des Schiffs bzw. Systems ${intakeData.facilityName} ergibt eine Abdeckungsrate von ${complianceRate} % gegenüber den Anforderungen der IACS UR E26. Insgesamt wurden ${critRisks.length} kritische Risiken sowie ${failReqs.length} vollständig anwendbare Anforderungen im Restumfang festgestellt, die vorrangige Behandlung erfordern.`
+      : `Die Prüfung des Schiffs bzw. Systems ${intakeData.facilityName} ergibt einen Konformitätsgrad von ${conf.score} % gegenüber den Anforderungen der IACS UR E26 (${conf.pass} erfüllt, ${conf.partial} teilweise erfüllt, ${conf.fail} nicht erfüllt). Getrennt davon wurden ${critRisks.length} kritische Risiken festgestellt, die vorrangige Behandlung erfordern.`
     : lang === 'fr'
     ? noResidualScope
       ? `L'évaluation d'applicabilité a permis de constater qu'aucune exigence de l'IACS UR E26 ne subsiste dans le périmètre résiduel du navire/système ${intakeData.facilityName}.`
