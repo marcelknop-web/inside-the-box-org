@@ -171,24 +171,27 @@ export async function generateIec62443Ur26Report(data: Iec62443ReportData): Prom
 
   pdf.verdictBox(verdictText);
 
-  // Key Performance Indicators
-  pdf.heading(lang === 'de' ? 'Kennzahlen im Überblick' : lang === 'fr' ? 'Indicateurs clés' : 'Key Metrics', 2);
+  // ── Conformance (requirement compliance) — kept strictly separate from risk ──
+  pdf.heading(t(I18N.conformanceTitle, lang), 2);
+  pdf.kpiRow([
+    [`${conf.score} %`, t(I18N.conformanceScore, lang)],
+    [String(conf.pass), t(I18N.met, lang)],
+    [String(conf.partial), t(I18N.partiallyMet, lang)],
+    [String(conf.fail), t(I18N.notMet, lang)],
+  ]);
+  pdf.complianceBar(passReqs.length, partialReqs.length, failReqs.length, {
+    pass: t(I18N.met, lang), partial: t(I18N.partiallyMet, lang), fail: t(I18N.notMet, lang),
+    title: lang === 'de' ? 'IACS UR E26 Konformitätsverteilung' : lang === 'fr' ? 'Répartition de la conformité IACS UR E26' : 'IACS UR E26 Conformance Distribution',
+  });
+
+  // ── Risk landscape — a separate dimension from requirement conformance ──
+  pdf.heading(t(I18N.riskTitle, lang), 2);
   pdf.kpiRow([
     [String(threats.length), lang === 'de' ? 'Bedrohungen' : lang === 'fr' ? 'Menaces' : 'Threats'],
     [String(critRisks.length), lang === 'de' ? 'Kritisch (≥ 20)' : lang === 'fr' ? 'Critique (≥ 20)' : 'Critical (≥ 20)'],
-    [String(failReqs.length), lang === 'de' ? 'Anwendbar (Restumfang)' : lang === 'fr' ? 'Applicable (résiduel)' : 'Applicable (residual)'],
-    [`${complianceRate} %`, lang === 'de' ? 'Abdeckungsrate' : lang === 'fr' ? 'Taux de couverture' : 'Coverage Rate'],
+    [String(highRisks.length), lang === 'de' ? 'Hoch (13–19)' : lang === 'fr' ? 'Élevé (13–19)' : 'High (13–19)'],
+    [String(medRisks.length + lowRisks.length), lang === 'de' ? 'Mittel/Gering' : lang === 'fr' ? 'Moyen/Faible' : 'Medium/Low'],
   ]);
-
-  // Applicability Distribution
-  pdf.heading(lang === 'de' ? 'Anwendbarkeitsverteilung' : lang === 'fr' ? 'Répartition de l\'applicabilité' : 'Applicability Distribution', 2);
-  pdf.complianceBar(passReqs.length, partialReqs.length, failReqs.length, {
-    pass: t(I18N.pass, lang), partial: t(I18N.partial, lang), fail: t(I18N.fail, lang),
-    title: lang === 'de' ? 'IACS UR E26 Anwendbarkeitsverteilung' : lang === 'fr' ? 'Répartition de l\'applicabilité IACS UR E26' : 'IACS UR E26 Applicability Distribution',
-  });
-
-  // Risk Distribution
-  pdf.heading(lang === 'de' ? 'Risikoverteilung nach Schweregrad' : lang === 'fr' ? 'Répartition par sévérité' : 'Risk Severity Distribution', 2);
   pdf.riskDistribution(
     { critical: critRisks.length, high: highRisks.length, medium: medRisks.length, low: lowRisks.length },
     { critical: lang === 'de' ? 'Kritisch' : lang === 'fr' ? 'Critique' : 'Critical', high: lang === 'de' ? 'Hoch' : lang === 'fr' ? 'Élevé' : 'High', medium: lang === 'de' ? 'Mittel' : lang === 'fr' ? 'Moyen' : 'Medium', low: lang === 'de' ? 'Niedrig' : lang === 'fr' ? 'Faible' : 'Low', title: lang === 'de' ? 'Risikoverteilung' : lang === 'fr' ? 'Répartition des risques' : 'Risk Severity Distribution' },
