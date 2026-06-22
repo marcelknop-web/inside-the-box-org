@@ -101,6 +101,10 @@ export async function generateIec62443Ur26Report(data: Iec62443ReportData): Prom
   const medRisks = threats.filter(th => { const s = th.likelihood * th.impact; return s >= 6 && s < 13; });
   const lowRisks = threats.filter(th => th.likelihood * th.impact < 6);
   const complianceRate = reqs.length > 0 ? Math.round(((passReqs.length + partialReqs.length * 0.5) / reqs.length) * 100) : 0;
+  // Conventional conformance KPI (Pass=100 · Partial=50 · Fail=0) reported with
+  // an explicit met / partially met / not-met breakdown so it can never be read
+  // as "only X % of E26 is in scope".
+  const conf = computeConformance(reqs);
 
   const pdf = await createPdfDoc({
     lang,
