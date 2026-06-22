@@ -253,8 +253,8 @@ export async function generateIec62443Ur26Report(data: Iec62443ReportData): Prom
     ? noResidualScope
       ? `Sur la base de l'évaluation d'applicabilité réalisée, il est constaté qu'aucune exigence de l'IACS UR E26 ne subsiste dans le périmètre résiduel du navire/système ${intakeData.facilityName}.`
       : complianceRate >= 60
-      ? `Un périmètre résiduel limité d'exigences applicables de l'IACS UR E26 subsiste pour le navire/système ${intakeData.facilityName}. Le taux de couverture pondéré est de ${complianceRate} %. Les exigences applicables restantes doivent être traitées dans les délais définis dans le plan d'action.`
-      : `Un périmètre résiduel important d'exigences applicables de l'IACS UR E26 subsiste pour le navire/système ${intakeData.facilityName}. Le taux de couverture pondéré de ${complianceRate} % est inférieur au seuil visé. Une refonte complète de l'architecture de sécurité CBS est requise avant la prochaine visite de renouvellement de classe.`
+      ? `Un périmètre résiduel limité d'exigences non ou partiellement satisfaites de l'IACS UR E26 subsiste pour le navire/système ${intakeData.facilityName}. Le taux de conformité est de ${conf.score} %. Les exigences restantes doivent être traitées dans les délais définis dans le plan d'action.`
+      : `Un périmètre résiduel important d'exigences non satisfaites de l'IACS UR E26 subsiste pour le navire/système ${intakeData.facilityName}. Le taux de conformité de ${conf.score} % est inférieur au seuil visé. Une refonte complète de l'architecture de sécurité CBS est requise avant la prochaine visite de renouvellement de classe.`
     : noResidualScope
     ? `Based on the applicability review conducted, it is determined that no IACS UR E26 requirements remain within the residual scope of vessel/system ${intakeData.facilityName}.`
     : complianceRate >= 60
