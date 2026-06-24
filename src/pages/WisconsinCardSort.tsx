@@ -1,8 +1,9 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { Brain, CheckCircle2, XCircle, RotateCcw, Play, Trophy, Info } from 'lucide-react';
+import { Brain, CheckCircle2, XCircle, RotateCcw, Play, Trophy, Info, Compass, Sparkles, TrendingUp, ArrowUp, ArrowDown, Minus } from 'lucide-react';
 import { StaggerReveal } from '@/components/StaggerReveal';
 import { wcstSounds } from '@/lib/wcstSounds';
+import { buildProfile, buildBenchmark, benchLabels } from '@/lib/wcstProfile';
 
 /* ------------------------------------------------------------------ */
 /*  Wisconsin Card Sorting Test (WCST) — faithful reimplementation     */
@@ -102,6 +103,10 @@ const STR: Record<Lang, Record<string, string>> = {
     mPersevHint: 'Fehler durch Festhalten an einer nicht mehr gültigen Regel — ein Indikator für eingeschränkte kognitive Flexibilität.',
     mAccuracy: 'Trefferquote',
     assessTitle: 'Experteneinschätzung',
+    profileTitle: 'Ihr Profil',
+    archetypeLabel: 'Archetyp',
+    strengthsTitle: 'Stärken',
+    developmentTitle: 'Entwicklungsfelder',
     restart: 'Neu starten',
     done: 'Geschafft! Alle Kategorien abgeschlossen.',
     deckDone: 'Der Kartenstapel ist aufgebraucht.',
@@ -137,6 +142,10 @@ const STR: Record<Lang, Record<string, string>> = {
     mPersevHint: 'Errors caused by sticking to a rule that no longer applies — an indicator of reduced cognitive flexibility.',
     mAccuracy: 'Accuracy',
     assessTitle: 'Expert assessment',
+    profileTitle: 'Your profile',
+    archetypeLabel: 'Archetype',
+    strengthsTitle: 'Strengths',
+    developmentTitle: 'Development areas',
     restart: 'Restart',
     done: 'Well done! All categories completed.',
     deckDone: 'The card deck is exhausted.',
@@ -172,6 +181,10 @@ const STR: Record<Lang, Record<string, string>> = {
     mPersevHint: 'Erreurs dues au maintien d\'une règle qui ne s\'applique plus — un indicateur de flexibilité cognitive réduite.',
     mAccuracy: 'Précision',
     assessTitle: 'Avis d\'expert',
+    profileTitle: 'Votre profil',
+    archetypeLabel: 'Archétype',
+    strengthsTitle: 'Forces',
+    developmentTitle: 'Axes de développement',
     restart: 'Recommencer',
     done: 'Bravo ! Toutes les catégories sont complétées.',
     deckDone: 'La pile de cartes est épuisée.',
@@ -447,7 +460,11 @@ export default function WisconsinCardSort({ embedded = false }: WcstProps) {
   /* --------------------------- DONE --------------------------- */
   if (phase === 'done') {
     const allDone = categoriesDone >= MAX_CATEGORIES;
+    const pm = { categoriesDone, maxCategories: MAX_CATEGORIES, trials, correctCount, errors, persevErrors, accuracy, allDone };
     const expert = buildExpertSummary(L, { categoriesDone, trials, correctCount, errors, persevErrors, accuracy, allDone });
+    const profile = buildProfile(L, pm);
+    const benchmark = buildBenchmark(L, pm);
+    const bl = benchLabels(L);
     return (
       <div className="w-full max-w-2xl mx-auto">
         <div className="flex items-center gap-3 mb-5">
@@ -486,6 +503,75 @@ export default function WisconsinCardSort({ embedded = false }: WcstProps) {
             {expert.map((p, i) => (
               <p key={i} className="text-sm md:text-[15px] text-foreground/90 font-sans leading-relaxed">{p}</p>
             ))}
+          </div>
+        </div>
+
+        {/* Profile & archetype — deterministic, derived from the metrics */}
+        <div className="bg-card/40 border border-border/40 rounded-xl p-5 md:p-6 mb-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Compass className="text-highlight flex-shrink-0" size={18} />
+            <h2 className="font-mono text-sm font-bold text-primary uppercase tracking-wider">{tr.profileTitle}</h2>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-3">
+            <span className="font-mono text-lg md:text-xl font-bold text-foreground">{profile.profile}</span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-highlight/10 border border-highlight/30 text-highlight font-mono text-xs">
+              <Sparkles size={12} /> {tr.archetypeLabel}: {profile.archetype}
+            </span>
+          </div>
+          <p className="text-sm md:text-[15px] text-foreground/90 font-sans leading-relaxed mb-5">{profile.blurb}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <div className="font-mono text-[11px] uppercase tracking-wider text-green-500 mb-2">{tr.strengthsTitle}</div>
+              <ul className="space-y-1.5">
+                {profile.strengths.map((s, i) => (
+                  <li key={i} className="flex gap-2 text-sm text-foreground/85 font-sans">
+                    <CheckCircle2 size={15} className="text-green-500 flex-shrink-0 mt-0.5" /> <span>{s}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <div className="font-mono text-[11px] uppercase tracking-wider text-primary mb-2">{tr.developmentTitle}</div>
+              <ul className="space-y-1.5">
+                {profile.development.map((s, i) => (
+                  <li key={i} className="flex gap-2 text-sm text-foreground/85 font-sans">
+                    <TrendingUp size={15} className="text-primary flex-shrink-0 mt-0.5" /> <span>{s}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Benchmark vs reference profile */}
+        <div className="bg-card/40 border border-border/40 rounded-xl p-5 md:p-6 mb-6">
+          <div className="flex items-center gap-2 mb-4">
+            <TrendingUp className="text-highlight flex-shrink-0" size={18} />
+            <h2 className="font-mono text-sm font-bold text-primary uppercase tracking-wider">{bl.title}</h2>
+          </div>
+          <div className="space-y-2">
+            <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 items-center font-mono text-[10px] uppercase tracking-wider text-muted-foreground pb-1 border-b border-border/30">
+              <span></span>
+              <span className="text-right w-12">{bl.you}</span>
+              <span className="text-right w-12">{bl.reference}</span>
+            </div>
+            {benchmark.map((row, i) => {
+              const Icon = row.direction === 'better' ? ArrowUp : row.direction === 'below' ? ArrowDown : Minus;
+              const color = row.direction === 'better' ? 'text-green-500' : row.direction === 'below' ? 'text-destructive' : 'text-muted-foreground';
+              return (
+                <div key={i} className="grid grid-cols-[1fr_auto_auto] gap-x-4 items-center py-1.5">
+                  <span className="flex items-center gap-1.5 text-sm text-foreground/85 font-sans">
+                    <Icon size={14} className={`${color} flex-shrink-0`} /> {row.label}
+                  </span>
+                  <span className={`text-right w-12 font-mono text-sm font-bold ${color}`}>{row.you}</span>
+                  <span className="text-right w-12 font-mono text-sm text-muted-foreground">{row.reference}</span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex items-start gap-2 text-xs text-muted-foreground font-sans mt-3 pt-3 border-t border-border/30">
+            <Info size={14} className="flex-shrink-0 mt-0.5" />
+            <p>{bl.note}</p>
           </div>
         </div>
 
