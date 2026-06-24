@@ -1,8 +1,9 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { Brain, CheckCircle2, XCircle, RotateCcw, Play, Trophy, Info } from 'lucide-react';
+import { Brain, CheckCircle2, XCircle, RotateCcw, Play, Trophy, Info, Compass, Sparkles, TrendingUp, ArrowUp, ArrowDown, Minus } from 'lucide-react';
 import { StaggerReveal } from '@/components/StaggerReveal';
 import { wcstSounds } from '@/lib/wcstSounds';
+import { buildProfile, buildBenchmark, benchLabels } from '@/lib/wcstProfile';
 
 /* ------------------------------------------------------------------ */
 /*  Wisconsin Card Sorting Test (WCST) — faithful reimplementation     */
