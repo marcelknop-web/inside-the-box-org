@@ -40,7 +40,9 @@ const STIMULUS_CARDS: Card[] = [
 
 // Standard rule sequence: colour → shape → number, repeated.
 const RULE_SEQUENCE: Dimension[] = ['color', 'shape', 'number', 'color', 'shape', 'number'];
-const CRITERION = 10; // consecutive correct to complete a category
+// Short online form: 6 consecutive correct per category (vs. classic 10) keeps the
+// session short (~5 min) while still requiring real concept formation per category.
+const CRITERION = 6; // consecutive correct to complete a category
 const MAX_CATEGORIES = 6;
 
 function buildDeck(): Card[] {
@@ -78,9 +80,9 @@ const STR: Record<Lang, Record<string, string>> = {
     howHeading: 'So funktioniert es',
     rule1: 'Oben sehen Sie vier Referenzkarten. Unten erscheint jeweils eine neue Karte.',
     rule2: 'Ordnen Sie die untere Karte einer Referenzkarte zu — per Klick.',
-    rule3: 'Die richtige Sortierregel (Farbe, Form oder Anzahl) wird Ihnen nicht verraten. Sie müssen sie aus dem Feedback erschließen.',
-    rule4: 'Nach jeder Zuordnung erhalten Sie „Richtig" oder „Falsch".',
-    rule5: 'Die Regel wechselt ohne Vorwarnung, sobald Sie sie mehrfach hintereinander getroffen haben. Bleiben Sie flexibel.',
+    rule3: 'Wie zugeordnet werden soll, wird Ihnen bewusst nicht gesagt. Sie finden es selbst heraus.',
+    rule4: 'Nach jeder Zuordnung erhalten Sie nur die Rückmeldung „Richtig" oder „Falsch".',
+    methodNote: 'Hinweis zur Aussagekraft: Mehr wird Ihnen absichtlich nicht verraten. Würden wir die Sortierregel oder ihren Wechsel im Voraus erklären, wäre das Ergebnis nicht mehr aussagekräftig. Bleiben Sie aufmerksam und passen Sie sich an, was das Feedback Ihnen zeigt.',
     disclaimer: 'Hinweis: Dies ist eine Demonstrations- und Trainingsversion zu Bildungszwecken. Sie ersetzt keine klinische Diagnostik.',
     start: 'Test starten',
     matchPrompt: 'Welcher Referenzkarte ordnen Sie diese Karte zu?',
@@ -114,9 +116,9 @@ const STR: Record<Lang, Record<string, string>> = {
     howHeading: 'How it works',
     rule1: 'Four reference cards are shown at the top. A new card appears below.',
     rule2: 'Match the lower card to one of the reference cards — by clicking.',
-    rule3: 'The correct sorting rule (colour, shape or number) is never revealed. You must infer it from the feedback.',
-    rule4: 'After each match you receive “Correct" or “Wrong".',
-    rule5: 'The rule changes without warning once you get it right several times in a row. Stay flexible.',
+    rule3: 'How to match is deliberately not explained. You work it out yourself.',
+    rule4: 'After each match you receive only the feedback “Correct" or “Wrong".',
+    methodNote: 'A note on validity: nothing more is revealed on purpose. If we explained the sorting rule or its changes in advance, the result would no longer be meaningful. Stay attentive and adapt to what the feedback tells you.',
     disclaimer: 'Note: This is a demonstration and training version for educational purposes. It does not replace clinical assessment.',
     start: 'Start the test',
     matchPrompt: 'Which reference card does this card match?',
@@ -150,9 +152,9 @@ const STR: Record<Lang, Record<string, string>> = {
     howHeading: 'Comment ça marche',
     rule1: 'Quatre cartes de référence apparaissent en haut. Une nouvelle carte s\'affiche en dessous.',
     rule2: 'Associez la carte du bas à l\'une des cartes de référence — en cliquant.',
-    rule3: 'La bonne règle de tri (couleur, forme ou nombre) n\'est jamais révélée. Vous devez la déduire du retour.',
-    rule4: 'Après chaque association, vous recevez « Correct » ou « Faux ».',
-    rule5: 'La règle change sans prévenir dès que vous la trouvez plusieurs fois de suite. Restez flexible.',
+    rule3: 'La façon d\'associer n\'est volontairement pas expliquée. Vous la découvrez par vous-même.',
+    rule4: 'Après chaque association, vous ne recevez que le retour « Correct » ou « Faux ».',
+    methodNote: 'Note sur la validité : rien de plus n\'est révélé, volontairement. Expliquer à l\'avance la règle de tri ou ses changements rendrait le résultat non significatif. Restez attentif et adaptez-vous à ce que le retour vous indique.',
     disclaimer: 'Remarque : ceci est une version de démonstration et d\'entraînement à but pédagogique. Elle ne remplace pas un diagnostic clinique.',
     start: 'Démarrer le test',
     matchPrompt: 'À quelle carte de référence associez-vous cette carte ?',
@@ -336,13 +338,18 @@ export default function WisconsinCardSort({ embedded = false }: WcstProps) {
           <div className="bg-card/40 border border-border/40 rounded-xl p-5 md:p-6">
             <h2 className="font-mono text-base font-bold text-primary mb-4">{tr.howHeading}</h2>
             <StaggerReveal stagger={460} startDelay={2200} className="!space-y-3.5">
-              {[tr.rule1, tr.rule2, tr.rule3, tr.rule4, tr.rule5].map((r, i) => (
+              {[tr.rule1, tr.rule2, tr.rule3, tr.rule4].map((r, i) => (
                 <div key={i} className="flex gap-3 text-[15px] md:text-base text-foreground/90 font-sans leading-relaxed">
                   <span className="font-mono text-highlight font-bold flex-shrink-0">{i + 1}.</span>
                   <span>{r}</span>
                 </div>
               ))}
             </StaggerReveal>
+          </div>
+
+          <div className="flex items-start gap-2.5 bg-highlight/5 border border-highlight/20 rounded-xl p-4 md:p-5 text-[14px] md:text-[15px] text-foreground/85 font-sans leading-relaxed">
+            <Info size={16} className="flex-shrink-0 mt-0.5 text-highlight" />
+            <p>{tr.methodNote}</p>
           </div>
 
           <div className="flex items-start gap-2 text-[13px] text-muted-foreground font-sans px-1">
