@@ -82,8 +82,6 @@ const STR: Record<Lang, Record<string, string>> = {
     rule2: 'Ordnen Sie die untere Karte einer Referenzkarte zu — per Klick.',
     rule3: 'Wie zugeordnet werden soll, wird Ihnen bewusst nicht gesagt. Sie finden es selbst heraus.',
     rule4: 'Nach jeder Zuordnung erhalten Sie nur die Rückmeldung „Richtig" oder „Falsch".',
-    methodNote: 'Hinweis zur Aussagekraft: Mehr wird Ihnen absichtlich nicht verraten. Würden wir die Sortierregel oder ihren Wechsel im Voraus erklären, wäre das Ergebnis nicht mehr aussagekräftig. Bleiben Sie aufmerksam und passen Sie sich an, was das Feedback Ihnen zeigt.',
-    disclaimer: 'Hinweis: Dies ist eine Demonstrations- und Trainingsversion zu Bildungszwecken. Sie ersetzt keine klinische Diagnostik.',
     start: 'Test starten',
     matchPrompt: 'Welcher Referenzkarte ordnen Sie diese Karte zu?',
     correct: 'Richtig',
