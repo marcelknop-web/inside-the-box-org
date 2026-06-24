@@ -308,7 +308,7 @@ export default function WisconsinCardSort({ embedded = false }: WcstProps) {
   if (phase === 'intro') {
     return (
       <div className="w-full max-w-3xl mx-auto px-1">
-        <StaggerReveal stagger={550} startDelay={150} className="!space-y-5">
+        <StaggerReveal stagger={620} startDelay={200} className="!space-y-5">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 md:w-12 md:h-12 rounded-lg bg-highlight/10 border border-highlight/30 flex items-center justify-center flex-shrink-0">
               <Brain className="text-highlight" size={22} />
