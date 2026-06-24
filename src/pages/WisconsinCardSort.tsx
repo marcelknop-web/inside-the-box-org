@@ -100,6 +100,7 @@ const STR: Record<Lang, Record<string, string>> = {
     mPersev: 'Perseverative Fehler',
     mPersevHint: 'Fehler durch Festhalten an einer nicht mehr gültigen Regel — ein Indikator für eingeschränkte kognitive Flexibilität.',
     mAccuracy: 'Trefferquote',
+    assessTitle: 'Experteneinschätzung',
     restart: 'Neu starten',
     done: 'Geschafft! Alle Kategorien abgeschlossen.',
     deckDone: 'Der Kartenstapel ist aufgebraucht.',
