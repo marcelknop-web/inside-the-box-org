@@ -33,6 +33,7 @@ const ButterflyEffectLab = lazy(() => import('./ButterflyEffectLab'));
 const SocLife = lazy(() => import('./SocLife'));
 const OtSocLife = lazy(() => import('./OtSocLife'));
 const AiActReadinessTool = lazy(() => import('./AiActReadinessTool'));
+const WisconsinCardSort = lazy(() => import('./WisconsinCardSort'));
 
 import { StaggerReveal } from '@/components/StaggerReveal';
 import GlitchText from '@/components/GlitchText';
