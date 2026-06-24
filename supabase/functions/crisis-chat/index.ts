@@ -1,4 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { SYSTEM_PROMPTS } from "./prompts.ts";
+
+const VALID_LANGS = ["de", "en", "fr"] as const;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
