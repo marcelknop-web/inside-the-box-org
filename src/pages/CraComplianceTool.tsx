@@ -816,10 +816,11 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
   const craName = craClasses.find(c => c.id === intakeData.craClass)?.label || intakeData.craClass || '—';
 
   const introHtml = useMemo(() => {
+    const esc = (s: string) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     return t('cra.rpIntro')
-      .replace('{product}', `${intakeData.productName} ${intakeData.version}`)
-      .replace('{type}', typeName)
-      .replace('{cls}', craName)
+      .replace('{product}', esc(`${intakeData.productName} ${intakeData.version}`))
+      .replace('{type}', esc(typeName))
+      .replace('{cls}', esc(craName))
       .replace('{date}', today)
       .replace('{threats}', String(localThreats.length))
       .replace('{critRisks}', String(critRisks.length))
