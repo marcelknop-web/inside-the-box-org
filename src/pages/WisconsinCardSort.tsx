@@ -460,7 +460,11 @@ export default function WisconsinCardSort({ embedded = false }: WcstProps) {
   /* --------------------------- DONE --------------------------- */
   if (phase === 'done') {
     const allDone = categoriesDone >= MAX_CATEGORIES;
+    const pm = { categoriesDone, maxCategories: MAX_CATEGORIES, trials, correctCount, errors, persevErrors, accuracy, allDone };
     const expert = buildExpertSummary(L, { categoriesDone, trials, correctCount, errors, persevErrors, accuracy, allDone });
+    const profile = buildProfile(L, pm);
+    const benchmark = buildBenchmark(L, pm);
+    const bl = benchLabels(L);
     return (
       <div className="w-full max-w-2xl mx-auto">
         <div className="flex items-center gap-3 mb-5">
