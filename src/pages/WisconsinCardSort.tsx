@@ -335,7 +335,7 @@ export default function WisconsinCardSort({ embedded = false }: WcstProps) {
 
           <div className="bg-card/40 border border-border/40 rounded-xl p-5 md:p-6">
             <h2 className="font-mono text-base font-bold text-primary mb-4">{tr.howHeading}</h2>
-            <StaggerReveal stagger={500} startDelay={250} className="!space-y-3.5">
+            <StaggerReveal stagger={460} startDelay={2200} className="!space-y-3.5">
               {[tr.rule1, tr.rule2, tr.rule3, tr.rule4, tr.rule5].map((r, i) => (
                 <div key={i} className="flex gap-3 text-[15px] md:text-base text-foreground/90 font-sans leading-relaxed">
                   <span className="font-mono text-highlight font-bold flex-shrink-0">{i + 1}.</span>
