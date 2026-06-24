@@ -325,6 +325,7 @@ export default function WisconsinCardSort({ embedded = false }: WcstProps) {
   const currentCard = deck[deckIdx];
 
   const begin = useCallback(() => {
+    wcstSounds.unlock();
     setDeck(buildDeck());
     setDeckIdx(0);
     setRuleIdx(0);
