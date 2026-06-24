@@ -162,7 +162,6 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
 
   const { startSound, stopSound } = useMatrixAudio(0.25);
 
-  const systemPrompt = SYSTEM_PROMPTS[language] || SYSTEM_PROMPTS.en;
   const phases = [
     { id: 1, label: t('crisisSim.phase1') },
     { id: 2, label: t('crisisSim.phase2') },
