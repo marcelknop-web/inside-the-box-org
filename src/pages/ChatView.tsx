@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, ReactNode, useCallback, useMemo, lazy, Sus
 import { useParams, useNavigate } from 'react-router-dom';
 
 import { supabase } from '@/integrations/supabase/client';
-import { Send, Plus, MessageCircle, Shield, Target, BookOpen, AlertTriangle, Eye, Flame, Swords, Calendar, FileText, UserCheck, ChevronLeft, Menu, ShieldCheck, Search, Settings, Award, RotateCcw, Network, CreditCard, CheckCircle, FileCheck, Car, BarChart, RefreshCw, GraduationCap, ClipboardList, Zap, Crown, Users, Gamepad2, Monitor, Crosshair, CheckSquare, Mic, Radio, Video, Mail, Server, Bug, AlertCircle, MessageSquare, Building2, Plane, Landmark, Scale, Wifi, XCircle, HelpCircle, Loader2, X, Linkedin, Play, TrendingDown, Rocket, Fingerprint, Factory, Sparkles } from 'lucide-react';
+import { Send, Plus, MessageCircle, Shield, Target, BookOpen, AlertTriangle, Eye, Flame, Swords, Calendar, FileText, UserCheck, ChevronLeft, Menu, ShieldCheck, Search, Settings, Award, RotateCcw, Network, CreditCard, CheckCircle, FileCheck, Car, BarChart, RefreshCw, GraduationCap, ClipboardList, Zap, Crown, Users, Gamepad2, Monitor, Crosshair, CheckSquare, Mic, Radio, Video, Mail, Server, Bug, AlertCircle, MessageSquare, Building2, Plane, Landmark, Scale, Wifi, XCircle, HelpCircle, Loader2, X, Linkedin, Play, TrendingDown, Rocket, Fingerprint, Factory, Sparkles, Brain } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PageMeta } from '@/components/PageMeta';
@@ -33,6 +33,7 @@ const ButterflyEffectLab = lazy(() => import('./ButterflyEffectLab'));
 const SocLife = lazy(() => import('./SocLife'));
 const OtSocLife = lazy(() => import('./OtSocLife'));
 const AiActReadinessTool = lazy(() => import('./AiActReadinessTool'));
+const WisconsinCardSort = lazy(() => import('./WisconsinCardSort'));
 
 import { StaggerReveal } from '@/components/StaggerReveal';
 import GlitchText from '@/components/GlitchText';
@@ -53,6 +54,7 @@ const AI_TOOL_ADDED_AT: Record<string, string> = {
   'soc-life': '2026-04-10',
   'ot-soc-life': '2026-04-24',
   'butterfly-lab': '2026-04-05',
+  'wcst': '2026-06-24',
 };
 
 interface NavLink { url: string; label: string; }
@@ -1030,6 +1032,17 @@ const useServiceContent = () => {
                 <p className="text-foreground/80 text-xs">{t('aiWorkflows.butterflyDesc')}</p>
               </div>
             </button>
+            {/* — Neuropsychologie — */}
+            <button onClick={() => setActive('wcst')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <Brain size={20} className="text-highlight mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-highlight font-semibold font-mono text-sm flex items-center gap-2 flex-wrap">
+                  {t('aiWorkflows.wcstTitle')}
+                  {AI_TOOL_ADDED_AT['wcst'] && <NewDateBadge addedAt={AI_TOOL_ADDED_AT['wcst']} />}
+                </p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.wcstDesc')}</p>
+              </div>
+            </button>
             {/* — Krypto (Klassiker, vor dem Quantum-Hype) — */}
             <a
               href="/enigma"
@@ -1608,7 +1621,7 @@ const ChatView = () => {
     'nis2-quiz', 'ciso-sim', 'threatdrop', 'trigger-triage', 'cyber-frogger',
     'elite-ship', 'cra-check', 'dora-compliance', 'nis2-compliance',
     'iacs-e27', 'iec62443', 'butterfly-lab', 'soc-life', 'ot-soc-life', 'system-check',
-    'ttx-readiness', 'enigma', 'itsm', 'itsm-dev', 'ai-act-readiness',
+    'ttx-readiness', 'enigma', 'itsm', 'itsm-dev', 'ai-act-readiness', 'wcst',
   ]), []);
   const isToolPage = !!activeService && TOOL_SERVICES.has(activeService);
 
@@ -2050,6 +2063,8 @@ const ChatView = () => {
     ? <Suspense fallback={lazyFallback}><OtSocLife embedded /></Suspense>
     : activeService === 'ai-act-readiness'
     ? <Suspense fallback={lazyFallback}><PasswordGate storageKey="ai-act-readiness" label="EU AI Act Readiness Assessment"><AiActReadinessTool embedded /></PasswordGate></Suspense>
+    : activeService === 'wcst'
+    ? <Suspense fallback={lazyFallback}><WisconsinCardSort embedded /></Suspense>
     : activeService === 'system-check'
     ? <InlineSystemCheck t={t} />
     : activeService && contentMap[activeService] ? contentMap[activeService]() : null;
