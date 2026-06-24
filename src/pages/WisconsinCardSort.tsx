@@ -40,7 +40,9 @@ const STIMULUS_CARDS: Card[] = [
 
 // Standard rule sequence: colour → shape → number, repeated.
 const RULE_SEQUENCE: Dimension[] = ['color', 'shape', 'number', 'color', 'shape', 'number'];
-const CRITERION = 10; // consecutive correct to complete a category
+// Short online form: 6 consecutive correct per category (vs. classic 10) keeps the
+// session short (~5 min) while still requiring real concept formation per category.
+const CRITERION = 6; // consecutive correct to complete a category
 const MAX_CATEGORIES = 6;
 
 function buildDeck(): Card[] {
