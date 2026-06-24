@@ -410,6 +410,8 @@ export const fr = {
     eliteDesc: 'Déconnectez, volez, lâchez prise — une scène 3D méditative pour se détendre',
     enigmaTitle: 'Enigma I',
     enigmaDesc: 'Pleinement fonctionnelle. Pour des lettres d\'amour au RSSI ou le prochain stand-up.',
+    wcstTitle: 'Test de classement de cartes du Wisconsin',
+    wcstDesc: 'Reproduction fidèle du test classique de flexibilité cognitive et de fonctions exécutives',
     agentYtTitle: 'Vidéos d\'injection',
     agentYtDesc: 'Vidéos d\'actualité générées par IA comme briefings pour exercices de crise',
     ctaTitle: 'Démarrage',
