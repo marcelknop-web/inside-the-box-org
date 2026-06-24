@@ -76,7 +76,7 @@ const STR: Record<Lang, Record<string, string>> = {
     subtitle: 'Kognitive Flexibilität · Exekutive Funktionen',
     introHeading: 'Worum geht es?',
     introBody:
-      'Der Wisconsin Card Sorting Test (WCST) misst kognitive Flexibilität, Konzeptbildung und die Fähigkeit, das eigene Verhalten an wechselnde Regeln anzupassen. Er ist eines der bekanntesten neuropsychologischen Verfahren zur Erfassung exekutiver Funktionen.',
+      'Der Wisconsin Card Sorting Test ist ein kurzer Test. Ihre Aufgabe: Ordnen Sie die neue Karte jeweils einer der vier Referenzkarten zu.',
     howHeading: 'So funktioniert es',
     rule1: 'Oben sehen Sie vier Referenzkarten. Unten erscheint jeweils eine neue Karte.',
     rule2: 'Ordnen Sie die untere Karte einer Referenzkarte zu — per Klick.',
