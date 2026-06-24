@@ -410,6 +410,8 @@ export const en = {
     eliteDesc: 'Switch off, fly, let go — a meditative 3D scene to unwind',
     enigmaTitle: 'Enigma I',
     enigmaDesc: 'Fully working. For love letters to the CISO or the next stand-up.',
+    wcstTitle: 'Wisconsin Card Sorting Test',
+    wcstDesc: 'Faithful reimplementation of the classic test of cognitive flexibility and executive function',
     agentYtTitle: 'Video Injects',
     agentYtDesc: 'AI-generated news videos as situational briefings for crisis exercises',
     ctaTitle: 'Getting Started',
