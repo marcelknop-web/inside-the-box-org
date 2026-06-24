@@ -175,6 +175,90 @@ const STR: Record<Lang, Record<string, string>> = {
   },
 };
 
+/* --------------------- expert interpretation ---------------------- */
+/* Deterministic, derived strictly from the recorded session metrics. */
+/* No values are invented — every statement maps to a measured number. */
+
+interface SessionMetrics {
+  categoriesDone: number;
+  trials: number;
+  correctCount: number;
+  errors: number;
+  persevErrors: number;
+  accuracy: number;
+  allDone: boolean;
+}
+
+type Lang = 'de' | 'en' | 'fr';
+
+function buildExpertSummary(lang: Lang, m: SessionMetrics): string[] {
+  const persevShare = m.errors > 0 ? Math.round((m.persevErrors / m.errors) * 100) : 0;
+  // tiers
+  const completion: 'full' | 'partial' | 'limited' =
+    m.allDone ? 'full' : m.categoriesDone >= Math.ceil(MAX_CATEGORIES / 2) ? 'partial' : 'limited';
+  const flexibility: 'strong' | 'moderate' | 'reduced' =
+    m.persevErrors <= 2 ? 'strong' : m.persevErrors <= 5 ? 'moderate' : 'reduced';
+  const efficiency: 'high' | 'mid' | 'low' =
+    m.accuracy >= 75 ? 'high' : m.accuracy >= 55 ? 'mid' : 'low';
+
+  const T = {
+    de: {
+      completion: {
+        full: `Es wurden alle ${MAX_CATEGORIES} Kategorien abgeschlossen — die Teilnehmerin bzw. der Teilnehmer hat jede geforderte Sortierregel zuverlässig entdeckt und angewendet.`,
+        partial: `Es wurden ${m.categoriesDone} von ${MAX_CATEGORIES} Kategorien abgeschlossen. Regeln wurden grundsätzlich erkannt, jedoch nicht durchgängig stabil gehalten.`,
+        limited: `Es wurden ${m.categoriesDone} von ${MAX_CATEGORIES} Kategorien abgeschlossen. Das Auffinden der gültigen Sortierregel gelang nur eingeschränkt.`,
+      },
+      flexibility: {
+        strong: `Mit ${m.persevErrors} perseverativen Fehlern (${persevShare}% aller Fehler) zeigt sich eine ausgeprägte kognitive Flexibilität: Regelwechsel wurden rasch erkannt und das Verhalten zügig umgestellt.`,
+        moderate: `Mit ${m.persevErrors} perseverativen Fehlern (${persevShare}% aller Fehler) deutet sich eine moderate kognitive Flexibilität an — Regelwechsel wurden erkannt, das Umlernen erforderte aber mehrere Versuche.`,
+        reduced: `Mit ${m.persevErrors} perseverativen Fehlern (${persevShare}% aller Fehler) zeigt sich ein deutliches Festhalten an nicht mehr gültigen Regeln, was auf eine eingeschränkte kognitive Flexibilität hindeutet.`,
+      },
+      efficiency: {
+        high: `Die Trefferquote von ${m.accuracy}% (${m.correctCount}/${m.trials}) spricht für eine effiziente Hypothesenbildung und konsistente Umsetzung.`,
+        mid: `Die Trefferquote von ${m.accuracy}% (${m.correctCount}/${m.trials}) liegt im mittleren Bereich; die Lösungsstrategie war erkennbar, aber noch nicht durchgängig stabil.`,
+        low: `Die Trefferquote von ${m.accuracy}% (${m.correctCount}/${m.trials}) weist auf einen überwiegend versuchenden Lösungsansatz hin; eine stabile Strategie bildete sich nur ansatzweise heraus.`,
+      },
+    },
+    en: {
+      completion: {
+        full: `All ${MAX_CATEGORIES} categories were completed — the participant reliably discovered and applied every required sorting rule.`,
+        partial: `${m.categoriesDone} of ${MAX_CATEGORIES} categories were completed. Rules were generally identified but not consistently maintained.`,
+        limited: `${m.categoriesDone} of ${MAX_CATEGORIES} categories were completed. Identifying the valid sorting rule succeeded only to a limited degree.`,
+      },
+      flexibility: {
+        strong: `With ${m.persevErrors} perseverative errors (${persevShare}% of all errors), cognitive flexibility is pronounced: rule shifts were recognised quickly and behaviour adjusted promptly.`,
+        moderate: `With ${m.persevErrors} perseverative errors (${persevShare}% of all errors), cognitive flexibility appears moderate — shifts were recognised, but re-learning took several trials.`,
+        reduced: `With ${m.persevErrors} perseverative errors (${persevShare}% of all errors), there is clear persistence with rules that no longer apply, suggesting reduced cognitive flexibility.`,
+      },
+      efficiency: {
+        high: `The accuracy of ${m.accuracy}% (${m.correctCount}/${m.trials}) reflects efficient hypothesis formation and consistent execution.`,
+        mid: `The accuracy of ${m.accuracy}% (${m.correctCount}/${m.trials}) is in the mid range; a solution strategy was visible but not yet fully stable.`,
+        low: `The accuracy of ${m.accuracy}% (${m.correctCount}/${m.trials}) points to a largely trial-and-error approach; a stable strategy only began to emerge.`,
+      },
+    },
+    fr: {
+      completion: {
+        full: `Les ${MAX_CATEGORIES} catégories ont été complétées — le participant a découvert et appliqué de manière fiable chaque règle de tri requise.`,
+        partial: `${m.categoriesDone} catégories sur ${MAX_CATEGORIES} ont été complétées. Les règles ont été globalement identifiées, mais pas maintenues de façon constante.`,
+        limited: `${m.categoriesDone} catégories sur ${MAX_CATEGORIES} ont été complétées. La découverte de la règle de tri valide n'a réussi que de façon limitée.`,
+      },
+      flexibility: {
+        strong: `Avec ${m.persevErrors} erreurs persévératives (${persevShare}% de toutes les erreurs), la flexibilité cognitive est marquée : les changements de règle ont été reconnus rapidement et le comportement ajusté sans délai.`,
+        moderate: `Avec ${m.persevErrors} erreurs persévératives (${persevShare}% de toutes les erreurs), la flexibilité cognitive paraît modérée — les changements ont été reconnus, mais le réapprentissage a nécessité plusieurs essais.`,
+        reduced: `Avec ${m.persevErrors} erreurs persévératives (${persevShare}% de toutes les erreurs), on observe un maintien net de règles qui ne s'appliquent plus, ce qui suggère une flexibilité cognitive réduite.`,
+      },
+      efficiency: {
+        high: `La précision de ${m.accuracy}% (${m.correctCount}/${m.trials}) traduit une formulation d'hypothèses efficace et une exécution cohérente.`,
+        mid: `La précision de ${m.accuracy}% (${m.correctCount}/${m.trials}) se situe dans la moyenne ; une stratégie était visible mais pas encore pleinement stable.`,
+        low: `La précision de ${m.accuracy}% (${m.correctCount}/${m.trials}) indique une approche essentiellement par essais-erreurs ; une stratégie stable n'a fait qu'émerger.`,
+      },
+    },
+  } as const;
+
+  const t = T[lang];
+  return [t.completion[completion], t.flexibility[flexibility], t.efficiency[efficiency]];
+}
+
 /* --------------------------- card render -------------------------- */
 
 function Glyph({ shape, color, size = 26 }: { shape: Shape; color: Color; size?: number }) {
