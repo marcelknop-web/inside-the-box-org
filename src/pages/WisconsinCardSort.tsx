@@ -504,11 +504,11 @@ export default function WisconsinCardSort({ embedded = false }: WcstProps) {
   /* --------------------------- PLAYING --------------------------- */
   return (
     <div className="w-full max-w-3xl mx-auto">
-      {/* Neutral, purely graphical progress — reveals nothing about the task. */}
+      {/* Neutral, purely graphical progress — advances only by trials completed, never backward. */}
       <div className="h-1.5 w-full rounded-full bg-border/40 overflow-hidden mb-8">
         <div
           className="h-full bg-highlight/80 transition-all duration-500 ease-out"
-          style={{ width: `${Math.min(100, ((categoriesDone + streak / CRITERION) / MAX_CATEGORIES) * 100)}%` }}
+          style={{ width: `${Math.min(100, (deck.length > 0 ? (trials / deck.length) : 0) * 100)}%` }}
         />
       </div>
 
