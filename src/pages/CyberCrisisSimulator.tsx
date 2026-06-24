@@ -207,11 +207,11 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
 
   const sendToEdge = useCallback(async (msgs: { role: string; content: string }[]) => {
     const { data, error } = await supabase.functions.invoke("crisis-chat", {
-      body: { messages: msgs, system: systemPrompt },
+      body: { messages: msgs, lang: language },
     });
     if (error) throw error;
     return data.content as string;
-  }, [systemPrompt]);
+  }, [language]);
 
   const sendMessage = useCallback(async (text: string, isSystem = false) => {
     const userMsg: Message = { role: "user", content: text, type: isSystem ? "sys" : "user" };
