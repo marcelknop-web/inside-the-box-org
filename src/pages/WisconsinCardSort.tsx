@@ -82,8 +82,6 @@ const STR: Record<Lang, Record<string, string>> = {
     rule2: 'Ordnen Sie die untere Karte einer Referenzkarte zu — per Klick.',
     rule3: 'Wie zugeordnet werden soll, wird Ihnen bewusst nicht gesagt. Sie finden es selbst heraus.',
     rule4: 'Nach jeder Zuordnung erhalten Sie nur die Rückmeldung „Richtig" oder „Falsch".',
-    methodNote: 'Hinweis zur Aussagekraft: Mehr wird Ihnen absichtlich nicht verraten. Würden wir die Sortierregel oder ihren Wechsel im Voraus erklären, wäre das Ergebnis nicht mehr aussagekräftig. Bleiben Sie aufmerksam und passen Sie sich an, was das Feedback Ihnen zeigt.',
-    disclaimer: 'Hinweis: Dies ist eine Demonstrations- und Trainingsversion zu Bildungszwecken. Sie ersetzt keine klinische Diagnostik.',
     start: 'Test starten',
     matchPrompt: 'Welcher Referenzkarte ordnen Sie diese Karte zu?',
     correct: 'Richtig',
@@ -118,8 +116,6 @@ const STR: Record<Lang, Record<string, string>> = {
     rule2: 'Match the lower card to one of the reference cards — by clicking.',
     rule3: 'How to match is deliberately not explained. You work it out yourself.',
     rule4: 'After each match you receive only the feedback “Correct" or “Wrong".',
-    methodNote: 'A note on validity: nothing more is revealed on purpose. If we explained the sorting rule or its changes in advance, the result would no longer be meaningful. Stay attentive and adapt to what the feedback tells you.',
-    disclaimer: 'Note: This is a demonstration and training version for educational purposes. It does not replace clinical assessment.',
     start: 'Start the test',
     matchPrompt: 'Which reference card does this card match?',
     correct: 'Correct',
@@ -154,8 +150,6 @@ const STR: Record<Lang, Record<string, string>> = {
     rule2: 'Associez la carte du bas à l\'une des cartes de référence — en cliquant.',
     rule3: 'La façon d\'associer n\'est volontairement pas expliquée. Vous la découvrez par vous-même.',
     rule4: 'Après chaque association, vous ne recevez que le retour « Correct » ou « Faux ».',
-    methodNote: 'Note sur la validité : rien de plus n\'est révélé, volontairement. Expliquer à l\'avance la règle de tri ou ses changements rendrait le résultat non significatif. Restez attentif et adaptez-vous à ce que le retour vous indique.',
-    disclaimer: 'Remarque : ceci est une version de démonstration et d\'entraînement à but pédagogique. Elle ne remplace pas un diagnostic clinique.',
     start: 'Démarrer le test',
     matchPrompt: 'À quelle carte de référence associez-vous cette carte ?',
     correct: 'Correct',
@@ -345,16 +339,6 @@ export default function WisconsinCardSort({ embedded = false }: WcstProps) {
                 </div>
               ))}
             </StaggerReveal>
-          </div>
-
-          <div className="flex items-start gap-2.5 bg-highlight/5 border border-highlight/20 rounded-xl p-4 md:p-5 text-[14px] md:text-[15px] text-foreground/85 font-sans leading-relaxed">
-            <Info size={16} className="flex-shrink-0 mt-0.5 text-highlight" />
-            <p>{tr.methodNote}</p>
-          </div>
-
-          <div className="flex items-start gap-2 text-[13px] text-muted-foreground font-sans px-1">
-            <Info size={15} className="flex-shrink-0 mt-0.5" />
-            <p className="leading-relaxed">{tr.disclaimer}</p>
           </div>
 
           <button
