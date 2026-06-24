@@ -36,7 +36,8 @@ const TtxAdmin = () => {
 
     const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
     fetch(
-      `https://${projectId}.supabase.co/functions/v1/ttx-admin?token=${encodeURIComponent(token)}`
+      `https://${projectId}.supabase.co/functions/v1/ttx-admin`,
+      { headers: { "x-admin-token": token } }
     )
       .then((res) => {
         if (!res.ok) throw new Error("Zugriff verweigert");
