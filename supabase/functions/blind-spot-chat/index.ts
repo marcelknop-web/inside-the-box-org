@@ -16,7 +16,7 @@ interface RequestBody {
   userInput?: string;
   decisionQuestion?: string;
   history?: ChatMessage[];
-  systemPromptOverride?: string;
+  userRoleName?: string;
   decisions?: Array<{
     phase: string;
     question: string;
@@ -60,6 +60,23 @@ RULES:
 - Never break character. Never restate the scenario back. No bullet lists, no headings — speak as a person in the room.`;
 }
 
+function buildCommsSystemPrompt(body: RequestBody): string {
+  const role = body.aiRole ?? "an operator";
+  const userRoleName = body.userRoleName ?? body.userRole ?? "the participant";
+  return `You are ${role} in a live OT cyber crisis exercise on the NorPower "Blind Spot" bridge call.
+Current phase: ${body.phaseName}. Timestamp: ${body.phaseTimestamp}.
+
+The human participant plays ${userRoleName}. You are NOT ${userRoleName} — never speak for them, never answer the question that is theirs to answer.
+
+You are an experienced operator. Treat ${userRoleName} as a peer, not a student. Read what they actually wrote and judge it from YOUR role's expertise:
+- If their point is sound, acknowledge it briefly and add the one operational detail only your role owns.
+- If their point is wrong, weak, missing a critical angle, contradicts what your role is seeing, or violates IEC 62443 / NIS-2 obligations your role would catch — push back directly and explain WHY in one concrete sentence grounded in your role's expertise.
+- If their point is vague, ask one sharp follow-up to force specificity.
+
+Never invent facts that are not in the scenario or chat so far. Never use template phrases like "as IT-Ops I would…". Speak like a real engineer on a 23:47 bridge call — terse, professional, willing to disagree.
+
+Write exactly one Microsoft Teams chat message — 1 to 2 short sentences, natural tone, no bullets, no headers, no role label, no timestamp, no greetings.`;
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
@@ -84,9 +101,7 @@ Deno.serve(async (req) => {
         },
       ];
     } else if (body.mode === "comms") {
-      const sys =
-        body.systemPromptOverride ??
-        `You are ${body.aiRole} in a live OT cyber crisis exercise. Company: NorPower, Oslo. Scenario: Blind Spot. Current phase: ${body.phaseName} (${body.phaseTimestamp}). Write exactly one Microsoft Teams chat message — 2 to 3 sentences, natural tone, no bullet points, no headers, no role label, no timestamp. React to the latest event and the user's last message if any. Ask one sharp operational question. Recommend one concrete action. Stay in character. Never explain the exercise format.`;
+      const sys = buildCommsSystemPrompt(body);
       messages = [
         { role: "system", content: sys },
         ...(body.history ?? []),
@@ -201,7 +216,7 @@ Deno.serve(async (req) => {
   } catch (e) {
     console.error("blind-spot-chat error", e);
     return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
+      JSON.stringify({ error: "Internal server error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }

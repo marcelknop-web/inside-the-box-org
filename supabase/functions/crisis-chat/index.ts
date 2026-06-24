@@ -1,4 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { SYSTEM_PROMPTS } from "./prompts.ts";
+
+const VALID_LANGS = ["de", "en", "fr"] as const;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -48,8 +51,10 @@ setInterval(() => {
 // ─── VALIDATION ──────────────────────────────────────────────────
 function validateRequest(body: unknown): { valid: boolean; error?: string } {
   if (!body || typeof body !== "object") return { valid: false, error: "Invalid request body" };
-  const { messages, system } = body as Record<string, unknown>;
-  if (!system || typeof system !== "string") return { valid: false, error: "Missing system prompt" };
+  const { messages, lang } = body as Record<string, unknown>;
+  if (!lang || typeof lang !== "string" || !VALID_LANGS.includes(lang as typeof VALID_LANGS[number])) {
+    return { valid: false, error: "Invalid or missing language" };
+  }
   if (!Array.isArray(messages) || messages.length === 0) return { valid: false, error: "Missing messages" };
   if (messages.length > MAX_MESSAGES_PER_REQUEST) return { valid: false, error: `Too many messages (max ${MAX_MESSAGES_PER_REQUEST})` };
   for (const msg of messages) {
@@ -103,7 +108,8 @@ serve(async (req) => {
       );
     }
 
-    const { messages, system } = body;
+    const { messages, lang } = body;
+    const system = SYSTEM_PROMPTS[lang as string] ?? SYSTEM_PROMPTS.en;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       console.error("LOVABLE_API_KEY not configured");

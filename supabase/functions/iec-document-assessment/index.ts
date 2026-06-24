@@ -285,7 +285,7 @@ Write all narrative ("rationale", "generalisedFinding", "clientResponse", "resid
     return json({ assessments, summary, documentsAnalyzed: docs.map((d) => d.name) }, 200);
   } catch (err) {
     console.error('iec-document-assessment error', err);
-    return json({ error: 'internal_error', message: err instanceof Error ? err.message : 'Unknown error' }, 500);
+    return json({ error: 'internal_error', message: 'Internal server error' }, 500);
   }
 });
 

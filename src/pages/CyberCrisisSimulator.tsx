@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback, useImperativeHandle, f
 import { Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { SYSTEM_PROMPTS } from "./crisisSystemPrompts";
+
 import { GeometricSymbol } from "@/components/GeometricSymbol";
 import { useMatrixAudio } from "@/hooks/useMatrixAudio";
 import Typewriter from "@/components/Typewriter";
@@ -162,7 +162,6 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
 
   const { startSound, stopSound } = useMatrixAudio(0.25);
 
-  const systemPrompt = SYSTEM_PROMPTS[language] || SYSTEM_PROMPTS.en;
   const phases = [
     { id: 1, label: t('crisisSim.phase1') },
     { id: 2, label: t('crisisSim.phase2') },
@@ -207,11 +206,11 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
 
   const sendToEdge = useCallback(async (msgs: { role: string; content: string }[]) => {
     const { data, error } = await supabase.functions.invoke("crisis-chat", {
-      body: { messages: msgs, system: systemPrompt },
+      body: { messages: msgs, lang: language },
     });
     if (error) throw error;
     return data.content as string;
-  }, [systemPrompt]);
+  }, [language]);
 
   const sendMessage = useCallback(async (text: string, isSystem = false) => {
     const userMsg: Message = { role: "user", content: text, type: isSystem ? "sys" : "user" };

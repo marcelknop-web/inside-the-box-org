@@ -12,8 +12,7 @@ Deno.serve(async (req) => {
     return new Response("ok", { headers: corsHeaders });
   }
 
-  const url = new URL(req.url);
-  const token = url.searchParams.get("token");
+  const token = req.headers.get("x-admin-token");
 
   if (!ADMIN_SECRET || !token || token !== ADMIN_SECRET) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
