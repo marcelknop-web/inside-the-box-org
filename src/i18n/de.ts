@@ -410,6 +410,8 @@ export const de = {
     eliteDesc: 'Abschalten, fliegen, loslassen – eine meditative 3D-Szene zum Entspannen',
     enigmaTitle: 'Enigma I',
     enigmaDesc: 'Voll funktionsfähig. Für Liebesbriefe an den CISO oder den nächsten Stand-up.',
+    wcstTitle: 'Wisconsin Card Sorting Test',
+    wcstDesc: 'Originalgetreuer Nachbau des Klassikers zur Messung kognitiver Flexibilität und exekutiver Funktionen',
     agentYtTitle: 'Video-Einspieler',
     agentYtDesc: 'KI-generierte Nachrichtenvideos als Lagebilder für Krisenübungen',
     ctaTitle: 'Einstieg',
