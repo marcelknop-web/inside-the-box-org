@@ -348,6 +348,7 @@ export default function WisconsinCardSort({ embedded = false }: WcstProps) {
     setLocked(true);
     setFeedback({ ok, chosen: stimIdx });
     setTrials((t) => t + 1);
+    wcstSounds.tap();
 
     if (ok) {
       setCorrectCount((c) => c + 1);
@@ -360,12 +361,16 @@ export default function WisconsinCardSort({ embedded = false }: WcstProps) {
         setPrevRule(currentRule);
         setStreak(0);
         setRuleIdx((r) => r + 1);
+        wcstSounds.milestone();
         if (newCats >= MAX_CATEGORIES) {
-          window.setTimeout(() => setPhase('done'), 850);
+          window.setTimeout(() => { wcstSounds.finish(); setPhase('done'); }, 850);
           return;
         }
+      } else {
+        wcstSounds.correct();
       }
     } else {
+      wcstSounds.wrong();
       setErrors((e) => e + 1);
       setStreak(0);
       // Perseverative: the chosen card matches the previous (now invalid) rule.
