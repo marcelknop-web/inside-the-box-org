@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Brain, CheckCircle2, XCircle, RotateCcw, Play, Trophy, Info } from 'lucide-react';
+import { StaggerReveal } from '@/components/StaggerReveal';
 
 /* ------------------------------------------------------------------ */
 /*  Wisconsin Card Sorting Test (WCST) — faithful reimplementation     */
@@ -306,57 +307,60 @@ export default function WisconsinCardSort({ embedded = false }: WcstProps) {
   /* --------------------------- INTRO --------------------------- */
   if (phase === 'intro') {
     return (
-      <div className="w-full max-w-3xl mx-auto">
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-11 h-11 rounded-lg bg-highlight/10 border border-highlight/30 flex items-center justify-center flex-shrink-0">
-            <Brain className="text-highlight" size={22} />
-          </div>
-          <div>
-            <h1 className="font-mono text-lg md:text-xl font-bold text-foreground leading-tight">{tr.title}</h1>
-            <p className="font-mono text-[11px] tracking-[0.2em] text-highlight uppercase mt-0.5">{tr.subtitle}</p>
-          </div>
-        </div>
-
-        <div className="bg-card/40 border border-border/40 rounded-xl p-5 mb-4">
-          <h2 className="font-mono text-sm font-bold text-primary mb-2">{tr.introHeading}</h2>
-          <p className="text-sm text-foreground/85 font-sans leading-relaxed">{tr.introBody}</p>
-        </div>
-
-        {/* Reference card preview */}
-        <div className="grid grid-cols-4 gap-2 md:gap-3 mb-5">
-          {STIMULUS_CARDS.map((c, i) => (
-            <div key={i} className="aspect-[3/4] rounded-lg bg-background border border-border/60 shadow-sm flex items-center justify-center">
-              <CardFace card={c} size={20} />
+      <div className="w-full max-w-3xl mx-auto px-1">
+        <StaggerReveal stagger={550} startDelay={150} className="!space-y-5">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 md:w-12 md:h-12 rounded-lg bg-highlight/10 border border-highlight/30 flex items-center justify-center flex-shrink-0">
+              <Brain className="text-highlight" size={22} />
             </div>
-          ))}
-        </div>
+            <div>
+              <h1 className="font-mono text-xl md:text-2xl font-bold text-foreground leading-tight">{tr.title}</h1>
+              <p className="font-mono text-[11px] md:text-xs tracking-[0.2em] text-highlight uppercase mt-1">{tr.subtitle}</p>
+            </div>
+          </div>
 
-        <div className="bg-card/40 border border-border/40 rounded-xl p-5 mb-4">
-          <h2 className="font-mono text-sm font-bold text-primary mb-3">{tr.howHeading}</h2>
-          <ol className="space-y-2">
-            {[tr.rule1, tr.rule2, tr.rule3, tr.rule4, tr.rule5].map((r, i) => (
-              <li key={i} className="flex gap-3 text-sm text-foreground/85 font-sans leading-relaxed">
-                <span className="font-mono text-highlight font-bold flex-shrink-0">{i + 1}.</span>
-                <span>{r}</span>
-              </li>
+          <div className="bg-card/40 border border-border/40 rounded-xl p-5 md:p-6">
+            <h2 className="font-mono text-base font-bold text-primary mb-2.5">{tr.introHeading}</h2>
+            <p className="text-base text-foreground/90 font-sans leading-relaxed">{tr.introBody}</p>
+          </div>
+
+          {/* Reference card preview */}
+          <div className="grid grid-cols-4 gap-2.5 md:gap-3">
+            {STIMULUS_CARDS.map((c, i) => (
+              <div key={i} className="aspect-[3/4] rounded-lg bg-background border border-border/60 shadow-sm flex items-center justify-center">
+                <CardFace card={c} size={22} />
+              </div>
             ))}
-          </ol>
-        </div>
+          </div>
 
-        <div className="flex items-start gap-2 text-xs text-muted-foreground font-sans mb-6 px-1">
-          <Info size={14} className="flex-shrink-0 mt-0.5" />
-          <p>{tr.disclaimer}</p>
-        </div>
+          <div className="bg-card/40 border border-border/40 rounded-xl p-5 md:p-6">
+            <h2 className="font-mono text-base font-bold text-primary mb-4">{tr.howHeading}</h2>
+            <StaggerReveal stagger={500} startDelay={250} className="!space-y-3.5">
+              {[tr.rule1, tr.rule2, tr.rule3, tr.rule4, tr.rule5].map((r, i) => (
+                <div key={i} className="flex gap-3 text-[15px] md:text-base text-foreground/90 font-sans leading-relaxed">
+                  <span className="font-mono text-highlight font-bold flex-shrink-0">{i + 1}.</span>
+                  <span>{r}</span>
+                </div>
+              ))}
+            </StaggerReveal>
+          </div>
 
-        <button
-          onClick={begin}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-highlight text-background font-mono font-bold text-sm hover:bg-highlight/90 transition-electric"
-        >
-          <Play size={16} /> {tr.start}
-        </button>
+          <div className="flex items-start gap-2 text-[13px] text-muted-foreground font-sans px-1">
+            <Info size={15} className="flex-shrink-0 mt-0.5" />
+            <p className="leading-relaxed">{tr.disclaimer}</p>
+          </div>
+
+          <button
+            onClick={begin}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg bg-highlight text-background font-mono font-bold text-sm md:text-base hover:bg-highlight/90 transition-electric"
+          >
+            <Play size={18} /> {tr.start}
+          </button>
+        </StaggerReveal>
       </div>
     );
   }
+
 
   /* --------------------------- DONE --------------------------- */
   if (phase === 'done') {
