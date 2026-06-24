@@ -170,6 +170,7 @@ const STR: Record<Lang, Record<string, string>> = {
     mPersev: 'Erreurs persévératives',
     mPersevHint: 'Erreurs dues au maintien d\'une règle qui ne s\'applique plus — un indicateur de flexibilité cognitive réduite.',
     mAccuracy: 'Précision',
+    assessTitle: 'Avis d\'expert',
     restart: 'Recommencer',
     done: 'Bravo ! Toutes les catégories sont complétées.',
     deckDone: 'La pile de cartes est épuisée.',
