@@ -471,6 +471,19 @@ export default function WisconsinCardSort({ embedded = false }: WcstProps) {
           <p>{tr.mPersevHint}</p>
         </div>
 
+        {/* Expert assessment — derived strictly from the recorded metrics */}
+        <div className="bg-card/40 border border-border/40 rounded-xl p-5 md:p-6 mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <Brain className="text-highlight flex-shrink-0" size={18} />
+            <h2 className="font-mono text-sm font-bold text-primary uppercase tracking-wider">{tr.assessTitle}</h2>
+          </div>
+          <div className="space-y-3">
+            {expert.map((p, i) => (
+              <p key={i} className="text-sm md:text-[15px] text-foreground/90 font-sans leading-relaxed">{p}</p>
+            ))}
+          </div>
+        </div>
+
         <button
           onClick={begin}
           className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-highlight text-background font-mono font-bold text-sm hover:bg-highlight/90 transition-electric"
