@@ -189,7 +189,6 @@ interface SessionMetrics {
   allDone: boolean;
 }
 
-type Lang = 'de' | 'en' | 'fr';
 
 function buildExpertSummary(lang: Lang, m: SessionMetrics): string[] {
   const persevShare = m.errors > 0 ? Math.round((m.persevErrors / m.errors) * 100) : 0;
