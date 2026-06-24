@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Brain, CheckCircle2, XCircle, RotateCcw, Play, Trophy, Info } from 'lucide-react';
 import { StaggerReveal } from '@/components/StaggerReveal';
+import { wcstSounds } from '@/lib/wcstSounds';
 
 /* ------------------------------------------------------------------ */
 /*  Wisconsin Card Sorting Test (WCST) — faithful reimplementation     */
