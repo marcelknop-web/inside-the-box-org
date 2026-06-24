@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback, useImperativeHandle, f
 import { Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { SYSTEM_PROMPTS } from "./crisisSystemPrompts";
+
 import { GeometricSymbol } from "@/components/GeometricSymbol";
 import { useMatrixAudio } from "@/hooks/useMatrixAudio";
 import Typewriter from "@/components/Typewriter";
