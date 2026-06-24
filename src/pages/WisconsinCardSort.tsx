@@ -548,9 +548,7 @@ export default function WisconsinCardSort({ embedded = false }: WcstProps) {
             {feedback.ok ? <CheckCircle2 size={28} /> : <XCircle size={28} />}
             {feedback.ok ? tr.correct : tr.wrong}
           </div>
-        ) : (
-          <span className="text-sm md:text-base text-muted-foreground font-sans">{tr.matchPrompt}</span>
-        )}
+        ) : null}
       </div>
 
       {/* Current response card */}
