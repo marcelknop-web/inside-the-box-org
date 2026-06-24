@@ -563,13 +563,6 @@ export default function WisconsinCardSort({ embedded = false }: WcstProps) {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <span className="text-muted-foreground">
-      {label}: <span className="text-foreground font-bold">{value}</span>
-    </span>
-  );
-}
 
 function Metric({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
