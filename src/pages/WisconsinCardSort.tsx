@@ -504,21 +504,14 @@ export default function WisconsinCardSort({ embedded = false }: WcstProps) {
   /* --------------------------- PLAYING --------------------------- */
   return (
     <div className="w-full max-w-3xl mx-auto">
-      {/* HUD */}
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 mb-4 font-mono text-[11px] md:text-xs">
-        <Stat label={tr.category} value={`${categoriesDone} / ${MAX_CATEGORIES}`} />
-        <Stat label={tr.trial} value={String(trials + 1)} />
-        <Stat label={tr.streak} value={`${streak} / ${CRITERION}`} />
-        <Stat label={tr.errors} value={String(errors)} />
-      </div>
-
-      {/* Progress within current category */}
-      <div className="h-1.5 w-full rounded-full bg-border/40 overflow-hidden mb-6">
+      {/* Neutral, purely graphical progress — reveals nothing about the task. */}
+      <div className="h-1.5 w-full rounded-full bg-border/40 overflow-hidden mb-8">
         <div
-          className="h-full bg-highlight transition-all duration-300"
-          style={{ width: `${(streak / CRITERION) * 100}%` }}
+          className="h-full bg-highlight/80 transition-all duration-500 ease-out"
+          style={{ width: `${Math.min(100, ((categoriesDone + streak / CRITERION) / MAX_CATEGORIES) * 100)}%` }}
         />
       </div>
+
 
       {/* Reference cards */}
       <div className="grid grid-cols-4 gap-2 md:gap-3 mb-8">
