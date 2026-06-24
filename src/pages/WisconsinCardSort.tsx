@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Brain, CheckCircle2, XCircle, RotateCcw, Play, Trophy, Info } from 'lucide-react';
 import { StaggerReveal } from '@/components/StaggerReveal';
+import { wcstSounds } from '@/lib/wcstSounds';
 
 /* ------------------------------------------------------------------ */
 /*  Wisconsin Card Sorting Test (WCST) — faithful reimplementation     */
@@ -324,6 +325,7 @@ export default function WisconsinCardSort({ embedded = false }: WcstProps) {
   const currentCard = deck[deckIdx];
 
   const begin = useCallback(() => {
+    wcstSounds.unlock();
     setDeck(buildDeck());
     setDeckIdx(0);
     setRuleIdx(0);
@@ -346,6 +348,7 @@ export default function WisconsinCardSort({ embedded = false }: WcstProps) {
     setLocked(true);
     setFeedback({ ok, chosen: stimIdx });
     setTrials((t) => t + 1);
+    wcstSounds.tap();
 
     if (ok) {
       setCorrectCount((c) => c + 1);
@@ -358,12 +361,16 @@ export default function WisconsinCardSort({ embedded = false }: WcstProps) {
         setPrevRule(currentRule);
         setStreak(0);
         setRuleIdx((r) => r + 1);
+        wcstSounds.milestone();
         if (newCats >= MAX_CATEGORIES) {
-          window.setTimeout(() => setPhase('done'), 850);
+          window.setTimeout(() => { wcstSounds.finish(); setPhase('done'); }, 850);
           return;
         }
+      } else {
+        wcstSounds.correct();
       }
     } else {
+      wcstSounds.wrong();
       setErrors((e) => e + 1);
       setStreak(0);
       // Perseverative: the chosen card matches the previous (now invalid) rule.
@@ -497,21 +504,14 @@ export default function WisconsinCardSort({ embedded = false }: WcstProps) {
   /* --------------------------- PLAYING --------------------------- */
   return (
     <div className="w-full max-w-3xl mx-auto">
-      {/* HUD */}
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 mb-4 font-mono text-[11px] md:text-xs">
-        <Stat label={tr.category} value={`${categoriesDone} / ${MAX_CATEGORIES}`} />
-        <Stat label={tr.trial} value={String(trials + 1)} />
-        <Stat label={tr.streak} value={`${streak} / ${CRITERION}`} />
-        <Stat label={tr.errors} value={String(errors)} />
-      </div>
-
-      {/* Progress within current category */}
-      <div className="h-1.5 w-full rounded-full bg-border/40 overflow-hidden mb-6">
+      {/* Neutral, purely graphical progress — reveals nothing about the task. */}
+      <div className="h-1.5 w-full rounded-full bg-border/40 overflow-hidden mb-8">
         <div
-          className="h-full bg-highlight transition-all duration-300"
-          style={{ width: `${(streak / CRITERION) * 100}%` }}
+          className="h-full bg-highlight/80 transition-all duration-500 ease-out"
+          style={{ width: `${Math.min(100, ((categoriesDone + streak / CRITERION) / MAX_CATEGORIES) * 100)}%` }}
         />
       </div>
+
 
       {/* Reference cards */}
       <div className="grid grid-cols-4 gap-2 md:gap-3 mb-8">
@@ -548,9 +548,7 @@ export default function WisconsinCardSort({ embedded = false }: WcstProps) {
             {feedback.ok ? <CheckCircle2 size={28} /> : <XCircle size={28} />}
             {feedback.ok ? tr.correct : tr.wrong}
           </div>
-        ) : (
-          <span className="text-sm md:text-base text-muted-foreground font-sans">{tr.matchPrompt}</span>
-        )}
+        ) : null}
       </div>
 
       {/* Current response card */}
@@ -565,13 +563,6 @@ export default function WisconsinCardSort({ embedded = false }: WcstProps) {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <span className="text-muted-foreground">
-      {label}: <span className="text-foreground font-bold">{value}</span>
-    </span>
-  );
-}
 
 function Metric({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
