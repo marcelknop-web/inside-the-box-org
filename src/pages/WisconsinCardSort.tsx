@@ -76,7 +76,7 @@ const STR: Record<Lang, Record<string, string>> = {
     subtitle: 'Kognitive Flexibilität · Exekutive Funktionen',
     introHeading: 'Worum geht es?',
     introBody:
-      'Der Wisconsin Card Sorting Test (WCST) misst kognitive Flexibilität, Konzeptbildung und die Fähigkeit, das eigene Verhalten an wechselnde Regeln anzupassen. Er ist eines der bekanntesten neuropsychologischen Verfahren zur Erfassung exekutiver Funktionen.',
+      'Der Wisconsin Card Sorting Test ist ein kurzer Test. Ihre Aufgabe: Ordnen Sie die neue Karte jeweils einer der vier Referenzkarten zu.',
     howHeading: 'So funktioniert es',
     rule1: 'Oben sehen Sie vier Referenzkarten. Unten erscheint jeweils eine neue Karte.',
     rule2: 'Ordnen Sie die untere Karte einer Referenzkarte zu — per Klick.',
@@ -110,7 +110,7 @@ const STR: Record<Lang, Record<string, string>> = {
     subtitle: 'Cognitive Flexibility · Executive Function',
     introHeading: 'What is this?',
     introBody:
-      'The Wisconsin Card Sorting Test (WCST) measures cognitive flexibility, concept formation and the ability to adapt behaviour to changing rules. It is one of the best-known neuropsychological tasks for assessing executive function.',
+      'The Wisconsin Card Sorting Test is a short test. Your task: match each new card to one of the four reference cards.',
     howHeading: 'How it works',
     rule1: 'Four reference cards are shown at the top. A new card appears below.',
     rule2: 'Match the lower card to one of the reference cards — by clicking.',
@@ -144,7 +144,7 @@ const STR: Record<Lang, Record<string, string>> = {
     subtitle: 'Flexibilité cognitive · Fonctions exécutives',
     introHeading: 'De quoi s\'agit-il ?',
     introBody:
-      'Le Wisconsin Card Sorting Test (WCST) évalue la flexibilité cognitive, la formation de concepts et la capacité à adapter son comportement à des règles changeantes. C\'est l\'un des tests neuropsychologiques les plus connus pour mesurer les fonctions exécutives.',
+      'Le Wisconsin Card Sorting Test est un test court. Votre tâche : associez chaque nouvelle carte à l\'une des quatre cartes de référence.',
     howHeading: 'Comment ça marche',
     rule1: 'Quatre cartes de référence apparaissent en haut. Une nouvelle carte s\'affiche en dessous.',
     rule2: 'Associez la carte du bas à l\'une des cartes de référence — en cliquant.',
