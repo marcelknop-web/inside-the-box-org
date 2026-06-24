@@ -16,7 +16,7 @@ interface RequestBody {
   userInput?: string;
   decisionQuestion?: string;
   history?: ChatMessage[];
-  systemPromptOverride?: string;
+  userRoleName?: string;
   decisions?: Array<{
     phase: string;
     question: string;
