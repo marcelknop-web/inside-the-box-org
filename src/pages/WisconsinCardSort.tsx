@@ -135,6 +135,7 @@ const STR: Record<Lang, Record<string, string>> = {
     mPersev: 'Perseverative errors',
     mPersevHint: 'Errors caused by sticking to a rule that no longer applies — an indicator of reduced cognitive flexibility.',
     mAccuracy: 'Accuracy',
+    assessTitle: 'Expert assessment',
     restart: 'Restart',
     done: 'Well done! All categories completed.',
     deckDone: 'The card deck is exhausted.',
