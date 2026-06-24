@@ -70,37 +70,19 @@ export const wcstSounds = {
     if (!c || !master) return;
     tone(c, master, { freq: 320, glideTo: 180, dur: 0.07, type: 'triangle', gain: 0.16 });
   },
-  // Bright, satisfying two-note rise for a correct match.
+  // Neutral, short positive ping. No celebratory chord — must not reveal a milestone.
   correct() {
     if (!enabled) return;
     const c = ac();
     if (!c || !master) return;
-    tone(c, master, { freq: 660, dur: 0.12, type: 'sine', gain: 0.28 });
-    tone(c, master, { freq: 990, dur: 0.18, delay: 0.085, type: 'sine', gain: 0.26 });
-    tone(c, master, { freq: 1320, dur: 0.16, delay: 0.085, type: 'triangle', gain: 0.08 });
+    tone(c, master, { freq: 520, dur: 0.11, type: 'sine', gain: 0.18 });
   },
-  // Soft, neutral low fall for an incorrect match (never harsh/punishing).
+  // Neutral, short low ping. Kept similar in length and level to correct() so the
+  // sound alone does not broadcast whether the response was right or wrong.
   wrong() {
     if (!enabled) return;
     const c = ac();
     if (!c || !master) return;
-    tone(c, master, { freq: 240, glideTo: 150, dur: 0.22, type: 'sine', gain: 0.22 });
-    tone(c, master, { freq: 120, glideTo: 90, dur: 0.24, type: 'triangle', gain: 0.1 });
-  },
-  // Rewarding arpeggio when a milestone is reached.
-  milestone() {
-    if (!enabled) return;
-    const c = ac();
-    if (!c || !master) return;
-    const notes = [523.25, 659.25, 783.99, 1046.5];
-    notes.forEach((f, i) => tone(c, master!, { freq: f, dur: 0.34, delay: i * 0.075, type: 'sine', gain: 0.24 }));
-  },
-  // Warm closing chord at the very end.
-  finish() {
-    if (!enabled) return;
-    const c = ac();
-    if (!c || !master) return;
-    const chord = [392, 493.88, 587.33, 783.99];
-    chord.forEach((f, i) => tone(c, master!, { freq: f, dur: 1.1, delay: i * 0.05, type: 'sine', gain: 0.18 }));
+    tone(c, master, { freq: 240, dur: 0.11, type: 'sine', gain: 0.18 });
   },
 };
