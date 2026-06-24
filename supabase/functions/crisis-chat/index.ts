@@ -51,8 +51,10 @@ setInterval(() => {
 // ─── VALIDATION ──────────────────────────────────────────────────
 function validateRequest(body: unknown): { valid: boolean; error?: string } {
   if (!body || typeof body !== "object") return { valid: false, error: "Invalid request body" };
-  const { messages, system } = body as Record<string, unknown>;
-  if (!system || typeof system !== "string") return { valid: false, error: "Missing system prompt" };
+  const { messages, lang } = body as Record<string, unknown>;
+  if (!lang || typeof lang !== "string" || !VALID_LANGS.includes(lang as typeof VALID_LANGS[number])) {
+    return { valid: false, error: "Invalid or missing language" };
+  }
   if (!Array.isArray(messages) || messages.length === 0) return { valid: false, error: "Missing messages" };
   if (messages.length > MAX_MESSAGES_PER_REQUEST) return { valid: false, error: `Too many messages (max ${MAX_MESSAGES_PER_REQUEST})` };
   for (const msg of messages) {
