@@ -535,15 +535,21 @@ export default function WisconsinCardSort({ embedded = false }: WcstProps) {
         })}
       </div>
 
-      {/* Prompt + feedback */}
-      <div className="text-center mb-4 h-6">
+      {/* Prompt + feedback — prominent so participants notice it */}
+      <div className="text-center mb-6 min-h-[4.5rem] flex items-center justify-center">
         {feedback ? (
-          <span className={`inline-flex items-center gap-1.5 font-mono text-sm font-bold ${feedback.ok ? 'text-green-500' : 'text-destructive'}`}>
-            {feedback.ok ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
+          <div
+            className={`inline-flex items-center gap-3 px-6 py-3 rounded-xl border-2 font-mono text-lg md:text-xl font-bold shadow-lg animate-in fade-in zoom-in duration-200 ${
+              feedback.ok
+                ? 'bg-green-500/10 border-green-500/40 text-green-500'
+                : 'bg-destructive/10 border-destructive/40 text-destructive'
+            }`}
+          >
+            {feedback.ok ? <CheckCircle2 size={28} /> : <XCircle size={28} />}
             {feedback.ok ? tr.correct : tr.wrong}
-          </span>
+          </div>
         ) : (
-          <span className="text-sm text-muted-foreground font-sans">{tr.matchPrompt}</span>
+          <span className="text-sm md:text-base text-muted-foreground font-sans">{tr.matchPrompt}</span>
         )}
       </div>
 
