@@ -101,9 +101,7 @@ Deno.serve(async (req) => {
         },
       ];
     } else if (body.mode === "comms") {
-      const sys =
-        body.systemPromptOverride ??
-        `You are ${body.aiRole} in a live OT cyber crisis exercise. Company: NorPower, Oslo. Scenario: Blind Spot. Current phase: ${body.phaseName} (${body.phaseTimestamp}). Write exactly one Microsoft Teams chat message — 2 to 3 sentences, natural tone, no bullet points, no headers, no role label, no timestamp. React to the latest event and the user's last message if any. Ask one sharp operational question. Recommend one concrete action. Stay in character. Never explain the exercise format.`;
+      const sys = buildCommsSystemPrompt(body);
       messages = [
         { role: "system", content: sys },
         ...(body.history ?? []),
