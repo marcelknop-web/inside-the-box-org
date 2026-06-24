@@ -100,6 +100,7 @@ const STR: Record<Lang, Record<string, string>> = {
     mPersev: 'Perseverative Fehler',
     mPersevHint: 'Fehler durch Festhalten an einer nicht mehr gültigen Regel — ein Indikator für eingeschränkte kognitive Flexibilität.',
     mAccuracy: 'Trefferquote',
+    assessTitle: 'Experteneinschätzung',
     restart: 'Neu starten',
     done: 'Geschafft! Alle Kategorien abgeschlossen.',
     deckDone: 'Der Kartenstapel ist aufgebraucht.',
@@ -134,6 +135,7 @@ const STR: Record<Lang, Record<string, string>> = {
     mPersev: 'Perseverative errors',
     mPersevHint: 'Errors caused by sticking to a rule that no longer applies — an indicator of reduced cognitive flexibility.',
     mAccuracy: 'Accuracy',
+    assessTitle: 'Expert assessment',
     restart: 'Restart',
     done: 'Well done! All categories completed.',
     deckDone: 'The card deck is exhausted.',
@@ -168,12 +170,96 @@ const STR: Record<Lang, Record<string, string>> = {
     mPersev: 'Erreurs persévératives',
     mPersevHint: 'Erreurs dues au maintien d\'une règle qui ne s\'applique plus — un indicateur de flexibilité cognitive réduite.',
     mAccuracy: 'Précision',
+    assessTitle: 'Avis d\'expert',
     restart: 'Recommencer',
     done: 'Bravo ! Toutes les catégories sont complétées.',
     deckDone: 'La pile de cartes est épuisée.',
     color: 'Couleur', shape: 'Forme', number: 'Nombre',
   },
 };
+
+/* --------------------- expert interpretation ---------------------- */
+/* Deterministic, derived strictly from the recorded session metrics. */
+/* No values are invented — every statement maps to a measured number. */
+
+interface SessionMetrics {
+  categoriesDone: number;
+  trials: number;
+  correctCount: number;
+  errors: number;
+  persevErrors: number;
+  accuracy: number;
+  allDone: boolean;
+}
+
+
+function buildExpertSummary(lang: Lang, m: SessionMetrics): string[] {
+  const persevShare = m.errors > 0 ? Math.round((m.persevErrors / m.errors) * 100) : 0;
+  // tiers
+  const completion: 'full' | 'partial' | 'limited' =
+    m.allDone ? 'full' : m.categoriesDone >= Math.ceil(MAX_CATEGORIES / 2) ? 'partial' : 'limited';
+  const flexibility: 'strong' | 'moderate' | 'reduced' =
+    m.persevErrors <= 2 ? 'strong' : m.persevErrors <= 5 ? 'moderate' : 'reduced';
+  const efficiency: 'high' | 'mid' | 'low' =
+    m.accuracy >= 75 ? 'high' : m.accuracy >= 55 ? 'mid' : 'low';
+
+  const T = {
+    de: {
+      completion: {
+        full: `Es wurden alle ${MAX_CATEGORIES} Kategorien abgeschlossen — die Teilnehmerin bzw. der Teilnehmer hat jede geforderte Sortierregel zuverlässig entdeckt und angewendet.`,
+        partial: `Es wurden ${m.categoriesDone} von ${MAX_CATEGORIES} Kategorien abgeschlossen. Regeln wurden grundsätzlich erkannt, jedoch nicht durchgängig stabil gehalten.`,
+        limited: `Es wurden ${m.categoriesDone} von ${MAX_CATEGORIES} Kategorien abgeschlossen. Das Auffinden der gültigen Sortierregel gelang nur eingeschränkt.`,
+      },
+      flexibility: {
+        strong: `Mit ${m.persevErrors} perseverativen Fehlern (${persevShare}% aller Fehler) zeigt sich eine ausgeprägte kognitive Flexibilität: Regelwechsel wurden rasch erkannt und das Verhalten zügig umgestellt.`,
+        moderate: `Mit ${m.persevErrors} perseverativen Fehlern (${persevShare}% aller Fehler) deutet sich eine moderate kognitive Flexibilität an — Regelwechsel wurden erkannt, das Umlernen erforderte aber mehrere Versuche.`,
+        reduced: `Mit ${m.persevErrors} perseverativen Fehlern (${persevShare}% aller Fehler) zeigt sich ein deutliches Festhalten an nicht mehr gültigen Regeln, was auf eine eingeschränkte kognitive Flexibilität hindeutet.`,
+      },
+      efficiency: {
+        high: `Die Trefferquote von ${m.accuracy}% (${m.correctCount}/${m.trials}) spricht für eine effiziente Hypothesenbildung und konsistente Umsetzung.`,
+        mid: `Die Trefferquote von ${m.accuracy}% (${m.correctCount}/${m.trials}) liegt im mittleren Bereich; die Lösungsstrategie war erkennbar, aber noch nicht durchgängig stabil.`,
+        low: `Die Trefferquote von ${m.accuracy}% (${m.correctCount}/${m.trials}) weist auf einen überwiegend versuchenden Lösungsansatz hin; eine stabile Strategie bildete sich nur ansatzweise heraus.`,
+      },
+    },
+    en: {
+      completion: {
+        full: `All ${MAX_CATEGORIES} categories were completed — the participant reliably discovered and applied every required sorting rule.`,
+        partial: `${m.categoriesDone} of ${MAX_CATEGORIES} categories were completed. Rules were generally identified but not consistently maintained.`,
+        limited: `${m.categoriesDone} of ${MAX_CATEGORIES} categories were completed. Identifying the valid sorting rule succeeded only to a limited degree.`,
+      },
+      flexibility: {
+        strong: `With ${m.persevErrors} perseverative errors (${persevShare}% of all errors), cognitive flexibility is pronounced: rule shifts were recognised quickly and behaviour adjusted promptly.`,
+        moderate: `With ${m.persevErrors} perseverative errors (${persevShare}% of all errors), cognitive flexibility appears moderate — shifts were recognised, but re-learning took several trials.`,
+        reduced: `With ${m.persevErrors} perseverative errors (${persevShare}% of all errors), there is clear persistence with rules that no longer apply, suggesting reduced cognitive flexibility.`,
+      },
+      efficiency: {
+        high: `The accuracy of ${m.accuracy}% (${m.correctCount}/${m.trials}) reflects efficient hypothesis formation and consistent execution.`,
+        mid: `The accuracy of ${m.accuracy}% (${m.correctCount}/${m.trials}) is in the mid range; a solution strategy was visible but not yet fully stable.`,
+        low: `The accuracy of ${m.accuracy}% (${m.correctCount}/${m.trials}) points to a largely trial-and-error approach; a stable strategy only began to emerge.`,
+      },
+    },
+    fr: {
+      completion: {
+        full: `Les ${MAX_CATEGORIES} catégories ont été complétées — le participant a découvert et appliqué de manière fiable chaque règle de tri requise.`,
+        partial: `${m.categoriesDone} catégories sur ${MAX_CATEGORIES} ont été complétées. Les règles ont été globalement identifiées, mais pas maintenues de façon constante.`,
+        limited: `${m.categoriesDone} catégories sur ${MAX_CATEGORIES} ont été complétées. La découverte de la règle de tri valide n'a réussi que de façon limitée.`,
+      },
+      flexibility: {
+        strong: `Avec ${m.persevErrors} erreurs persévératives (${persevShare}% de toutes les erreurs), la flexibilité cognitive est marquée : les changements de règle ont été reconnus rapidement et le comportement ajusté sans délai.`,
+        moderate: `Avec ${m.persevErrors} erreurs persévératives (${persevShare}% de toutes les erreurs), la flexibilité cognitive paraît modérée — les changements ont été reconnus, mais le réapprentissage a nécessité plusieurs essais.`,
+        reduced: `Avec ${m.persevErrors} erreurs persévératives (${persevShare}% de toutes les erreurs), on observe un maintien net de règles qui ne s'appliquent plus, ce qui suggère une flexibilité cognitive réduite.`,
+      },
+      efficiency: {
+        high: `La précision de ${m.accuracy}% (${m.correctCount}/${m.trials}) traduit une formulation d'hypothèses efficace et une exécution cohérente.`,
+        mid: `La précision de ${m.accuracy}% (${m.correctCount}/${m.trials}) se situe dans la moyenne ; une stratégie était visible mais pas encore pleinement stable.`,
+        low: `La précision de ${m.accuracy}% (${m.correctCount}/${m.trials}) indique une approche essentiellement par essais-erreurs ; une stratégie stable n'a fait qu'émerger.`,
+      },
+    },
+  } as const;
+
+  const t = T[lang];
+  return [t.completion[completion], t.flexibility[flexibility], t.efficiency[efficiency]];
+}
 
 /* --------------------------- card render -------------------------- */
 
@@ -356,6 +442,7 @@ export default function WisconsinCardSort({ embedded = false }: WcstProps) {
   /* --------------------------- DONE --------------------------- */
   if (phase === 'done') {
     const allDone = categoriesDone >= MAX_CATEGORIES;
+    const expert = buildExpertSummary(L, { categoriesDone, trials, correctCount, errors, persevErrors, accuracy, allDone });
     return (
       <div className="w-full max-w-2xl mx-auto">
         <div className="flex items-center gap-3 mb-5">
@@ -382,6 +469,19 @@ export default function WisconsinCardSort({ embedded = false }: WcstProps) {
         <div className="flex items-start gap-2 text-xs text-muted-foreground font-sans mb-6 px-1">
           <Info size={14} className="flex-shrink-0 mt-0.5" />
           <p>{tr.mPersevHint}</p>
+        </div>
+
+        {/* Expert assessment — derived strictly from the recorded metrics */}
+        <div className="bg-card/40 border border-border/40 rounded-xl p-5 md:p-6 mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <Brain className="text-highlight flex-shrink-0" size={18} />
+            <h2 className="font-mono text-sm font-bold text-primary uppercase tracking-wider">{tr.assessTitle}</h2>
+          </div>
+          <div className="space-y-3">
+            {expert.map((p, i) => (
+              <p key={i} className="text-sm md:text-[15px] text-foreground/90 font-sans leading-relaxed">{p}</p>
+            ))}
+          </div>
         </div>
 
         <button
