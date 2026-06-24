@@ -506,6 +506,75 @@ export default function WisconsinCardSort({ embedded = false }: WcstProps) {
           </div>
         </div>
 
+        {/* Profile & archetype — deterministic, derived from the metrics */}
+        <div className="bg-card/40 border border-border/40 rounded-xl p-5 md:p-6 mb-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Compass className="text-highlight flex-shrink-0" size={18} />
+            <h2 className="font-mono text-sm font-bold text-primary uppercase tracking-wider">{tr.profileTitle}</h2>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-3">
+            <span className="font-mono text-lg md:text-xl font-bold text-foreground">{profile.profile}</span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-highlight/10 border border-highlight/30 text-highlight font-mono text-xs">
+              <Sparkles size={12} /> {tr.archetypeLabel}: {profile.archetype}
+            </span>
+          </div>
+          <p className="text-sm md:text-[15px] text-foreground/90 font-sans leading-relaxed mb-5">{profile.blurb}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <div className="font-mono text-[11px] uppercase tracking-wider text-green-500 mb-2">{tr.strengthsTitle}</div>
+              <ul className="space-y-1.5">
+                {profile.strengths.map((s, i) => (
+                  <li key={i} className="flex gap-2 text-sm text-foreground/85 font-sans">
+                    <CheckCircle2 size={15} className="text-green-500 flex-shrink-0 mt-0.5" /> <span>{s}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <div className="font-mono text-[11px] uppercase tracking-wider text-primary mb-2">{tr.developmentTitle}</div>
+              <ul className="space-y-1.5">
+                {profile.development.map((s, i) => (
+                  <li key={i} className="flex gap-2 text-sm text-foreground/85 font-sans">
+                    <TrendingUp size={15} className="text-primary flex-shrink-0 mt-0.5" /> <span>{s}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Benchmark vs reference profile */}
+        <div className="bg-card/40 border border-border/40 rounded-xl p-5 md:p-6 mb-6">
+          <div className="flex items-center gap-2 mb-4">
+            <TrendingUp className="text-highlight flex-shrink-0" size={18} />
+            <h2 className="font-mono text-sm font-bold text-primary uppercase tracking-wider">{bl.title}</h2>
+          </div>
+          <div className="space-y-2">
+            <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 items-center font-mono text-[10px] uppercase tracking-wider text-muted-foreground pb-1 border-b border-border/30">
+              <span></span>
+              <span className="text-right w-12">{bl.you}</span>
+              <span className="text-right w-12">{bl.reference}</span>
+            </div>
+            {benchmark.map((row, i) => {
+              const Icon = row.direction === 'better' ? ArrowUp : row.direction === 'below' ? ArrowDown : Minus;
+              const color = row.direction === 'better' ? 'text-green-500' : row.direction === 'below' ? 'text-destructive' : 'text-muted-foreground';
+              return (
+                <div key={i} className="grid grid-cols-[1fr_auto_auto] gap-x-4 items-center py-1.5">
+                  <span className="flex items-center gap-1.5 text-sm text-foreground/85 font-sans">
+                    <Icon size={14} className={`${color} flex-shrink-0`} /> {row.label}
+                  </span>
+                  <span className={`text-right w-12 font-mono text-sm font-bold ${color}`}>{row.you}</span>
+                  <span className="text-right w-12 font-mono text-sm text-muted-foreground">{row.reference}</span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex items-start gap-2 text-xs text-muted-foreground font-sans mt-3 pt-3 border-t border-border/30">
+            <Info size={14} className="flex-shrink-0 mt-0.5" />
+            <p>{bl.note}</p>
+          </div>
+        </div>
+
         <button
           onClick={begin}
           className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-highlight text-background font-mono font-bold text-sm hover:bg-highlight/90 transition-electric"
