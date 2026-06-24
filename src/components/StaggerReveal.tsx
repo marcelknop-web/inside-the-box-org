@@ -75,10 +75,14 @@ export const StaggerReveal = ({
         const visible = i < visibleCount;
         const style: CSSProperties = {
           opacity: visible ? 1 : 0,
-          transform: visible ? 'translateY(0)' : 'translateY(6px)',
+          transform: visible
+            ? 'translateY(0) scale(1)'
+            : 'translateY(14px) scale(0.985)',
+          filter: visible ? 'blur(0px)' : 'blur(4px)',
           transition: suppressTransition
             ? 'none'
-            : 'opacity 420ms ease-out, transform 420ms ease-out',
+            : 'opacity 560ms cubic-bezier(0.22, 1, 0.36, 1), transform 560ms cubic-bezier(0.22, 1, 0.36, 1), filter 560ms cubic-bezier(0.22, 1, 0.36, 1)',
+          willChange: 'opacity, transform, filter',
           pointerEvents: visible ? undefined : 'none',
         };
         return (
