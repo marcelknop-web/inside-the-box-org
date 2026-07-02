@@ -594,6 +594,13 @@ const FALLBACK_LOCATIONS = [
   { city: "Hong Kong", lat: 22.32, lon: 114.17 },
 ];
 
+// Decorative markers shown on the welcome-screen globe (before players exist).
+const WELCOME_GLOBE_PLAYERS: GlobePlayer[] = [
+  { id: "w-you", color: "#f5b800", lat: HUMAN_LOCATION.lat, lon: HUMAN_LOCATION.lon, active: true },
+  { id: "w-vex", color: "#22d3ee", lat: AI_LOCATIONS["ai-vex"].lat, lon: AI_LOCATIONS["ai-vex"].lon },
+  { id: "w-nyx", color: "#f472b6", lat: AI_LOCATIONS["ai-nyx"].lat, lon: AI_LOCATIONS["ai-nyx"].lon },
+];
+
 /* ------------------------------------------------------------------ */
 /*  Main game                                                          */
 /* ------------------------------------------------------------------ */
