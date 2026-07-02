@@ -5,10 +5,8 @@
 
 import vexImg from "@/assets/syndicate/vex.jpg";
 import nyxImg from "@/assets/syndicate/nyx.jpg";
-import mammonImg from "@/assets/syndicate/mammon.jpg";
-import echoImg from "@/assets/syndicate/echo.jpg";
-import glitchImg from "@/assets/syndicate/glitch.jpg";
 import humanImg from "@/assets/syndicate/human.jpg";
+
 
 export const HUMAN_AVATAR_IMG = humanImg;
 
@@ -44,101 +42,102 @@ export const RISK_LABEL: Record<RiskLevel, string> = {
 export const OPERATIONS: Operation[] = [
   {
     id: "phish",
-    name: "Phantom Phish",
-    description: "Cast a wide net of fake logins and skim careless clicks.",
+    name: "Phishing-as-a-Service",
+    description: "Rent a ready-made phishing kit and harvest logins at scale.",
     cost: 4000,
     payout: 7000,
     risk: "low",
   },
   {
     id: "identity",
-    name: "Identity Fraud",
-    description: "Stitch together stolen personas and cash out quietly.",
+    name: "Infostealer Botnet",
+    description: "Spread stealer malware to siphon passwords, cookies and wallets.",
     cost: 8000,
     payout: 14000,
     risk: "low",
   },
   {
     id: "skimmer",
-    name: "Ghost Skimmer",
-    description: "Plant invisible taps on payment terminals across the city.",
+    name: "Magecart Skimmer",
+    description: "Inject card-skimming code into online checkout pages.",
     cost: 12000,
     payout: 20000,
     risk: "low",
   },
   {
     id: "romance",
-    name: "Velvet Con",
-    description: "A long game of charm, patience, and emptied wallets.",
+    name: "Deepfake Romance Scam",
+    description: "AI-cloned voices and faces drain a victim's savings.",
     cost: 15000,
     payout: 41000,
     risk: "medium",
   },
   {
     id: "luxury",
-    name: "Luxury Scam",
-    description: "Sell counterfeit dreams to buyers who never ask twice.",
+    name: "Fake E-Shop Network",
+    description: "Spin up counterfeit storefronts that take orders and vanish.",
     cost: 25000,
     payout: 62000,
     risk: "medium",
   },
   {
     id: "ransom",
-    name: "Locked Vault",
-    description: "Freeze a corporation's files and name your price.",
+    name: "Ransomware-as-a-Service",
+    description: "Encrypt a company's network and negotiate the payout.",
     cost: 30000,
     payout: 81000,
     risk: "medium",
   },
   {
     id: "crypto",
-    name: "Rug Pull Royale",
-    description: "Launch a shiny token, hype it, then vanish overnight.",
+    name: "DeFi Rug Pull",
+    description: "Launch a hyped token, drain the liquidity pool, disappear.",
     cost: 35000,
     payout: 138000,
     risk: "high",
   },
   {
     id: "market",
-    name: "Dark Marketplace",
-    description: "Run a hidden bazaar and pocket a cut of every trade.",
+    name: "Dark Web Marketplace",
+    description: "Run a hidden Tor bazaar and skim a fee off every deal.",
     cost: 40000,
     payout: 159000,
     risk: "high",
   },
   {
     id: "insider",
-    name: "Inside Job",
-    description: "Bribe a mole for secrets the whole market will pay for.",
+    name: "Access Broker Deal",
+    description: "Buy stolen VPN and admin access, then resell to the highest bidder.",
     cost: 50000,
     payout: 196000,
     risk: "high",
   },
   {
     id: "heist",
-    name: "Vault Heist",
-    description: "One night, one big score, zero room for mistakes.",
+    name: "Zero-Day Auction",
+    description: "Sell one unpatched exploit to the highest bidder — no second chance.",
     cost: 65000,
     payout: 286000,
     risk: "veryhigh",
   },
   {
     id: "laundry",
-    name: "Casino Laundromat",
-    description: "Wash a fortune through neon tables and shell companies.",
+    name: "Crypto Mixer Laundromat",
+    description: "Tumble stolen funds through mixers and shell wallets.",
     cost: 80000,
     payout: 230000,
     risk: "veryhigh",
   },
   {
     id: "syndicate",
-    name: "Syndicate Takeover",
-    description: "Absorb a rival crew and seize their entire operation.",
+    name: "Supply-Chain Compromise",
+    description: "Poison a trusted software update and breach thousands at once.",
     cost: 110000,
     payout: 398000,
     risk: "veryhigh",
   },
 ];
+
 
 export type Personality =
   | "conservative"
@@ -163,8 +162,8 @@ export const AI_PROFILES: AiProfile[] = [
     id: "ai-vex",
     name: "Vex",
     personality: "conservative",
-    blurb: "Plays it safe. Small, steady scores.",
-    ability: "Careful operator — detection risk trimmed.",
+    blurb: "A patient operator. Low-and-slow campaigns, minimal footprint.",
+    ability: "OPSEC discipline — detection risk trimmed.",
     color: "#38bdf8",
     avatar: "🦊",
     img: vexImg,
@@ -173,43 +172,14 @@ export const AI_PROFILES: AiProfile[] = [
     id: "ai-nyx",
     name: "Nyx",
     personality: "risktaker",
-    blurb: "Loves the edge. High risk, high reward.",
-    ability: "Adrenaline junkie — +20% payout on high-risk wins.",
+    blurb: "Lives for the big exploit. High risk, high reward.",
+    ability: "Zero-day rush — +20% payout on high-risk wins.",
     color: "#f472b6",
     avatar: "🐍",
     img: nyxImg,
   },
-  {
-    id: "ai-mammon",
-    name: "Mammon",
-    personality: "greedy",
-    blurb: "Greed is everything. Always chases the biggest payout.",
-    ability: "Gains +6% bonus on high-risk payouts.",
-    color: "#f5b800",
-    avatar: "🐲",
-    img: mammonImg,
-  },
-  {
-    id: "ai-echo",
-    name: "Echo",
-    personality: "adaptive",
-    blurb: "Always adapts. Reads the board to survive.",
-    ability: "Chooses operations based on the current leaderboard.",
-    color: "#a78bfa",
-    avatar: "🦉",
-    img: echoImg,
-  },
-  {
-    id: "ai-glitch",
-    name: "Glitch",
-    personality: "chaotic",
-    blurb: "Utterly unpredictable. Anything goes.",
-    ability: "Wild card — occasionally doubles a winning score.",
-    color: "#34d399",
-    avatar: "🃏",
-    img: glitchImg,
-  },
 ];
+
 
 // Short in-character one-liners the rivals drop during their turns.
 export const SYNDICATE_QUIPS: Record<Personality, string[]> = {
@@ -264,75 +234,76 @@ export interface GlobalEvent {
 export const GLOBAL_EVENTS: GlobalEvent[] = [
   {
     id: "cooperation",
-    name: "International Cooperation",
-    description: "Task forces align across borders. Detection risk rises.",
+    name: "Interpol Joint Operation",
+    description: "Cross-border task forces coordinate takedowns. Detection risk rises.",
     riskMult: 1.4,
     profitMult: 1,
   },
   {
     id: "budgetcuts",
-    name: "Law Enforcement Budget Cuts",
-    description: "Understaffed and overworked. Detection risk drops.",
+    name: "SOC Analyst Shortage",
+    description: "Blue teams are understaffed and burned out. Detection risk drops.",
     riskMult: 0.6,
     profitMult: 1,
   },
   {
     id: "boom",
-    name: "Economic Boom",
-    description: "Money flows freely. Every operation pays more.",
+    name: "Crypto Bull Run",
+    description: "Token prices surge. Every cash-out pays more.",
     riskMult: 1,
     profitMult: 1.35,
   },
   {
     id: "crash",
-    name: "Crypto Crash",
+    name: "Crypto Market Crash",
     description: "Markets bleed out. Big operations pay far less.",
     riskMult: 1,
     profitMult: 0.7,
   },
   {
     id: "media",
-    name: "Media Distraction",
+    name: "Viral News Cycle",
     description: "The press chases a scandal elsewhere. Investigations ease.",
     riskMult: 0.75,
     profitMult: 1.1,
   },
   {
     id: "leak",
-    name: "Anonymous Data Leak",
+    name: "Mega Breach Dump",
     description:
-      "Anonymous leaks thousands of documents. Law enforcement is overwhelmed.",
+      "Billions of records leak overnight. Investigators drown in the noise.",
     riskMult: 0.7,
     profitMult: 1,
   },
   {
     id: "summit",
-    name: "Global Cyber Summit",
-    description: "Nations unite against crime. International cooperation surges.",
+    name: "Global Cybersecurity Summit",
+    description: "Nations unite on threat intel. International cooperation surges.",
     riskMult: 1.5,
     profitMult: 1,
   },
   {
     id: "goldrush",
-    name: "Underground Gold Rush",
-    description: "New black markets open. Every score pays a premium.",
+    name: "Exploit Market Boom",
+    description: "Demand for zero-days spikes. Every score pays a premium.",
     riskMult: 1.1,
     profitMult: 1.4,
   },
   {
     id: "informant",
-    name: "Informant Network",
+    name: "Insider Informant",
     description: "A snitch feeds the authorities. Everyone is being watched.",
     riskMult: 1.3,
     profitMult: 1,
   },
   {
     id: "blackout",
-    name: "City-Wide Blackout",
-    description: "The grid fails. Chaos hides your moves — for now.",
+    name: "Critical Infrastructure Outage",
+    description: "The grid fails. Chaos masks your moves — for now.",
     riskMult: 0.65,
     profitMult: 1.15,
   },
+
 ];
 
 export const START_CASH = 100000;

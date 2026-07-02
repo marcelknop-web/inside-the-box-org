@@ -413,7 +413,7 @@ export const de = {
     wcstTitle: 'Wisconsin Card Sorting Test',
     wcstDesc: 'Originalgetreuer Nachbau des Klassikers zur Messung kognitiver Flexibilität und exekutiver Funktionen',
     syndicateTitle: 'Syndicate',
-    syndicateDesc: 'Rundenbasiertes Cyberpunk-Strategiespiel — überlebe 5 KI-Rivalen, drehe das Risiko-Rad, baue das größte Vermögen auf',
+    syndicateDesc: 'Rundenbasiertes Cyberpunk-Strategiespiel — überlebe 2 KI-Rivalen, drehe das Risiko-Rad, baue das größte Vermögen auf',
     agentYtTitle: 'Video-Einspieler',
     agentYtDesc: 'KI-generierte Nachrichtenvideos als Lagebilder für Krisenübungen',
     ctaTitle: 'Einstieg',
