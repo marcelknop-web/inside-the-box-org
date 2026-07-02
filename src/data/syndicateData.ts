@@ -196,8 +196,48 @@ export const AI_PROFILES: AiProfile[] = [
   },
 ];
 
+// Short in-character one-liners the rivals drop during their turns.
+export const SYNDICATE_QUIPS: Record<Personality, string[]> = {
+  conservative: [
+    "Slow profits are still profits.",
+    "Patience pays. Always.",
+    "No need to be a hero.",
+    "Steady hands, full pockets.",
+  ],
+  risktaker: [
+    "Risk is just another investment.",
+    "Fortune loves a gambler.",
+    "Go big or go home.",
+    "Safety is for the poor.",
+  ],
+  greedy: [
+    "Fortune favors the bold.",
+    "More. Always more.",
+    "I want it all.",
+    "Greed never sleeps.",
+  ],
+  adaptive: [
+    "Adjusting strategy…",
+    "Reading the board.",
+    "Every move is calculated.",
+    "I adapt. You don't.",
+  ],
+  chaotic: [
+    "Oops. Let's do something stupid.",
+    "Chaos is a ladder.",
+    "Who needs a plan?",
+    "Let's see what breaks.",
+  ],
+};
+
+export function quipFor(personality: Personality, rng: () => number = Math.random): string {
+  const list = SYNDICATE_QUIPS[personality];
+  return list[Math.floor(rng() * list.length)];
+}
+
 export interface GlobalEvent {
   id: string;
+
   name: string;
   description: string;
   // multiplier applied to every operation's caught fraction this round
