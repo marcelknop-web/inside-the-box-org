@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Volume2, VolumeX, Skull, Shield, Crown, TrendingUp, Flame, Trophy, BarChart3, Calendar, Hash, Award, Copy, Check, X, Fish, VenetianMask, CreditCard, Wine, Gem, Lock, Rocket, ShoppingCart, Building2, Landmark, Dice5, Eye, Coins, Maximize2, Minimize2, HelpCircle } from "lucide-react";
 import { PageMeta } from "@/components/PageMeta";
+import Globe, { type GlobePlayer } from "@/components/syndicate/Globe";
+import { MapPin } from "lucide-react";
 import {
   OPERATIONS,
   AI_PROFILES,
