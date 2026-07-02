@@ -1634,7 +1634,7 @@ const ChatView = () => {
     'nis2-quiz', 'ciso-sim', 'threatdrop', 'trigger-triage', 'cyber-frogger',
     'elite-ship', 'cra-check', 'dora-compliance', 'nis2-compliance',
     'iacs-e27', 'iec62443', 'butterfly-lab', 'soc-life', 'ot-soc-life', 'system-check',
-    'ttx-readiness', 'enigma', 'itsm', 'itsm-dev', 'ai-act-readiness', 'wcst',
+    'ttx-readiness', 'enigma', 'itsm', 'itsm-dev', 'ai-act-readiness', 'wcst', 'syndicate-game',
   ]), []);
   const isToolPage = !!activeService && TOOL_SERVICES.has(activeService);
 
