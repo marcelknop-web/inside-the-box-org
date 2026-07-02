@@ -24,6 +24,7 @@ import {
   type AiProfile,
   type WheelSegment,
   quipFor,
+  HUMAN_AVATAR_IMG,
 } from "@/data/syndicateData";
 import { syndicateSounds as snd } from "@/lib/syndicateSounds";
 import {
