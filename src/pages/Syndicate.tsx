@@ -846,6 +846,14 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     });
   }, [round, event]);
 
+  /* ---- end of round bookkeeping ---- */
+  const finishRound = useCallback(() => {
+    setPlayers((prev) =>
+      prev.map((p) => (p.alive ? { ...p, roundsSurvived: round } : p))
+    );
+    setPhase("scoreboard");
+  }, [round]);
+
   /* ---- step through the rivals one at a time, then finish ---- */
   useEffect(() => {
     if (phase !== "ai" || aiLog.length === 0) return;
@@ -857,14 +865,6 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     return () => window.clearTimeout(t);
   }, [phase, aiStep, aiLog, finishRound]);
 
-
-  /* ---- end of round bookkeeping ---- */
-  const finishRound = useCallback(() => {
-    setPlayers((prev) =>
-      prev.map((p) => (p.alive ? { ...p, roundsSurvived: round } : p))
-    );
-    setPhase("scoreboard");
-  }, [round]);
 
   const nextRound = useCallback(() => {
     const aliveCount = players.filter((p) => p.alive).length;
