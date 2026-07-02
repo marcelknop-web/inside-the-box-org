@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Volume2, VolumeX, Skull, Shield, Crown, TrendingUp, Flame } from "lucide-react";
+import { Volume2, VolumeX, Skull, Shield, Crown, TrendingUp, Flame, Trophy, BarChart3, Calendar, Hash, Award, Copy, Check, X } from "lucide-react";
 import { PageMeta } from "@/components/PageMeta";
 import {
   OPERATIONS,
@@ -22,8 +22,30 @@ import {
   type GlobalEvent,
   type AiProfile,
   type WheelSegment,
+  quipFor,
 } from "@/data/syndicateData";
 import { syndicateSounds as snd } from "@/lib/syndicateSounds";
+import {
+  rand,
+  setSeed,
+  clearSeed,
+  isSeeded,
+  hashSeed,
+  dailySeedString,
+  makeSeedCode,
+  normalizeSeedCode,
+} from "@/lib/syndicateRng";
+import {
+  loadStats,
+  recordGame,
+  mostUsedOp,
+  evaluateAchievements,
+  loadUnlocked,
+  ACHIEVEMENTS,
+  type SyndicateStats,
+  type GameSummary,
+  type Achievement,
+} from "@/lib/syndicateProgress";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -48,8 +70,11 @@ interface Player {
   totalOutcomes: number;
   closestCall: number; // smallest degrees to a Caught slice while surviving
   cashAtElimination: number | null;
+  usedOps: Record<string, number>;
+  ranHighRisk: boolean;
   lastLabel?: string;
   lastDelta?: number;
+  quip?: string;
 }
 
 type Phase =
@@ -223,7 +248,7 @@ function chooseAiOp(p: Player, leaderboardRankFrac: number): Operation | null {
     return Math.pow(w, 1 / D.temp);
   });
   const total = weights.reduce((s, x) => s + x, 0);
-  let r = Math.random() * total;
+  let r = rand() * total;
   for (let i = 0; i < opts.length; i++) {
     if (r < weights[i]) return opts[i];
     r -= weights[i];
@@ -245,7 +270,7 @@ function resolveSpin(
   const caught = effectiveCaught(op, round, event, abilityAdj);
   const segs = angleSegments(buildWheel(caught));
   const landing =
-    fixedLanding !== undefined ? fixedLanding : Math.random() * 360;
+    fixedLanding !== undefined ? fixedLanding : rand() * 360;
   const seg = outcomeAtAngle(segs, landing);
   const outcome = seg.type;
   const margin = marginToCaught(segs, landing);
@@ -261,7 +286,7 @@ function resolveSpin(
       payout = Math.round(payout * AI_ABILITY.greedyPayout);
     if (
       player.profile?.personality === "chaotic" &&
-      Math.random() < AI_ABILITY.chaoticDoubleChance
+      rand() < AI_ABILITY.chaoticDoubleChance
     )
       payout = Math.round(payout * 2);
   }
@@ -395,6 +420,17 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   const [aiLog, setAiLog] = useState<Player[]>([]);
   const rotationRef = useRef(0);
 
+  // Progression + game modes
+  const [gameMode, setGameMode] = useState<"normal" | "daily" | "seeded">("normal");
+  const [seedInput, setSeedInput] = useState("");
+  const [activeSeed, setActiveSeed] = useState<string | null>(null);
+  const [stats, setStats] = useState<SyndicateStats>(() => loadStats());
+  const [unlockedIds, setUnlockedIds] = useState<Record<string, number>>(() => loadUnlocked());
+  const [freshAch, setFreshAch] = useState<Achievement[]>([]);
+  const [overlay, setOverlay] = useState<null | "stats" | "achievements">(null);
+  const [copied, setCopied] = useState(false);
+  const recordedRef = useRef(false);
+
   useEffect(() => {
     snd.setEnabled(!muted);
   }, [muted]);
@@ -409,6 +445,21 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   const startGame = useCallback(() => {
     snd.unlock();
     snd.startMusic();
+    // Configure RNG per game mode.
+    let seedLabel: string | null = null;
+    if (gameMode === "daily") {
+      seedLabel = dailySeedString();
+      setSeed(hashSeed(seedLabel));
+    } else if (gameMode === "seeded") {
+      const code = normalizeSeedCode(seedInput) || makeSeedCode();
+      seedLabel = code;
+      setSeed(hashSeed(code));
+    } else {
+      clearSeed();
+    }
+    setActiveSeed(seedLabel);
+    recordedRef.current = false;
+    setFreshAch([]);
     const nm = name.trim() || "You";
     const you: Player = {
       id: "human",
@@ -428,6 +479,8 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       totalOutcomes: 0,
       closestCall: 360,
       cashAtElimination: null,
+      usedOps: {},
+      ranHighRisk: false,
     };
     const ais: Player[] = AI_PROFILES.map((pr) => ({
       id: pr.id,
@@ -448,20 +501,22 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       totalOutcomes: 0,
       closestCall: 360,
       cashAtElimination: null,
+      usedOps: {},
+      ranHighRisk: false,
     }));
     setPlayers([you, ...ais]);
     setRound(1);
     beginRound(1);
-  }, [name]);
+  }, [name, gameMode, seedInput]);
 
   /* ---- begin a round: maybe roll an event ---- */
   const beginRound = useCallback((r: number) => {
     snd.transition();
     // event every 2-3 rounds
-    const hasEvent = r === 1 ? false : (r % 2 === 0 || Math.random() < 0.4);
+    const hasEvent = r === 1 ? false : (r % 2 === 0 || rand() < 0.4);
     setEvent(
       hasEvent
-        ? GLOBAL_EVENTS[Math.floor(Math.random() * GLOBAL_EVENTS.length)]
+        ? GLOBAL_EVENTS[Math.floor(rand() * GLOBAL_EVENTS.length)]
         : null
     );
     setSelectedOp(null);
@@ -492,7 +547,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     setPhase("spinning");
     setSpinning(true);
     // predetermine landing
-    const landing = Math.random() * 360;
+    const landing = rand() * 360;
     const res = resolveSpin(selectedOp, round, event, human, landing);
     setResult(res);
     // rotate so that `landing` sits under the top pointer
@@ -562,6 +617,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         }
         const res = resolveSpin(op, round, event, p);
         const updated = applyResult(p, op, res);
+        if (p.profile) updated.quip = quipFor(p.profile.personality, rand);
         log.push(updated);
         return updated;
       });
@@ -613,6 +669,8 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       alive,
       cashAtElimination,
       opsCompleted: p.opsCompleted + 1,
+      usedOps: { ...p.usedOps, [op.id]: (p.usedOps[op.id] ?? 0) + 1 },
+      ranHighRisk: p.ranHighRisk || op.risk === "high" || op.risk === "veryhigh",
       biggestWin: Math.max(p.biggestWin, netProfit),
       biggestGamble: Math.max(p.biggestGamble, op.cost),
       caughtHits: p.caughtHits + (res.tokenLost ? 1 : 0),
@@ -635,6 +693,123 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   );
 
   const heatPct = Math.round(heatForRound(round) * 100);
+
+  /* ---- record stats + achievements once, when the game ends ---- */
+  useEffect(() => {
+    if (phase !== "winner" || recordedRef.current) return;
+    const me = players.find((p) => p.isHuman);
+    if (!me) return;
+    recordedRef.current = true;
+    const alive = players.filter((p) => p.alive);
+    const champion = (alive.length ? alive : players).sort((a, b) => b.cash - a.cash)[0];
+    const won = champion?.isHuman ?? false;
+    const rivalsDown = players.filter((p) => !p.isHuman && !p.alive).length;
+    const summary: GameSummary = {
+      won,
+      finalCash: me.cash,
+      roundsSurvived: me.roundsSurvived,
+      closestCall: me.closestCall,
+      opsCompleted: me.opsCompleted,
+      biggestWin: me.biggestWin,
+      caughtHits: me.caughtHits,
+      goodOutcomes: me.goodOutcomes,
+      totalOutcomes: me.totalOutcomes,
+      eliminationsSurvived: me.alive ? rivalsDown : 0,
+      neverCaught: me.caughtHits === 0,
+      roundsToWin: won ? me.roundsSurvived : null,
+      usedOps: me.usedOps,
+      seeded: isSeeded(),
+    };
+    const after = recordGame(summary);
+    setStats(after);
+    const fresh = evaluateAchievements(summary, after, { ranHighRisk: me.ranHighRisk });
+    setFreshAch(fresh);
+    setUnlockedIds(loadUnlocked());
+  }, [phase, players]);
+
+  /* ---- overlays: statistics / achievements ---- */
+  const winRate = stats.gamesPlayed ? Math.round((stats.gamesWon / stats.gamesPlayed) * 100) : 0;
+  const unlockedCount = Object.keys(unlockedIds).length;
+  const statRows: [string, string][] = [
+    ["Games played", String(stats.gamesPlayed)],
+    ["Games won", String(stats.gamesWon)],
+    ["Win rate", `${winRate}%`],
+    ["Highest fortune", fmt(stats.highestFortune)],
+    ["Largest single payout", fmt(stats.largestPayout)],
+    ["Longest survival", `${stats.longestSurvival} rounds`],
+    ["Closest escape", stats.closestEscape < 360 ? `${stats.closestEscape.toFixed(1)}°` : "—"],
+    ["Most-used operation", mostUsedOp(stats)?.name ?? "—"],
+  ];
+  const recordRows: [string, string][] = [
+    ["Highest Fortune Ever", fmt(stats.highestFortune)],
+    ["Longest Win Streak", String(stats.longestWinStreak)],
+    ["Luckiest Run", stats.closestEscape < 360 ? `${stats.closestEscape.toFixed(1)}° escape` : "—"],
+    ["Biggest Single Win", fmt(stats.largestPayout)],
+    ["Fastest Victory", stats.fastestVictory ? `${stats.fastestVictory} rounds` : "—"],
+    ["Most Eliminations Survived", String(stats.mostEliminationsSurvived)],
+  ];
+  const overlayNode = overlay && (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+      onClick={() => setOverlay(null)}
+    >
+      <div
+        className="w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl border border-cyan-400/30 bg-[#0a0e14] p-6 text-left"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-mono font-bold text-lg text-cyan-300">
+            {overlay === "stats" ? "STATISTICS" : `ACHIEVEMENTS · ${unlockedCount}/${ACHIEVEMENTS.length}`}
+          </h3>
+          <button onClick={() => setOverlay(null)} className="text-white/50 hover:text-white text-xl leading-none">×</button>
+        </div>
+
+        {overlay === "stats" ? (
+          <div className="space-y-1.5">
+            {statRows.map(([k, v]) => (
+              <div key={k} className="flex justify-between text-sm border-b border-white/5 py-1.5">
+                <span className="text-white/55">{k}</span>
+                <span className="font-mono text-white">{v}</span>
+              </div>
+            ))}
+            <p className="pt-4 pb-1 text-xs font-mono uppercase tracking-widest text-amber-300/80">Hall of Fame</p>
+            {recordRows.map(([k, v]) => (
+              <div key={k} className="flex justify-between text-sm border-b border-white/5 py-1.5">
+                <span className="text-white/55">{k}</span>
+                <span className="font-mono text-amber-200">{v}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-2">
+            {ACHIEVEMENTS.map((a) => {
+              const got = !!unlockedIds[a.id];
+              return (
+                <div
+                  key={a.id}
+                  className="flex items-center gap-3 rounded-lg border px-3 py-2"
+                  style={{
+                    borderColor: got ? "rgba(94,234,212,0.35)" : "rgba(255,255,255,0.08)",
+                    background: got ? "rgba(0,188,212,0.08)" : "rgba(255,255,255,0.02)",
+                    opacity: got ? 1 : 0.5,
+                  }}
+                >
+                  <span className="text-2xl">{got ? a.icon : "🔒"}</span>
+                  <div>
+                    <p className={`text-sm font-bold ${got ? "text-white" : "text-white/60"}`}>{a.name}</p>
+                    <p className="text-xs text-white/45">{a.desc}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+
+
 
   /* ================================================================ */
   /*  RENDER                                                          */
@@ -698,6 +873,45 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             maxLength={18}
             className="w-full rounded-lg bg-black/50 border border-cyan-400/30 px-4 py-3 text-center text-white outline-none focus:border-cyan-400 mb-4"
           />
+
+          {/* mode selector */}
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            {([
+              { id: "normal", label: "Normal", icon: <Skull size={14} /> },
+              { id: "daily", label: "Daily", icon: <Calendar size={14} /> },
+              { id: "seeded", label: "Seeded", icon: <Hash size={14} /> },
+            ] as const).map((m) => (
+              <button
+                key={m.id}
+                onClick={() => setGameMode(m.id)}
+                className="rounded-lg py-2 text-xs font-mono flex flex-col items-center gap-1 border transition"
+                style={{
+                  borderColor: gameMode === m.id ? "#00bcd4" : "rgba(255,255,255,0.12)",
+                  background: gameMode === m.id ? "rgba(0,188,212,0.12)" : "rgba(255,255,255,0.02)",
+                  color: gameMode === m.id ? "#5eead4" : "rgba(255,255,255,0.6)",
+                }}
+              >
+                {m.icon}
+                {m.label}
+              </button>
+            ))}
+          </div>
+
+          {gameMode === "daily" && (
+            <p className="text-[11px] text-cyan-300/80 font-mono mb-3">
+              Everyone plays the same board today · {dailySeedString().replace("DAILY-", "")}
+            </p>
+          )}
+          {gameMode === "seeded" && (
+            <input
+              value={seedInput}
+              onChange={(e) => setSeedInput(e.target.value)}
+              placeholder="Enter seed code (blank = random)"
+              maxLength={12}
+              className="w-full rounded-lg bg-black/50 border border-cyan-400/30 px-4 py-2.5 text-center text-white text-sm font-mono outline-none focus:border-cyan-400 mb-3 uppercase"
+            />
+          )}
+
           <button
             onClick={startGame}
             className="w-full rounded-lg py-3 font-mono font-bold tracking-widest text-black transition hover:brightness-110"
@@ -705,13 +919,30 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           >
             START
           </button>
+
+          <div className="grid grid-cols-2 gap-2 mt-3">
+            <button
+              onClick={() => { setStats(loadStats()); setOverlay("stats"); }}
+              className="rounded-lg py-2.5 text-xs font-mono flex items-center justify-center gap-1.5 border border-white/12 bg-white/[0.02] text-white/70 hover:text-white hover:border-cyan-400/50 transition"
+            >
+              <BarChart3 size={14} /> Statistics
+            </button>
+            <button
+              onClick={() => { setUnlockedIds(loadUnlocked()); setOverlay("achievements"); }}
+              className="rounded-lg py-2.5 text-xs font-mono flex items-center justify-center gap-1.5 border border-white/12 bg-white/[0.02] text-white/70 hover:text-white hover:border-cyan-400/50 transition"
+            >
+              <Award size={14} /> Achievements
+            </button>
+          </div>
         </div>
         <p className="text-white/40 text-xs mt-8 max-w-sm">
           A fictional strategy game of luck and nerve. Outlast 5 AI rivals across up to {TOTAL_ROUNDS} rounds. Richest survivor wins.
         </p>
+        {overlayNode}
       </div>
     );
   }
+
 
   /* ---- HUD (shared top bar for in-game phases) ---- */
   const hud = human && (
@@ -911,17 +1142,24 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           {aiLog.map((p, i) => (
             <div
               key={p.id}
-              className="flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 animate-fade-in"
+              className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 animate-fade-in"
               style={{ animationDelay: `${i * 220}ms`, animationFillMode: "backwards" }}
             >
-              <span className="flex items-center gap-2">
-                <span className="text-xl">{p.avatar}</span>
-                <span className="font-bold" style={{ color: p.color }}>{p.name}</span>
-                <span className="text-white/40 text-xs">{p.lastLabel}</span>
-              </span>
-              <span className={`font-mono text-sm ${(p.lastDelta ?? 0) >= 0 ? "text-green-400" : "text-red-400"}`}>
-                {!p.alive ? <span className="text-red-500 font-bold">CAUGHT</span> : `${(p.lastDelta ?? 0) >= 0 ? "+" : ""}${fmt(p.lastDelta ?? 0)}`}
-              </span>
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <span className="text-xl">{p.avatar}</span>
+                  <span className="font-bold" style={{ color: p.color }}>{p.name}</span>
+                  <span className="text-white/40 text-xs">{p.lastLabel}</span>
+                </span>
+                <span className={`font-mono text-sm ${(p.lastDelta ?? 0) >= 0 ? "text-green-400" : "text-red-400"}`}>
+                  {!p.alive ? <span className="text-red-500 font-bold">CAUGHT</span> : `${(p.lastDelta ?? 0) >= 0 ? "+" : ""}${fmt(p.lastDelta ?? 0)}`}
+                </span>
+              </div>
+              {p.quip && (
+                <p className="mt-1 text-xs italic text-white/45" style={{ paddingLeft: 32 }}>
+                  "{p.quip}"
+                </p>
+              )}
             </div>
           ))}
         </div>
@@ -1056,6 +1294,58 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           ))}
         </div>
 
+        {activeSeed && (
+          <div className="mt-6 flex items-center justify-center gap-2 text-xs font-mono text-cyan-300/80">
+            <Hash size={13} /> {activeSeed}
+            <button
+              onClick={() => {
+                navigator.clipboard?.writeText(activeSeed).then(() => {
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 1500);
+                });
+              }}
+              className="ml-1 inline-flex items-center gap-1 rounded px-2 py-1 border border-white/12 hover:border-cyan-400/50 text-white/70"
+            >
+              {copied ? <Check size={12} /> : <Copy size={12} />} {copied ? "Copied" : "Share seed"}
+            </button>
+          </div>
+        )}
+
+        {freshAch.length > 0 && (
+          <div className="mt-6 w-full max-w-md">
+            <p className="text-xs font-mono uppercase tracking-widest text-amber-300 mb-2 flex items-center justify-center gap-1.5">
+              <Award size={14} /> {freshAch.length} New Achievement{freshAch.length > 1 ? "s" : ""}
+            </p>
+            <div className="space-y-2">
+              {freshAch.map((a) => (
+                <div key={a.id} className="flex items-center gap-3 rounded-lg border border-amber-400/40 bg-amber-400/10 px-3 py-2 animate-fade-in">
+                  <span className="text-2xl">{a.icon}</span>
+                  <div className="text-left">
+                    <p className="text-sm font-bold text-white">{a.name}</p>
+                    <p className="text-xs text-white/55">{a.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="mt-6 flex gap-2">
+          <button
+            onClick={() => { setStats(loadStats()); setOverlay("stats"); }}
+            className="rounded-lg px-4 py-2 text-xs font-mono flex items-center gap-1.5 border border-white/12 bg-white/[0.02] text-white/70 hover:text-white hover:border-cyan-400/50 transition"
+          >
+            <BarChart3 size={14} /> Statistics
+          </button>
+          <button
+            onClick={() => { setUnlockedIds(loadUnlocked()); setOverlay("achievements"); }}
+            className="rounded-lg px-4 py-2 text-xs font-mono flex items-center gap-1.5 border border-white/12 bg-white/[0.02] text-white/70 hover:text-white hover:border-cyan-400/50 transition"
+          >
+            <Award size={14} /> Achievements
+          </button>
+        </div>
+
+
         <button
           onClick={() => {
             snd.startMusic();
@@ -1066,6 +1356,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         >
           PLAY AGAIN
         </button>
+        {overlayNode}
       </div>
     );
   }
