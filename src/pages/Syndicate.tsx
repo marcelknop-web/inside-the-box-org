@@ -1528,18 +1528,34 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                     </p>
 
 
-                    {/* stat row */}
-                    <div className="relative z-10 flex items-center justify-between text-[10px] font-mono border-t border-white/10 pt-1.5">
-                      <span className="flex items-center gap-0.5 text-amber-300">
-                        <Coins size={11} />{fmtShort(op.cost)}
-                      </span>
-                      <span className="flex items-center gap-0.5" style={{ color: theme.text }}>
-                        <TrendingUp size={11} />{fmtShort(op.payout)}
-                      </span>
-                      <span className="flex items-center gap-0.5 text-white/50">
-                        <Eye size={11} />{eff}%
-                      </span>
+                    {/* stat row + data bars (numbers preserved, visualised) */}
+                    <div className="relative z-10 border-t border-white/10 pt-1.5 space-y-1">
+                      {/* PAYOUT */}
+                      <div className="flex items-center gap-1.5">
+                        <TrendingUp size={10} style={{ color: theme.text }} className="shrink-0" />
+                        <div className="h-1.5 flex-1 rounded-full bg-white/10 overflow-hidden">
+                          <div className="h-full rounded-full" style={{ width: `${(op.payout / MAX_PAYOUT) * 100}%`, background: theme.text }} />
+                        </div>
+                        <span className="w-9 text-right text-[10px] font-mono font-bold" style={{ color: theme.text }}>{fmtShort(op.payout)}</span>
+                      </div>
+                      {/* COST */}
+                      <div className="flex items-center gap-1.5">
+                        <Coins size={10} className="shrink-0 text-amber-300" />
+                        <div className="h-1.5 flex-1 rounded-full bg-white/10 overflow-hidden">
+                          <div className="h-full rounded-full bg-amber-300/80" style={{ width: `${(op.cost / MAX_COST) * 100}%` }} />
+                        </div>
+                        <span className="w-9 text-right text-[10px] font-mono text-amber-300">{fmtShort(op.cost)}</span>
+                      </div>
+                      {/* CAUGHT % */}
+                      <div className="flex items-center gap-1.5">
+                        <Eye size={10} className="shrink-0 text-rose-400" />
+                        <div className="h-1.5 flex-1 rounded-full bg-white/10 overflow-hidden">
+                          <div className="h-full rounded-full bg-rose-400/80" style={{ width: `${Math.min(100, eff)}%` }} />
+                        </div>
+                        <span className="w-9 text-right text-[10px] font-mono text-rose-300">{eff}%</span>
+                      </div>
                     </div>
+
 
                   </button>
                 );
