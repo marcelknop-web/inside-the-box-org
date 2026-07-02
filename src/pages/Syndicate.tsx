@@ -1484,7 +1484,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                     key={op.id}
                     disabled={!afford}
                     onClick={() => pickOp(op)}
-                    className="group relative overflow-hidden rounded-2xl border p-3 text-left transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed enabled:hover:-translate-y-1"
+                    className="group relative overflow-hidden rounded-2xl border p-2.5 text-left transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed enabled:hover:-translate-y-1"
                     style={{
                       borderColor: `${theme.glow}55`,
                       background: "rgba(255,255,255,0.02)",
@@ -1503,23 +1503,24 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                     </span>
 
                     {/* icon tile */}
-                    <div className="relative z-10 flex items-center justify-center h-14 md:h-16 mb-1.5">
+                    <div className="relative z-10 flex items-center justify-center h-12 mb-1.5">
                       <span
-                        className="flex h-12 w-12 md:h-14 md:w-14 items-center justify-center rounded-2xl border transition group-hover:scale-110"
+                        className="flex h-11 w-11 md:h-12 md:w-12 items-center justify-center rounded-2xl border transition group-hover:scale-110"
                         style={{
                           borderColor: `${theme.glow}55`,
                           background: `radial-gradient(circle at 50% 40%, ${theme.glow}33, transparent 70%)`,
                           boxShadow: `inset 0 0 20px ${theme.glow}22`,
                         }}
                       >
-                        <Icon size={26} style={{ color: theme.glow, filter: `drop-shadow(0 0 6px ${theme.glow}aa)` }} />
+                        <Icon size={22} style={{ color: theme.glow, filter: `drop-shadow(0 0 6px ${theme.glow}aa)` }} />
                       </span>
                     </div>
 
                     {/* title */}
-                    <p className="relative z-10 font-black uppercase tracking-wide text-white text-xs md:text-sm leading-tight mb-1.5 min-h-[2.2em]">
+                    <p className="relative z-10 font-black uppercase tracking-wide text-white text-xs md:text-sm leading-tight mb-1.5 min-h-[1.6em]">
                       {op.name}
                     </p>
+
 
                     {/* stat row */}
                     <div className="relative z-10 flex items-center justify-between text-[10px] font-mono border-t border-white/10 pt-1.5">
