@@ -1204,7 +1204,55 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     </div>
   );
 
-  /* ---- ROUND INTRO ---- */
+  /* ---- Beginner coach bar (persistent, step-by-step guidance) ---- */
+  const COACH_TONE: Record<string, { color: string; bg: string }> = {
+    info: { color: "#5eead4", bg: "rgba(0,188,212,0.10)" },
+    action: { color: "#ffd34d", bg: "rgba(245,184,0,0.12)" },
+    good: { color: "#86efac", bg: "rgba(34,197,94,0.12)" },
+    danger: { color: "#fca5a5", bg: "rgba(239,68,68,0.12)" },
+  };
+  const coachBar = (opts: {
+    icon: typeof Skull;
+    step?: string;
+    text: string;
+    tone?: keyof typeof COACH_TONE;
+  }) => {
+    if (!coachOn) return null;
+    const Icon = opts.icon;
+    const t = COACH_TONE[opts.tone ?? "info"];
+    return (
+      <div className="max-w-3xl mx-auto mb-5 animate-fade-in">
+        <div
+          className="relative flex items-start gap-3 rounded-2xl border px-4 py-3"
+          style={{ borderColor: `${t.color}55`, background: t.bg, boxShadow: `0 0 30px -12px ${t.color}88` }}
+        >
+          <span
+            className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl animate-pulse"
+            style={{ background: `${t.color}22`, border: `1px solid ${t.color}66` }}
+          >
+            <Icon size={18} style={{ color: t.color }} />
+          </span>
+          <div className="min-w-0 flex-1">
+            {opts.step && (
+              <p className="font-mono text-[10px] tracking-[0.2em] mb-0.5" style={{ color: t.color }}>
+                {opts.step} · YOUR COACH
+              </p>
+            )}
+            <p className="text-white/85 text-sm leading-snug">{opts.text}</p>
+          </div>
+          <button
+            onClick={toggleCoach}
+            aria-label="Hide guide"
+            className="shrink-0 text-white/30 hover:text-white/70 transition"
+          >
+            <X size={15} />
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+
   if (phase === "round-intro") {
     return shell(
       <div className="max-w-3xl mx-auto">
