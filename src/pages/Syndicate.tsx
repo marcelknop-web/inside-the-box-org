@@ -1257,7 +1257,16 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     return shell(
       <div className="max-w-3xl mx-auto">
         {hud}
+        {coachBar({
+          icon: event ? Flame : Crown,
+          step: `ROUND ${round} · STEP 1`,
+          tone: event ? "danger" : "info",
+          text: event
+            ? `A global event just hit: "${event.name}". It changes the odds this round — read the orange card, then tap CHOOSE OPERATION.`
+            : "Every round starts here. The streets are calm right now. Tap CHOOSE OPERATION to see the jobs you can run.",
+        })}
         <div className="text-center py-6">
+
           {event ? (
             <div className="rounded-xl border border-orange-400/40 bg-orange-500/10 p-6 mb-6 animate-scale-in">
               <p className="text-orange-300 font-mono text-xs mb-1">GLOBAL EVENT</p>
