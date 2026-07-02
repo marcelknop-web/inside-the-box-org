@@ -77,6 +77,11 @@ const RISK_THEME: Record<RiskLevel, { glow: string; text: string; grad: string }
   veryhigh: { glow: "#a855f7", text: "#e879f9", grad: "from-fuchsia-500/25 via-purple-500/5 to-transparent" },
 };
 
+// Max values across all operations — used to normalise the in-card data bars.
+const MAX_COST = Math.max(...OPERATIONS.map((o) => o.cost));
+const MAX_PAYOUT = Math.max(...OPERATIONS.map((o) => o.payout));
+
+
 /* ------------------------------------------------------------------ */
 /*  Guided tutorial — pop-up coach marks shown on a player's first run */
 /* ------------------------------------------------------------------ */
