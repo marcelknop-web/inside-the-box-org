@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Volume2, VolumeX, Skull, Shield, Crown, TrendingUp, Flame, Trophy, BarChart3, Calendar, Hash, Award, Copy, Check, X, Fish, VenetianMask, CreditCard, Wine, Gem, Lock, Rocket, ShoppingCart, Building2, Landmark, Dice5, Eye, Coins } from "lucide-react";
+import { Volume2, VolumeX, Skull, Shield, Crown, TrendingUp, Flame, Trophy, BarChart3, Calendar, Hash, Award, Copy, Check, X, Fish, VenetianMask, CreditCard, Wine, Gem, Lock, Rocket, ShoppingCart, Building2, Landmark, Dice5, Eye, Coins, Maximize2, Minimize2 } from "lucide-react";
 import { PageMeta } from "@/components/PageMeta";
 import {
   OPERATIONS,
@@ -459,6 +459,39 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   const [closeCall, setCloseCall] = useState<string | null>(null);
   const [aiLog, setAiLog] = useState<Player[]>([]);
   const rotationRef = useRef(0);
+  const shellRef = useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Fullscreen support (works on desktop + Android; iOS Safari falls back to CSS full-viewport).
+  const toggleFullscreen = useCallback(() => {
+    const el = shellRef.current;
+    if (!el) return;
+    const doc = document as Document & { webkitFullscreenElement?: Element };
+    const anyEl = el as HTMLElement & { webkitRequestFullscreen?: () => Promise<void> };
+    if (!document.fullscreenElement && !doc.webkitFullscreenElement) {
+      (anyEl.requestFullscreen?.() ?? anyEl.webkitRequestFullscreen?.())?.catch(() => setIsFullscreen(true));
+    } else {
+      const anyDoc = document as Document & { webkitExitFullscreen?: () => Promise<void> };
+      anyDoc.exitFullscreen?.() ?? anyDoc.webkitExitFullscreen?.();
+    }
+    // Optimistic toggle for browsers without the Fullscreen API (e.g. iOS Safari).
+    if (typeof anyEl.requestFullscreen !== "function" && typeof anyEl.webkitRequestFullscreen !== "function") {
+      setIsFullscreen((v) => !v);
+    }
+  }, []);
+
+  useEffect(() => {
+    const onChange = () => {
+      const doc = document as Document & { webkitFullscreenElement?: Element };
+      setIsFullscreen(Boolean(document.fullscreenElement || doc.webkitFullscreenElement));
+    };
+    document.addEventListener("fullscreenchange", onChange);
+    document.addEventListener("webkitfullscreenchange", onChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", onChange);
+      document.removeEventListener("webkitfullscreenchange", onChange);
+    };
+  }, []);
 
   // Progression + game modes
   const [gameMode, setGameMode] = useState<"normal" | "daily" | "seeded">("normal");
@@ -857,9 +890,11 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
   const shell = (children: React.ReactNode) => (
     <div
-      className="relative w-full overflow-hidden rounded-2xl"
+      ref={shellRef}
+      className={`relative w-full overflow-y-auto overflow-x-hidden ${isFullscreen ? "fixed inset-0 z-50 rounded-none" : "rounded-2xl"}`}
       style={{
-        minHeight: embedded ? 640 : "100vh",
+        minHeight: isFullscreen ? "100vh" : embedded ? 640 : "100vh",
+        height: isFullscreen ? "100vh" : undefined,
         background:
           "radial-gradient(1200px 600px at 20% -10%, rgba(0,188,212,0.12), transparent), radial-gradient(900px 500px at 90% 110%, rgba(245,184,0,0.1), transparent), #05070d",
         color: "#e5e7eb",
@@ -873,17 +908,28 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           backgroundSize: "40px 40px",
         }}
       />
-      <button
-        onClick={() => setMuted((m) => !m)}
-        aria-label={muted ? "Unmute" : "Mute"}
-        className="absolute top-4 right-4 z-30 rounded-full p-2 border border-cyan-400/30 bg-black/40 hover:bg-black/60 transition"
-        style={{ color: "#00bcd4" }}
-      >
-        {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-      </button>
-      <div className="relative z-10 px-4 py-8 md:px-8">{children}</div>
+      <div className="absolute top-3 right-3 md:top-4 md:right-4 z-30 flex items-center gap-2">
+        <button
+          onClick={() => setMuted((m) => !m)}
+          aria-label={muted ? "Unmute" : "Mute"}
+          className="rounded-full p-2 border border-cyan-400/30 bg-black/40 hover:bg-black/60 transition"
+          style={{ color: "#00bcd4" }}
+        >
+          {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+        </button>
+        <button
+          onClick={toggleFullscreen}
+          aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+          className="rounded-full p-2 border border-cyan-400/30 bg-black/40 hover:bg-black/60 transition"
+          style={{ color: "#00bcd4" }}
+        >
+          {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+        </button>
+      </div>
+      <div className="relative z-10 px-3 py-6 sm:px-4 sm:py-8 md:px-8">{children}</div>
     </div>
   );
+
 
   /* ---- WELCOME ---- */
   if (phase === "welcome") {
