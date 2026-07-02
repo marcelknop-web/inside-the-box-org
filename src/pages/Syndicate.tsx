@@ -1066,10 +1066,36 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         {hud}
         {!selectedOp ? (
           <>
-            <div className="text-center mb-5">
+            <div className="text-center mb-4">
               <h2 className="font-mono font-black tracking-[0.2em] text-white text-lg md:text-xl">SELECT YOUR OPERATION</h2>
-              <p className="text-white/40 text-xs font-mono mt-1">Choose wisely. Every move has a price.</p>
+              <p className="text-white/40 text-xs font-mono mt-1">Pay the cost, run the job, hope you don't get caught.</p>
             </div>
+
+            {/* First-timer legend: explains every symbol before the cards */}
+            <div className="mb-5 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3">
+              <p className="text-[10px] font-mono uppercase tracking-wider text-white/30 mb-2 text-center">What the numbers mean</p>
+              <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs">
+                <span className="flex items-center gap-1.5 text-amber-300">
+                  <Coins size={14} /><span className="text-white/60">You pay to start</span>
+                </span>
+                <span className="flex items-center gap-1.5 text-emerald-300">
+                  <TrendingUp size={14} /><span className="text-white/60">You earn if it works</span>
+                </span>
+                <span className="flex items-center gap-1.5 text-white/50">
+                  <Eye size={14} /><span className="text-white/60">Chance of getting caught</span>
+                </span>
+              </div>
+              <div className="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[10px] font-mono">
+                <span className="text-white/30">Risk:</span>
+                {(["low", "medium", "high", "veryhigh"] as RiskLevel[]).map((r) => (
+                  <span key={r} className="flex items-center gap-1" style={{ color: RISK_THEME[r].glow }}>
+                    <span className="h-2 w-2 rounded-full" style={{ background: RISK_THEME[r].glow }} />
+                    {RISK_LABEL[r]}
+                  </span>
+                ))}
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {OPERATIONS.map((op) => {
                 const afford = human!.cash >= op.cost;
