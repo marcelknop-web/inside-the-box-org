@@ -189,34 +189,43 @@ function affordableOps(cash: number): Operation[] {
 function chooseAiOp(p: Player, leaderboardRankFrac: number): Operation | null {
   const opts = affordableOps(p.cash);
   if (!opts.length) return null;
-  const byRisk = (levels: string[]) =>
-    opts.filter((o) => levels.includes(o.risk));
-  const richest = (arr: Operation[]) =>
-    arr.reduce((a, b) => (b.payout > a.payout ? b : a), arr[0]);
   const pers = p.profile?.personality;
-  switch (pers) {
-    case "conservative": {
-      const safe = byRisk(["low", "medium"]);
-      return richest(safe.length ? safe : opts);
+  const D = AI_DECIDE;
+  const maxPay = Math.max(...opts.map((o) => o.payout));
+  const weights = opts.map((o) => {
+    const ri = RISK_INDEX[o.risk];
+    const payN = o.payout / maxPay;
+    let w: number;
+    switch (pers) {
+      case "conservative":
+        w = Math.exp(-ri * D.consK);
+        break;
+      case "risktaker":
+        w = Math.exp(-(3 - ri) * D.riskK);
+        break;
+      case "greedy":
+        w = Math.pow(payN + 0.05, 3 * D.greedK);
+        break;
+      case "adaptive": {
+        const target = leaderboardRankFrac > 0.5 ? 3 : 0;
+        w = Math.exp(-Math.abs(ri - target) * D.adaptK);
+        break;
+      }
+      case "chaotic":
+      default:
+        w = Math.pow(payN + 0.2, D.chaosPay);
+        break;
     }
-    case "risktaker": {
-      const risky = byRisk(["high", "veryhigh"]);
-      return richest(risky.length ? risky : opts);
-    }
-    case "greedy":
-      return richest(opts);
-    case "adaptive": {
-      // trailing (rankFrac high) -> gamble; leading -> play safe
-      const wantRisky = leaderboardRankFrac > 0.5;
-      const pool = wantRisky
-        ? byRisk(["high", "veryhigh"])
-        : byRisk(["low", "medium"]);
-      return richest(pool.length ? pool : opts);
-    }
-    case "chaotic":
-    default:
-      return opts[Math.floor(Math.random() * opts.length)];
+    w *= Math.pow(payN + 0.1, D.payBias);
+    return Math.pow(w, 1 / D.temp);
+  });
+  const total = weights.reduce((s, x) => s + x, 0);
+  let r = Math.random() * total;
+  for (let i = 0; i < opts.length; i++) {
+    if (r < weights[i]) return opts[i];
+    r -= weights[i];
   }
+  return opts[opts.length - 1];
 }
 
 function resolveSpin(
