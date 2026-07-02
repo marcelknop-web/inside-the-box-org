@@ -178,6 +178,7 @@ interface AiTurn {
   op: Operation;
   res: SpinResult;
   caughtPct: number;
+  segs: AngledSegment[]; // wheel for this rival's spin
 }
 
 const CX = 160;
