@@ -1301,8 +1301,14 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   /* ---- WELCOME ---- */
   if (phase === "welcome") {
     return shell(
-      <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto py-10">
-        <Skull size={56} style={{ color: "#f5b800" }} className="mb-4 drop-shadow-[0_0_18px_rgba(245,184,0,0.5)]" />
+      <div className="relative flex flex-col items-center justify-center text-center max-w-lg mx-auto py-10">
+        <Globe
+          players={WELCOME_GLOBE_PLAYERS}
+          className="pointer-events-none absolute -top-6 left-1/2 -translate-x-1/2 w-[120%] h-[42vh] opacity-40"
+        />
+        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(60% 40% at 50% 30%, transparent, #05070d 75%)" }} />
+        <div className="relative">
+        <Skull size={56} style={{ color: "#f5b800" }} className="mb-4 drop-shadow-[0_0_18px_rgba(245,184,0,0.5)] mx-auto" />
         <h1
           className="text-6xl md:text-7xl font-black tracking-[0.15em] mb-3"
           style={{
