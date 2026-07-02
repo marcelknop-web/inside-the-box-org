@@ -1053,9 +1053,13 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         </button>
         <button
           onClick={() => {
+            // Re-enable the always-on coach bar and show the contextual pop-up.
+            if (!coachOn) toggleCoach();
+            if (typeof window !== "undefined") localStorage.setItem("syndicate_coach_v1", "1");
             const key = phase === "welcome" ? "intro" : phase === "outcome" ? "outcome" : phase === "scoreboard" ? "scoreboard" : selectedOp ? "wheel" : "choose";
             setActiveTip(TIPS[key] ?? TIPS.intro);
           }}
+
           aria-label="How to play"
           className="rounded-full p-2 border border-cyan-400/30 bg-black/40 hover:bg-black/60 transition"
           style={{ color: "#00bcd4" }}
