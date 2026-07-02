@@ -100,7 +100,7 @@ const TIPS: Record<string, Tip> = {
     key: "intro",
     icon: Crown,
     title: "Welcome, boss",
-    body: "Outlast 5 rival crews across up to 12 rounds. Each round you run one operation for cash — the richest crew still standing at the end wins. I'll walk you through the first moves.",
+    body: "Outlast 2 rival crews across up to 12 rounds. Each round you run one operation for cash — the richest crew still standing at the end wins. I'll walk you through the first moves.",
   },
   choose: {
     key: "choose",
@@ -1285,7 +1285,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           </div>
         </div>
         <p className="text-white/40 text-xs mt-8 max-w-sm">
-          A fictional strategy game of luck and nerve. Outlast 5 AI rivals across up to {TOTAL_ROUNDS} rounds. Richest survivor wins.
+          A fictional strategy game of luck and nerve. Outlast 2 AI rivals across up to {TOTAL_ROUNDS} rounds. Richest survivor wins.
         </p>
         {overlayNode}
       </div>

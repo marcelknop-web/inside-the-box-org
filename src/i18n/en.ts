@@ -413,7 +413,7 @@ export const en = {
     wcstTitle: 'Wisconsin Card Sorting Test',
     wcstDesc: 'Faithful reimplementation of the classic test of cognitive flexibility and executive function',
     syndicateTitle: 'Syndicate',
-    syndicateDesc: 'Turn-based cyberpunk strategy game — outlast 5 AI rivals, spin the risk wheel, build the biggest fortune',
+    syndicateDesc: 'Turn-based cyberpunk strategy game — outlast 2 AI rivals, spin the risk wheel, build the biggest fortune',
     agentYtTitle: 'Video Injects',
     agentYtDesc: 'AI-generated news videos as situational briefings for crisis exercises',
     ctaTitle: 'Getting Started',
