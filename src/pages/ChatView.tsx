@@ -2067,6 +2067,8 @@ const ChatView = () => {
     ? <Suspense fallback={lazyFallback}><PasswordGate storageKey="ai-act-readiness" label="EU AI Act Readiness Assessment"><AiActReadinessTool embedded /></PasswordGate></Suspense>
     : activeService === 'wcst'
     ? <Suspense fallback={lazyFallback}><WisconsinCardSort embedded /></Suspense>
+    : activeService === 'syndicate-game'
+    ? <Suspense fallback={lazyFallback}><Syndicate embedded /></Suspense>
     : activeService === 'system-check'
     ? <InlineSystemCheck t={t} />
     : activeService && contentMap[activeService] ? contentMap[activeService]() : null;
