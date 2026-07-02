@@ -1305,8 +1305,24 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     return shell(
       <div className={selectedOp ? "max-w-3xl mx-auto" : "max-w-5xl mx-auto"}>
         {hud}
+        {coachBar(
+          selectedOp
+            ? {
+                icon: Dice5,
+                step: "STEP 3",
+                tone: "action",
+                text: `You picked "${selectedOp.name}". Now tap SPIN THE WHEEL — most slices pay you, but a red slice means you're caught and lose a shield. Not sure? Tap "pick a different operation".`,
+              }
+            : {
+                icon: Coins,
+                step: "STEP 2",
+                tone: "info",
+                text: "Tap a card to choose a job. Read it left to right: gold COST is what you pay, green PAYOUT is what you can win, the eye is your CAUGHT chance. Green = safe, purple = big risk.",
+              },
+        )}
         {!selectedOp ? (
           <>
+
             <div className="text-center mb-4">
               <h2 className="font-mono font-black tracking-[0.2em] text-white text-lg md:text-xl">SELECT YOUR OPERATION</h2>
             </div>
