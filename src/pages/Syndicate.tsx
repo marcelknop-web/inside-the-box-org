@@ -76,7 +76,51 @@ const RISK_THEME: Record<RiskLevel, { glow: string; text: string; grad: string }
   veryhigh: { glow: "#a855f7", text: "#e879f9", grad: "from-fuchsia-500/25 via-purple-500/5 to-transparent" },
 };
 
+/* ------------------------------------------------------------------ */
+/*  Guided tutorial — pop-up coach marks shown on a player's first run */
+/* ------------------------------------------------------------------ */
 
+const TUTORIAL_KEY = "syndicate_tutorial_done_v1";
+
+interface Tip {
+  key: string;
+  icon: typeof Skull;
+  title: string;
+  body: string;
+}
+
+const TIPS: Record<string, Tip> = {
+  intro: {
+    key: "intro",
+    icon: Crown,
+    title: "Welcome, boss",
+    body: "Outlast 5 rival crews across up to 12 rounds. Each round you run one operation for cash — the richest crew still standing at the end wins. I'll walk you through the first moves.",
+  },
+  choose: {
+    key: "choose",
+    icon: Coins,
+    title: "Pick an operation",
+    body: "Every card shows its COST (what you pay), PAYOUT (what you can earn) and CAUGHT % (odds of getting busted). The colored badge is the risk tier — green is safe, purple is a gamble. Tap a card to select it.",
+  },
+  wheel: {
+    key: "wheel",
+    icon: Dice5,
+    title: "Spin the wheel",
+    body: "The wheel decides your fate. Most slices pay out — but land on a Caught slice and you burn a token. Lose all your tokens and you're eliminated. Hit SPIN when you're ready.",
+  },
+  outcome: {
+    key: "outcome",
+    icon: TrendingUp,
+    title: "Your result",
+    body: "This is how the operation played out and how your fortune changed. High-risk jobs swing hard both ways — manage your tokens and don't overreach.",
+  },
+  scoreboard: {
+    key: "scoreboard",
+    icon: BarChart3,
+    title: "The standings",
+    body: "See where you rank against the rival crews after each round. Stay alive and keep your fortune on top. That's the whole game — good luck, boss.",
+  },
+};
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
