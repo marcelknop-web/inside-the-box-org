@@ -1895,36 +1895,55 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         })}
         <h2 className="text-center font-mono text-cyan-300 mb-4 text-sm">LEADERBOARD</h2>
 
+        {(() => {
+          const maxCash = Math.max(1, ...ranked.map((p) => Math.max(0, p.cash)));
+          return (
         <div className="space-y-2">
-          {ranked.map((p, i) => (
+          {ranked.map((p, i) => {
+            const barColor = p.isHuman ? "#f5b800" : p.color;
+            const barW = (Math.max(0, p.cash) / maxCash) * 100;
+            return (
             <div
               key={p.id}
-              className="flex items-center justify-between rounded-lg border px-4 py-3"
+              className="rounded-lg border px-4 py-3"
               style={{
                 borderColor: p.isHuman ? "rgba(245,184,0,0.5)" : "rgba(255,255,255,0.1)",
                 background: p.alive ? "rgba(255,255,255,0.03)" : "rgba(239,68,68,0.08)",
                 opacity: p.alive ? 1 : 0.7,
               }}
             >
-              <span className="flex items-center gap-3">
-                <span className="font-mono text-white/40 w-5 text-sm">{i + 1}</span>
-                <Avatar img={p.img} fallback={p.avatar} color={p.isHuman ? "#f5b800" : p.color} size={32} />
-                <span className="font-bold" style={{ color: p.isHuman ? "#f5b800" : p.color }}>
-                  {p.name}{p.isHuman && " (you)"}
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-3">
+                  <span className="font-mono text-white/40 w-5 text-sm">{i + 1}</span>
+                  <Avatar img={p.img} fallback={p.avatar} color={p.isHuman ? "#f5b800" : p.color} size={32} />
+                  <span className="font-bold" style={{ color: p.isHuman ? "#f5b800" : p.color }}>
+                    {p.name}{p.isHuman && " (you)"}
+                  </span>
+                  {!p.alive && <span className="text-red-500 font-bold text-xs font-mono px-2 py-0.5 rounded bg-red-500/15">CAUGHT</span>}
                 </span>
-                {!p.alive && <span className="text-red-500 font-bold text-xs font-mono px-2 py-0.5 rounded bg-red-500/15">CAUGHT</span>}
-              </span>
-              <span className="flex items-center gap-3">
-                <span className="flex gap-0.5">
-                  {Array.from({ length: p.tokens }).map((_, k) => (
-                    <Shield key={k} size={13} style={{ color: "#00bcd4" }} fill="#00bcd4" />
-                  ))}
+                <span className="flex items-center gap-3">
+                  <span className="flex gap-0.5">
+                    {Array.from({ length: p.tokens }).map((_, k) => (
+                      <Shield key={k} size={13} style={{ color: "#00bcd4" }} fill="#00bcd4" />
+                    ))}
+                  </span>
+                  <span className="font-mono font-bold text-white tabular-nums">{fmt(p.cash)}</span>
                 </span>
-                <span className="font-mono font-bold text-white">{fmt(p.cash)}</span>
-              </span>
+              </div>
+              {/* cash comparison bar (number preserved above) */}
+              <div className="mt-2 h-2 w-full rounded-full bg-white/10 overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-700"
+                  style={{ width: `${barW}%`, background: barColor, boxShadow: `0 0 8px ${barColor}88` }}
+                />
+              </div>
             </div>
-          ))}
+            );
+          })}
         </div>
+          );
+        })()}
+
         <div className="text-center mt-6">
           <button
             onClick={nextRound}
