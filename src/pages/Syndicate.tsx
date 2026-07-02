@@ -1581,7 +1581,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             >
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-2">
-                  <span className="text-xl">{p.avatar}</span>
+                  <Avatar img={p.img} fallback={p.avatar} color={p.color} size={30} />
                   <span className="font-bold" style={{ color: p.color }}>{p.name}</span>
                   <span className="text-white/40 text-xs">{p.lastLabel}</span>
                 </span>
@@ -1627,7 +1627,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             >
               <span className="flex items-center gap-3">
                 <span className="font-mono text-white/40 w-5 text-sm">{i + 1}</span>
-                <span className="text-xl">{p.avatar}</span>
+                <Avatar img={p.img} fallback={p.avatar} color={p.isHuman ? "#f5b800" : p.color} size={32} />
                 <span className="font-bold" style={{ color: p.isHuman ? "#f5b800" : p.color }}>
                   {p.name}{p.isHuman && " (you)"}
                 </span>
