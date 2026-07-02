@@ -573,6 +573,18 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     setActiveTip(null);
   }, []);
 
+  /* ---- Persistent beginner coach (always-on guidance bar) ---- */
+  const [coachOn, setCoachOn] = useState(
+    () => typeof window === "undefined" || localStorage.getItem("syndicate_coach_v1") !== "0",
+  );
+  const toggleCoach = useCallback(() => {
+    setCoachOn((v) => {
+      const next = !v;
+      if (typeof window !== "undefined") localStorage.setItem("syndicate_coach_v1", next ? "1" : "0");
+      return next;
+    });
+  }, []);
+
 
   useEffect(() => {
     snd.setEnabled(!muted);
