@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Volume2, VolumeX, Skull, Shield, Crown, TrendingUp, Flame, Trophy, BarChart3, Calendar, Hash, Award, Copy, Check, X, Fish, VenetianMask, CreditCard, Wine, Gem, Lock, Rocket, ShoppingCart, Building2, Landmark, Dice5, Eye, Coins, Maximize2, Minimize2, HelpCircle } from "lucide-react";
 import { PageMeta } from "@/components/PageMeta";
+import Globe, { type GlobePlayer } from "@/components/syndicate/Globe";
+import { MapPin } from "lucide-react";
 import {
   OPERATIONS,
   AI_PROFILES,
@@ -140,6 +142,7 @@ interface Player {
   img?: string;
   color: string;
   profile?: AiProfile;
+  location?: { city: string; lat: number; lon: number };
   cash: number;
   tokens: number;
   alive: boolean;
@@ -572,8 +575,36 @@ function Wheel({
 
 
 /* ------------------------------------------------------------------ */
+/*  Player home bases — international centres of power                  */
+/* ------------------------------------------------------------------ */
+
+const HUMAN_LOCATION = { city: "New York", lat: 40.71, lon: -74.0 };
+
+// Keyed by AI profile id. Each rival resides in a global power hub.
+const AI_LOCATIONS: Record<string, { city: string; lat: number; lon: number }> = {
+  "ai-vex": { city: "Zurich", lat: 47.37, lon: 8.54 },
+  "ai-nyx": { city: "Moscow", lat: 55.75, lon: 37.62 },
+};
+
+// Fallback pool for any additional rivals.
+const FALLBACK_LOCATIONS = [
+  { city: "London", lat: 51.51, lon: -0.13 },
+  { city: "Singapore", lat: 1.35, lon: 103.82 },
+  { city: "Dubai", lat: 25.2, lon: 55.27 },
+  { city: "Hong Kong", lat: 22.32, lon: 114.17 },
+];
+
+// Decorative markers shown on the welcome-screen globe (before players exist).
+const WELCOME_GLOBE_PLAYERS: GlobePlayer[] = [
+  { id: "w-you", color: "#f5b800", lat: HUMAN_LOCATION.lat, lon: HUMAN_LOCATION.lon, active: true },
+  { id: "w-vex", color: "#22d3ee", lat: AI_LOCATIONS["ai-vex"].lat, lon: AI_LOCATIONS["ai-vex"].lon },
+  { id: "w-nyx", color: "#f472b6", lat: AI_LOCATIONS["ai-nyx"].lat, lon: AI_LOCATIONS["ai-nyx"].lon },
+];
+
+/* ------------------------------------------------------------------ */
 /*  Main game                                                          */
 /* ------------------------------------------------------------------ */
+
 
 interface SyndicateProps {
   embedded?: boolean;
@@ -727,6 +758,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       avatar: "🎭",
       img: HUMAN_AVATAR_IMG,
       color: "#f5b800",
+      location: HUMAN_LOCATION,
       cash: START_CASH,
       tokens: START_TOKENS,
       alive: true,
@@ -742,7 +774,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       usedOps: {},
       ranHighRisk: false,
     };
-    const ais: Player[] = AI_PROFILES.map((pr) => ({
+    const ais: Player[] = AI_PROFILES.map((pr, i) => ({
       id: pr.id,
       name: pr.name,
       isHuman: false,
@@ -750,6 +782,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       img: pr.img,
       color: pr.color,
       profile: pr,
+      location: AI_LOCATIONS[pr.id] ?? FALLBACK_LOCATIONS[i % FALLBACK_LOCATIONS.length],
       cash: START_CASH,
       tokens: START_TOKENS,
       alive: true,
@@ -1177,6 +1210,25 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   /*  RENDER                                                          */
   /* ================================================================ */
 
+  /* ---- Globe (3D world board): players on international power hubs ---- */
+  const activeId =
+    phase === "ai" && aiLog.length
+      ? aiLog[Math.min(aiStep, aiLog.length - 1)]?.player.id
+      : human?.id;
+  const globePlayers: GlobePlayer[] = players
+    .filter((p) => p.location)
+    .map((p) => ({
+      id: p.id,
+      color: p.color,
+      lat: p.location!.lat,
+      lon: p.location!.lon,
+      alive: p.alive,
+      active: p.id === activeId,
+    }));
+  const focusPlayer = players.find((p) => p.id === activeId && p.location);
+  const focusLon = focusPlayer?.location?.lon;
+  const showGlobe = phase !== "welcome" && globePlayers.length > 0;
+
   const shell = (children: React.ReactNode) => (
     <div
       ref={shellRef}
@@ -1197,6 +1249,23 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           backgroundSize: "40px 40px",
         }}
       />
+      {showGlobe && (
+        <>
+          <Globe
+            players={globePlayers}
+            focusLon={focusLon}
+            className="pointer-events-none absolute inset-x-0 top-0 h-[46vh] md:h-[52vh] opacity-60"
+          />
+          {/* readability veil so content on top stays legible */}
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(5,7,13,0.15) 0%, rgba(5,7,13,0.55) 42%, #05070d 72%)",
+            }}
+          />
+        </>
+      )}
       <div className="absolute top-3 right-3 md:top-4 md:right-4 z-30 flex items-center gap-2">
         <button
           onClick={() => setMuted((m) => !m)}
@@ -1239,8 +1308,14 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   /* ---- WELCOME ---- */
   if (phase === "welcome") {
     return shell(
-      <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto py-10">
-        <Skull size={56} style={{ color: "#f5b800" }} className="mb-4 drop-shadow-[0_0_18px_rgba(245,184,0,0.5)]" />
+      <div className="relative flex flex-col items-center justify-center text-center max-w-lg mx-auto py-10">
+        <Globe
+          players={WELCOME_GLOBE_PLAYERS}
+          className="pointer-events-none absolute -top-6 left-1/2 -translate-x-1/2 w-[120%] h-[42vh] opacity-40"
+        />
+        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(60% 40% at 50% 30%, transparent, #05070d 75%)" }} />
+        <div className="relative">
+        <Skull size={56} style={{ color: "#f5b800" }} className="mb-4 drop-shadow-[0_0_18px_rgba(245,184,0,0.5)] mx-auto" />
         <h1
           className="text-6xl md:text-7xl font-black tracking-[0.15em] mb-3"
           style={{
@@ -1329,6 +1404,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         <p className="text-white/40 text-xs mt-8 max-w-sm">
           A fictional strategy game of luck and nerve. Outlast 2 AI rivals across up to {TOTAL_ROUNDS} rounds. Richest survivor wins.
         </p>
+        </div>
         {overlayNode}
       </div>
     );
@@ -1336,32 +1412,90 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
 
   /* ---- HUD (shared top bar for in-game phases) ---- */
+  const maxCash = Math.max(1, ...players.map((p) => Math.max(0, p.cash)));
   const hud = human && (
     <div className="max-w-3xl mx-auto mb-3">
-      <div className="flex items-center justify-between gap-3">
-        <div className="min-w-0">
-          <div className="text-xl md:text-2xl font-black text-white font-mono leading-none">
-            <MoneyCounter value={human.cash} />
-          </div>
-          <div className="text-[11px] text-white/50">{human.name}</div>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1">
-            {Array.from({ length: START_TOKENS }).map((_, i) => (
-              <Shield
-                key={i}
-                size={18}
-                style={{ color: i < human.tokens ? "#00bcd4" : "rgba(255,255,255,0.15)" }}
-                fill={i < human.tokens ? "#00bcd4" : "transparent"}
-              />
-            ))}
-          </div>
-          <span className="flex items-center gap-1 text-orange-400 text-xs font-mono">
-            <Flame size={13} /> +{heatPct}%
-          </span>
-        </div>
+      {/* ROW 1 — player avatars on their power hubs */}
+      <div className="flex items-stretch gap-2 mb-2">
+        {players.map((p) => {
+          const isActive = p.id === activeId;
+          return (
+            <div
+              key={p.id}
+              className="flex-1 flex items-center gap-2 rounded-xl border px-2.5 py-1.5 min-w-0 transition"
+              style={{
+                borderColor: isActive ? `${p.color}` : "rgba(255,255,255,0.10)",
+                background: isActive ? `${p.color}18` : "rgba(255,255,255,0.03)",
+                boxShadow: isActive ? `0 0 18px -6px ${p.color}` : "none",
+                opacity: p.alive ? 1 : 0.4,
+              }}
+            >
+              <div className="relative">
+                <Avatar img={p.img} fallback={p.avatar} color={p.color} size={30} />
+                {!p.alive && (
+                  <Skull size={12} className="absolute -bottom-1 -right-1 text-red-400" />
+                )}
+              </div>
+              <div className="min-w-0">
+                <div className="text-[12px] font-bold text-white leading-tight truncate">
+                  {p.name}
+                </div>
+                <div className="flex items-center gap-0.5 text-[10px] text-white/50 truncate">
+                  <MapPin size={9} style={{ color: p.color }} />
+                  {p.location?.city ?? "—"}
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
-      <div className="mt-2 flex items-center gap-2">
+
+      {/* ROW 2 — money level per player */}
+      <div className="space-y-1.5 rounded-xl border border-white/10 bg-black/30 px-2.5 py-2 mb-2">
+        {players.map((p) => (
+          <div key={p.id} className="flex items-center gap-2">
+            <span className="w-14 shrink-0 text-[10px] font-mono text-white/55 truncate">
+              {p.isHuman ? "YOU" : p.name}
+            </span>
+            <div className="h-2.5 flex-1 rounded-full bg-white/8 overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all duration-500"
+                style={{
+                  width: `${Math.max(3, (Math.max(0, p.cash) / maxCash) * 100)}%`,
+                  background: p.alive
+                    ? `linear-gradient(90deg, ${p.color}, ${p.color}aa)`
+                    : "rgba(148,163,184,0.4)",
+                  boxShadow: p.alive ? `0 0 10px -2px ${p.color}` : "none",
+                }}
+              />
+            </div>
+            <span
+              className="w-16 shrink-0 text-right text-[11px] font-mono font-bold"
+              style={{ color: p.alive ? "#fff" : "#94a3b8" }}
+            >
+              {p.isHuman ? <MoneyCounter value={p.cash} /> : fmt(p.cash)}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Human status: shields + heat + round progress */}
+      <div className="flex items-center justify-between gap-3 mb-1.5">
+        <div className="flex items-center gap-1">
+          {Array.from({ length: START_TOKENS }).map((_, i) => (
+            <Shield
+              key={i}
+              size={16}
+              style={{ color: i < human.tokens ? "#00bcd4" : "rgba(255,255,255,0.15)" }}
+              fill={i < human.tokens ? "#00bcd4" : "transparent"}
+            />
+          ))}
+        </div>
+        <span className="flex items-center gap-1 text-orange-400 text-xs font-mono">
+          <Flame size={13} /> +{heatPct}%
+        </span>
+      </div>
+      <div className="flex items-center gap-2">
         <span className="text-[10px] font-mono text-cyan-300 shrink-0">R{round}/{TOTAL_ROUNDS}</span>
         <div className="h-1.5 flex-1 rounded-full bg-white/10 overflow-hidden">
           <div
@@ -1372,6 +1506,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       </div>
     </div>
   );
+
 
 
   /* ---- Beginner coach bar (persistent, step-by-step guidance) ---- */
