@@ -3,6 +3,15 @@
 /*  Purely a luck/strategy game. No real-world guidance of any kind.    */
 /* ------------------------------------------------------------------ */
 
+import vexImg from "@/assets/syndicate/vex.jpg";
+import nyxImg from "@/assets/syndicate/nyx.jpg";
+import mammonImg from "@/assets/syndicate/mammon.jpg";
+import echoImg from "@/assets/syndicate/echo.jpg";
+import glitchImg from "@/assets/syndicate/glitch.jpg";
+import humanImg from "@/assets/syndicate/human.jpg";
+
+export const HUMAN_AVATAR_IMG = humanImg;
+
 export type RiskLevel = "low" | "medium" | "high" | "veryhigh";
 
 export interface Operation {
@@ -145,7 +154,8 @@ export interface AiProfile {
   blurb: string;
   ability: string; // short, human-readable special ability
   color: string;
-  avatar: string; // emoji-style glyph
+  avatar: string; // emoji-style glyph (fallback)
+  img: string; // portrait image url
 }
 
 export const AI_PROFILES: AiProfile[] = [
@@ -157,6 +167,7 @@ export const AI_PROFILES: AiProfile[] = [
     ability: "Careful operator — detection risk trimmed.",
     color: "#38bdf8",
     avatar: "🦊",
+    img: vexImg,
   },
   {
     id: "ai-nyx",
@@ -166,6 +177,7 @@ export const AI_PROFILES: AiProfile[] = [
     ability: "Adrenaline junkie — +20% payout on high-risk wins.",
     color: "#f472b6",
     avatar: "🐍",
+    img: nyxImg,
   },
   {
     id: "ai-mammon",
@@ -175,6 +187,7 @@ export const AI_PROFILES: AiProfile[] = [
     ability: "Gains +6% bonus on high-risk payouts.",
     color: "#f5b800",
     avatar: "🐲",
+    img: mammonImg,
   },
   {
     id: "ai-echo",
@@ -184,6 +197,7 @@ export const AI_PROFILES: AiProfile[] = [
     ability: "Chooses operations based on the current leaderboard.",
     color: "#a78bfa",
     avatar: "🦉",
+    img: echoImg,
   },
   {
     id: "ai-glitch",
@@ -193,6 +207,7 @@ export const AI_PROFILES: AiProfile[] = [
     ability: "Wild card — occasionally doubles a winning score.",
     color: "#34d399",
     avatar: "🃏",
+    img: glitchImg,
   },
 ];
 

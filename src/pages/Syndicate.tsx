@@ -24,6 +24,7 @@ import {
   type AiProfile,
   type WheelSegment,
   quipFor,
+  HUMAN_AVATAR_IMG,
 } from "@/data/syndicateData";
 import { syndicateSounds as snd } from "@/lib/syndicateSounds";
 import {
@@ -131,6 +132,7 @@ interface Player {
   name: string;
   isHuman: boolean;
   avatar: string;
+  img?: string;
   color: string;
   profile?: AiProfile;
   cash: number;
@@ -384,6 +386,40 @@ function resolveSpin(
 /*  Wheel component                                                    */
 /* ------------------------------------------------------------------ */
 
+function Avatar({
+  img,
+  fallback,
+  color,
+  size = 32,
+}: {
+  img?: string;
+  fallback: string;
+  color: string;
+  size?: number;
+}) {
+  if (img) {
+    return (
+      <img
+        src={img}
+        alt={fallback}
+        loading="lazy"
+        width={size}
+        height={size}
+        className="rounded-full object-cover shrink-0"
+        style={{
+          width: size,
+          height: size,
+          border: `1.5px solid ${color}`,
+          boxShadow: `0 0 8px ${color}55`,
+        }}
+      />
+    );
+  }
+  return <span style={{ fontSize: size * 0.62 }}>{fallback}</span>;
+}
+
+
+
 function Wheel({
   segments,
   rotation,
@@ -630,6 +666,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       name: nm,
       isHuman: true,
       avatar: "🎭",
+      img: HUMAN_AVATAR_IMG,
       color: "#f5b800",
       cash: START_CASH,
       tokens: START_TOKENS,
@@ -651,6 +688,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       name: pr.name,
       isHuman: false,
       avatar: pr.avatar,
+      img: pr.img,
       color: pr.color,
       profile: pr,
       cash: START_CASH,
@@ -719,7 +757,11 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     const currentMod = ((base % 360) + 360) % 360;
     const target = base + (360 - currentMod) + (360 * 5) + (360 - landing);
     rotationRef.current = target;
-    setRotation(target);
+    // Defer the rotation update so the newly-mounted spinning Wheel starts at
+    // its current angle and then animates to the target (transition triggers).
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => setRotation(target));
+    });
 
     // ticking sound during spin
     let ticks = 0;
@@ -1539,7 +1581,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             >
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-2">
-                  <span className="text-xl">{p.avatar}</span>
+                  <Avatar img={p.img} fallback={p.avatar} color={p.color} size={30} />
                   <span className="font-bold" style={{ color: p.color }}>{p.name}</span>
                   <span className="text-white/40 text-xs">{p.lastLabel}</span>
                 </span>
@@ -1585,7 +1627,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             >
               <span className="flex items-center gap-3">
                 <span className="font-mono text-white/40 w-5 text-sm">{i + 1}</span>
-                <span className="text-xl">{p.avatar}</span>
+                <Avatar img={p.img} fallback={p.avatar} color={p.isHuman ? "#f5b800" : p.color} size={32} />
                 <span className="font-bold" style={{ color: p.isHuman ? "#f5b800" : p.color }}>
                   {p.name}{p.isHuman && " (you)"}
                 </span>
@@ -1627,7 +1669,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     ) => {
       const p = pick(pool);
       if (!p) return null;
-      return { label, name: p.name, avatar: p.avatar, color: p.color, val: fmtVal(p) };
+      return { label, name: p.name, avatar: p.avatar, img: p.img, color: p.color, val: fmtVal(p) };
     };
     const maxBy = (arr: Player[], f: (p: Player) => number) =>
       arr.length ? arr.reduce((a, b) => (f(b) > f(a) ? b : a)) : undefined;
@@ -1658,15 +1700,18 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             eliminated
           )
         : null,
-    ].filter(Boolean) as { label: string; name: string; avatar: string; color: string; val: string }[];
+    ].filter(Boolean) as { label: string; name: string; avatar: string; img?: string; color: string; val: string }[];
 
     return shell(
       <div className="max-w-2xl mx-auto text-center">
         <Crown size={52} style={{ color: "#f5b800" }} className="mx-auto mb-3 drop-shadow-[0_0_18px_rgba(245,184,0,0.6)]" />
         <p className="font-mono text-cyan-300 text-sm">CHAMPION</p>
-        <h1 className="text-5xl font-black text-white mb-1" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
-          <span className="mr-2">{champion.avatar}</span>{champion.name}
-        </h1>
+        <div className="flex items-center justify-center gap-3 mb-1">
+          <Avatar img={champion.img} fallback={champion.avatar} color="#f5b800" size={56} />
+          <h1 className="text-5xl font-black text-white" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+            {champion.name}
+          </h1>
+        </div>
         <p className="text-3xl font-mono font-bold" style={{ color: "#f5b800" }}>{fmt(champion.cash)}</p>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-6 text-xs">
@@ -1684,8 +1729,8 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             <div key={s.label} className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-2.5 flex items-center justify-between">
               <div>
                 <div className="text-[11px] text-white/40 font-mono uppercase tracking-wide">{s.label}</div>
-                <div className="font-bold" style={{ color: s.color }}>
-                  <span className="mr-1">{s.avatar}</span>{s.name}
+                <div className="font-bold flex items-center gap-1.5" style={{ color: s.color }}>
+                  <Avatar img={s.img} fallback={s.avatar} color={s.color} size={22} />{s.name}
                 </div>
               </div>
               <div className="font-mono text-sm text-white">{s.val}</div>
