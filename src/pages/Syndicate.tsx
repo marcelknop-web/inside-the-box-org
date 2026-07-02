@@ -891,7 +891,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   const shell = (children: React.ReactNode) => (
     <div
       ref={shellRef}
-      className={`relative w-full overflow-y-auto overflow-x-hidden ${isFullscreen ? "rounded-none" : "rounded-2xl"}`}
+      className={`relative w-full overflow-y-auto overflow-x-hidden ${isFullscreen ? "fixed inset-0 z-50 rounded-none" : "rounded-2xl"}`}
       style={{
         minHeight: isFullscreen ? "100vh" : embedded ? 640 : "100vh",
         height: isFullscreen ? "100vh" : undefined,
