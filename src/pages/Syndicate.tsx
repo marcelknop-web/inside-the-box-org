@@ -573,6 +573,18 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     setActiveTip(null);
   }, []);
 
+  /* ---- Persistent beginner coach (always-on guidance bar) ---- */
+  const [coachOn, setCoachOn] = useState(
+    () => typeof window === "undefined" || localStorage.getItem("syndicate_coach_v1") !== "0",
+  );
+  const toggleCoach = useCallback(() => {
+    setCoachOn((v) => {
+      const next = !v;
+      if (typeof window !== "undefined") localStorage.setItem("syndicate_coach_v1", next ? "1" : "0");
+      return next;
+    });
+  }, []);
+
 
   useEffect(() => {
     snd.setEnabled(!muted);
@@ -584,19 +596,13 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
   const human = players.find((p) => p.isHuman) ?? null;
 
-  // Trigger the right coach-mark as the player moves through the game.
+  // First-run welcome pop-up only; step-by-step in-game guidance is handled by
+  // the always-on coach bar so beginners are guided through every decision.
   useEffect(() => {
     if (tutorialDone) return;
     if (phase === "welcome") showTip("intro");
-    else if (phase === "choose" && !selectedOp) showTip("choose");
-    else if (phase === "outcome") showTip("outcome");
-    else if (phase === "scoreboard") showTip("scoreboard");
-  }, [phase, selectedOp, tutorialDone, showTip]);
+  }, [phase, tutorialDone, showTip]);
 
-  // Wheel tip fires once the player has selected an operation.
-  useEffect(() => {
-    if (!tutorialDone && phase === "choose" && selectedOp) showTip("wheel");
-  }, [selectedOp, phase, tutorialDone, showTip]);
 
 
   /* ---- start game ---- */
@@ -1047,9 +1053,13 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         </button>
         <button
           onClick={() => {
+            // Re-enable the always-on coach bar and show the contextual pop-up.
+            if (!coachOn) toggleCoach();
+            if (typeof window !== "undefined") localStorage.setItem("syndicate_coach_v1", "1");
             const key = phase === "welcome" ? "intro" : phase === "outcome" ? "outcome" : phase === "scoreboard" ? "scoreboard" : selectedOp ? "wheel" : "choose";
             setActiveTip(TIPS[key] ?? TIPS.intro);
           }}
+
           aria-label="How to play"
           className="rounded-full p-2 border border-cyan-400/30 bg-black/40 hover:bg-black/60 transition"
           style={{ color: "#00bcd4" }}
@@ -1198,12 +1208,69 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     </div>
   );
 
-  /* ---- ROUND INTRO ---- */
+  /* ---- Beginner coach bar (persistent, step-by-step guidance) ---- */
+  const COACH_TONE: Record<string, { color: string; bg: string }> = {
+    info: { color: "#5eead4", bg: "rgba(0,188,212,0.10)" },
+    action: { color: "#ffd34d", bg: "rgba(245,184,0,0.12)" },
+    good: { color: "#86efac", bg: "rgba(34,197,94,0.12)" },
+    danger: { color: "#fca5a5", bg: "rgba(239,68,68,0.12)" },
+  };
+  const coachBar = (opts: {
+    icon: typeof Skull;
+    step?: string;
+    text: string;
+    tone?: keyof typeof COACH_TONE;
+  }) => {
+    if (!coachOn) return null;
+    const Icon = opts.icon;
+    const t = COACH_TONE[opts.tone ?? "info"];
+    return (
+      <div className="max-w-3xl mx-auto mb-5 animate-fade-in">
+        <div
+          className="relative flex items-start gap-3 rounded-2xl border px-4 py-3"
+          style={{ borderColor: `${t.color}55`, background: t.bg, boxShadow: `0 0 30px -12px ${t.color}88` }}
+        >
+          <span
+            className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl animate-pulse"
+            style={{ background: `${t.color}22`, border: `1px solid ${t.color}66` }}
+          >
+            <Icon size={18} style={{ color: t.color }} />
+          </span>
+          <div className="min-w-0 flex-1">
+            {opts.step && (
+              <p className="font-mono text-[10px] tracking-[0.2em] mb-0.5" style={{ color: t.color }}>
+                {opts.step} · YOUR COACH
+              </p>
+            )}
+            <p className="text-white/85 text-sm leading-snug">{opts.text}</p>
+          </div>
+          <button
+            onClick={toggleCoach}
+            aria-label="Hide guide"
+            className="shrink-0 text-white/30 hover:text-white/70 transition"
+          >
+            <X size={15} />
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+
   if (phase === "round-intro") {
     return shell(
       <div className="max-w-3xl mx-auto">
         {hud}
+        {coachBar({
+          icon: event ? Flame : Crown,
+          step: `ROUND ${round} · STEP 1`,
+          tone: event ? "danger" : "info",
+          text: event
+            ? `A global event just hit: "${event.name}". It changes the odds this round — read the orange card, then tap CHOOSE OPERATION.`
+            : "Every round starts here. The streets are calm right now. Tap CHOOSE OPERATION to see the jobs you can run.",
+        })}
         <div className="text-center py-6">
+
           {event ? (
             <div className="rounded-xl border border-orange-400/40 bg-orange-500/10 p-6 mb-6 animate-scale-in">
               <p className="text-orange-300 font-mono text-xs mb-1">GLOBAL EVENT</p>
@@ -1242,8 +1309,24 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     return shell(
       <div className={selectedOp ? "max-w-3xl mx-auto" : "max-w-5xl mx-auto"}>
         {hud}
+        {coachBar(
+          selectedOp
+            ? {
+                icon: Dice5,
+                step: "STEP 3",
+                tone: "action",
+                text: `You picked "${selectedOp.name}". Now tap SPIN THE WHEEL — most slices pay you, but a red slice means you're caught and lose a shield. Not sure? Tap "pick a different operation".`,
+              }
+            : {
+                icon: Coins,
+                step: "STEP 2",
+                tone: "info",
+                text: "Tap a card to choose a job. Read it left to right: gold COST is what you pay, green PAYOUT is what you can win, the eye is your CAUGHT chance. Green = safe, purple = big risk.",
+              },
+        )}
         {!selectedOp ? (
           <>
+
             <div className="text-center mb-4">
               <h2 className="font-mono font-black tracking-[0.2em] text-white text-lg md:text-xl">SELECT YOUR OPERATION</h2>
             </div>
@@ -1383,7 +1466,26 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     return shell(
       <div className="max-w-3xl mx-auto text-center">
         {hud}
+        {coachBar(
+          caughtEl
+            ? {
+                icon: Skull,
+                tone: "danger",
+                text: result.eliminated
+                  ? "You've been caught with no shields left — your crew is out of the game. Watch how the rest plays out below."
+                  : "Caught! You lost one shield token. When all shields are gone, you're eliminated — so weigh the risk next time.",
+              }
+            : {
+                icon: net >= 0 ? TrendingUp : Coins,
+                tone: net >= 0 ? "good" : "danger",
+                text:
+                  net >= 0
+                    ? "The job paid off — this is your net profit after costs. Tap the button below to watch your rivals move."
+                    : "The job cost more than it earned this time. That happens — tap below to continue to your rivals' turn.",
+              },
+        )}
         <Wheel segments={segments} rotation={rotation} spinning={false} />
+
         <div className="mt-5 animate-scale-in">
           <div
             className="inline-block rounded-xl px-8 py-4 font-black text-2xl"
@@ -1421,7 +1523,13 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     return shell(
       <div className="max-w-3xl mx-auto">
         {hud}
+        {coachBar({
+          icon: Eye,
+          tone: "info",
+          text: "Now your 5 rivals run their own jobs. Green means they earned, red means they lost, CAUGHT means one got busted. Their results shift the leaderboard.",
+        })}
         <h2 className="text-center font-mono text-cyan-300 mb-4 text-sm">RIVALS MAKE THEIR MOVES</h2>
+
         <div className="space-y-2">
           {aiLog.map((p, i) => (
             <div
@@ -1456,7 +1564,14 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     return shell(
       <div className="max-w-3xl mx-auto">
         {hud}
+        {coachBar({
+          icon: BarChart3,
+          step: "STEP 4",
+          tone: "action",
+          text: "The round is over. You're ranked by cash — gold row is you, shields show lives left. Goal: be the richest crew still standing. Tap NEXT ROUND to keep going.",
+        })}
         <h2 className="text-center font-mono text-cyan-300 mb-4 text-sm">LEADERBOARD</h2>
+
         <div className="space-y-2">
           {ranked.map((p, i) => (
             <div
