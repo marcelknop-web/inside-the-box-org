@@ -1341,7 +1341,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     const Icon = opts.icon;
     const t = COACH_TONE[opts.tone ?? "info"];
     return (
-      <div className="max-w-3xl mx-auto mb-5 animate-fade-in">
+      <div className="max-w-3xl mx-auto mb-3 md:mb-4 animate-fade-in">
         <div
           className="relative flex items-start gap-3 rounded-2xl border px-4 py-3"
           style={{ borderColor: `${t.color}55`, background: t.bg, boxShadow: `0 0 30px -12px ${t.color}88` }}
