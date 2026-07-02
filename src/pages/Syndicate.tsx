@@ -1290,39 +1290,42 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
   /* ---- HUD (shared top bar for in-game phases) ---- */
   const hud = human && (
-    <div className="max-w-3xl mx-auto mb-3 md:mb-4">
-      <div className="flex items-center justify-between mb-2 text-xs font-mono">
-        <span className="text-cyan-300">ROUND {round}/{TOTAL_ROUNDS}</span>
-        <span className="flex items-center gap-1 text-orange-400">
-          <Flame size={13} /> HEAT +{heatPct}%
-        </span>
-      </div>
-      <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden">
-        <div
-          className="h-full rounded-full transition-all"
-          style={{ width: `${(round / TOTAL_ROUNDS) * 100}%`, background: "linear-gradient(90deg,#00bcd4,#f5b800)" }}
-        />
-      </div>
-      <div className="flex items-center justify-between mt-3">
-        <div>
-          <div className="text-2xl font-black text-white font-mono">
+    <div className="max-w-3xl mx-auto mb-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <div className="text-xl md:text-2xl font-black text-white font-mono leading-none">
             <MoneyCounter value={human.cash} />
           </div>
-          <div className="text-xs text-white/50">{human.name}</div>
+          <div className="text-[11px] text-white/50">{human.name}</div>
         </div>
-        <div className="flex items-center gap-1">
-          {Array.from({ length: START_TOKENS }).map((_, i) => (
-            <Shield
-              key={i}
-              size={20}
-              style={{ color: i < human.tokens ? "#00bcd4" : "rgba(255,255,255,0.15)" }}
-              fill={i < human.tokens ? "#00bcd4" : "transparent"}
-            />
-          ))}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1">
+            {Array.from({ length: START_TOKENS }).map((_, i) => (
+              <Shield
+                key={i}
+                size={18}
+                style={{ color: i < human.tokens ? "#00bcd4" : "rgba(255,255,255,0.15)" }}
+                fill={i < human.tokens ? "#00bcd4" : "transparent"}
+              />
+            ))}
+          </div>
+          <span className="flex items-center gap-1 text-orange-400 text-xs font-mono">
+            <Flame size={13} /> +{heatPct}%
+          </span>
+        </div>
+      </div>
+      <div className="mt-2 flex items-center gap-2">
+        <span className="text-[10px] font-mono text-cyan-300 shrink-0">R{round}/{TOTAL_ROUNDS}</span>
+        <div className="h-1.5 flex-1 rounded-full bg-white/10 overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all"
+            style={{ width: `${(round / TOTAL_ROUNDS) * 100}%`, background: "linear-gradient(90deg,#00bcd4,#f5b800)" }}
+          />
         </div>
       </div>
     </div>
   );
+
 
   /* ---- Beginner coach bar (persistent, step-by-step guidance) ---- */
   const COACH_TONE: Record<string, { color: string; bg: string }> = {
