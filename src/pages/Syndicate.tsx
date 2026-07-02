@@ -573,8 +573,29 @@ function Wheel({
 
 
 /* ------------------------------------------------------------------ */
+/*  Player home bases — international centres of power                  */
+/* ------------------------------------------------------------------ */
+
+const HUMAN_LOCATION = { city: "New York", lat: 40.71, lon: -74.0 };
+
+// Keyed by AI profile id. Each rival resides in a global power hub.
+const AI_LOCATIONS: Record<string, { city: string; lat: number; lon: number }> = {
+  "ai-vex": { city: "Zurich", lat: 47.37, lon: 8.54 },
+  "ai-nyx": { city: "Moscow", lat: 55.75, lon: 37.62 },
+};
+
+// Fallback pool for any additional rivals.
+const FALLBACK_LOCATIONS = [
+  { city: "London", lat: 51.51, lon: -0.13 },
+  { city: "Singapore", lat: 1.35, lon: 103.82 },
+  { city: "Dubai", lat: 25.2, lon: 55.27 },
+  { city: "Hong Kong", lat: 22.32, lon: 114.17 },
+];
+
+/* ------------------------------------------------------------------ */
 /*  Main game                                                          */
 /* ------------------------------------------------------------------ */
+
 
 interface SyndicateProps {
   embedded?: boolean;
