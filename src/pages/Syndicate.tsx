@@ -460,11 +460,11 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       if (!human) return;
       snd.select();
       setSelectedOp(op);
-      const abilityAdj = 0;
-      const caught = effectiveCaught(op, round, event, abilityAdj);
+      const caught = effectiveCaught(op, round, event, 0);
       const segs = angleSegments(buildWheel(caught));
       setSegments(segs);
-      setPhase("choose-ready" as Phase);
+      setRotation(0);
+      rotationRef.current = 0;
       setPhase("choose");
     },
     [human, round, event]
