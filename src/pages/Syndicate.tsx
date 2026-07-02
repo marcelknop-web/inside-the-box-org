@@ -1443,12 +1443,13 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         {!selectedOp ? (
           <>
 
-            <div className="text-center mb-4">
-              <h2 className="font-mono font-black tracking-[0.2em] text-white text-lg md:text-xl">SELECT YOUR OPERATION</h2>
+            <div className="text-center mb-2">
+              <h2 className="font-mono font-black tracking-[0.2em] text-white text-base md:text-xl">SELECT YOUR OPERATION</h2>
             </div>
 
             {/* Ultra-compact visual key: icon + one word, no sentences */}
-            <div className="mb-5 flex flex-wrap items-center justify-center gap-2 text-[11px] font-mono">
+            <div className="mb-3 flex flex-wrap items-center justify-center gap-2 text-[11px] font-mono">
+
               <span className="flex items-center gap-1.5 rounded-full border border-amber-400/30 bg-amber-400/5 px-2.5 py-1 text-amber-300">
                 <Coins size={13} /> COST
               </span>
