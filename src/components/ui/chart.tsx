@@ -261,8 +261,9 @@ const ChartLegend = RechartsPrimitive.Legend
 
 const ChartLegendContent = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"div"> &
-    Pick<RechartsPrimitive.LegendProps, "payload" | "verticalAlign"> & {
+  React.ComponentProps<"div"> & {
+      payload?: any
+      verticalAlign?: "top" | "bottom" | "middle"
       hideIcon?: boolean
       nameKey?: string
     }
@@ -272,6 +273,7 @@ const ChartLegendContent = React.forwardRef<
     ref
   ) => {
     const { config } = useChart()
+
 
     if (!payload?.length) {
       return null
