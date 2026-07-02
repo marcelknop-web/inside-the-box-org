@@ -239,7 +239,9 @@ function resolveSpin(
   fixedLanding?: number
 ): SpinResult {
   const abilityAdj =
-    player.profile?.personality === "conservative" ? -0.05 : 0;
+    player.profile?.personality === "conservative"
+      ? AI_ABILITY.conservativeCaughtAdj
+      : 0;
   const caught = effectiveCaught(op, round, event, abilityAdj);
   const segs = angleSegments(buildWheel(caught));
   const landing =
@@ -254,10 +256,13 @@ function resolveSpin(
   if (payout > op.cost) {
     const isHighRisk = op.risk === "high" || op.risk === "veryhigh";
     if (player.profile?.personality === "risktaker" && isHighRisk)
-      payout = Math.round(payout * 1.15);
+      payout = Math.round(payout * AI_ABILITY.risktakerPayout);
     if (player.profile?.personality === "greedy" && isHighRisk)
-      payout = Math.round(payout * 1.1);
-    if (player.profile?.personality === "chaotic" && Math.random() < 0.12)
+      payout = Math.round(payout * AI_ABILITY.greedyPayout);
+    if (
+      player.profile?.personality === "chaotic" &&
+      Math.random() < AI_ABILITY.chaoticDoubleChance
+    )
       payout = Math.round(payout * 2);
   }
 
