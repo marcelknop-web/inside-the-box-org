@@ -719,7 +719,11 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     const currentMod = ((base % 360) + 360) % 360;
     const target = base + (360 - currentMod) + (360 * 5) + (360 - landing);
     rotationRef.current = target;
-    setRotation(target);
+    // Defer the rotation update so the newly-mounted spinning Wheel starts at
+    // its current angle and then animates to the target (transition triggers).
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => setRotation(target));
+    });
 
     // ticking sound during spin
     let ticks = 0;
