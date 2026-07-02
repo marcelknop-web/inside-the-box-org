@@ -1242,6 +1242,23 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           backgroundSize: "40px 40px",
         }}
       />
+      {showGlobe && (
+        <>
+          <Globe
+            players={globePlayers}
+            focusLon={focusLon}
+            className="pointer-events-none absolute inset-x-0 top-0 h-[46vh] md:h-[52vh] opacity-60"
+          />
+          {/* readability veil so content on top stays legible */}
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(5,7,13,0.15) 0%, rgba(5,7,13,0.55) 42%, #05070d 72%)",
+            }}
+          />
+        </>
+      )}
       <div className="absolute top-3 right-3 md:top-4 md:right-4 z-30 flex items-center gap-2">
         <button
           onClick={() => setMuted((m) => !m)}
