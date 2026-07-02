@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Volume2, VolumeX, Skull, Shield, Crown, TrendingUp, Flame, Trophy, BarChart3, Calendar, Hash, Award, Copy, Check, X, Fish, VenetianMask, CreditCard, Wine, Gem, Lock, Rocket, ShoppingCart, Building2, Landmark, Dice5, Eye, Coins, Maximize2, Minimize2 } from "lucide-react";
+import { Volume2, VolumeX, Skull, Shield, Crown, TrendingUp, Flame, Trophy, BarChart3, Calendar, Hash, Award, Copy, Check, X, Fish, VenetianMask, CreditCard, Wine, Gem, Lock, Rocket, ShoppingCart, Building2, Landmark, Dice5, Eye, Coins, Maximize2, Minimize2, HelpCircle } from "lucide-react";
 import { PageMeta } from "@/components/PageMeta";
 import {
   OPERATIONS,
@@ -76,7 +76,51 @@ const RISK_THEME: Record<RiskLevel, { glow: string; text: string; grad: string }
   veryhigh: { glow: "#a855f7", text: "#e879f9", grad: "from-fuchsia-500/25 via-purple-500/5 to-transparent" },
 };
 
+/* ------------------------------------------------------------------ */
+/*  Guided tutorial — pop-up coach marks shown on a player's first run */
+/* ------------------------------------------------------------------ */
 
+const TUTORIAL_KEY = "syndicate_tutorial_done_v1";
+
+interface Tip {
+  key: string;
+  icon: typeof Skull;
+  title: string;
+  body: string;
+}
+
+const TIPS: Record<string, Tip> = {
+  intro: {
+    key: "intro",
+    icon: Crown,
+    title: "Welcome, boss",
+    body: "Outlast 5 rival crews across up to 12 rounds. Each round you run one operation for cash — the richest crew still standing at the end wins. I'll walk you through the first moves.",
+  },
+  choose: {
+    key: "choose",
+    icon: Coins,
+    title: "Pick an operation",
+    body: "Every card shows its COST (what you pay), PAYOUT (what you can earn) and CAUGHT % (odds of getting busted). The colored badge is the risk tier — green is safe, purple is a gamble. Tap a card to select it.",
+  },
+  wheel: {
+    key: "wheel",
+    icon: Dice5,
+    title: "Spin the wheel",
+    body: "The wheel decides your fate. Most slices pay out — but land on a Caught slice and you burn a token. Lose all your tokens and you're eliminated. Hit SPIN when you're ready.",
+  },
+  outcome: {
+    key: "outcome",
+    icon: TrendingUp,
+    title: "Your result",
+    body: "This is how the operation played out and how your fortune changed. High-risk jobs swing hard both ways — manage your tokens and don't overreach.",
+  },
+  scoreboard: {
+    key: "scoreboard",
+    icon: BarChart3,
+    title: "The standings",
+    body: "See where you rank against the rival crews after each round. Stay alive and keep your fortune on top. That's the whole game — good luck, boss.",
+  },
+};
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -504,6 +548,32 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   const [copied, setCopied] = useState(false);
   const recordedRef = useRef(false);
 
+  /* ---- Guided tutorial (pop-up coach marks, first run only) ---- */
+  const [tutorialDone, setTutorialDone] = useState(
+    () => typeof window !== "undefined" && localStorage.getItem(TUTORIAL_KEY) === "1",
+  );
+  const [activeTip, setActiveTip] = useState<Tip | null>(null);
+  const shownTipsRef = useRef<Set<string>>(new Set());
+
+  const showTip = useCallback(
+    (key: string) => {
+      if (tutorialDone || shownTipsRef.current.has(key)) return;
+      const tip = TIPS[key];
+      if (!tip) return;
+      shownTipsRef.current.add(key);
+      setActiveTip(tip);
+    },
+    [tutorialDone],
+  );
+
+  const dismissTip = useCallback(() => setActiveTip(null), []);
+  const skipTutorial = useCallback(() => {
+    setTutorialDone(true);
+    if (typeof window !== "undefined") localStorage.setItem(TUTORIAL_KEY, "1");
+    setActiveTip(null);
+  }, []);
+
+
   useEffect(() => {
     snd.setEnabled(!muted);
   }, [muted]);
@@ -513,6 +583,21 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   }, []);
 
   const human = players.find((p) => p.isHuman) ?? null;
+
+  // Trigger the right coach-mark as the player moves through the game.
+  useEffect(() => {
+    if (tutorialDone) return;
+    if (phase === "welcome") showTip("intro");
+    else if (phase === "choose" && !selectedOp) showTip("choose");
+    else if (phase === "outcome") showTip("outcome");
+    else if (phase === "scoreboard") showTip("scoreboard");
+  }, [phase, selectedOp, tutorialDone, showTip]);
+
+  // Wheel tip fires once the player has selected an operation.
+  useEffect(() => {
+    if (!tutorialDone && phase === "choose" && selectedOp) showTip("wheel");
+  }, [selectedOp, phase, tutorialDone, showTip]);
+
 
   /* ---- start game ---- */
   const startGame = useCallback(() => {
@@ -821,6 +906,41 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     ["Fastest Victory", stats.fastestVictory ? `${stats.fastestVictory} rounds` : "—"],
     ["Most Eliminations Survived", String(stats.mostEliminationsSurvived)],
   ];
+  const tipNode = activeTip && (
+    <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+      <div
+        className="w-full max-w-sm rounded-2xl border border-cyan-400/40 bg-[#0a0e14] p-5 text-left animate-scale-in"
+        style={{ boxShadow: "0 0 40px -8px rgba(0,188,212,0.5)" }}
+      >
+        <div className="flex items-center gap-3 mb-3">
+          <span
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-cyan-400/40"
+            style={{ background: "radial-gradient(circle at 50% 40%, rgba(0,188,212,0.3), transparent 70%)" }}
+          >
+            <activeTip.icon size={22} style={{ color: "#00bcd4" }} />
+          </span>
+          <h3 className="font-mono font-black tracking-wide text-white text-base">{activeTip.title}</h3>
+        </div>
+        <p className="text-white/70 text-sm leading-relaxed mb-5">{activeTip.body}</p>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={dismissTip}
+            className="flex-1 rounded-lg py-2.5 font-mono font-bold text-sm text-black transition hover:brightness-110"
+            style={{ background: "linear-gradient(90deg,#f5b800,#ffd34d)" }}
+          >
+            Got it
+          </button>
+          <button
+            onClick={skipTutorial}
+            className="rounded-lg px-3 py-2.5 text-xs font-mono text-white/50 hover:text-white/80 transition"
+          >
+            Skip guide
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
   const overlayNode = overlay && (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
@@ -925,8 +1045,20 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         >
           {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
         </button>
+        <button
+          onClick={() => {
+            const key = phase === "welcome" ? "intro" : phase === "outcome" ? "outcome" : phase === "scoreboard" ? "scoreboard" : selectedOp ? "wheel" : "choose";
+            setActiveTip(TIPS[key] ?? TIPS.intro);
+          }}
+          aria-label="How to play"
+          className="rounded-full p-2 border border-cyan-400/30 bg-black/40 hover:bg-black/60 transition"
+          style={{ color: "#00bcd4" }}
+        >
+          <HelpCircle size={18} />
+        </button>
       </div>
       <div className="relative z-10 px-3 py-6 sm:px-4 sm:py-8 md:px-8">{children}</div>
+      {tipNode}
     </div>
   );
 
