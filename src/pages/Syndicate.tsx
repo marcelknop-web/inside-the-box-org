@@ -1519,7 +1519,13 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     return shell(
       <div className="max-w-3xl mx-auto">
         {hud}
+        {coachBar({
+          icon: Eye,
+          tone: "info",
+          text: "Now your 5 rivals run their own jobs. Green means they earned, red means they lost, CAUGHT means one got busted. Their results shift the leaderboard.",
+        })}
         <h2 className="text-center font-mono text-cyan-300 mb-4 text-sm">RIVALS MAKE THEIR MOVES</h2>
+
         <div className="space-y-2">
           {aiLog.map((p, i) => (
             <div
