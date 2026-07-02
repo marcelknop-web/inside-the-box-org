@@ -1183,7 +1183,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           <HelpCircle size={18} />
         </button>
       </div>
-      <div className="relative z-10 px-3 py-6 sm:px-4 sm:py-8 md:px-8">{children}</div>
+      <div className="relative z-10 px-3 py-4 sm:px-4 sm:py-5 md:px-8">{children}</div>
       {tipNode}
     </div>
   );
@@ -1290,39 +1290,42 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
   /* ---- HUD (shared top bar for in-game phases) ---- */
   const hud = human && (
-    <div className="max-w-3xl mx-auto mb-6">
-      <div className="flex items-center justify-between mb-2 text-xs font-mono">
-        <span className="text-cyan-300">ROUND {round}/{TOTAL_ROUNDS}</span>
-        <span className="flex items-center gap-1 text-orange-400">
-          <Flame size={13} /> HEAT +{heatPct}%
-        </span>
-      </div>
-      <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden">
-        <div
-          className="h-full rounded-full transition-all"
-          style={{ width: `${(round / TOTAL_ROUNDS) * 100}%`, background: "linear-gradient(90deg,#00bcd4,#f5b800)" }}
-        />
-      </div>
-      <div className="flex items-center justify-between mt-3">
-        <div>
-          <div className="text-2xl font-black text-white font-mono">
+    <div className="max-w-3xl mx-auto mb-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <div className="text-xl md:text-2xl font-black text-white font-mono leading-none">
             <MoneyCounter value={human.cash} />
           </div>
-          <div className="text-xs text-white/50">{human.name}</div>
+          <div className="text-[11px] text-white/50">{human.name}</div>
         </div>
-        <div className="flex items-center gap-1">
-          {Array.from({ length: START_TOKENS }).map((_, i) => (
-            <Shield
-              key={i}
-              size={20}
-              style={{ color: i < human.tokens ? "#00bcd4" : "rgba(255,255,255,0.15)" }}
-              fill={i < human.tokens ? "#00bcd4" : "transparent"}
-            />
-          ))}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1">
+            {Array.from({ length: START_TOKENS }).map((_, i) => (
+              <Shield
+                key={i}
+                size={18}
+                style={{ color: i < human.tokens ? "#00bcd4" : "rgba(255,255,255,0.15)" }}
+                fill={i < human.tokens ? "#00bcd4" : "transparent"}
+              />
+            ))}
+          </div>
+          <span className="flex items-center gap-1 text-orange-400 text-xs font-mono">
+            <Flame size={13} /> +{heatPct}%
+          </span>
+        </div>
+      </div>
+      <div className="mt-2 flex items-center gap-2">
+        <span className="text-[10px] font-mono text-cyan-300 shrink-0">R{round}/{TOTAL_ROUNDS}</span>
+        <div className="h-1.5 flex-1 rounded-full bg-white/10 overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all"
+            style={{ width: `${(round / TOTAL_ROUNDS) * 100}%`, background: "linear-gradient(90deg,#00bcd4,#f5b800)" }}
+          />
         </div>
       </div>
     </div>
   );
+
 
   /* ---- Beginner coach bar (persistent, step-by-step guidance) ---- */
   const COACH_TONE: Record<string, { color: string; bg: string }> = {
@@ -1341,17 +1344,18 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     const Icon = opts.icon;
     const t = COACH_TONE[opts.tone ?? "info"];
     return (
-      <div className="max-w-3xl mx-auto mb-5 animate-fade-in">
+      <div className="max-w-3xl mx-auto mb-3 md:mb-4 animate-fade-in">
         <div
-          className="relative flex items-start gap-3 rounded-2xl border px-4 py-3"
+          className="relative flex items-start gap-3 rounded-2xl border px-4 py-2.5"
           style={{ borderColor: `${t.color}55`, background: t.bg, boxShadow: `0 0 30px -12px ${t.color}88` }}
         >
           <span
-            className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl animate-pulse"
+            className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl animate-pulse"
             style={{ background: `${t.color}22`, border: `1px solid ${t.color}66` }}
           >
-            <Icon size={18} style={{ color: t.color }} />
+            <Icon size={16} style={{ color: t.color }} />
           </span>
+
           <div className="min-w-0 flex-1">
             {opts.step && (
               <p className="font-mono text-[10px] tracking-[0.2em] mb-0.5" style={{ color: t.color }}>
@@ -1437,18 +1441,16 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                 icon: Coins,
                 step: "STEP 2",
                 tone: "info",
-                text: "Tap a card to choose a job. Read it left to right: gold COST is what you pay, green PAYOUT is what you can win, the eye is your CAUGHT chance. Green = safe, purple = big risk.",
+                text: "Tap a card to run a job. Gold = cost, green = payout, eye = caught chance. Green cards are safe, purple are high-risk.",
               },
+
         )}
         {!selectedOp ? (
           <>
-
-            <div className="text-center mb-4">
-              <h2 className="font-mono font-black tracking-[0.2em] text-white text-lg md:text-xl">SELECT YOUR OPERATION</h2>
-            </div>
-
             {/* Ultra-compact visual key: icon + one word, no sentences */}
-            <div className="mb-5 flex flex-wrap items-center justify-center gap-2 text-[11px] font-mono">
+            <div className="mb-2.5 flex flex-wrap items-center justify-center gap-2 text-[11px] font-mono">
+
+
               <span className="flex items-center gap-1.5 rounded-full border border-amber-400/30 bg-amber-400/5 px-2.5 py-1 text-amber-300">
                 <Coins size={13} /> COST
               </span>
@@ -1470,9 +1472,8 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                 </span>
               ))}
             </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5">
 
-
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {OPERATIONS.map((op) => {
                 const afford = human!.cash >= op.cost;
                 const eff = Math.round(effectiveCaught(op, round, event, 0) * 100);
@@ -1483,7 +1484,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                     key={op.id}
                     disabled={!afford}
                     onClick={() => pickOp(op)}
-                    className="group relative overflow-hidden rounded-2xl border p-3 text-left transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed enabled:hover:-translate-y-1"
+                    className="group relative overflow-hidden rounded-2xl border p-2.5 text-left transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed enabled:hover:-translate-y-1"
                     style={{
                       borderColor: `${theme.glow}55`,
                       background: "rgba(255,255,255,0.02)",
@@ -1502,26 +1503,28 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                     </span>
 
                     {/* icon tile */}
-                    <div className="relative z-10 flex items-center justify-center h-20 mb-2">
+                    <div className="relative z-10 flex items-center justify-center h-10 mb-1.5">
                       <span
-                        className="flex h-16 w-16 items-center justify-center rounded-2xl border transition group-hover:scale-110"
+                        className="flex h-10 w-10 md:h-11 md:w-11 items-center justify-center rounded-2xl border transition group-hover:scale-110"
                         style={{
                           borderColor: `${theme.glow}55`,
                           background: `radial-gradient(circle at 50% 40%, ${theme.glow}33, transparent 70%)`,
                           boxShadow: `inset 0 0 20px ${theme.glow}22`,
                         }}
                       >
-                        <Icon size={30} style={{ color: theme.glow, filter: `drop-shadow(0 0 6px ${theme.glow}aa)` }} />
+                        <Icon size={20} style={{ color: theme.glow, filter: `drop-shadow(0 0 6px ${theme.glow}aa)` }} />
                       </span>
                     </div>
 
+
                     {/* title */}
-                    <p className="relative z-10 font-black uppercase tracking-wide text-white text-sm leading-tight mb-2 min-h-[2.4em]">
+                    <p className="relative z-10 font-black uppercase tracking-wide text-white text-xs md:text-sm leading-tight mb-1.5 min-h-[1.6em]">
                       {op.name}
                     </p>
 
+
                     {/* stat row */}
-                    <div className="relative z-10 flex items-center justify-between text-[10px] font-mono border-t border-white/10 pt-2">
+                    <div className="relative z-10 flex items-center justify-between text-[10px] font-mono border-t border-white/10 pt-1.5">
                       <span className="flex items-center gap-0.5 text-amber-300">
                         <Coins size={11} />{fmtShort(op.cost)}
                       </span>
@@ -1532,6 +1535,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                         <Eye size={11} />{eff}%
                       </span>
                     </div>
+
                   </button>
                 );
               })}
