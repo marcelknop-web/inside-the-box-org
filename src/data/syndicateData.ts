@@ -154,7 +154,8 @@ export interface AiProfile {
   blurb: string;
   ability: string; // short, human-readable special ability
   color: string;
-  avatar: string; // emoji-style glyph
+  avatar: string; // emoji-style glyph (fallback)
+  img: string; // portrait image url
 }
 
 export const AI_PROFILES: AiProfile[] = [
