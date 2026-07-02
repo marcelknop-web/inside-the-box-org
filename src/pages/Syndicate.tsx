@@ -48,6 +48,36 @@ import {
 } from "@/lib/syndicateProgress";
 
 /* ------------------------------------------------------------------ */
+/*  Operation visual language — icon + accent per operation.          */
+/*  Cards are read at a glance: icon, risk color, numbers. No prose.  */
+/* ------------------------------------------------------------------ */
+
+const OP_ICON: Record<string, typeof Fish> = {
+  phish: Fish,
+  identity: VenetianMask,
+  skimmer: CreditCard,
+  romance: Wine,
+  luxury: Gem,
+  ransom: Lock,
+  crypto: Rocket,
+  market: ShoppingCart,
+  insider: Building2,
+  heist: Landmark,
+  laundry: Dice5,
+  syndicate: Crown,
+};
+
+// Neon accents by risk tier (green→yellow→red→purple), matching the game's HUD.
+const RISK_THEME: Record<RiskLevel, { glow: string; text: string; grad: string }> = {
+  low: { glow: "#22c55e", text: "#5eead4", grad: "from-emerald-500/20 via-cyan-500/5 to-transparent" },
+  medium: { glow: "#f5b800", text: "#fbbf24", grad: "from-amber-500/20 via-orange-500/5 to-transparent" },
+  high: { glow: "#f97316", text: "#fb7185", grad: "from-red-500/20 via-rose-500/5 to-transparent" },
+  veryhigh: { glow: "#a855f7", text: "#e879f9", grad: "from-fuchsia-500/25 via-purple-500/5 to-transparent" },
+};
+
+
+
+/* ------------------------------------------------------------------ */
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
 
