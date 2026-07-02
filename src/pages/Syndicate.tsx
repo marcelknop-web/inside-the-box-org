@@ -1585,46 +1585,139 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     );
   }
 
-  /* ---- AI TURNS ---- */
+  /* ---- AI TURNS (step-by-step, follow along) ---- */
   if (phase === "ai") {
+    const idx = Math.min(aiStep, aiLog.length - 1);
+    const turn = aiLog[idx];
+    const done = aiStep >= aiLog.length;
+    const skipAll = () => setAiStep(aiLog.length);
+
+    const TurnIcon = turn ? OP_ICON[turn.op.id] ?? Skull : Skull;
+    const theme = turn ? RISK_THEME[turn.op.risk] : RISK_THEME.low;
+    const caught = turn ? !turn.player.alive : false;
+    const delta = turn?.player.lastDelta ?? 0;
+
     return shell(
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-2xl mx-auto">
         {hud}
         {coachBar({
           icon: Eye,
           tone: "info",
-          text: "Now your 5 rivals run their own jobs. Green means they earned, red means they lost, CAUGHT means one got busted. Their results shift the leaderboard.",
+          text: "Follow your rivals one by one. You see the exact job each one runs and how it turns out — green earned, red lost, CAUGHT means busted. Every result reshuffles the leaderboard.",
         })}
-        <h2 className="text-center font-mono text-cyan-300 mb-4 text-sm">RIVALS MAKE THEIR MOVES</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-mono text-cyan-300 text-sm">
+            RIVAL {Math.min(aiStep + 1, aiLog.length)} / {aiLog.length}
+          </h2>
+          {!done && (
+            <button onClick={skipAll} className="text-white/40 text-xs hover:text-white/70 font-mono">
+              skip all →
+            </button>
+          )}
+        </div>
 
-        <div className="space-y-2">
-          {aiLog.map((p, i) => (
-            <div
-              key={p.id}
-              className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 animate-fade-in"
-              style={{ animationDelay: `${i * 220}ms`, animationFillMode: "backwards" }}
-            >
-              <div className="flex items-center justify-between">
-                <span className="flex items-center gap-2">
-                  <Avatar img={p.img} fallback={p.avatar} color={p.color} size={30} />
-                  <span className="font-bold" style={{ color: p.color }}>{p.name}</span>
-                  <span className="text-white/40 text-xs">{p.lastLabel}</span>
-                </span>
-                <span className={`font-mono text-sm ${(p.lastDelta ?? 0) >= 0 ? "text-green-400" : "text-red-400"}`}>
-                  {!p.alive ? <span className="text-red-500 font-bold">CAUGHT</span> : `${(p.lastDelta ?? 0) >= 0 ? "+" : ""}${fmt(p.lastDelta ?? 0)}`}
-                </span>
-              </div>
-              {p.quip && (
-                <p className="mt-1 text-xs italic text-white/45" style={{ paddingLeft: 32 }}>
-                  "{p.quip}"
-                </p>
-              )}
-            </div>
+        {/* progress dots */}
+        <div className="flex gap-1.5 mb-5">
+          {aiLog.map((_, k) => (
+            <span
+              key={k}
+              className="h-1.5 flex-1 rounded-full transition-colors"
+              style={{ background: k <= idx ? "#00bcd4" : "rgba(255,255,255,0.12)" }}
+            />
           ))}
         </div>
+
+        {/* spotlight on the current rival — same layout as the player's op card */}
+        {turn && (
+          <div
+            key={turn.player.id + aiStep}
+            className="rounded-2xl border p-5 animate-fade-in"
+            style={{
+              borderColor: caught ? "rgba(239,68,68,0.5)" : `${theme.glow}55`,
+              background: caught ? "rgba(239,68,68,0.06)" : "rgba(255,255,255,0.02)",
+              boxShadow: `0 8px 30px -14px ${caught ? "#ef4444" : theme.glow}88`,
+            }}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <Avatar img={turn.player.img} fallback={turn.player.avatar} color={turn.player.color} size={44} />
+              <div>
+                <p className="font-bold text-lg leading-tight" style={{ color: turn.player.color }}>
+                  {turn.player.name}
+                </p>
+                <p className="text-white/45 text-xs font-mono">runs an operation…</p>
+              </div>
+            </div>
+
+            {/* the chosen operation */}
+            <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-black/20 p-3 mb-4">
+              <span
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border"
+                style={{
+                  borderColor: `${theme.glow}55`,
+                  background: `radial-gradient(circle at 50% 40%, ${theme.glow}33, transparent 70%)`,
+                }}
+              >
+                <TurnIcon size={22} style={{ color: theme.glow, filter: `drop-shadow(0 0 6px ${theme.glow}aa)` }} />
+              </span>
+              <div className="min-w-0">
+                <p className="font-black uppercase tracking-wide text-white text-sm leading-tight truncate">
+                  {turn.op.name}
+                </p>
+                <div className="flex items-center gap-3 text-[10px] font-mono mt-1">
+                  <span className="flex items-center gap-0.5 text-amber-300"><Coins size={11} />{fmtShort(turn.op.cost)}</span>
+                  <span className="flex items-center gap-0.5" style={{ color: theme.text }}><TrendingUp size={11} />{fmtShort(turn.op.payout)}</span>
+                  <span className="flex items-center gap-0.5 text-white/50"><Eye size={11} />{turn.caughtPct}%</span>
+                </div>
+              </div>
+            </div>
+
+            {/* outcome */}
+            <div className="flex items-center justify-between">
+              <span
+                className="font-mono font-bold text-sm px-3 py-1 rounded-full"
+                style={{
+                  color: caught ? "#ef4444" : theme.glow,
+                  background: `${caught ? "#ef4444" : theme.glow}18`,
+                  border: `1px solid ${caught ? "#ef4444" : theme.glow}55`,
+                }}
+              >
+                {caught ? "CAUGHT — SHIELD LOST" : turn.player.lastLabel}
+              </span>
+              <span className={`font-mono font-bold text-lg ${delta >= 0 ? "text-green-400" : "text-red-400"}`}>
+                {delta >= 0 ? "+" : ""}{fmt(delta)}
+              </span>
+            </div>
+            {turn.player.quip && (
+              <p className="mt-3 text-sm italic text-white/55">"{turn.player.quip}"</p>
+            )}
+          </div>
+        )}
+
+        {/* recap of rivals already shown */}
+        {idx > 0 && (
+          <div className="mt-5 space-y-1.5">
+            {aiLog.slice(0, idx).map((t) => {
+              const c = !t.player.alive;
+              const d = t.player.lastDelta ?? 0;
+              return (
+                <div key={t.player.id} className="flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2">
+                  <span className="flex items-center gap-2 min-w-0">
+                    <Avatar img={t.player.img} fallback={t.player.avatar} color={t.player.color} size={22} />
+                    <span className="font-bold text-sm truncate" style={{ color: t.player.color }}>{t.player.name}</span>
+                    <span className="text-white/35 text-xs truncate">{t.op.name}</span>
+                  </span>
+                  <span className={`font-mono text-sm shrink-0 ${d >= 0 ? "text-green-400" : "text-red-400"}`}>
+                    {c ? <span className="text-red-500 font-bold">CAUGHT</span> : `${d >= 0 ? "+" : ""}${fmt(d)}`}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     );
   }
+
 
   /* ---- SCOREBOARD ---- */
   if (phase === "scoreboard") {
