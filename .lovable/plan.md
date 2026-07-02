@@ -1,51 +1,62 @@
-# IACS UR E26 — Berichtskritik umsetzen
+# Syndicate — Turn-Based Cyberpunk Strategy Game (KI Lab)
 
-Ziel: Die vier bestätigten Schwachpunkte der Berichtskritik beheben, ohne die belastbare Datenbasis (Data-Integrity-Policy: keine erfundenen Findings) anzutasten. Nur Auswertungs-, Kalibrierungs- und Darstellungslogik wird geändert.
+A new AI Lab game: a fully fictional, board-game-style "criminal fortune" race against 5 AI rivals. Entirely in English (game content), integrated into the existing KI Lab like WCST.
 
-## 1. KPI klären — „Coverage Rate" → Conformance Score + Aufschlüsselung (Punkt 6)
+## Concept & Rules
 
-Heute: Die Kennzahl heißt „Coverage Rate" und die Methodik-Erklärung behauptet „nicht anwendbar = 100 %, anwendbar = 0 %". Das liest sich wie „nur 7 % von E26 erfüllt".
+- 10 rounds. All players start with **$100,000**. Richest survivor wins.
+- **3 Investigation Tokens** per player: landing on "Caught" removes one token; elimination only happens at 0 tokens (keeps comebacks + late-game tension, per the design suggestion).
+- Each round the human picks **one** operation → cost is deducted → the **Risk Wheel** spins → outcome applied. Then all 5 AI players resolve automatically → scoreboard → next round.
+- Purely luck + strategy. No real-world hacking guidance; all names/flavor are invented and game-like.
 
-- KPI umbenennen in **Conformance Score** (DE „Konformitätsgrad", FR „Taux de conformité").
-- Rechenweg unverändert lassen, aber **korrekt und konventionell beschreiben**: Pass = 100, Partial = 50, Fail = 0, gemittelt über alle Anforderungen.
-- **Zusätzlich** (gemäß „Beides anzeigen") eine klare Aufschlüsselung als eigene Kennzahl/Zeile: „X erfüllt · Y teilweise · Z nicht erfüllt (von N)".
-- Die irreführende invertierte Methodik-Erklärung (Abschnitt 2) wird durch den korrekten Conformance-Wortlaut ersetzt — in DE/EN/FR.
+## Operations (12, fictional)
 
-## 2. Compliance und Risiko strikt trennen (Punkt 3)
+Each has name, flavor text, cost, potential payout, detection risk (Low/Medium/High/Very High). Examples: Phantom Phish, Identity Fraud, Ghost Skimmer (Low), Velvet Con, Luxury Scam, Locked Vault (Medium), Rug Pull Royale, Dark Marketplace, Inside Job (High), Vault Heist, Casino Laundromat, Syndicate Takeover (Very High). Costs scale $4k → $110k, payouts $9k → $320k.
 
-Heute werden Anforderungs-Konformität und Risikobewertung im selben Befund vermischt.
+## Risk Wheel (visual centerpiece)
 
-- Pro Befund klar zwei getrennte Aussagen ausweisen:
-  - **Anforderungs-Konformität**: erfüllt / teilweise erfüllt / nicht erfüllt (Labels von der heutigen „anwendbar/nicht anwendbar"-Umdeutung zurück auf klare Konformitätsbegriffe).
-  - **Risiko-Rating**: Likelihood × Impact (5×5), separat beschriftet.
-- Management Summary erhält zwei getrennte Blöcke: „Konformität" (Conformance Score + Aufschlüsselung) und „Risikolage" (Kritisch/Hoch/Mittel/Gering).
-- Threat-Landscape und Requirement-Übersicht bleiben getrennte Abschnitte, aber Überschriften/Einleitungen machen die Trennung explizit.
+- Large animated SVG wheel, smooth spin, tick + win/lose sounds.
+- Segments: Safe (x3), Success, Big Success, Bonus, Investigation, Caught.
+- **Caught slice size scales with risk**: Low 5% · Medium 15% · High 30% · Very High 45% (further scaled by the active global event).
+- Outcomes: Safe = investment recovered · Success = full payout · Big Success = 1.8x · Bonus = 1.3x · Investigation = partial recovery + suspense (no elimination) · Caught = lose a token / eliminate at 0.
 
-## 3. Maritime Risiko-Kalibrierung (Punkt 2)
+## AI Opponents (5 personalities)
 
-Heute: Flache Likelihood/Impact-Ableitung; reine Accountability-Findings (z. B. Shared Account) können kritischer wirken als Verlust der Navigationsfähigkeit.
+Vex (Conservative), Nyx (Risk Taker), Mammon (Greedy), Echo (Adaptive — reacts to ranking), Glitch (Chaotic). Each picks an affordable operation per its strategy, then resolves on the same weighted wheel logic.
 
-- Zentrale Kalibrierungsfunktion (eine Stelle, konsistent für Anzeige, Matrix und PDF):
-  - **Safety-kritische OT** (Navigation/ECDIS, Steuerung/Steering, Antrieb/Propulsion, Recovery/Manual-Ops, Power/PMS) erhalten einen **Impact-Floor** (mind. 4, bei Verlust der Manövrier-/Navigationsfähigkeit 5 — SOLAS-Bezug).
-  - **Reine Accountability-/Audit-Trail-Findings** (Shared Account, fehlende Einzelanmeldung) werden im Impact **gedeckelt**, sodass sie nicht automatisch „Critical" erreichen.
-- Garantie: angezeigte Likelihood, angezeigter Impact und Score sind immer konsistent (Score = L × I), kein Mismatch wie „5×3 = 25".
+## Global Random Events
 
-## 4. Kompensationsmaßnahmen berücksichtigen (Punkt 5)
+Every 2–3 rounds a global event hits everyone: International Cooperation (+risk), Budget Cuts (−risk), Economic Boom (+profit), Crypto Crash (−big profit), Media Distraction (−risk/+profit).
 
-Heute: fehlende Evidenz → sofort FAIL.
+## Game Flow / UI
 
-- Deklarierte/dokumentierte Schutzmaßnahmen (intake `measures`: aktiv/dokumentiert/auditiert) können einen Befund von **Fail auf Partial** anheben, wenn sie die Anforderung plausibel teilweise abdecken.
-- Im Befund wird ein Hinweis ergänzt: „Kompensierende Maßnahme berücksichtigt: …" — nur auf Basis tatsächlich erklärter Maßnahmen (keine Erfindung).
+Welcome → enter name → round intro (shows any event) → choose operation → spin wheel → outcome animation → AI turns → animated scoreboard (money, rank, tokens, rounds survived; eliminated players stay visible with red "CAUGHT") → next round → Winner screen (Champion, Final Fortune, Rounds Survived, Biggest Single Win, Operations Completed, Play Again).
 
-## Betroffene Dateien (technisch)
+- Modern cyberpunk dark UI, neon accents, animated background, round progress bar, animated money counter, player avatars, small win celebrations, mute button.
+- Responsive, mobile-friendly.
 
-- `src/data/iec62443Ur26Data.ts` — `deriveThreatsFromReqs` + neue Kalibrierungs-/Kompensationslogik; Conformance-Helper.
-- `src/utils/iec62443Ur26ReportPdf.ts` — KPI-Umbenennung, Aufschlüsselung, Methodik-Wortlaut (DE/EN/FR), Trennung Konformität/Risiko, Kompensations-Hinweis.
-- `src/pages/Iec62443Ur26ComplianceTool.tsx` — UI-Labels/KPIs analog (Conformance Score + Aufschlüsselung, getrennte Risiko-/Konformitätsanzeige).
-- `src/utils/iec62443Ur26AuditFixes.ts` — bestehende Maritime-Impact-Regel (E1) in die zentrale Kalibrierung überführen; Konsistenz Score = L×I.
+## Sound
 
-## Ausdrücklich unverändert
+Self-contained Web Audio (no assets): subtle ambient bed, wheel tick, win/big-win, lose/caught, round transition, plus a mute toggle. Same pattern as the existing WCST sound engine.
 
-- Keine erfundenen Findings/Evidenzen (Data-Integrity-Policy).
-- Dokumenten-Assessment-Engine (`iecDocumentAssessment.ts`, Edge Function) und AI-Reasoning bleiben unangetastet.
-- PDF-Layout-Kern (`pdfCore.ts`) bleibt unverändert.
+## Files
+
+- `src/data/syndicateData.ts` — operations, AI profiles, events, wheel builder, payout math, constants.
+- `src/lib/syndicateSounds.ts` — Web Audio sound engine.
+- `src/pages/Syndicate.tsx` — full game (state machine, wheel, scoreboard, screens), accepts `embedded` prop like WCST.
+
+## Integration (mirrors WCST wiring)
+
+- Lazy-import `Syndicate` in `src/pages/ChatView.tsx`; add render branch for `activeService === 'syndicate-game'`.
+- Add a KI Lab arcade button (Gamepad/skull icon) with a "Neu" badge via `AI_TOOL_ADDED_AT`.
+- Add i18n keys `syndicateTitle` / `syndicateDesc` to `de.ts` / `en.ts` / `fr.ts` (button chrome trilingual; the game itself stays fully English).
+- Optional direct route `/syndicate` in `App.tsx`.
+
+## Future Expansion Hooks
+
+Clean, typed data structures + a phase-based state machine so online multiplayer, tournament mode, operation packs, achievements, daily challenges, themes, stats dashboard, and difficulty levels can be layered on later.
+
+## Notes / Constraints
+
+- No backend needed (client-side, no persistence) — matches the Zero-Retention style of the other lab games.
+- Game text 100% English per request; only the launcher tile label is translated to fit the trilingual nav.
