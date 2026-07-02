@@ -18,6 +18,7 @@ import {
   heatForRound,
   OUTCOME_LABEL,
   type Operation,
+  type RiskLevel,
   type Outcome,
   type GlobalEvent,
   type AiProfile,
