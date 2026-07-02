@@ -386,6 +386,40 @@ function resolveSpin(
 /*  Wheel component                                                    */
 /* ------------------------------------------------------------------ */
 
+function Avatar({
+  img,
+  fallback,
+  color,
+  size = 32,
+}: {
+  img?: string;
+  fallback: string;
+  color: string;
+  size?: number;
+}) {
+  if (img) {
+    return (
+      <img
+        src={img}
+        alt={fallback}
+        loading="lazy"
+        width={size}
+        height={size}
+        className="rounded-full object-cover shrink-0"
+        style={{
+          width: size,
+          height: size,
+          border: `1.5px solid ${color}`,
+          boxShadow: `0 0 8px ${color}55`,
+        }}
+      />
+    );
+  }
+  return <span style={{ fontSize: size * 0.62 }}>{fallback}</span>;
+}
+
+
+
 function Wheel({
   segments,
   rotation,
