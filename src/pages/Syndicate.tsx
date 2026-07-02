@@ -140,6 +140,7 @@ interface Player {
   img?: string;
   color: string;
   profile?: AiProfile;
+  location?: { city: string; lat: number; lon: number };
   cash: number;
   tokens: number;
   alive: boolean;
