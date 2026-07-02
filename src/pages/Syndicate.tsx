@@ -548,6 +548,32 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   const [copied, setCopied] = useState(false);
   const recordedRef = useRef(false);
 
+  /* ---- Guided tutorial (pop-up coach marks, first run only) ---- */
+  const [tutorialDone, setTutorialDone] = useState(
+    () => typeof window !== "undefined" && localStorage.getItem(TUTORIAL_KEY) === "1",
+  );
+  const [activeTip, setActiveTip] = useState<Tip | null>(null);
+  const shownTipsRef = useRef<Set<string>>(new Set());
+
+  const showTip = useCallback(
+    (key: string) => {
+      if (tutorialDone || shownTipsRef.current.has(key)) return;
+      const tip = TIPS[key];
+      if (!tip) return;
+      shownTipsRef.current.add(key);
+      setActiveTip(tip);
+    },
+    [tutorialDone],
+  );
+
+  const dismissTip = useCallback(() => setActiveTip(null), []);
+  const skipTutorial = useCallback(() => {
+    setTutorialDone(true);
+    if (typeof window !== "undefined") localStorage.setItem(TUTORIAL_KEY, "1");
+    setActiveTip(null);
+  }, []);
+
+
   useEffect(() => {
     snd.setEnabled(!muted);
   }, [muted]);
