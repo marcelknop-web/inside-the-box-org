@@ -251,7 +251,6 @@ function resolveSpin(
 
   const tokenLost = outcome === "caught";
   const eliminated = tokenLost && player.tokens - 1 <= 0;
-  const delta = payout - op.cost; // net change (cost already implied)
   return { outcome, landing, margin, delta: payout, eliminated, tokenLost };
 }
 
