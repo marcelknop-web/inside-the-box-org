@@ -203,6 +203,15 @@ function fmt(n: number): string {
   return sign + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
 }
 
+// Compact money for tight card stat rows: $4k, $138k, $1.2M.
+function fmtShort(n: number): string {
+  const a = Math.abs(n);
+  if (a >= 1_000_000) return "$" + (n / 1_000_000).toFixed(a % 1_000_000 === 0 ? 0 : 1) + "M";
+  if (a >= 1_000) return "$" + Math.round(n / 1000) + "k";
+  return "$" + Math.round(n);
+}
+
+
 /* ------------------------------------------------------------------ */
 /*  Count-up money display                                             */
 /* ------------------------------------------------------------------ */
