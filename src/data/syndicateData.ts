@@ -239,11 +239,59 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
     riskMult: 0.75,
     profitMult: 1.1,
   },
+  {
+    id: "leak",
+    name: "Anonymous Data Leak",
+    description:
+      "Anonymous leaks thousands of documents. Law enforcement is overwhelmed.",
+    riskMult: 0.7,
+    profitMult: 1,
+  },
+  {
+    id: "summit",
+    name: "Global Cyber Summit",
+    description: "Nations unite against crime. International cooperation surges.",
+    riskMult: 1.5,
+    profitMult: 1,
+  },
+  {
+    id: "goldrush",
+    name: "Underground Gold Rush",
+    description: "New black markets open. Every score pays a premium.",
+    riskMult: 1.1,
+    profitMult: 1.4,
+  },
+  {
+    id: "informant",
+    name: "Informant Network",
+    description: "A snitch feeds the authorities. Everyone is being watched.",
+    riskMult: 1.3,
+    profitMult: 1,
+  },
+  {
+    id: "blackout",
+    name: "City-Wide Blackout",
+    description: "The grid fails. Chaos hides your moves — for now.",
+    riskMult: 0.65,
+    profitMult: 1.15,
+  },
 ];
 
 export const START_CASH = 100000;
-export const TOTAL_ROUNDS = 10;
+export const TOTAL_ROUNDS = 12;
 export const START_TOKENS = 3;
+
+// Global "Heat" — a rising worldwide manhunt level. Added directly to every
+// operation's caught fraction. Indexed by round (1-based). Climbs steeply in
+// the endgame so late rounds are tense and safe-farming stops working.
+export const HEAT_BY_ROUND = [
+  0, 0, 0.015, 0.03, 0.045, 0.06, 0.08, 0.1, 0.125, 0.15, 0.17, 0.185, 0.2,
+];
+
+export function heatForRound(round: number): number {
+  const idx = Math.max(0, Math.min(HEAT_BY_ROUND.length - 1, round));
+  return HEAT_BY_ROUND[idx];
+}
 
 export type Outcome =
   | "safe"
