@@ -1503,18 +1503,19 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                     </span>
 
                     {/* icon tile */}
-                    <div className="relative z-10 flex items-center justify-center h-12 mb-1.5">
+                    <div className="relative z-10 flex items-center justify-center h-10 mb-1.5">
                       <span
-                        className="flex h-11 w-11 md:h-12 md:w-12 items-center justify-center rounded-2xl border transition group-hover:scale-110"
+                        className="flex h-10 w-10 md:h-11 md:w-11 items-center justify-center rounded-2xl border transition group-hover:scale-110"
                         style={{
                           borderColor: `${theme.glow}55`,
                           background: `radial-gradient(circle at 50% 40%, ${theme.glow}33, transparent 70%)`,
                           boxShadow: `inset 0 0 20px ${theme.glow}22`,
                         }}
                       >
-                        <Icon size={22} style={{ color: theme.glow, filter: `drop-shadow(0 0 6px ${theme.glow}aa)` }} />
+                        <Icon size={20} style={{ color: theme.glow, filter: `drop-shadow(0 0 6px ${theme.glow}aa)` }} />
                       </span>
                     </div>
+
 
                     {/* title */}
                     <p className="relative z-10 font-black uppercase tracking-wide text-white text-xs md:text-sm leading-tight mb-1.5 min-h-[1.6em]">
