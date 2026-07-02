@@ -815,6 +815,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   /* ---- AI turns ---- */
   const runAiTurns = useCallback(() => {
     setPhase("ai");
+    setAiStep(0);
     setPlayers((prev) => {
       const alive = prev.filter((p) => p.alive);
       const sorted = [...alive].sort((a, b) => b.cash - a.cash);
@@ -822,7 +823,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         const idx = sorted.findIndex((x) => x.id === p.id);
         return sorted.length > 1 ? idx / (sorted.length - 1) : 0;
       };
-      const log: Player[] = [];
+      const log: AiTurn[] = [];
       const next = prev.map((p) => {
         if (p.isHuman || !p.alive) return p;
         const op = chooseAiOp(p, rankFrac(p));
@@ -832,14 +833,30 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         const res = resolveSpin(op, round, event, p);
         const updated = applyResult(p, op, res);
         if (p.profile) updated.quip = quipFor(p.profile.personality, rand);
-        log.push(updated);
+        log.push({
+          player: updated,
+          op,
+          res,
+          caughtPct: Math.round(effectiveCaught(op, round, event, 0) * 100),
+        });
         return updated;
       });
       setAiLog(log);
       return next;
     });
-    window.setTimeout(() => finishRound(), 2200);
   }, [round, event]);
+
+  /* ---- step through the rivals one at a time, then finish ---- */
+  useEffect(() => {
+    if (phase !== "ai" || aiLog.length === 0) return;
+    if (aiStep >= aiLog.length) {
+      const t = window.setTimeout(() => finishRound(), 1100);
+      return () => window.clearTimeout(t);
+    }
+    const t = window.setTimeout(() => setAiStep((s) => s + 1), 2100);
+    return () => window.clearTimeout(t);
+  }, [phase, aiStep, aiLog, finishRound]);
+
 
   /* ---- end of round bookkeeping ---- */
   const finishRound = useCallback(() => {
