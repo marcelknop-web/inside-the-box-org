@@ -1433,6 +1433,17 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         })}
       </div>
 
+      {/* GLOBE — freely visible world board between locations and stats */}
+      {globePlayers.length > 0 && (
+        <div className="relative mb-2 h-[34vh] min-h-[220px] md:h-[40vh] rounded-2xl overflow-hidden border border-white/10 bg-[radial-gradient(60%_60%_at_50%_40%,rgba(0,188,212,0.08),transparent)]">
+          <Globe
+            players={globePlayers}
+            focusLon={focusLon}
+            className="pointer-events-none absolute inset-0 h-full w-full"
+          />
+        </div>
+      )}
+
       {/* ROW 2 — money level per player */}
       <div className="space-y-1.5 rounded-xl border border-white/10 bg-black/30 px-2.5 py-2 mb-2">
         {players.map((p) => (
