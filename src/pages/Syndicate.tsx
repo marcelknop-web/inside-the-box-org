@@ -1397,6 +1397,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         <p className="text-white/40 text-xs mt-8 max-w-sm">
           A fictional strategy game of luck and nerve. Outlast 2 AI rivals across up to {TOTAL_ROUNDS} rounds. Richest survivor wins.
         </p>
+        </div>
         {overlayNode}
       </div>
     );
