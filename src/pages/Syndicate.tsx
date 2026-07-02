@@ -1444,60 +1444,77 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         </div>
       )}
 
-      {/* ROW 2 — money level per player */}
-      <div className="space-y-1.5 rounded-xl border border-white/10 bg-black/30 px-2.5 py-2 mb-2">
-        {players.map((p) => (
-          <div key={p.id} className="flex items-center gap-2">
-            <span className="w-14 shrink-0 text-[10px] font-mono text-white/55 truncate">
-              {p.isHuman ? "YOU" : p.name}
-            </span>
-            <div className="h-2.5 flex-1 rounded-full bg-white/8 overflow-hidden">
-              <div
-                className="h-full rounded-full transition-all duration-500"
-                style={{
-                  width: `${Math.max(3, (Math.max(0, p.cash) / maxCash) * 100)}%`,
-                  background: p.alive
-                    ? `linear-gradient(90deg, ${p.color}, ${p.color}aa)`
-                    : "rgba(148,163,184,0.4)",
-                  boxShadow: p.alive ? `0 0 10px -2px ${p.color}` : "none",
-                }}
-              />
-            </div>
-            <span
-              className="w-16 shrink-0 text-right text-[11px] font-mono font-bold"
-              style={{ color: p.alive ? "#fff" : "#94a3b8" }}
+      {/* ROW 2 — money level per player (staggered reveal, aligned columns) */}
+      <div className="rounded-2xl border border-white/10 bg-black/40 backdrop-blur-sm px-3 py-2.5 mb-2 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.8)]">
+        <p className="text-[9px] font-mono tracking-[0.25em] text-white/35 mb-2">CASH ON HAND</p>
+        <div className="space-y-2">
+          {players.map((p, i) => (
+            <div
+              key={p.id}
+              className="grid grid-cols-[3.5rem_1fr_5rem] items-center gap-2.5 animate-fade-in"
+              style={{ animationDelay: `${i * 140}ms`, animationFillMode: "backwards" }}
             >
-              {p.isHuman ? <MoneyCounter value={p.cash} /> : fmt(p.cash)}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      {/* Human status: shields + heat + round progress */}
-      <div className="flex items-center justify-between gap-3 mb-1.5">
-        <div className="flex items-center gap-1">
-          {Array.from({ length: START_TOKENS }).map((_, i) => (
-            <Shield
-              key={i}
-              size={16}
-              style={{ color: i < human.tokens ? "#00bcd4" : "rgba(255,255,255,0.15)" }}
-              fill={i < human.tokens ? "#00bcd4" : "transparent"}
-            />
+              <span
+                className="text-[11px] font-mono font-semibold tracking-wide truncate"
+                style={{ color: p.alive ? p.color : "#64748b" }}
+              >
+                {p.isHuman ? "YOU" : p.name}
+              </span>
+              <div className="h-3 rounded-full bg-white/[0.06] overflow-hidden ring-1 ring-inset ring-white/5">
+                <div
+                  className="h-full rounded-full transition-all duration-700 ease-out"
+                  style={{
+                    width: `${Math.max(4, (Math.max(0, p.cash) / maxCash) * 100)}%`,
+                    background: p.alive
+                      ? `linear-gradient(90deg, ${p.color}, ${p.color}aa)`
+                      : "rgba(148,163,184,0.4)",
+                    boxShadow: p.alive ? `0 0 12px -2px ${p.color}` : "none",
+                  }}
+                />
+              </div>
+              <span
+                className="text-right text-[12px] font-mono font-bold tabular-nums"
+                style={{ color: p.alive ? "#fff" : "#94a3b8" }}
+              >
+                {p.isHuman ? <MoneyCounter value={p.cash} /> : fmt(p.cash)}
+              </span>
+            </div>
           ))}
         </div>
-        <span className="flex items-center gap-1 text-orange-400 text-xs font-mono">
-          <Flame size={13} /> +{heatPct}%
-        </span>
       </div>
-      <div className="flex items-center gap-2">
-        <span className="text-[10px] font-mono text-cyan-300 shrink-0">R{round}/{TOTAL_ROUNDS}</span>
-        <div className="h-1.5 flex-1 rounded-full bg-white/10 overflow-hidden">
-          <div
-            className="h-full rounded-full transition-all"
-            style={{ width: `${(round / TOTAL_ROUNDS) * 100}%`, background: "linear-gradient(90deg,#00bcd4,#f5b800)" }}
-          />
+
+      {/* Human status: shields + heat + round progress (revealed after bars) */}
+      <div
+        className="rounded-2xl border border-white/10 bg-black/40 backdrop-blur-sm px-3 py-2.5 animate-fade-in"
+        style={{ animationDelay: `${players.length * 140 + 80}ms`, animationFillMode: "backwards" }}
+      >
+        <div className="flex items-center justify-between gap-3 mb-2">
+          <div className="flex items-center gap-1.5">
+            <span className="text-[9px] font-mono tracking-[0.25em] text-white/35 mr-1">SHIELDS</span>
+            {Array.from({ length: START_TOKENS }).map((_, i) => (
+              <Shield
+                key={i}
+                size={15}
+                style={{ color: i < human.tokens ? "#00bcd4" : "rgba(255,255,255,0.15)" }}
+                fill={i < human.tokens ? "#00bcd4" : "transparent"}
+              />
+            ))}
+          </div>
+          <span className="flex items-center gap-1 text-orange-400 text-xs font-mono font-bold">
+            <Flame size={13} /> +{heatPct}%
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-mono text-cyan-300 shrink-0 tabular-nums">R{round}/{TOTAL_ROUNDS}</span>
+          <div className="h-1.5 flex-1 rounded-full bg-white/10 overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all"
+              style={{ width: `${(round / TOTAL_ROUNDS) * 100}%`, background: "linear-gradient(90deg,#00bcd4,#f5b800)" }}
+            />
+          </div>
         </div>
       </div>
+
     </div>
   );
 
