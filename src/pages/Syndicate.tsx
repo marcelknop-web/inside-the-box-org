@@ -1462,7 +1462,26 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     return shell(
       <div className="max-w-3xl mx-auto text-center">
         {hud}
+        {coachBar(
+          caughtEl
+            ? {
+                icon: Skull,
+                tone: "danger",
+                text: result.eliminated
+                  ? "You've been caught with no shields left — your crew is out of the game. Watch how the rest plays out below."
+                  : "Caught! You lost one shield token. When all shields are gone, you're eliminated — so weigh the risk next time.",
+              }
+            : {
+                icon: net >= 0 ? TrendingUp : Coins,
+                tone: net >= 0 ? "good" : "danger",
+                text:
+                  net >= 0
+                    ? "The job paid off — this is your net profit after costs. Tap the button below to watch your rivals move."
+                    : "The job cost more than it earned this time. That happens — tap below to continue to your rivals' turn.",
+              },
+        )}
         <Wheel segments={segments} rotation={rotation} spinning={false} />
+
         <div className="mt-5 animate-scale-in">
           <div
             className="inline-block rounded-xl px-8 py-4 font-black text-2xl"
