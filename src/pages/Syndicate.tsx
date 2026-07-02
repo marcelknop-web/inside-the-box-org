@@ -1669,7 +1669,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     ) => {
       const p = pick(pool);
       if (!p) return null;
-      return { label, name: p.name, avatar: p.avatar, color: p.color, val: fmtVal(p) };
+      return { label, name: p.name, avatar: p.avatar, img: p.img, color: p.color, val: fmtVal(p) };
     };
     const maxBy = (arr: Player[], f: (p: Player) => number) =>
       arr.length ? arr.reduce((a, b) => (f(b) > f(a) ? b : a)) : undefined;
@@ -1700,15 +1700,18 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             eliminated
           )
         : null,
-    ].filter(Boolean) as { label: string; name: string; avatar: string; color: string; val: string }[];
+    ].filter(Boolean) as { label: string; name: string; avatar: string; img?: string; color: string; val: string }[];
 
     return shell(
       <div className="max-w-2xl mx-auto text-center">
         <Crown size={52} style={{ color: "#f5b800" }} className="mx-auto mb-3 drop-shadow-[0_0_18px_rgba(245,184,0,0.6)]" />
         <p className="font-mono text-cyan-300 text-sm">CHAMPION</p>
-        <h1 className="text-5xl font-black text-white mb-1" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
-          <span className="mr-2">{champion.avatar}</span>{champion.name}
-        </h1>
+        <div className="flex items-center justify-center gap-3 mb-1">
+          <Avatar img={champion.img} fallback={champion.avatar} color="#f5b800" size={56} />
+          <h1 className="text-5xl font-black text-white" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+            {champion.name}
+          </h1>
+        </div>
         <p className="text-3xl font-mono font-bold" style={{ color: "#f5b800" }}>{fmt(champion.cash)}</p>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-6 text-xs">
@@ -1726,8 +1729,8 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             <div key={s.label} className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-2.5 flex items-center justify-between">
               <div>
                 <div className="text-[11px] text-white/40 font-mono uppercase tracking-wide">{s.label}</div>
-                <div className="font-bold" style={{ color: s.color }}>
-                  <span className="mr-1">{s.avatar}</span>{s.name}
+                <div className="font-bold flex items-center gap-1.5" style={{ color: s.color }}>
+                  <Avatar img={s.img} fallback={s.avatar} color={s.color} size={22} />{s.name}
                 </div>
               </div>
               <div className="font-mono text-sm text-white">{s.val}</div>
