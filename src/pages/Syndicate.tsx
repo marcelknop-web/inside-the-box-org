@@ -1203,6 +1203,25 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   /*  RENDER                                                          */
   /* ================================================================ */
 
+  /* ---- Globe (3D world board): players on international power hubs ---- */
+  const activeId =
+    phase === "ai" && aiLog.length
+      ? aiLog[Math.min(aiStep, aiLog.length - 1)]?.player.id
+      : human?.id;
+  const globePlayers: GlobePlayer[] = players
+    .filter((p) => p.location)
+    .map((p) => ({
+      id: p.id,
+      color: p.color,
+      lat: p.location!.lat,
+      lon: p.location!.lon,
+      alive: p.alive,
+      active: p.id === activeId,
+    }));
+  const focusPlayer = players.find((p) => p.id === activeId && p.location);
+  const focusLon = focusPlayer?.location?.lon;
+  const showGlobe = phase !== "welcome" && globePlayers.length > 0;
+
   const shell = (children: React.ReactNode) => (
     <div
       ref={shellRef}
