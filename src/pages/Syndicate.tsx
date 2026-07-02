@@ -1053,32 +1053,73 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   /* ---- CHOOSE ---- */
   if (phase === "choose") {
     return shell(
-      <div className="max-w-3xl mx-auto">
+      <div className={selectedOp ? "max-w-3xl mx-auto" : "max-w-5xl mx-auto"}>
         {hud}
         {!selectedOp ? (
           <>
-            <h2 className="text-center font-mono text-cyan-300 mb-4 text-sm">SELECT ONE OPERATION</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="text-center mb-5">
+              <h2 className="font-mono font-black tracking-[0.2em] text-white text-lg md:text-xl">SELECT YOUR OPERATION</h2>
+              <p className="text-white/40 text-xs font-mono mt-1">Choose wisely. Every move has a price.</p>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {OPERATIONS.map((op) => {
                 const afford = human!.cash >= op.cost;
                 const eff = Math.round(effectiveCaught(op, round, event, 0) * 100);
+                const theme = RISK_THEME[op.risk];
+                const Icon = OP_ICON[op.id] ?? Skull;
                 return (
                   <button
                     key={op.id}
                     disabled={!afford}
                     onClick={() => pickOp(op)}
-                    className="text-left rounded-xl border p-4 transition disabled:opacity-35 disabled:cursor-not-allowed hover:border-cyan-400/60 hover:bg-white/[0.04]"
-                    style={{ borderColor: "rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.02)" }}
+                    className="group relative overflow-hidden rounded-2xl border p-3 text-left transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed enabled:hover:-translate-y-1"
+                    style={{
+                      borderColor: `${theme.glow}55`,
+                      background: "rgba(255,255,255,0.02)",
+                      boxShadow: afford ? `0 0 0 1px ${theme.glow}22, 0 8px 24px -12px ${theme.glow}66` : undefined,
+                    }}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-white">{op.name}</span>
-                      <RiskBadge risk={op.risk} />
+                    {/* risk-tinted glow field */}
+                    <div className={`pointer-events-none absolute inset-0 bg-gradient-to-b ${theme.grad} opacity-70 group-hover:opacity-100 transition`} />
+
+                    {/* risk badge */}
+                    <span
+                      className="absolute top-2 right-2 z-10 text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider"
+                      style={{ color: theme.glow, background: `${theme.glow}22`, border: `1px solid ${theme.glow}66` }}
+                    >
+                      {RISK_LABEL[op.risk]}
+                    </span>
+
+                    {/* icon tile */}
+                    <div className="relative z-10 flex items-center justify-center h-20 mb-2">
+                      <span
+                        className="flex h-16 w-16 items-center justify-center rounded-2xl border transition group-hover:scale-110"
+                        style={{
+                          borderColor: `${theme.glow}55`,
+                          background: `radial-gradient(circle at 50% 40%, ${theme.glow}33, transparent 70%)`,
+                          boxShadow: `inset 0 0 20px ${theme.glow}22`,
+                        }}
+                      >
+                        <Icon size={30} style={{ color: theme.glow, filter: `drop-shadow(0 0 6px ${theme.glow}aa)` }} />
+                      </span>
                     </div>
-                    <p className="text-white/50 text-xs mt-1 mb-2 leading-snug">{op.description}</p>
-                    <div className="flex items-center justify-between text-xs font-mono">
-                      <span className="text-red-300">Cost {fmt(op.cost)}</span>
-                      <span className="text-green-300">Profit {fmt(op.payout)}</span>
-                      <span className="text-orange-300">Caught {eff}%</span>
+
+                    {/* title */}
+                    <p className="relative z-10 font-black uppercase tracking-wide text-white text-sm leading-tight mb-2 min-h-[2.4em]">
+                      {op.name}
+                    </p>
+
+                    {/* stat row */}
+                    <div className="relative z-10 flex items-center justify-between text-[10px] font-mono border-t border-white/10 pt-2">
+                      <span className="flex items-center gap-0.5 text-amber-300">
+                        <Coins size={11} />{fmtShort(op.cost)}
+                      </span>
+                      <span className="flex items-center gap-0.5" style={{ color: theme.text }}>
+                        <TrendingUp size={11} />{fmtShort(op.payout)}
+                      </span>
+                      <span className="flex items-center gap-0.5 text-white/50">
+                        <Eye size={11} />{eff}%
+                      </span>
                     </div>
                   </button>
                 );
