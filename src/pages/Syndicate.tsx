@@ -173,6 +173,13 @@ interface SpinResult {
   tokenLost: boolean;
 }
 
+interface AiTurn {
+  player: Player; // snapshot after the turn
+  op: Operation;
+  res: SpinResult;
+  caughtPct: number;
+}
+
 const CX = 160;
 const CY = 160;
 const R = 150;
