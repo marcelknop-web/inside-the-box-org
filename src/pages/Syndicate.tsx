@@ -749,6 +749,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       avatar: "🎭",
       img: HUMAN_AVATAR_IMG,
       color: "#f5b800",
+      location: HUMAN_LOCATION,
       cash: START_CASH,
       tokens: START_TOKENS,
       alive: true,
