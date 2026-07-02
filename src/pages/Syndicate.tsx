@@ -1560,7 +1560,14 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     return shell(
       <div className="max-w-3xl mx-auto">
         {hud}
+        {coachBar({
+          icon: BarChart3,
+          step: "STEP 4",
+          tone: "action",
+          text: "The round is over. You're ranked by cash — gold row is you, shields show lives left. Goal: be the richest crew still standing. Tap NEXT ROUND to keep going.",
+        })}
         <h2 className="text-center font-mono text-cyan-300 mb-4 text-sm">LEADERBOARD</h2>
+
         <div className="space-y-2">
           {ranked.map((p, i) => (
             <div
