@@ -820,6 +820,9 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   const runAiTurns = useCallback(() => {
     setPhase("ai");
     setAiStep(0);
+    setAiSub("choice");
+    setAiRotation(0);
+    aiRotationRef.current = 0;
     setPlayers((prev) => {
       const alive = prev.filter((p) => p.alive);
       const sorted = [...alive].sort((a, b) => b.cash - a.cash);
@@ -837,11 +840,17 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         const res = resolveSpin(op, round, event, p);
         const updated = applyResult(p, op, res);
         if (p.profile) updated.quip = quipFor(p.profile.personality, rand);
+        const abilityAdj =
+          p.profile?.personality === "conservative"
+            ? AI_ABILITY.conservativeCaughtAdj
+            : 0;
+        const caughtAdj = effectiveCaught(op, round, event, abilityAdj);
         log.push({
           player: updated,
           op,
           res,
           caughtPct: Math.round(effectiveCaught(op, round, event, 0) * 100),
+          segs: angleSegments(buildWheel(caughtAdj)),
         });
         return updated;
       });
@@ -858,16 +867,52 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     setPhase("scoreboard");
   }, [round]);
 
-  /* ---- step through the rivals one at a time, then finish ---- */
-  useEffect(() => {
-    if (phase !== "ai" || aiLog.length === 0) return;
-    if (aiStep >= aiLog.length) {
-      const t = window.setTimeout(() => finishRound(), 1100);
-      return () => window.clearTimeout(t);
+  /* ---- manual, user-paced walk-through of each rival ---- */
+  const advanceAi = useCallback(() => {
+    if (aiSub === "choice") {
+      // spin the wheel for this rival, animating to its predetermined landing
+      const turn = aiLog[aiStep];
+      if (!turn) return;
+      setAiSub("spinning");
+      const base = aiRotationRef.current;
+      const currentMod = ((base % 360) + 360) % 360;
+      const target = base + (360 - currentMod) + 360 * 5 + (360 - turn.res.landing);
+      aiRotationRef.current = target;
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setAiRotation(target));
+      });
+      let ticks = 0;
+      const tickInt = setInterval(() => {
+        snd.tick();
+        ticks++;
+        if (ticks > 20) clearInterval(tickInt);
+      }, 150);
+      window.setTimeout(() => {
+        clearInterval(tickInt);
+        const o = turn.res.outcome;
+        if (o === "caught") {
+          turn.res.eliminated ? snd.caught() : snd.lose();
+        } else if (o === "bigSuccess") {
+          snd.bigWin();
+        } else if (turn.res.delta > turn.op.cost) {
+          snd.win();
+        }
+        setAiSub("result");
+      }, 3600);
+      return;
     }
-    const t = window.setTimeout(() => setAiStep((s) => s + 1), 2100);
-    return () => window.clearTimeout(t);
-  }, [phase, aiStep, aiLog, finishRound]);
+    if (aiSub === "result") {
+      if (aiStep >= aiLog.length - 1) {
+        finishRound();
+        return;
+      }
+      setAiStep((s) => s + 1);
+      setAiSub("choice");
+      setAiRotation(0);
+      aiRotationRef.current = 0;
+    }
+  }, [aiSub, aiStep, aiLog, finishRound]);
+
 
 
   const nextRound = useCallback(() => {
