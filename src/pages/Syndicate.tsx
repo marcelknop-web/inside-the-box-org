@@ -584,6 +584,21 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
   const human = players.find((p) => p.isHuman) ?? null;
 
+  // Trigger the right coach-mark as the player moves through the game.
+  useEffect(() => {
+    if (tutorialDone) return;
+    if (phase === "welcome") showTip("intro");
+    else if (phase === "choose" && !selectedOp) showTip("choose");
+    else if (phase === "outcome") showTip("outcome");
+    else if (phase === "scoreboard") showTip("scoreboard");
+  }, [phase, selectedOp, tutorialDone, showTip]);
+
+  // Wheel tip fires once the player has selected an operation.
+  useEffect(() => {
+    if (!tutorialDone && phase === "choose" && selectedOp) showTip("wheel");
+  }, [selectedOp, phase, tutorialDone, showTip]);
+
+
   /* ---- start game ---- */
   const startGame = useCallback(() => {
     snd.unlock();
