@@ -1227,7 +1227,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     }));
   const focusPlayer = players.find((p) => p.id === activeId && p.location);
   const focusLon = focusPlayer?.location?.lon;
-  const showGlobe = phase !== "welcome" && globePlayers.length > 0;
+  
 
   const shell = (children: React.ReactNode) => (
     <div
