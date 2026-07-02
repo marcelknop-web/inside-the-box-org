@@ -140,6 +140,7 @@ export interface AiProfile {
   name: string;
   personality: Personality;
   blurb: string;
+  ability: string; // short, human-readable special ability
   color: string;
   avatar: string; // emoji-style glyph
 }
@@ -150,6 +151,7 @@ export const AI_PROFILES: AiProfile[] = [
     name: "Vex",
     personality: "conservative",
     blurb: "Plays it safe. Small, steady scores.",
+    ability: "Careful operator — detection risk reduced by 5%.",
     color: "#38bdf8",
     avatar: "🦊",
   },
@@ -158,6 +160,7 @@ export const AI_PROFILES: AiProfile[] = [
     name: "Nyx",
     personality: "risktaker",
     blurb: "Loves the edge. High risk, high reward.",
+    ability: "Adrenaline junkie — +15% payout on high-risk wins.",
     color: "#f472b6",
     avatar: "🐍",
   },
@@ -165,7 +168,8 @@ export const AI_PROFILES: AiProfile[] = [
     id: "ai-mammon",
     name: "Mammon",
     personality: "greedy",
-    blurb: "Always chases the biggest payout.",
+    blurb: "Greed is everything. Always chases the biggest payout.",
+    ability: "Gains +10% bonus on high-risk payouts.",
     color: "#f5b800",
     avatar: "🐲",
   },
@@ -173,7 +177,8 @@ export const AI_PROFILES: AiProfile[] = [
     id: "ai-echo",
     name: "Echo",
     personality: "adaptive",
-    blurb: "Reads the board and adjusts to survive.",
+    blurb: "Always adapts. Reads the board to survive.",
+    ability: "Chooses operations based on the current leaderboard.",
     color: "#a78bfa",
     avatar: "🦉",
   },
@@ -182,6 +187,7 @@ export const AI_PROFILES: AiProfile[] = [
     name: "Glitch",
     personality: "chaotic",
     blurb: "Utterly unpredictable. Anything goes.",
+    ability: "Wild card — occasionally doubles a winning score.",
     color: "#34d399",
     avatar: "🃏",
   },
