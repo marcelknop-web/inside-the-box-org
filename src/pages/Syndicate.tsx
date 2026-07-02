@@ -890,9 +890,11 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
   const shell = (children: React.ReactNode) => (
     <div
-      className="relative w-full overflow-hidden rounded-2xl"
+      ref={shellRef}
+      className={`relative w-full overflow-y-auto overflow-x-hidden ${isFullscreen ? "rounded-none" : "rounded-2xl"}`}
       style={{
-        minHeight: embedded ? 640 : "100vh",
+        minHeight: isFullscreen ? "100vh" : embedded ? 640 : "100vh",
+        height: isFullscreen ? "100vh" : undefined,
         background:
           "radial-gradient(1200px 600px at 20% -10%, rgba(0,188,212,0.12), transparent), radial-gradient(900px 500px at 90% 110%, rgba(245,184,0,0.1), transparent), #05070d",
         color: "#e5e7eb",
@@ -906,17 +908,28 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           backgroundSize: "40px 40px",
         }}
       />
-      <button
-        onClick={() => setMuted((m) => !m)}
-        aria-label={muted ? "Unmute" : "Mute"}
-        className="absolute top-4 right-4 z-30 rounded-full p-2 border border-cyan-400/30 bg-black/40 hover:bg-black/60 transition"
-        style={{ color: "#00bcd4" }}
-      >
-        {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-      </button>
-      <div className="relative z-10 px-4 py-8 md:px-8">{children}</div>
+      <div className="absolute top-3 right-3 md:top-4 md:right-4 z-30 flex items-center gap-2">
+        <button
+          onClick={() => setMuted((m) => !m)}
+          aria-label={muted ? "Unmute" : "Mute"}
+          className="rounded-full p-2 border border-cyan-400/30 bg-black/40 hover:bg-black/60 transition"
+          style={{ color: "#00bcd4" }}
+        >
+          {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+        </button>
+        <button
+          onClick={toggleFullscreen}
+          aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+          className="rounded-full p-2 border border-cyan-400/30 bg-black/40 hover:bg-black/60 transition"
+          style={{ color: "#00bcd4" }}
+        >
+          {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+        </button>
+      </div>
+      <div className="relative z-10 px-3 py-6 sm:px-4 sm:py-8 md:px-8">{children}</div>
     </div>
   );
+
 
   /* ---- WELCOME ---- */
   if (phase === "welcome") {
