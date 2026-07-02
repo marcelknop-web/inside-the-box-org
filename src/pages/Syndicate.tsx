@@ -1045,6 +1045,17 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         >
           {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
         </button>
+        <button
+          onClick={() => {
+            const key = phase === "welcome" ? "intro" : phase === "outcome" ? "outcome" : phase === "scoreboard" ? "scoreboard" : selectedOp ? "wheel" : "choose";
+            setActiveTip(TIPS[key] ?? TIPS.intro);
+          }}
+          aria-label="How to play"
+          className="rounded-full p-2 border border-cyan-400/30 bg-black/40 hover:bg-black/60 transition"
+          style={{ color: "#00bcd4" }}
+        >
+          <HelpCircle size={18} />
+        </button>
       </div>
       <div className="relative z-10 px-3 py-6 sm:px-4 sm:py-8 md:px-8">{children}</div>
       {tipNode}
