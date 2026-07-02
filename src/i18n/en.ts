@@ -412,6 +412,8 @@ export const en = {
     enigmaDesc: 'Fully working. For love letters to the CISO or the next stand-up.',
     wcstTitle: 'Wisconsin Card Sorting Test',
     wcstDesc: 'Faithful reimplementation of the classic test of cognitive flexibility and executive function',
+    syndicateTitle: 'Syndicate',
+    syndicateDesc: 'Turn-based cyberpunk strategy game — outlast 5 AI rivals, spin the risk wheel, build the biggest fortune',
     agentYtTitle: 'Video Injects',
     agentYtDesc: 'AI-generated news videos as situational briefings for crisis exercises',
     ctaTitle: 'Getting Started',
