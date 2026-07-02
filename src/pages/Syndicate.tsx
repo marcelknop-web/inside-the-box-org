@@ -1290,7 +1290,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
   /* ---- HUD (shared top bar for in-game phases) ---- */
   const hud = human && (
-    <div className="max-w-3xl mx-auto mb-6">
+    <div className="max-w-3xl mx-auto mb-3 md:mb-4">
       <div className="flex items-center justify-between mb-2 text-xs font-mono">
         <span className="text-cyan-300">ROUND {round}/{TOTAL_ROUNDS}</span>
         <span className="flex items-center gap-1 text-orange-400">
