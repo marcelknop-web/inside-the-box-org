@@ -15,11 +15,14 @@ export interface Operation {
 }
 
 // Base "Caught" slice fraction per risk level (modified by global events).
+// Calibrated via a 5,000-game balancing simulation (see /tmp balancing report):
+// high-risk detection was lowered so aggressive play stays viable, and every
+// tier now earns a realistic share of wins.
 export const RISK_CAUGHT: Record<RiskLevel, number> = {
-  low: 0.05,
-  medium: 0.15,
-  high: 0.3,
-  veryhigh: 0.45,
+  low: 0.06,
+  medium: 0.18,
+  high: 0.2,
+  veryhigh: 0.3,
 };
 
 export const RISK_LABEL: Record<RiskLevel, string> = {
@@ -35,7 +38,7 @@ export const OPERATIONS: Operation[] = [
     name: "Phantom Phish",
     description: "Cast a wide net of fake logins and skim careless clicks.",
     cost: 4000,
-    payout: 9000,
+    payout: 7000,
     risk: "low",
   },
   {
@@ -43,7 +46,7 @@ export const OPERATIONS: Operation[] = [
     name: "Identity Fraud",
     description: "Stitch together stolen personas and cash out quietly.",
     cost: 8000,
-    payout: 18000,
+    payout: 14000,
     risk: "low",
   },
   {
@@ -51,7 +54,7 @@ export const OPERATIONS: Operation[] = [
     name: "Ghost Skimmer",
     description: "Plant invisible taps on payment terminals across the city.",
     cost: 12000,
-    payout: 26000,
+    payout: 20000,
     risk: "low",
   },
   {
@@ -59,7 +62,7 @@ export const OPERATIONS: Operation[] = [
     name: "Velvet Con",
     description: "A long game of charm, patience, and emptied wallets.",
     cost: 15000,
-    payout: 40000,
+    payout: 41000,
     risk: "medium",
   },
   {
@@ -67,7 +70,7 @@ export const OPERATIONS: Operation[] = [
     name: "Luxury Scam",
     description: "Sell counterfeit dreams to buyers who never ask twice.",
     cost: 25000,
-    payout: 60000,
+    payout: 62000,
     risk: "medium",
   },
   {
@@ -75,7 +78,7 @@ export const OPERATIONS: Operation[] = [
     name: "Locked Vault",
     description: "Freeze a corporation's files and name your price.",
     cost: 30000,
-    payout: 78000,
+    payout: 81000,
     risk: "medium",
   },
   {
@@ -83,7 +86,7 @@ export const OPERATIONS: Operation[] = [
     name: "Rug Pull Royale",
     description: "Launch a shiny token, hype it, then vanish overnight.",
     cost: 35000,
-    payout: 95000,
+    payout: 138000,
     risk: "high",
   },
   {
@@ -91,7 +94,7 @@ export const OPERATIONS: Operation[] = [
     name: "Dark Marketplace",
     description: "Run a hidden bazaar and pocket a cut of every trade.",
     cost: 40000,
-    payout: 110000,
+    payout: 159000,
     risk: "high",
   },
   {
@@ -99,7 +102,7 @@ export const OPERATIONS: Operation[] = [
     name: "Inside Job",
     description: "Bribe a mole for secrets the whole market will pay for.",
     cost: 50000,
-    payout: 135000,
+    payout: 196000,
     risk: "high",
   },
   {
@@ -107,7 +110,7 @@ export const OPERATIONS: Operation[] = [
     name: "Vault Heist",
     description: "One night, one big score, zero room for mistakes.",
     cost: 65000,
-    payout: 185000,
+    payout: 286000,
     risk: "veryhigh",
   },
   {
@@ -123,7 +126,7 @@ export const OPERATIONS: Operation[] = [
     name: "Syndicate Takeover",
     description: "Absorb a rival crew and seize their entire operation.",
     cost: 110000,
-    payout: 320000,
+    payout: 398000,
     risk: "veryhigh",
   },
 ];
@@ -151,7 +154,7 @@ export const AI_PROFILES: AiProfile[] = [
     name: "Vex",
     personality: "conservative",
     blurb: "Plays it safe. Small, steady scores.",
-    ability: "Careful operator — detection risk reduced by 5%.",
+    ability: "Careful operator — detection risk trimmed.",
     color: "#38bdf8",
     avatar: "🦊",
   },
@@ -160,7 +163,7 @@ export const AI_PROFILES: AiProfile[] = [
     name: "Nyx",
     personality: "risktaker",
     blurb: "Loves the edge. High risk, high reward.",
-    ability: "Adrenaline junkie — +15% payout on high-risk wins.",
+    ability: "Adrenaline junkie — +20% payout on high-risk wins.",
     color: "#f472b6",
     avatar: "🐍",
   },
@@ -169,7 +172,7 @@ export const AI_PROFILES: AiProfile[] = [
     name: "Mammon",
     personality: "greedy",
     blurb: "Greed is everything. Always chases the biggest payout.",
-    ability: "Gains +10% bonus on high-risk payouts.",
+    ability: "Gains +6% bonus on high-risk payouts.",
     color: "#f5b800",
     avatar: "🐲",
   },
@@ -281,11 +284,40 @@ export const START_CASH = 100000;
 export const TOTAL_ROUNDS = 12;
 export const START_TOKENS = 3;
 
+// --- AI tuning (from 5,000-game balancing simulation) ---
+// Special-ability modifiers applied during outcome resolution.
+export const AI_ABILITY = {
+  conservativeCaughtAdj: -0.01, // careful operator: slightly lower detection
+  risktakerPayout: 1.2, // adrenaline junkie: bigger high-risk wins
+  greedyPayout: 1.06, // greed bonus on high-risk payouts
+  chaoticDoubleChance: 0.17, // wild card: chance to double a win
+};
+
+// Weighted decision model — spreads operation choice so no single op or
+// strategy dominates while keeping each personality distinct.
+export const AI_DECIDE = {
+  consK: 1.16, // conservative: penalty per risk tier
+  riskK: 1.08, // risktaker: penalty per step below very-high
+  greedK: 1.48, // greedy: payout exponent
+  adaptK: 1.51, // adaptive: pull toward target risk tier
+  chaosPay: 0.18, // chaotic: mild payout bias
+  payBias: 0.84, // within-set payout preference (all)
+  temp: 1.55, // softmax temperature (higher = more variety)
+};
+
+export const RISK_INDEX: Record<RiskLevel, number> = {
+  low: 0,
+  medium: 1,
+  high: 2,
+  veryhigh: 3,
+};
+
 // Global "Heat" — a rising worldwide manhunt level. Added directly to every
 // operation's caught fraction. Indexed by round (1-based). Climbs steeply in
 // the endgame so late rounds are tense and safe-farming stops working.
 export const HEAT_BY_ROUND = [
-  0, 0, 0.015, 0.03, 0.045, 0.06, 0.08, 0.1, 0.125, 0.15, 0.17, 0.185, 0.2,
+  0, 0, 0.008, 0.017, 0.025, 0.034, 0.045, 0.056, 0.07, 0.085, 0.096, 0.105,
+  0.113,
 ];
 
 export function heatForRound(round: number): number {
