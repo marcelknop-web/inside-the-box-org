@@ -131,6 +131,7 @@ interface Player {
   name: string;
   isHuman: boolean;
   avatar: string;
+  img?: string;
   color: string;
   profile?: AiProfile;
   cash: number;
