@@ -765,7 +765,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       usedOps: {},
       ranHighRisk: false,
     };
-    const ais: Player[] = AI_PROFILES.map((pr) => ({
+    const ais: Player[] = AI_PROFILES.map((pr, i) => ({
       id: pr.id,
       name: pr.name,
       isHuman: false,
@@ -773,6 +773,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       img: pr.img,
       color: pr.color,
       profile: pr,
+      location: AI_LOCATIONS[pr.id] ?? FALLBACK_LOCATIONS[i % FALLBACK_LOCATIONS.length],
       cash: START_CASH,
       tokens: START_TOKENS,
       alive: true,
