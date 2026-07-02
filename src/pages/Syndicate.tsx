@@ -459,6 +459,39 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   const [closeCall, setCloseCall] = useState<string | null>(null);
   const [aiLog, setAiLog] = useState<Player[]>([]);
   const rotationRef = useRef(0);
+  const shellRef = useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Fullscreen support (works on desktop + Android; iOS Safari falls back to CSS full-viewport).
+  const toggleFullscreen = useCallback(() => {
+    const el = shellRef.current;
+    if (!el) return;
+    const doc = document as Document & { webkitFullscreenElement?: Element };
+    const anyEl = el as HTMLElement & { webkitRequestFullscreen?: () => Promise<void> };
+    if (!document.fullscreenElement && !doc.webkitFullscreenElement) {
+      (anyEl.requestFullscreen?.() ?? anyEl.webkitRequestFullscreen?.())?.catch(() => setIsFullscreen(true));
+    } else {
+      const anyDoc = document as Document & { webkitExitFullscreen?: () => Promise<void> };
+      anyDoc.exitFullscreen?.() ?? anyDoc.webkitExitFullscreen?.();
+    }
+    // Optimistic toggle for browsers without the Fullscreen API (e.g. iOS Safari).
+    if (typeof anyEl.requestFullscreen !== "function" && typeof anyEl.webkitRequestFullscreen !== "function") {
+      setIsFullscreen((v) => !v);
+    }
+  }, []);
+
+  useEffect(() => {
+    const onChange = () => {
+      const doc = document as Document & { webkitFullscreenElement?: Element };
+      setIsFullscreen(Boolean(document.fullscreenElement || doc.webkitFullscreenElement));
+    };
+    document.addEventListener("fullscreenchange", onChange);
+    document.addEventListener("webkitfullscreenchange", onChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", onChange);
+      document.removeEventListener("webkitfullscreenchange", onChange);
+    };
+  }, []);
 
   // Progression + game modes
   const [gameMode, setGameMode] = useState<"normal" | "daily" | "seeded">("normal");
