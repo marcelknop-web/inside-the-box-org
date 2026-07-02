@@ -36,6 +36,7 @@ const Iec62443ComplianceTool = lazy(() => import("./pages/Iec62443ComplianceTool
 const BlindSpotSimulator = lazy(() => import("./pages/BlindSpotSimulator"));
 const AssessmentTools = lazy(() => import("./pages/AssessmentTools"));
 const MetaAssessmentTool = lazy(() => import("./pages/MetaAssessmentTool"));
+const Syndicate = lazy(() => import("./pages/Syndicate"));
 
 const queryClient = new QueryClient();
 
