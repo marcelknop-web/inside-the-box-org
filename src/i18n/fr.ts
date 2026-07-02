@@ -412,6 +412,8 @@ export const fr = {
     enigmaDesc: 'Pleinement fonctionnelle. Pour des lettres d\'amour au RSSI ou le prochain stand-up.',
     wcstTitle: 'Test de classement de cartes du Wisconsin',
     wcstDesc: 'Reproduction fidèle du test classique de flexibilité cognitive et de fonctions exécutives',
+    syndicateTitle: 'Syndicate',
+    syndicateDesc: 'Jeu de stratégie cyberpunk au tour par tour — survivez à 5 rivaux IA, faites tourner la roue du risque, bâtissez la plus grande fortune',
     agentYtTitle: 'Vidéos d\'injection',
     agentYtDesc: 'Vidéos d\'actualité générées par IA comme briefings pour exercices de crise',
     ctaTitle: 'Démarrage',

@@ -36,6 +36,7 @@ const Iec62443ComplianceTool = lazy(() => import("./pages/Iec62443ComplianceTool
 const BlindSpotSimulator = lazy(() => import("./pages/BlindSpotSimulator"));
 const AssessmentTools = lazy(() => import("./pages/AssessmentTools"));
 const MetaAssessmentTool = lazy(() => import("./pages/MetaAssessmentTool"));
+const Syndicate = lazy(() => import("./pages/Syndicate"));
 
 const queryClient = new QueryClient();
 
@@ -72,6 +73,7 @@ const App = () => (
               {/* Legacy aliases — keep old links working */}
               <Route path="/gapzeo" element={<Suspense fallback={<RouteSkeleton />}><MetaAssessmentTool /></Suspense>} />
               <Route path="/meta-assessment" element={<Suspense fallback={<RouteSkeleton />}><MetaAssessmentTool /></Suspense>} />
+              <Route path="/syndicate" element={<Suspense fallback={<RouteSkeleton />}><Syndicate /></Suspense>} />
 
               {/* Catch-all: every Journey service id (nis2-dora, virtual-ciso, …) renders ChatView */}
               <Route path="/:serviceId" element={<ChatView />} />

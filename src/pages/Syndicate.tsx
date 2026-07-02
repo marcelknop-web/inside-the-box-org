@@ -1,0 +1,1083 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Volume2, VolumeX, Skull, Shield, Crown, TrendingUp, Flame } from "lucide-react";
+import { PageMeta } from "@/components/PageMeta";
+import {
+  OPERATIONS,
+  AI_PROFILES,
+  GLOBAL_EVENTS,
+  RISK_CAUGHT,
+  RISK_LABEL,
+  START_CASH,
+  TOTAL_ROUNDS,
+  START_TOKENS,
+  buildWheel,
+  outcomePayout,
+  heatForRound,
+  OUTCOME_LABEL,
+  type Operation,
+  type Outcome,
+  type GlobalEvent,
+  type AiProfile,
+  type WheelSegment,
+} from "@/data/syndicateData";
+import { syndicateSounds as snd } from "@/lib/syndicateSounds";
+
+/* ------------------------------------------------------------------ */
+/*  Types                                                              */
+/* ------------------------------------------------------------------ */
+
+interface Player {
+  id: string;
+  name: string;
+  isHuman: boolean;
+  avatar: string;
+  color: string;
+  profile?: AiProfile;
+  cash: number;
+  tokens: number;
+  alive: boolean;
+  roundsSurvived: number;
+  opsCompleted: number;
+  biggestWin: number; // highest single net profit
+  biggestGamble: number; // highest single investment
+  caughtHits: number; // tokens burned
+  goodOutcomes: number;
+  totalOutcomes: number;
+  closestCall: number; // smallest degrees to a Caught slice while surviving
+  cashAtElimination: number | null;
+  lastLabel?: string;
+  lastDelta?: number;
+}
+
+type Phase =
+  | "welcome"
+  | "round-intro"
+  | "choose"
+  | "spinning"
+  | "outcome"
+  | "ai"
+  | "scoreboard"
+  | "winner";
+
+interface SpinResult {
+  outcome: Outcome;
+  landing: number; // final angle at pointer (0..360)
+  margin: number; // degrees to nearest Caught edge (0 if caught)
+  delta: number; // net cash change
+  eliminated: boolean;
+  tokenLost: boolean;
+}
+
+const CX = 160;
+const CY = 160;
+const R = 150;
+
+/* ------------------------------------------------------------------ */
+/*  Geometry helpers                                                   */
+/* ------------------------------------------------------------------ */
+
+interface AngledSegment extends WheelSegment {
+  start: number; // deg from top, clockwise
+  end: number;
+  mid: number;
+}
+
+function angleSegments(segs: WheelSegment[]): AngledSegment[] {
+  const total = segs.reduce((s, x) => s + x.weight, 0);
+  let acc = 0;
+  return segs.map((s) => {
+    const start = (acc / total) * 360;
+    acc += s.weight;
+    const end = (acc / total) * 360;
+    return { ...s, start, end, mid: (start + end) / 2 };
+  });
+}
+
+function polar(angleDeg: number, radius: number) {
+  const rad = ((angleDeg - 90) * Math.PI) / 180;
+  return { x: CX + radius * Math.cos(rad), y: CY + radius * Math.sin(rad) };
+}
+
+function arcPath(start: number, end: number): string {
+  const a = polar(start, R);
+  const b = polar(end, R);
+  const large = end - start > 180 ? 1 : 0;
+  return `M ${CX} ${CY} L ${a.x} ${a.y} A ${R} ${R} 0 ${large} 1 ${b.x} ${b.y} Z`;
+}
+
+function outcomeAtAngle(segs: AngledSegment[], angle: number): AngledSegment {
+  const a = ((angle % 360) + 360) % 360;
+  return segs.find((s) => a >= s.start && a < s.end) ?? segs[segs.length - 1];
+}
+
+function marginToCaught(segs: AngledSegment[], angle: number): number {
+  const a = ((angle % 360) + 360) % 360;
+  let best = 360;
+  for (const s of segs) {
+    if (s.type !== "caught") continue;
+    if (a >= s.start && a < s.end) return 0;
+    const d1 = Math.min(Math.abs(a - s.start), 360 - Math.abs(a - s.start));
+    const d2 = Math.min(Math.abs(a - s.end), 360 - Math.abs(a - s.end));
+    best = Math.min(best, d1, d2);
+  }
+  return best;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Risk math                                                          */
+/* ------------------------------------------------------------------ */
+
+function effectiveCaught(
+  op: Operation,
+  round: number,
+  event: GlobalEvent | null,
+  abilityAdj: number
+): number {
+  const riskMult = event ? event.riskMult : 1;
+  const frac =
+    RISK_CAUGHT[op.risk] * riskMult + heatForRound(round) + abilityAdj;
+  return Math.min(0.72, Math.max(0.02, frac));
+}
+
+function fmt(n: number): string {
+  const sign = n < 0 ? "-" : "";
+  return sign + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+}
+
+/* ------------------------------------------------------------------ */
+/*  Count-up money display                                             */
+/* ------------------------------------------------------------------ */
+
+function useCountUp(value: number, duration = 700) {
+  const [display, setDisplay] = useState(value);
+  const fromRef = useRef(value);
+  const rafRef = useRef<number>();
+  useEffect(() => {
+    const from = fromRef.current;
+    const to = value;
+    if (from === to) return;
+    const t0 = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - t0) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setDisplay(Math.round(from + (to - from) * eased));
+      if (p < 1) rafRef.current = requestAnimationFrame(tick);
+      else fromRef.current = to;
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      fromRef.current = value;
+    };
+  }, [value, duration]);
+  return display;
+}
+
+function MoneyCounter({ value }: { value: number }) {
+  const d = useCountUp(value);
+  return <span className="tabular-nums">{fmt(d)}</span>;
+}
+
+/* ------------------------------------------------------------------ */
+/*  AI decision + resolution                                           */
+/* ------------------------------------------------------------------ */
+
+function affordableOps(cash: number): Operation[] {
+  return OPERATIONS.filter((o) => o.cost <= cash);
+}
+
+function chooseAiOp(p: Player, leaderboardRankFrac: number): Operation | null {
+  const opts = affordableOps(p.cash);
+  if (!opts.length) return null;
+  const byRisk = (levels: string[]) =>
+    opts.filter((o) => levels.includes(o.risk));
+  const richest = (arr: Operation[]) =>
+    arr.reduce((a, b) => (b.payout > a.payout ? b : a), arr[0]);
+  const pers = p.profile?.personality;
+  switch (pers) {
+    case "conservative": {
+      const safe = byRisk(["low", "medium"]);
+      return richest(safe.length ? safe : opts);
+    }
+    case "risktaker": {
+      const risky = byRisk(["high", "veryhigh"]);
+      return richest(risky.length ? risky : opts);
+    }
+    case "greedy":
+      return richest(opts);
+    case "adaptive": {
+      // trailing (rankFrac high) -> gamble; leading -> play safe
+      const wantRisky = leaderboardRankFrac > 0.5;
+      const pool = wantRisky
+        ? byRisk(["high", "veryhigh"])
+        : byRisk(["low", "medium"]);
+      return richest(pool.length ? pool : opts);
+    }
+    case "chaotic":
+    default:
+      return opts[Math.floor(Math.random() * opts.length)];
+  }
+}
+
+function resolveSpin(
+  op: Operation,
+  round: number,
+  event: GlobalEvent | null,
+  player: Player,
+  fixedLanding?: number
+): SpinResult {
+  const abilityAdj =
+    player.profile?.personality === "conservative" ? -0.05 : 0;
+  const caught = effectiveCaught(op, round, event, abilityAdj);
+  const segs = angleSegments(buildWheel(caught));
+  const landing =
+    fixedLanding !== undefined ? fixedLanding : Math.random() * 360;
+  const seg = outcomeAtAngle(segs, landing);
+  const outcome = seg.type;
+  const margin = marginToCaught(segs, landing);
+  const profitMult = event ? event.profitMult : 1;
+  let payout = outcomePayout(op, outcome, profitMult);
+
+  // AI special abilities (statistical flavor)
+  if (payout > op.cost) {
+    const isHighRisk = op.risk === "high" || op.risk === "veryhigh";
+    if (player.profile?.personality === "risktaker" && isHighRisk)
+      payout = Math.round(payout * 1.15);
+    if (player.profile?.personality === "greedy" && isHighRisk)
+      payout = Math.round(payout * 1.1);
+    if (player.profile?.personality === "chaotic" && Math.random() < 0.12)
+      payout = Math.round(payout * 2);
+  }
+
+  const tokenLost = outcome === "caught";
+  const eliminated = tokenLost && player.tokens - 1 <= 0;
+  return { outcome, landing, margin, delta: payout, eliminated, tokenLost };
+}
+
+/* ------------------------------------------------------------------ */
+/*  Wheel component                                                    */
+/* ------------------------------------------------------------------ */
+
+function Wheel({
+  segments,
+  rotation,
+  spinning,
+}: {
+  segments: AngledSegment[];
+  rotation: number;
+  spinning: boolean;
+}) {
+  return (
+    <div className="relative mx-auto" style={{ width: 320, height: 340 }}>
+      {/* pointer */}
+      <div
+        className="absolute left-1/2 -translate-x-1/2 z-20"
+        style={{ top: -2 }}
+      >
+        <div
+          style={{
+            width: 0,
+            height: 0,
+            borderLeft: "14px solid transparent",
+            borderRight: "14px solid transparent",
+            borderTop: "26px solid #f5b800",
+            filter: "drop-shadow(0 0 6px rgba(245,184,0,0.8))",
+          }}
+        />
+      </div>
+      <svg
+        width={320}
+        height={320}
+        viewBox="0 0 320 320"
+        style={{ marginTop: 18 }}
+      >
+        <circle
+          cx={CX}
+          cy={CY}
+          r={R + 6}
+          fill="none"
+          stroke="rgba(0,188,212,0.35)"
+          strokeWidth={4}
+        />
+        <g
+          style={{
+            transform: `rotate(${rotation}deg)`,
+            transformOrigin: `${CX}px ${CY}px`,
+            transition: spinning
+              ? "transform 4.2s cubic-bezier(0.15,0.9,0.2,1)"
+              : "none",
+          }}
+        >
+          {segments.map((s, i) => (
+            <g key={i}>
+              <path
+                d={arcPath(s.start, s.end)}
+                fill={s.color}
+                stroke="rgba(0,0,0,0.45)"
+                strokeWidth={1.5}
+                opacity={s.type === "safe" ? 0.85 : 1}
+              />
+              {s.end - s.start > 12 && (
+                <text
+                  x={polar(s.mid, R * 0.68).x}
+                  y={polar(s.mid, R * 0.68).y}
+                  fill="#fff"
+                  fontSize={s.end - s.start > 26 ? 11 : 8}
+                  fontWeight={700}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  transform={`rotate(${s.mid}, ${polar(s.mid, R * 0.68).x}, ${
+                    polar(s.mid, R * 0.68).y
+                  })`}
+                  style={{ textShadow: "0 1px 2px rgba(0,0,0,0.7)" }}
+                >
+                  {s.label}
+                </text>
+              )}
+            </g>
+          ))}
+        </g>
+        <circle cx={CX} cy={CY} r={26} fill="#0b1220" stroke="#f5b800" strokeWidth={2} />
+        <text
+          x={CX}
+          y={CY}
+          fill="#f5b800"
+          fontSize={20}
+          fontWeight={800}
+          textAnchor="middle"
+          dominantBaseline="central"
+        >
+          $
+        </text>
+      </svg>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Main game                                                          */
+/* ------------------------------------------------------------------ */
+
+interface SyndicateProps {
+  embedded?: boolean;
+}
+
+export default function Syndicate({ embedded = false }: SyndicateProps) {
+  const [phase, setPhase] = useState<Phase>("welcome");
+  const [name, setName] = useState("");
+  const [muted, setMuted] = useState(false);
+  const [round, setRound] = useState(1);
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [event, setEvent] = useState<GlobalEvent | null>(null);
+  const [selectedOp, setSelectedOp] = useState<Operation | null>(null);
+  const [segments, setSegments] = useState<AngledSegment[]>([]);
+  const [rotation, setRotation] = useState(0);
+  const [spinning, setSpinning] = useState(false);
+  const [result, setResult] = useState<SpinResult | null>(null);
+  const [closeCall, setCloseCall] = useState<string | null>(null);
+  const [aiLog, setAiLog] = useState<Player[]>([]);
+  const rotationRef = useRef(0);
+
+  useEffect(() => {
+    snd.setEnabled(!muted);
+  }, [muted]);
+
+  useEffect(() => {
+    return () => snd.stopMusic();
+  }, []);
+
+  const human = players.find((p) => p.isHuman) ?? null;
+
+  /* ---- start game ---- */
+  const startGame = useCallback(() => {
+    snd.unlock();
+    snd.startMusic();
+    const nm = name.trim() || "You";
+    const you: Player = {
+      id: "human",
+      name: nm,
+      isHuman: true,
+      avatar: "🎭",
+      color: "#f5b800",
+      cash: START_CASH,
+      tokens: START_TOKENS,
+      alive: true,
+      roundsSurvived: 0,
+      opsCompleted: 0,
+      biggestWin: 0,
+      biggestGamble: 0,
+      caughtHits: 0,
+      goodOutcomes: 0,
+      totalOutcomes: 0,
+      closestCall: 360,
+      cashAtElimination: null,
+    };
+    const ais: Player[] = AI_PROFILES.map((pr) => ({
+      id: pr.id,
+      name: pr.name,
+      isHuman: false,
+      avatar: pr.avatar,
+      color: pr.color,
+      profile: pr,
+      cash: START_CASH,
+      tokens: START_TOKENS,
+      alive: true,
+      roundsSurvived: 0,
+      opsCompleted: 0,
+      biggestWin: 0,
+      biggestGamble: 0,
+      caughtHits: 0,
+      goodOutcomes: 0,
+      totalOutcomes: 0,
+      closestCall: 360,
+      cashAtElimination: null,
+    }));
+    setPlayers([you, ...ais]);
+    setRound(1);
+    beginRound(1);
+  }, [name]);
+
+  /* ---- begin a round: maybe roll an event ---- */
+  const beginRound = useCallback((r: number) => {
+    snd.transition();
+    // event every 2-3 rounds
+    const hasEvent = r === 1 ? false : (r % 2 === 0 || Math.random() < 0.4);
+    setEvent(
+      hasEvent
+        ? GLOBAL_EVENTS[Math.floor(Math.random() * GLOBAL_EVENTS.length)]
+        : null
+    );
+    setSelectedOp(null);
+    setResult(null);
+    setCloseCall(null);
+    setAiLog([]);
+    setPhase("round-intro");
+  }, []);
+
+  /* ---- choose op + spin ---- */
+  const pickOp = useCallback(
+    (op: Operation) => {
+      if (!human) return;
+      snd.select();
+      setSelectedOp(op);
+      const caught = effectiveCaught(op, round, event, 0);
+      const segs = angleSegments(buildWheel(caught));
+      setSegments(segs);
+      setRotation(0);
+      rotationRef.current = 0;
+      setPhase("choose");
+    },
+    [human, round, event]
+  );
+
+  const spin = useCallback(() => {
+    if (!human || !selectedOp) return;
+    setPhase("spinning");
+    setSpinning(true);
+    // predetermine landing
+    const landing = Math.random() * 360;
+    const res = resolveSpin(selectedOp, round, event, human, landing);
+    setResult(res);
+    // rotate so that `landing` sits under the top pointer
+    const base = rotationRef.current;
+    const currentMod = ((base % 360) + 360) % 360;
+    const target = base + (360 - currentMod) + (360 * 5) + (360 - landing);
+    rotationRef.current = target;
+    setRotation(target);
+
+    // ticking sound during spin
+    let ticks = 0;
+    const tickInt = setInterval(() => {
+      snd.tick();
+      ticks++;
+      if (ticks > 26) clearInterval(tickInt);
+    }, 130);
+
+    window.setTimeout(() => {
+      clearInterval(tickInt);
+      setSpinning(false);
+      finishHumanSpin(selectedOp, res);
+    }, 4300);
+  }, [human, selectedOp, round, event]);
+
+  const finishHumanSpin = useCallback(
+    (op: Operation, res: SpinResult) => {
+      setPlayers((prev) =>
+        prev.map((p) => {
+          if (!p.isHuman) return p;
+          return applyResult(p, op, res);
+        })
+      );
+      // close-call flavor
+      if (res.outcome !== "caught" && res.margin < 14) {
+        setCloseCall(
+          res.margin < 7 ? "That was close…" : "Lucky escape!"
+        );
+      }
+      if (res.outcome === "caught") {
+        res.eliminated ? snd.caught() : snd.lose();
+      } else if (res.outcome === "bigSuccess") {
+        snd.bigWin();
+      } else if (res.delta > op.cost) {
+        snd.win();
+      }
+      setPhase("outcome");
+    },
+    []
+  );
+
+  /* ---- AI turns ---- */
+  const runAiTurns = useCallback(() => {
+    setPhase("ai");
+    setPlayers((prev) => {
+      const alive = prev.filter((p) => p.alive);
+      const sorted = [...alive].sort((a, b) => b.cash - a.cash);
+      const rankFrac = (p: Player) => {
+        const idx = sorted.findIndex((x) => x.id === p.id);
+        return sorted.length > 1 ? idx / (sorted.length - 1) : 0;
+      };
+      const log: Player[] = [];
+      const next = prev.map((p) => {
+        if (p.isHuman || !p.alive) return p;
+        const op = chooseAiOp(p, rankFrac(p));
+        if (!op) {
+          return p;
+        }
+        const res = resolveSpin(op, round, event, p);
+        const updated = applyResult(p, op, res);
+        log.push(updated);
+        return updated;
+      });
+      setAiLog(log);
+      return next;
+    });
+    window.setTimeout(() => finishRound(), 2200);
+  }, [round, event]);
+
+  /* ---- end of round bookkeeping ---- */
+  const finishRound = useCallback(() => {
+    setPlayers((prev) =>
+      prev.map((p) => (p.alive ? { ...p, roundsSurvived: round } : p))
+    );
+    setPhase("scoreboard");
+  }, [round]);
+
+  const nextRound = useCallback(() => {
+    const aliveCount = players.filter((p) => p.alive).length;
+    if (aliveCount <= 1 || round >= TOTAL_ROUNDS) {
+      snd.stopMusic();
+      setPhase("winner");
+      return;
+    }
+    const r = round + 1;
+    setRound(r);
+    beginRound(r);
+  }, [players, round, beginRound]);
+
+  /* ---- helpers ---- */
+  function applyResult(p: Player, op: Operation, res: SpinResult): Player {
+    const good = res.outcome === "success" || res.outcome === "bigSuccess" || res.outcome === "bonus";
+    const netProfit = res.delta - op.cost;
+    let tokens = p.tokens;
+    let alive = p.alive;
+    let cashAtElimination = p.cashAtElimination;
+    let cash = p.cash - op.cost + res.delta;
+    if (res.tokenLost) {
+      tokens = Math.max(0, p.tokens - 1);
+      if (tokens <= 0) {
+        alive = false;
+        cashAtElimination = cash;
+      }
+    }
+    return {
+      ...p,
+      cash,
+      tokens,
+      alive,
+      cashAtElimination,
+      opsCompleted: p.opsCompleted + 1,
+      biggestWin: Math.max(p.biggestWin, netProfit),
+      biggestGamble: Math.max(p.biggestGamble, op.cost),
+      caughtHits: p.caughtHits + (res.tokenLost ? 1 : 0),
+      goodOutcomes: p.goodOutcomes + (good ? 1 : 0),
+      totalOutcomes: p.totalOutcomes + 1,
+      closestCall: res.outcome === "caught" ? p.closestCall : Math.min(p.closestCall, res.margin),
+      lastLabel: OUTCOME_LABEL[res.outcome],
+      lastDelta: netProfit,
+    };
+  }
+
+  /* ---- derived ---- */
+  const ranked = useMemo(
+    () =>
+      [...players].sort((a, b) => {
+        if (a.alive !== b.alive) return a.alive ? -1 : 1;
+        return b.cash - a.cash;
+      }),
+    [players]
+  );
+
+  const heatPct = Math.round(heatForRound(round) * 100);
+
+  /* ================================================================ */
+  /*  RENDER                                                          */
+  /* ================================================================ */
+
+  const shell = (children: React.ReactNode) => (
+    <div
+      className="relative w-full overflow-hidden rounded-2xl"
+      style={{
+        minHeight: embedded ? 640 : "100vh",
+        background:
+          "radial-gradient(1200px 600px at 20% -10%, rgba(0,188,212,0.12), transparent), radial-gradient(900px 500px at 90% 110%, rgba(245,184,0,0.1), transparent), #05070d",
+        color: "#e5e7eb",
+        fontFamily: "'DM Sans', system-ui, sans-serif",
+      }}
+    >
+      <div className="pointer-events-none absolute inset-0 opacity-[0.06]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(0,188,212,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(0,188,212,0.6) 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
+        }}
+      />
+      <button
+        onClick={() => setMuted((m) => !m)}
+        aria-label={muted ? "Unmute" : "Mute"}
+        className="absolute top-4 right-4 z-30 rounded-full p-2 border border-cyan-400/30 bg-black/40 hover:bg-black/60 transition"
+        style={{ color: "#00bcd4" }}
+      >
+        {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+      </button>
+      <div className="relative z-10 px-4 py-8 md:px-8">{children}</div>
+    </div>
+  );
+
+  /* ---- WELCOME ---- */
+  if (phase === "welcome") {
+    return shell(
+      <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto py-10">
+        <Skull size={56} style={{ color: "#f5b800" }} className="mb-4 drop-shadow-[0_0_18px_rgba(245,184,0,0.5)]" />
+        <h1
+          className="text-6xl md:text-7xl font-black tracking-[0.15em] mb-3"
+          style={{
+            fontFamily: "'IBM Plex Mono', monospace",
+            color: "#fff",
+            textShadow: "0 0 24px rgba(0,188,212,0.6)",
+          }}
+        >
+          SYNDICATE
+        </h1>
+        <p className="text-cyan-300 font-mono text-sm md:text-base mb-1">Build your empire.</p>
+        <p className="text-cyan-300 font-mono text-sm md:text-base mb-1">Trust nobody.</p>
+        <p className="text-red-400 font-mono text-sm md:text-base mb-8">Don't get caught.</p>
+
+        <div className="w-full max-w-xs">
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && startGame()}
+            placeholder="Enter your alias"
+            maxLength={18}
+            className="w-full rounded-lg bg-black/50 border border-cyan-400/30 px-4 py-3 text-center text-white outline-none focus:border-cyan-400 mb-4"
+          />
+          <button
+            onClick={startGame}
+            className="w-full rounded-lg py-3 font-mono font-bold tracking-widest text-black transition hover:brightness-110"
+            style={{ background: "linear-gradient(90deg,#f5b800,#ffd34d)", boxShadow: "0 0 24px rgba(245,184,0,0.4)" }}
+          >
+            START
+          </button>
+        </div>
+        <p className="text-white/40 text-xs mt-8 max-w-sm">
+          A fictional strategy game of luck and nerve. Outlast 5 AI rivals across up to {TOTAL_ROUNDS} rounds. Richest survivor wins.
+        </p>
+      </div>
+    );
+  }
+
+  /* ---- HUD (shared top bar for in-game phases) ---- */
+  const hud = human && (
+    <div className="max-w-3xl mx-auto mb-6">
+      <div className="flex items-center justify-between mb-2 text-xs font-mono">
+        <span className="text-cyan-300">ROUND {round}/{TOTAL_ROUNDS}</span>
+        <span className="flex items-center gap-1 text-orange-400">
+          <Flame size={13} /> HEAT +{heatPct}%
+        </span>
+      </div>
+      <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden">
+        <div
+          className="h-full rounded-full transition-all"
+          style={{ width: `${(round / TOTAL_ROUNDS) * 100}%`, background: "linear-gradient(90deg,#00bcd4,#f5b800)" }}
+        />
+      </div>
+      <div className="flex items-center justify-between mt-3">
+        <div>
+          <div className="text-2xl font-black text-white font-mono">
+            <MoneyCounter value={human.cash} />
+          </div>
+          <div className="text-xs text-white/50">{human.name}</div>
+        </div>
+        <div className="flex items-center gap-1">
+          {Array.from({ length: START_TOKENS }).map((_, i) => (
+            <Shield
+              key={i}
+              size={20}
+              style={{ color: i < human.tokens ? "#00bcd4" : "rgba(255,255,255,0.15)" }}
+              fill={i < human.tokens ? "#00bcd4" : "transparent"}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  /* ---- ROUND INTRO ---- */
+  if (phase === "round-intro") {
+    return shell(
+      <div className="max-w-3xl mx-auto">
+        {hud}
+        <div className="text-center py-6">
+          {event ? (
+            <div className="rounded-xl border border-orange-400/40 bg-orange-500/10 p-6 mb-6 animate-scale-in">
+              <p className="text-orange-300 font-mono text-xs mb-1">GLOBAL EVENT</p>
+              <h3 className="text-2xl font-bold text-white mb-2">{event.name}</h3>
+              <p className="text-white/70 text-sm">{event.description}</p>
+              <div className="flex justify-center gap-4 mt-3 text-xs font-mono">
+                {event.riskMult !== 1 && (
+                  <span className={event.riskMult > 1 ? "text-red-400" : "text-green-400"}>
+                    Detection {event.riskMult > 1 ? "▲" : "▼"} {Math.round(Math.abs(event.riskMult - 1) * 100)}%
+                  </span>
+                )}
+                {event.profitMult !== 1 && (
+                  <span className={event.profitMult > 1 ? "text-green-400" : "text-red-400"}>
+                    Profit {event.profitMult > 1 ? "▲" : "▼"} {Math.round(Math.abs(event.profitMult - 1) * 100)}%
+                  </span>
+                )}
+              </div>
+            </div>
+          ) : (
+            <p className="text-white/50 mb-6">The streets are quiet… for now.</p>
+          )}
+          <button
+            onClick={() => setPhase("choose")}
+            className="rounded-lg px-8 py-3 font-mono font-bold text-black hover:brightness-110 transition"
+            style={{ background: "linear-gradient(90deg,#00bcd4,#5eead4)" }}
+          >
+            CHOOSE OPERATION
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  /* ---- CHOOSE ---- */
+  if (phase === "choose") {
+    return shell(
+      <div className="max-w-3xl mx-auto">
+        {hud}
+        {!selectedOp ? (
+          <>
+            <h2 className="text-center font-mono text-cyan-300 mb-4 text-sm">SELECT ONE OPERATION</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {OPERATIONS.map((op) => {
+                const afford = human!.cash >= op.cost;
+                const eff = Math.round(effectiveCaught(op, round, event, 0) * 100);
+                return (
+                  <button
+                    key={op.id}
+                    disabled={!afford}
+                    onClick={() => pickOp(op)}
+                    className="text-left rounded-xl border p-4 transition disabled:opacity-35 disabled:cursor-not-allowed hover:border-cyan-400/60 hover:bg-white/[0.04]"
+                    style={{ borderColor: "rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.02)" }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-white">{op.name}</span>
+                      <RiskBadge risk={op.risk} />
+                    </div>
+                    <p className="text-white/50 text-xs mt-1 mb-2 leading-snug">{op.description}</p>
+                    <div className="flex items-center justify-between text-xs font-mono">
+                      <span className="text-red-300">Cost {fmt(op.cost)}</span>
+                      <span className="text-green-300">Profit {fmt(op.payout)}</span>
+                      <span className="text-orange-300">Caught {eff}%</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        ) : (
+          <div className="text-center">
+            <h2 className="font-bold text-2xl text-white mb-1">{selectedOp.name}</h2>
+            <p className="text-white/50 text-sm mb-4">
+              Invested {fmt(selectedOp.cost)} · Caught {Math.round(effectiveCaught(selectedOp, round, event, 0) * 100)}%
+            </p>
+            <Wheel segments={segments} rotation={rotation} spinning={spinning} />
+            <button
+              onClick={spin}
+              className="mt-4 rounded-lg px-10 py-3 font-mono font-bold text-black hover:brightness-110 transition"
+              style={{ background: "linear-gradient(90deg,#f5b800,#ffd34d)", boxShadow: "0 0 24px rgba(245,184,0,0.4)" }}
+            >
+              SPIN THE WHEEL
+            </button>
+            <div className="mt-3">
+              <button onClick={() => setSelectedOp(null)} className="text-white/40 text-xs hover:text-white/70">
+                ← pick a different operation
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  /* ---- SPINNING ---- */
+  if (phase === "spinning") {
+    return shell(
+      <div className="max-w-3xl mx-auto text-center">
+        {hud}
+        <h2 className="font-bold text-xl text-white mb-4">{selectedOp?.name}</h2>
+        <Wheel segments={segments} rotation={rotation} spinning={spinning} />
+        <p className="text-cyan-300 font-mono mt-4 animate-pulse">Spinning…</p>
+      </div>
+    );
+  }
+
+  /* ---- OUTCOME ---- */
+  if (phase === "outcome" && result) {
+    const caughtEl = result.outcome === "caught";
+    const good = result.delta > (selectedOp?.cost ?? 0);
+    const net = result.delta - (selectedOp?.cost ?? 0);
+    return shell(
+      <div className="max-w-3xl mx-auto text-center">
+        {hud}
+        <Wheel segments={segments} rotation={rotation} spinning={false} />
+        <div className="mt-5 animate-scale-in">
+          <div
+            className="inline-block rounded-xl px-8 py-4 font-black text-2xl"
+            style={{
+              background: caughtEl ? "rgba(239,68,68,0.15)" : good ? "rgba(34,197,94,0.15)" : "rgba(148,163,184,0.15)",
+              border: `1px solid ${caughtEl ? "#ef4444" : good ? "#22c55e" : "#94a3b8"}`,
+              color: caughtEl ? "#fca5a5" : good ? "#86efac" : "#cbd5e1",
+            }}
+          >
+            {OUTCOME_LABEL[result.outcome]}
+            {caughtEl && (result.eliminated ? " — ELIMINATED" : " — token lost!")}
+          </div>
+          {!caughtEl && (
+            <p className={`mt-3 text-xl font-mono font-bold ${net >= 0 ? "text-green-400" : "text-red-400"}`}>
+              {net >= 0 ? "+" : ""}{fmt(net)}
+            </p>
+          )}
+          {closeCall && !caughtEl && (
+            <p className="mt-2 text-orange-300 font-mono text-sm animate-pulse">⚡ {closeCall}</p>
+          )}
+        </div>
+        <button
+          onClick={runAiTurns}
+          className="mt-6 rounded-lg px-8 py-3 font-mono font-bold text-black hover:brightness-110 transition"
+          style={{ background: "linear-gradient(90deg,#00bcd4,#5eead4)" }}
+        >
+          {human?.alive ? "RIVALS' TURN →" : "SEE THE FALLOUT →"}
+        </button>
+      </div>
+    );
+  }
+
+  /* ---- AI TURNS ---- */
+  if (phase === "ai") {
+    return shell(
+      <div className="max-w-3xl mx-auto">
+        {hud}
+        <h2 className="text-center font-mono text-cyan-300 mb-4 text-sm">RIVALS MAKE THEIR MOVES</h2>
+        <div className="space-y-2">
+          {aiLog.map((p, i) => (
+            <div
+              key={p.id}
+              className="flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 animate-fade-in"
+              style={{ animationDelay: `${i * 220}ms`, animationFillMode: "backwards" }}
+            >
+              <span className="flex items-center gap-2">
+                <span className="text-xl">{p.avatar}</span>
+                <span className="font-bold" style={{ color: p.color }}>{p.name}</span>
+                <span className="text-white/40 text-xs">{p.lastLabel}</span>
+              </span>
+              <span className={`font-mono text-sm ${(p.lastDelta ?? 0) >= 0 ? "text-green-400" : "text-red-400"}`}>
+                {!p.alive ? <span className="text-red-500 font-bold">CAUGHT</span> : `${(p.lastDelta ?? 0) >= 0 ? "+" : ""}${fmt(p.lastDelta ?? 0)}`}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  /* ---- SCOREBOARD ---- */
+  if (phase === "scoreboard") {
+    return shell(
+      <div className="max-w-3xl mx-auto">
+        {hud}
+        <h2 className="text-center font-mono text-cyan-300 mb-4 text-sm">LEADERBOARD</h2>
+        <div className="space-y-2">
+          {ranked.map((p, i) => (
+            <div
+              key={p.id}
+              className="flex items-center justify-between rounded-lg border px-4 py-3"
+              style={{
+                borderColor: p.isHuman ? "rgba(245,184,0,0.5)" : "rgba(255,255,255,0.1)",
+                background: p.alive ? "rgba(255,255,255,0.03)" : "rgba(239,68,68,0.08)",
+                opacity: p.alive ? 1 : 0.7,
+              }}
+            >
+              <span className="flex items-center gap-3">
+                <span className="font-mono text-white/40 w-5 text-sm">{i + 1}</span>
+                <span className="text-xl">{p.avatar}</span>
+                <span className="font-bold" style={{ color: p.isHuman ? "#f5b800" : p.color }}>
+                  {p.name}{p.isHuman && " (you)"}
+                </span>
+                {!p.alive && <span className="text-red-500 font-bold text-xs font-mono px-2 py-0.5 rounded bg-red-500/15">CAUGHT</span>}
+              </span>
+              <span className="flex items-center gap-3">
+                <span className="flex gap-0.5">
+                  {Array.from({ length: p.tokens }).map((_, k) => (
+                    <Shield key={k} size={13} style={{ color: "#00bcd4" }} fill="#00bcd4" />
+                  ))}
+                </span>
+                <span className="font-mono font-bold text-white">{fmt(p.cash)}</span>
+              </span>
+            </div>
+          ))}
+        </div>
+        <div className="text-center mt-6">
+          <button
+            onClick={nextRound}
+            className="rounded-lg px-8 py-3 font-mono font-bold text-black hover:brightness-110 transition"
+            style={{ background: "linear-gradient(90deg,#f5b800,#ffd34d)" }}
+          >
+            {players.filter((p) => p.alive).length <= 1 || round >= TOTAL_ROUNDS ? "SEE RESULTS →" : "NEXT ROUND →"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  /* ---- WINNER + FINAL STATS ---- */
+  if (phase === "winner") {
+    const alive = players.filter((p) => p.alive);
+    const champion = (alive.length ? alive : players).sort((a, b) => b.cash - a.cash)[0];
+    const superlative = (
+      label: string,
+      pick: (arr: Player[]) => Player | undefined,
+      fmtVal: (p: Player) => string,
+      pool: Player[] = players
+    ) => {
+      const p = pick(pool);
+      if (!p) return null;
+      return { label, name: p.name, avatar: p.avatar, color: p.color, val: fmtVal(p) };
+    };
+    const maxBy = (arr: Player[], f: (p: Player) => number) =>
+      arr.length ? arr.reduce((a, b) => (f(b) > f(a) ? b : a)) : undefined;
+    const minBy = (arr: Player[], f: (p: Player) => number) =>
+      arr.length ? arr.reduce((a, b) => (f(b) < f(a) ? b : a)) : undefined;
+    const eliminated = players.filter((p) => !p.alive);
+
+    const stats = [
+      superlative("Biggest Winner", (a) => maxBy(a, (p) => p.cash), (p) => fmt(p.cash)),
+      superlative("Highest Single Profit", (a) => maxBy(a, (p) => p.biggestWin), (p) => fmt(p.biggestWin)),
+      superlative("Biggest Gamble", (a) => maxBy(a, (p) => p.biggestGamble), (p) => fmt(p.biggestGamble)),
+      superlative(
+        "Luckiest Player",
+        (a) => maxBy(a.filter((p) => p.totalOutcomes > 0), (p) => p.goodOutcomes / p.totalOutcomes),
+        (p) => `${Math.round((p.goodOutcomes / Math.max(1, p.totalOutcomes)) * 100)}% wins`
+      ),
+      superlative("Most Wanted", (a) => maxBy(a, (p) => p.caughtHits), (p) => `${p.caughtHits} raids`),
+      superlative(
+        "Closest Escape",
+        (a) => minBy(a.filter((p) => p.closestCall < 360), (p) => p.closestCall),
+        (p) => `${Math.round(p.closestCall)}° margin`
+      ),
+      eliminated.length
+        ? superlative(
+            "Richest Eliminated",
+            (a) => maxBy(a, (p) => p.cashAtElimination ?? -1),
+            (p) => fmt(p.cashAtElimination ?? 0),
+            eliminated
+          )
+        : null,
+    ].filter(Boolean) as { label: string; name: string; avatar: string; color: string; val: string }[];
+
+    return shell(
+      <div className="max-w-2xl mx-auto text-center">
+        <Crown size={52} style={{ color: "#f5b800" }} className="mx-auto mb-3 drop-shadow-[0_0_18px_rgba(245,184,0,0.6)]" />
+        <p className="font-mono text-cyan-300 text-sm">CHAMPION</p>
+        <h1 className="text-5xl font-black text-white mb-1" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+          <span className="mr-2">{champion.avatar}</span>{champion.name}
+        </h1>
+        <p className="text-3xl font-mono font-bold" style={{ color: "#f5b800" }}>{fmt(champion.cash)}</p>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-6 text-xs">
+          <StatChip label="Final Fortune" value={fmt(champion.cash)} />
+          <StatChip label="Rounds Survived" value={String(champion.roundsSurvived)} />
+          <StatChip label="Biggest Win" value={fmt(champion.biggestWin)} />
+          <StatChip label="Operations" value={String(champion.opsCompleted)} />
+        </div>
+
+        <h3 className="font-mono text-cyan-300 text-sm mb-3 flex items-center justify-center gap-2">
+          <TrendingUp size={15} /> HALL OF FAME
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-left">
+          {stats.map((s) => (
+            <div key={s.label} className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-2.5 flex items-center justify-between">
+              <div>
+                <div className="text-[11px] text-white/40 font-mono uppercase tracking-wide">{s.label}</div>
+                <div className="font-bold" style={{ color: s.color }}>
+                  <span className="mr-1">{s.avatar}</span>{s.name}
+                </div>
+              </div>
+              <div className="font-mono text-sm text-white">{s.val}</div>
+            </div>
+          ))}
+        </div>
+
+        <button
+          onClick={() => {
+            snd.startMusic();
+            setPhase("welcome");
+          }}
+          className="mt-8 rounded-lg px-10 py-3 font-mono font-bold text-black hover:brightness-110 transition"
+          style={{ background: "linear-gradient(90deg,#f5b800,#ffd34d)", boxShadow: "0 0 24px rgba(245,184,0,0.4)" }}
+        >
+          PLAY AGAIN
+        </button>
+      </div>
+    );
+  }
+
+  return shell(<div />);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Small components                                                   */
+/* ------------------------------------------------------------------ */
+
+function RiskBadge({ risk }: { risk: Operation["risk"] }) {
+  const color =
+    risk === "low" ? "#22c55e" : risk === "medium" ? "#f5b800" : risk === "high" ? "#f97316" : "#ef4444";
+  return (
+    <span
+      className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full"
+      style={{ color, background: `${color}22`, border: `1px solid ${color}55` }}
+    >
+      {RISK_LABEL[risk]}
+    </span>
+  );
+}
+
+function StatChip({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2">
+      <div className="text-[10px] text-white/40 font-mono uppercase tracking-wide">{label}</div>
+      <div className="font-mono font-bold text-white text-sm">{value}</div>
+    </div>
+  );
+}
