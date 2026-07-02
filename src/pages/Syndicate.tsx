@@ -1441,8 +1441,9 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                 icon: Coins,
                 step: "STEP 2",
                 tone: "info",
-                text: "Tap a card to choose a job. Read it left to right: gold COST is what you pay, green PAYOUT is what you can win, the eye is your CAUGHT chance. Green = safe, purple = big risk.",
+                text: "Tap a card to run a job. Gold = cost, green = payout, eye = caught chance. Green cards are safe, purple are high-risk.",
               },
+
         )}
         {!selectedOp ? (
           <>
