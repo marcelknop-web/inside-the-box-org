@@ -1398,32 +1398,90 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
 
   /* ---- HUD (shared top bar for in-game phases) ---- */
+  const maxCash = Math.max(1, ...players.map((p) => Math.max(0, p.cash)));
   const hud = human && (
     <div className="max-w-3xl mx-auto mb-3">
-      <div className="flex items-center justify-between gap-3">
-        <div className="min-w-0">
-          <div className="text-xl md:text-2xl font-black text-white font-mono leading-none">
-            <MoneyCounter value={human.cash} />
-          </div>
-          <div className="text-[11px] text-white/50">{human.name}</div>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1">
-            {Array.from({ length: START_TOKENS }).map((_, i) => (
-              <Shield
-                key={i}
-                size={18}
-                style={{ color: i < human.tokens ? "#00bcd4" : "rgba(255,255,255,0.15)" }}
-                fill={i < human.tokens ? "#00bcd4" : "transparent"}
-              />
-            ))}
-          </div>
-          <span className="flex items-center gap-1 text-orange-400 text-xs font-mono">
-            <Flame size={13} /> +{heatPct}%
-          </span>
-        </div>
+      {/* ROW 1 — player avatars on their power hubs */}
+      <div className="flex items-stretch gap-2 mb-2">
+        {players.map((p) => {
+          const isActive = p.id === activeId;
+          return (
+            <div
+              key={p.id}
+              className="flex-1 flex items-center gap-2 rounded-xl border px-2.5 py-1.5 min-w-0 transition"
+              style={{
+                borderColor: isActive ? `${p.color}` : "rgba(255,255,255,0.10)",
+                background: isActive ? `${p.color}18` : "rgba(255,255,255,0.03)",
+                boxShadow: isActive ? `0 0 18px -6px ${p.color}` : "none",
+                opacity: p.alive ? 1 : 0.4,
+              }}
+            >
+              <div className="relative">
+                <Avatar img={p.img} fallback={p.avatar} color={p.color} size={30} />
+                {!p.alive && (
+                  <Skull size={12} className="absolute -bottom-1 -right-1 text-red-400" />
+                )}
+              </div>
+              <div className="min-w-0">
+                <div className="text-[12px] font-bold text-white leading-tight truncate">
+                  {p.name}
+                </div>
+                <div className="flex items-center gap-0.5 text-[10px] text-white/50 truncate">
+                  <MapPin size={9} style={{ color: p.color }} />
+                  {p.location?.city ?? "—"}
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
-      <div className="mt-2 flex items-center gap-2">
+
+      {/* ROW 2 — money level per player */}
+      <div className="space-y-1.5 rounded-xl border border-white/10 bg-black/30 px-2.5 py-2 mb-2">
+        {players.map((p) => (
+          <div key={p.id} className="flex items-center gap-2">
+            <span className="w-14 shrink-0 text-[10px] font-mono text-white/55 truncate">
+              {p.isHuman ? "YOU" : p.name}
+            </span>
+            <div className="h-2.5 flex-1 rounded-full bg-white/8 overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all duration-500"
+                style={{
+                  width: `${Math.max(3, (Math.max(0, p.cash) / maxCash) * 100)}%`,
+                  background: p.alive
+                    ? `linear-gradient(90deg, ${p.color}, ${p.color}aa)`
+                    : "rgba(148,163,184,0.4)",
+                  boxShadow: p.alive ? `0 0 10px -2px ${p.color}` : "none",
+                }}
+              />
+            </div>
+            <span
+              className="w-16 shrink-0 text-right text-[11px] font-mono font-bold"
+              style={{ color: p.alive ? "#fff" : "#94a3b8" }}
+            >
+              {p.isHuman ? <MoneyCounter value={p.cash} /> : fmt(p.cash)}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Human status: shields + heat + round progress */}
+      <div className="flex items-center justify-between gap-3 mb-1.5">
+        <div className="flex items-center gap-1">
+          {Array.from({ length: START_TOKENS }).map((_, i) => (
+            <Shield
+              key={i}
+              size={16}
+              style={{ color: i < human.tokens ? "#00bcd4" : "rgba(255,255,255,0.15)" }}
+              fill={i < human.tokens ? "#00bcd4" : "transparent"}
+            />
+          ))}
+        </div>
+        <span className="flex items-center gap-1 text-orange-400 text-xs font-mono">
+          <Flame size={13} /> +{heatPct}%
+        </span>
+      </div>
+      <div className="flex items-center gap-2">
         <span className="text-[10px] font-mono text-cyan-300 shrink-0">R{round}/{TOTAL_ROUNDS}</span>
         <div className="h-1.5 flex-1 rounded-full bg-white/10 overflow-hidden">
           <div
@@ -1434,6 +1492,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       </div>
     </div>
   );
+
 
 
   /* ---- Beginner coach bar (persistent, step-by-step guidance) ---- */
