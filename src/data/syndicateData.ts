@@ -3,6 +3,15 @@
 /*  Purely a luck/strategy game. No real-world guidance of any kind.    */
 /* ------------------------------------------------------------------ */
 
+import vexImg from "@/assets/syndicate/vex.jpg";
+import nyxImg from "@/assets/syndicate/nyx.jpg";
+import mammonImg from "@/assets/syndicate/mammon.jpg";
+import echoImg from "@/assets/syndicate/echo.jpg";
+import glitchImg from "@/assets/syndicate/glitch.jpg";
+import humanImg from "@/assets/syndicate/human.jpg";
+
+export const HUMAN_AVATAR_IMG = humanImg;
+
 export type RiskLevel = "low" | "medium" | "high" | "veryhigh";
 
 export interface Operation {
