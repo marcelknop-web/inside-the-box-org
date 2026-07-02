@@ -15,11 +15,14 @@ export interface Operation {
 }
 
 // Base "Caught" slice fraction per risk level (modified by global events).
+// Calibrated via a 5,000-game balancing simulation (see /tmp balancing report):
+// high-risk detection was lowered so aggressive play stays viable, and every
+// tier now earns a realistic share of wins.
 export const RISK_CAUGHT: Record<RiskLevel, number> = {
-  low: 0.05,
-  medium: 0.15,
-  high: 0.3,
-  veryhigh: 0.45,
+  low: 0.06,
+  medium: 0.18,
+  high: 0.2,
+  veryhigh: 0.3,
 };
 
 export const RISK_LABEL: Record<RiskLevel, string> = {
