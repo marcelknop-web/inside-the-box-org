@@ -1503,26 +1503,26 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                     </span>
 
                     {/* icon tile */}
-                    <div className="relative z-10 flex items-center justify-center h-20 mb-2">
+                    <div className="relative z-10 flex items-center justify-center h-14 md:h-16 mb-1.5">
                       <span
-                        className="flex h-16 w-16 items-center justify-center rounded-2xl border transition group-hover:scale-110"
+                        className="flex h-12 w-12 md:h-14 md:w-14 items-center justify-center rounded-2xl border transition group-hover:scale-110"
                         style={{
                           borderColor: `${theme.glow}55`,
                           background: `radial-gradient(circle at 50% 40%, ${theme.glow}33, transparent 70%)`,
                           boxShadow: `inset 0 0 20px ${theme.glow}22`,
                         }}
                       >
-                        <Icon size={30} style={{ color: theme.glow, filter: `drop-shadow(0 0 6px ${theme.glow}aa)` }} />
+                        <Icon size={26} style={{ color: theme.glow, filter: `drop-shadow(0 0 6px ${theme.glow}aa)` }} />
                       </span>
                     </div>
 
                     {/* title */}
-                    <p className="relative z-10 font-black uppercase tracking-wide text-white text-sm leading-tight mb-2 min-h-[2.4em]">
+                    <p className="relative z-10 font-black uppercase tracking-wide text-white text-xs md:text-sm leading-tight mb-1.5 min-h-[2.2em]">
                       {op.name}
                     </p>
 
                     {/* stat row */}
-                    <div className="relative z-10 flex items-center justify-between text-[10px] font-mono border-t border-white/10 pt-2">
+                    <div className="relative z-10 flex items-center justify-between text-[10px] font-mono border-t border-white/10 pt-1.5">
                       <span className="flex items-center gap-0.5 text-amber-300">
                         <Coins size={11} />{fmtShort(op.cost)}
                       </span>
@@ -1533,6 +1533,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                         <Eye size={11} />{eff}%
                       </span>
                     </div>
+
                   </button>
                 );
               })}
