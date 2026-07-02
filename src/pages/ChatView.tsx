@@ -34,6 +34,7 @@ const SocLife = lazy(() => import('./SocLife'));
 const OtSocLife = lazy(() => import('./OtSocLife'));
 const AiActReadinessTool = lazy(() => import('./AiActReadinessTool'));
 const WisconsinCardSort = lazy(() => import('./WisconsinCardSort'));
+const Syndicate = lazy(() => import('./Syndicate'));
 
 import { StaggerReveal } from '@/components/StaggerReveal';
 import GlitchText from '@/components/GlitchText';
