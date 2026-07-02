@@ -178,6 +178,7 @@ interface AiTurn {
   op: Operation;
   res: SpinResult;
   caughtPct: number;
+  segs: AngledSegment[]; // wheel for this rival's spin
 }
 
 const CX = 160;
@@ -546,6 +547,9 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   const [closeCall, setCloseCall] = useState<string | null>(null);
   const [aiLog, setAiLog] = useState<AiTurn[]>([]);
   const [aiStep, setAiStep] = useState(0);
+  const [aiSub, setAiSub] = useState<"choice" | "spinning" | "result">("choice");
+  const [aiRotation, setAiRotation] = useState(0);
+  const aiRotationRef = useRef(0);
   const rotationRef = useRef(0);
   const shellRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -816,6 +820,9 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   const runAiTurns = useCallback(() => {
     setPhase("ai");
     setAiStep(0);
+    setAiSub("choice");
+    setAiRotation(0);
+    aiRotationRef.current = 0;
     setPlayers((prev) => {
       const alive = prev.filter((p) => p.alive);
       const sorted = [...alive].sort((a, b) => b.cash - a.cash);
@@ -833,11 +840,17 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         const res = resolveSpin(op, round, event, p);
         const updated = applyResult(p, op, res);
         if (p.profile) updated.quip = quipFor(p.profile.personality, rand);
+        const abilityAdj =
+          p.profile?.personality === "conservative"
+            ? AI_ABILITY.conservativeCaughtAdj
+            : 0;
+        const caughtAdj = effectiveCaught(op, round, event, abilityAdj);
         log.push({
           player: updated,
           op,
           res,
           caughtPct: Math.round(effectiveCaught(op, round, event, 0) * 100),
+          segs: angleSegments(buildWheel(caughtAdj)),
         });
         return updated;
       });
@@ -854,16 +867,52 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     setPhase("scoreboard");
   }, [round]);
 
-  /* ---- step through the rivals one at a time, then finish ---- */
-  useEffect(() => {
-    if (phase !== "ai" || aiLog.length === 0) return;
-    if (aiStep >= aiLog.length) {
-      const t = window.setTimeout(() => finishRound(), 1100);
-      return () => window.clearTimeout(t);
+  /* ---- manual, user-paced walk-through of each rival ---- */
+  const advanceAi = useCallback(() => {
+    if (aiSub === "choice") {
+      // spin the wheel for this rival, animating to its predetermined landing
+      const turn = aiLog[aiStep];
+      if (!turn) return;
+      setAiSub("spinning");
+      const base = aiRotationRef.current;
+      const currentMod = ((base % 360) + 360) % 360;
+      const target = base + (360 - currentMod) + 360 * 5 + (360 - turn.res.landing);
+      aiRotationRef.current = target;
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setAiRotation(target));
+      });
+      let ticks = 0;
+      const tickInt = setInterval(() => {
+        snd.tick();
+        ticks++;
+        if (ticks > 20) clearInterval(tickInt);
+      }, 150);
+      window.setTimeout(() => {
+        clearInterval(tickInt);
+        const o = turn.res.outcome;
+        if (o === "caught") {
+          turn.res.eliminated ? snd.caught() : snd.lose();
+        } else if (o === "bigSuccess") {
+          snd.bigWin();
+        } else if (turn.res.delta > turn.op.cost) {
+          snd.win();
+        }
+        setAiSub("result");
+      }, 3600);
+      return;
     }
-    const t = window.setTimeout(() => setAiStep((s) => s + 1), 2100);
-    return () => window.clearTimeout(t);
-  }, [phase, aiStep, aiLog, finishRound]);
+    if (aiSub === "result") {
+      if (aiStep >= aiLog.length - 1) {
+        finishRound();
+        return;
+      }
+      setAiStep((s) => s + 1);
+      setAiSub("choice");
+      setAiRotation(0);
+      aiRotationRef.current = 0;
+    }
+  }, [aiSub, aiStep, aiLog, finishRound]);
+
 
 
   const nextRound = useCallback(() => {
@@ -1585,17 +1634,18 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     );
   }
 
-  /* ---- AI TURNS (step-by-step, follow along) ---- */
+  /* ---- AI TURNS (user-paced, step-by-step walk-through) ---- */
   if (phase === "ai") {
-    const idx = Math.min(aiStep, aiLog.length - 1);
+    const idx = Math.min(aiStep, Math.max(0, aiLog.length - 1));
     const turn = aiLog[idx];
-    const done = aiStep >= aiLog.length;
-    const skipAll = () => setAiStep(aiLog.length);
+    const skipAll = () => finishRound();
 
     const TurnIcon = turn ? OP_ICON[turn.op.id] ?? Skull : Skull;
     const theme = turn ? RISK_THEME[turn.op.risk] : RISK_THEME.low;
     const caught = turn ? !turn.player.alive : false;
     const delta = turn?.player.lastDelta ?? 0;
+    const showResult = aiSub === "result";
+    const isLast = aiStep >= aiLog.length - 1;
 
     return shell(
       <div className="max-w-2xl mx-auto">
@@ -1603,17 +1653,20 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         {coachBar({
           icon: Eye,
           tone: "info",
-          text: "Follow your rivals one by one. You see the exact job each one runs and how it turns out — green earned, red lost, CAUGHT means busted. Every result reshuffles the leaderboard.",
+          text:
+            aiSub === "choice"
+              ? "This rival has locked in their operation. Read it, then spin their wheel to see how it plays out."
+              : aiSub === "spinning"
+              ? "The wheel is deciding this rival's fate…"
+              : "Here's their result. Tap continue to move on to the next rival.",
         })}
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-mono text-cyan-300 text-sm">
-            RIVAL {Math.min(aiStep + 1, aiLog.length)} / {aiLog.length}
+            RIVAL {idx + 1} / {aiLog.length}
           </h2>
-          {!done && (
-            <button onClick={skipAll} className="text-white/40 text-xs hover:text-white/70 font-mono">
-              skip all →
-            </button>
-          )}
+          <button onClick={skipAll} className="text-white/40 text-xs hover:text-white/70 font-mono">
+            skip all →
+          </button>
         </div>
 
         {/* progress dots */}
@@ -1622,34 +1675,43 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             <span
               key={k}
               className="h-1.5 flex-1 rounded-full transition-colors"
-              style={{ background: k <= idx ? "#00bcd4" : "rgba(255,255,255,0.12)" }}
+              style={{ background: k < idx || (k === idx && showResult) ? "#00bcd4" : k === idx ? "#f5b800" : "rgba(255,255,255,0.12)" }}
             />
           ))}
         </div>
 
-        {/* spotlight on the current rival — same layout as the player's op card */}
         {turn && (
           <div
             key={turn.player.id + aiStep}
             className="rounded-2xl border p-5 animate-fade-in"
             style={{
-              borderColor: caught ? "rgba(239,68,68,0.5)" : `${theme.glow}55`,
-              background: caught ? "rgba(239,68,68,0.06)" : "rgba(255,255,255,0.02)",
-              boxShadow: `0 8px 30px -14px ${caught ? "#ef4444" : theme.glow}88`,
+              borderColor: showResult && caught ? "rgba(239,68,68,0.5)" : `${theme.glow}55`,
+              background: showResult && caught ? "rgba(239,68,68,0.06)" : "rgba(255,255,255,0.02)",
+              boxShadow: `0 8px 30px -14px ${showResult && caught ? "#ef4444" : theme.glow}88`,
             }}
           >
+            {/* rival identity */}
             <div className="flex items-center gap-3 mb-4">
               <Avatar img={turn.player.img} fallback={turn.player.avatar} color={turn.player.color} size={44} />
               <div>
                 <p className="font-bold text-lg leading-tight" style={{ color: turn.player.color }}>
                   {turn.player.name}
                 </p>
-                <p className="text-white/45 text-xs font-mono">runs an operation…</p>
+                <p className="text-white/45 text-xs font-mono">
+                  {aiSub === "choice" ? "chose an operation" : aiSub === "spinning" ? "spinning the wheel…" : "result is in"}
+                </p>
               </div>
             </div>
 
-            {/* the chosen operation */}
-            <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-black/20 p-3 mb-4">
+            {/* the chosen operation — highlighted */}
+            <div
+              className="flex items-center gap-3 rounded-xl border p-3 mb-4 transition-all"
+              style={{
+                borderColor: `${theme.glow}66`,
+                background: `${theme.glow}10`,
+                boxShadow: aiSub === "choice" ? `0 0 0 1px ${theme.glow}55, 0 0 22px -6px ${theme.glow}88` : undefined,
+              }}
+            >
               <span
                 className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border"
                 style={{
@@ -1671,31 +1733,64 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               </div>
             </div>
 
-            {/* outcome */}
-            <div className="flex items-center justify-between">
-              <span
-                className="font-mono font-bold text-sm px-3 py-1 rounded-full"
-                style={{
-                  color: caught ? "#ef4444" : theme.glow,
-                  background: `${caught ? "#ef4444" : theme.glow}18`,
-                  border: `1px solid ${caught ? "#ef4444" : theme.glow}55`,
-                }}
-              >
-                {caught ? "CAUGHT — SHIELD LOST" : turn.player.lastLabel}
-              </span>
-              <span className={`font-mono font-bold text-lg ${delta >= 0 ? "text-green-400" : "text-red-400"}`}>
-                {delta >= 0 ? "+" : ""}{fmt(delta)}
-              </span>
-            </div>
-            {turn.player.quip && (
-              <p className="mt-3 text-sm italic text-white/55">"{turn.player.quip}"</p>
+            {/* the wheel (spinning + result) */}
+            {(aiSub === "spinning" || aiSub === "result") && (
+              <div className="flex flex-col items-center">
+                <div className="scale-90 origin-top">
+                  <Wheel segments={turn.segs} rotation={aiRotation} spinning={aiSub === "spinning"} />
+                </div>
+                {aiSub === "spinning" && (
+                  <p className="text-cyan-300 font-mono mt-2 animate-pulse text-sm">Spinning…</p>
+                )}
+              </div>
+            )}
+
+            {/* outcome — only once the wheel has stopped */}
+            {showResult && (
+              <div className="mt-4 animate-fade-in">
+                <div className="flex items-center justify-between">
+                  <span
+                    className="font-mono font-bold text-sm px-3 py-1 rounded-full"
+                    style={{
+                      color: caught ? "#ef4444" : theme.glow,
+                      background: `${caught ? "#ef4444" : theme.glow}18`,
+                      border: `1px solid ${caught ? "#ef4444" : theme.glow}55`,
+                    }}
+                  >
+                    {caught ? "CAUGHT — SHIELD LOST" : turn.player.lastLabel}
+                  </span>
+                  <span className={`font-mono font-bold text-lg ${delta >= 0 ? "text-green-400" : "text-red-400"}`}>
+                    {delta >= 0 ? "+" : ""}{fmt(delta)}
+                  </span>
+                </div>
+                {turn.player.quip && (
+                  <p className="mt-3 text-sm italic text-white/55">"{turn.player.quip}"</p>
+                )}
+              </div>
             )}
           </div>
         )}
 
-        {/* recap of rivals already shown */}
+        {/* pacing control */}
+        {aiSub !== "spinning" && (
+          <div className="text-center mt-6">
+            <button
+              onClick={advanceAi}
+              className="rounded-lg px-8 py-3 font-mono font-bold text-black hover:brightness-110 transition"
+              style={{ background: "linear-gradient(90deg,#f5b800,#ffd34d)" }}
+            >
+              {aiSub === "choice"
+                ? "SPIN THE WHEEL →"
+                : isLast
+                ? "SEE LEADERBOARD →"
+                : "NEXT RIVAL →"}
+            </button>
+          </div>
+        )}
+
+        {/* recap of rivals already resolved */}
         {idx > 0 && (
-          <div className="mt-5 space-y-1.5">
+          <div className="mt-6 space-y-1.5">
             {aiLog.slice(0, idx).map((t) => {
               const c = !t.player.alive;
               const d = t.player.lastDelta ?? 0;
@@ -1717,6 +1812,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       </div>
     );
   }
+
 
 
   /* ---- SCOREBOARD ---- */
