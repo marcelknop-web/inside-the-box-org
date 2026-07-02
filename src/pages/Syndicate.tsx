@@ -906,6 +906,41 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     ["Fastest Victory", stats.fastestVictory ? `${stats.fastestVictory} rounds` : "—"],
     ["Most Eliminations Survived", String(stats.mostEliminationsSurvived)],
   ];
+  const tipNode = activeTip && (
+    <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+      <div
+        className="w-full max-w-sm rounded-2xl border border-cyan-400/40 bg-[#0a0e14] p-5 text-left animate-scale-in"
+        style={{ boxShadow: "0 0 40px -8px rgba(0,188,212,0.5)" }}
+      >
+        <div className="flex items-center gap-3 mb-3">
+          <span
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-cyan-400/40"
+            style={{ background: "radial-gradient(circle at 50% 40%, rgba(0,188,212,0.3), transparent 70%)" }}
+          >
+            <activeTip.icon size={22} style={{ color: "#00bcd4" }} />
+          </span>
+          <h3 className="font-mono font-black tracking-wide text-white text-base">{activeTip.title}</h3>
+        </div>
+        <p className="text-white/70 text-sm leading-relaxed mb-5">{activeTip.body}</p>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={dismissTip}
+            className="flex-1 rounded-lg py-2.5 font-mono font-bold text-sm text-black transition hover:brightness-110"
+            style={{ background: "linear-gradient(90deg,#f5b800,#ffd34d)" }}
+          >
+            Got it
+          </button>
+          <button
+            onClick={skipTutorial}
+            className="rounded-lg px-3 py-2.5 text-xs font-mono text-white/50 hover:text-white/80 transition"
+          >
+            Skip guide
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
   const overlayNode = overlay && (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
