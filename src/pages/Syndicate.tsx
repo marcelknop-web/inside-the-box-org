@@ -443,91 +443,133 @@ function Wheel({
   spinning: boolean;
 }) {
   return (
-    <div className="relative mx-auto" style={{ width: 320, height: 340 }}>
+    <div
+      className="relative mx-auto select-none"
+      style={{ width: 320, height: 356, perspective: 1100 }}
+    >
       {/* pointer */}
-      <div
-        className="absolute left-1/2 -translate-x-1/2 z-20"
-        style={{ top: -2 }}
-      >
+      <div className="absolute left-1/2 -translate-x-1/2 z-30" style={{ top: 2 }}>
         <div
           style={{
             width: 0,
             height: 0,
-            borderLeft: "14px solid transparent",
-            borderRight: "14px solid transparent",
-            borderTop: "26px solid #f5b800",
-            filter: "drop-shadow(0 0 6px rgba(245,184,0,0.8))",
+            borderLeft: "15px solid transparent",
+            borderRight: "15px solid transparent",
+            borderTop: "30px solid #f5b800",
+            filter: "drop-shadow(0 3px 5px rgba(0,0,0,0.6)) drop-shadow(0 0 8px rgba(245,184,0,0.9))",
           }}
         />
       </div>
-      <svg
-        width={320}
-        height={320}
-        viewBox="0 0 320 320"
-        style={{ marginTop: 18 }}
+
+      {/* 3D tilted stage */}
+      <div
+        className="absolute inset-x-0"
+        style={{
+          top: 22,
+          transformStyle: "preserve-3d",
+          transform: "rotateX(26deg)",
+        }}
       >
-        <circle
-          cx={CX}
-          cy={CY}
-          r={R + 6}
-          fill="none"
-          stroke="rgba(0,188,212,0.35)"
-          strokeWidth={4}
-        />
-        <g
+        {/* cast shadow / base plate for depth */}
+        <div
+          className="absolute left-1/2 -translate-x-1/2"
           style={{
-            transform: `rotate(${rotation}deg)`,
-            transformOrigin: `${CX}px ${CY}px`,
-            transition: spinning
-              ? "transform 4.2s cubic-bezier(0.15,0.9,0.2,1)"
-              : "none",
+            bottom: -14,
+            width: 288,
+            height: 60,
+            borderRadius: "50%",
+            background: "radial-gradient(ellipse at center, rgba(0,0,0,0.6), transparent 72%)",
+            filter: "blur(6px)",
           }}
-        >
-          {segments.map((s, i) => (
-            <g key={i}>
-              <path
-                d={arcPath(s.start, s.end)}
-                fill={s.color}
-                stroke="rgba(0,0,0,0.45)"
-                strokeWidth={1.5}
-                opacity={s.type === "safe" ? 0.85 : 1}
-              />
-              {s.end - s.start > 12 && (
-                <text
-                  x={polar(s.mid, R * 0.68).x}
-                  y={polar(s.mid, R * 0.68).y}
-                  fill="#fff"
-                  fontSize={s.end - s.start > 26 ? 11 : 8}
-                  fontWeight={700}
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  transform={`rotate(${s.mid}, ${polar(s.mid, R * 0.68).x}, ${
-                    polar(s.mid, R * 0.68).y
-                  })`}
-                  style={{ textShadow: "0 1px 2px rgba(0,0,0,0.7)" }}
-                >
-                  {s.label}
-                </text>
-              )}
-            </g>
-          ))}
-        </g>
-        <circle cx={CX} cy={CY} r={26} fill="#0b1220" stroke="#f5b800" strokeWidth={2} />
-        <text
-          x={CX}
-          y={CY}
-          fill="#f5b800"
-          fontSize={20}
-          fontWeight={800}
-          textAnchor="middle"
-          dominantBaseline="central"
-        >
-          $
-        </text>
-      </svg>
+        />
+
+        <svg width={320} height={320} viewBox="0 0 320 320">
+          <defs>
+            {/* metallic outer rim */}
+            <linearGradient id="wheelRim" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#f8d878" />
+              <stop offset="50%" stopColor="#b8860b" />
+              <stop offset="100%" stopColor="#5c430a" />
+            </linearGradient>
+            {/* glossy top-light highlight */}
+            <radialGradient id="wheelGloss" cx="50%" cy="30%" r="75%">
+              <stop offset="0%" stopColor="rgba(255,255,255,0.35)" />
+              <stop offset="45%" stopColor="rgba(255,255,255,0.06)" />
+              <stop offset="100%" stopColor="rgba(0,0,0,0.35)" />
+            </radialGradient>
+            <radialGradient id="hubGrad" cx="50%" cy="35%" r="70%">
+              <stop offset="0%" stopColor="#1b2740" />
+              <stop offset="100%" stopColor="#050912" />
+            </radialGradient>
+          </defs>
+
+          {/* outer 3D rim */}
+          <circle cx={CX} cy={CY} r={R + 8} fill="url(#wheelRim)" />
+          <circle cx={CX} cy={CY} r={R + 2} fill="#0b1220" />
+
+          {/* spinning disc */}
+          <g
+            style={{
+              transform: `rotate(${rotation}deg)`,
+              transformOrigin: `${CX}px ${CY}px`,
+              transition: spinning
+                ? "transform 4.2s cubic-bezier(0.15,0.9,0.2,1)"
+                : "none",
+            }}
+          >
+            {segments.map((s, i) => (
+              <g key={i}>
+                <path
+                  d={arcPath(s.start, s.end)}
+                  fill={s.color}
+                  stroke="rgba(0,0,0,0.5)"
+                  strokeWidth={1.5}
+                  opacity={s.type === "safe" ? 0.9 : 1}
+                />
+                {s.end - s.start > 12 && (
+                  <text
+                    x={polar(s.mid, R * 0.66).x}
+                    y={polar(s.mid, R * 0.66).y}
+                    fill="#fff"
+                    fontSize={s.end - s.start > 26 ? 12 : 9}
+                    fontWeight={800}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    transform={`rotate(${s.mid}, ${polar(s.mid, R * 0.66).x}, ${
+                      polar(s.mid, R * 0.66).y
+                    })`}
+                    style={{ textShadow: "0 1px 3px rgba(0,0,0,0.9)", letterSpacing: "0.02em" }}
+                  >
+                    {s.label}
+                  </text>
+                )}
+              </g>
+            ))}
+          </g>
+
+          {/* glossy overlay (does not spin) */}
+          <circle cx={CX} cy={CY} r={R} fill="url(#wheelGloss)" pointerEvents="none" />
+
+          {/* hub */}
+          <circle cx={CX} cy={CY} r={30} fill="url(#hubGrad)" stroke="#f5b800" strokeWidth={2.5} />
+          <text
+            x={CX}
+            y={CY}
+            fill="#f5b800"
+            fontSize={24}
+            fontWeight={900}
+            textAnchor="middle"
+            dominantBaseline="central"
+            style={{ textShadow: "0 0 8px rgba(245,184,0,0.7)" }}
+          >
+            $
+          </text>
+        </svg>
+      </div>
     </div>
   );
 }
+
 
 /* ------------------------------------------------------------------ */
 /*  Main game                                                          */
