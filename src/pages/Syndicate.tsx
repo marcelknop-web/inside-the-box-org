@@ -1949,15 +1949,17 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           </>
         ) : (
           <WheelPopup accent="#f5b800">
-            <p className="text-center text-[10px] font-mono tracking-[0.3em] text-white/40 mb-1">RUNNING OPERATION</p>
-            <h2 className="font-bold text-xl text-white text-center mb-1">{selectedOp.name}</h2>
-            <p className="mx-auto max-w-md text-center text-white/70 text-sm mb-4 leading-snug">
-              {selectedOp.description}
-            </p>
+            <div className="h-16 flex flex-col justify-center">
+              <p className="text-center text-[10px] font-mono tracking-[0.3em] text-white/40 mb-1">RUNNING OPERATION</p>
+              <h2 className="font-bold text-xl text-white text-center leading-tight">{selectedOp.name}</h2>
+            </div>
             <WheelStage accent="#f5b800">
               <Wheel segments={segments} rotation={rotation} spinning={spinning} />
             </WheelStage>
-            <p className="text-center text-white/45 text-xs font-mono mt-3">
+            <p className="mx-auto max-w-md text-center text-white/70 text-sm mt-3 leading-snug">
+              {selectedOp.description}
+            </p>
+            <p className="text-center text-white/45 text-xs font-mono mt-2">
               Invested {fmt(selectedOp.cost)} · Caught {Math.round(effectiveCaught(selectedOp, round, event, 0) * 100)}%
             </p>
             <button
