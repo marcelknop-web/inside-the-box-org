@@ -1916,7 +1916,10 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         ) : (
           <div className="text-center">
             <h2 className="font-bold text-2xl text-white mb-1">{selectedOp.name}</h2>
-            <p className="text-white/50 text-sm mb-4">
+            <p className="mx-auto max-w-md text-white/70 text-sm mb-2 leading-snug">
+              {selectedOp.description}
+            </p>
+            <p className="text-white/45 text-xs font-mono mb-4">
               Invested {fmt(selectedOp.cost)} · Caught {Math.round(effectiveCaught(selectedOp, round, event, 0) * 100)}%
             </p>
             <Wheel segments={segments} rotation={rotation} spinning={spinning} />
