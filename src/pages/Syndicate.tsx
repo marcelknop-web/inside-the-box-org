@@ -448,7 +448,7 @@ function Wheel({
 }) {
   return (
     <div
-      className="relative mx-auto select-none"
+      className="relative mx-auto select-none max-w-full origin-top scale-[0.82] sm:scale-100"
       style={{ width: 320, height: 356, perspective: 1100 }}
     >
       {/* pointer */}
@@ -600,7 +600,7 @@ function WheelPopup({
       {/* dim + blur the game board behind */}
       <div className="absolute inset-0 bg-black/75 backdrop-blur-md animate-fade-in" />
       <div
-        className={`relative w-full ${wide ? "max-w-lg" : "max-w-md"} max-h-[94vh] overflow-y-auto rounded-3xl border p-5 sm:p-7 animate-scale-in`}
+        className={`relative w-full ${wide ? "max-w-lg" : "max-w-md"} max-h-[94vh] overflow-y-auto overflow-x-hidden rounded-3xl border p-5 sm:p-7 animate-scale-in`}
         style={{
           borderColor: `${accent}55`,
           background: "linear-gradient(180deg, rgba(12,16,26,0.97), rgba(4,6,12,0.99))",
@@ -666,19 +666,19 @@ const WHEEL_LEGEND: { type: Outcome; blurb: string }[] = [
 
 function WheelLegend() {
   return (
-    <div className="mt-5 text-left">
-      <p className="text-[10px] font-mono tracking-[0.25em] text-white/40 mb-2 text-center">
+    <div className="mt-4 text-left rounded-xl border border-white/10 bg-white/[0.03] p-3 sm:p-4">
+      <p className="text-[10px] font-mono tracking-[0.25em] text-white/40 mb-2.5 text-center">
         WHAT THE SLICES MEAN
       </p>
-      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5">
+      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
         {WHEEL_LEGEND.map(({ type, blurb }) => (
           <li key={type} className="flex items-start gap-2">
             <span
               aria-hidden
-              className="mt-1 h-2.5 w-2.5 shrink-0 rounded-sm"
+              className="mt-[3px] h-2.5 w-2.5 shrink-0 rounded-sm"
               style={{ background: OUTCOME_COLOR[type], boxShadow: `0 0 6px ${OUTCOME_COLOR[type]}88` }}
             />
-            <span className="text-xs leading-tight text-white/70">
+            <span className="text-[11px] sm:text-xs leading-snug text-white/70">
               <span className="font-semibold text-white/90">{OUTCOME_LABEL[type]}</span>
               {" — "}
               {blurb}
@@ -689,6 +689,7 @@ function WheelLegend() {
     </div>
   );
 }
+
 
 
 
@@ -1874,9 +1875,15 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
 
                     {/* title */}
-                    <p className="relative z-10 font-black uppercase tracking-wide text-white text-xs md:text-sm leading-tight mb-1.5 min-h-[1.6em]">
+                    <p className="relative z-10 font-black uppercase tracking-wide text-white text-xs md:text-sm leading-tight mb-1 min-h-[1.6em]">
                       {op.name}
                     </p>
+
+                    {/* short outline */}
+                    <p className="relative z-10 text-[10px] leading-snug text-white/55 mb-1.5 line-clamp-2 min-h-[2.4em]">
+                      {op.description}
+                    </p>
+
 
 
                     {/* stat row + data bars (numbers preserved, visualised) */}
@@ -1916,7 +1923,10 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         ) : (
           <div className="text-center">
             <h2 className="font-bold text-2xl text-white mb-1">{selectedOp.name}</h2>
-            <p className="text-white/50 text-sm mb-4">
+            <p className="mx-auto max-w-md text-white/70 text-sm mb-2 leading-snug">
+              {selectedOp.description}
+            </p>
+            <p className="text-white/45 text-xs font-mono mb-4">
               Invested {fmt(selectedOp.cost)} · Caught {Math.round(effectiveCaught(selectedOp, round, event, 0) * 100)}%
             </p>
             <Wheel segments={segments} rotation={rotation} spinning={spinning} />
