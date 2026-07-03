@@ -2012,24 +2012,10 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       <>
         <div className="max-w-3xl mx-auto">{hud}</div>
         <WheelPopup accent={accent}>
-          {coachBar(
-            caughtEl
-              ? {
-                  icon: Skull,
-                  tone: "danger",
-                  text: result.eliminated
-                    ? "You've been caught with no shields left — your crew is out of the game. Watch how the rest plays out below."
-                    : "Caught! You lost one shield token. When all shields are gone, you're eliminated — so weigh the risk next time.",
-                }
-              : {
-                  icon: net >= 0 ? TrendingUp : Coins,
-                  tone: net >= 0 ? "good" : "danger",
-                  text:
-                    net >= 0
-                      ? "The job paid off — this is your net profit after costs. Tap the button below to watch your rivals move."
-                      : "The job cost more than it earned this time. That happens — tap below to continue to your rivals' turn.",
-                },
-          )}
+          <div className="h-16 flex flex-col justify-center">
+            <p className="text-center text-[10px] font-mono tracking-[0.3em] text-white/40 mb-1">OPERATION RESULT</p>
+            <h2 className="font-bold text-xl text-white text-center leading-tight">{selectedOp?.name}</h2>
+          </div>
           <WheelStage accent={accent}>
             <Wheel segments={segments} rotation={rotation} spinning={false} />
           </WheelStage>
@@ -2055,6 +2041,24 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               <p className="mt-2 text-orange-300 font-mono text-sm animate-pulse">⚡ {closeCall}</p>
             )}
           </div>
+          {coachBar(
+            caughtEl
+              ? {
+                  icon: Skull,
+                  tone: "danger",
+                  text: result.eliminated
+                    ? "You've been caught with no shields left — your crew is out of the game. Watch how the rest plays out below."
+                    : "Caught! You lost one shield token. When all shields are gone, you're eliminated — so weigh the risk next time.",
+                }
+              : {
+                  icon: net >= 0 ? TrendingUp : Coins,
+                  tone: net >= 0 ? "good" : "danger",
+                  text:
+                    net >= 0
+                      ? "The job paid off — this is your net profit after costs. Tap the button below to watch your rivals move."
+                      : "The job cost more than it earned this time. That happens — tap below to continue to your rivals' turn.",
+                },
+          )}
           <button
             onClick={runAiTurns}
             className="mt-6 w-full rounded-lg px-8 py-3 font-mono font-bold text-black hover:brightness-110 transition"
