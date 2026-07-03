@@ -1927,6 +1927,9 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             >
               SPIN THE WHEEL
             </button>
+            <div className="mx-auto max-w-md">
+              <WheelLegend />
+            </div>
             <div className="mt-3">
               <button onClick={() => setSelectedOp(null)} className="text-white/40 text-xs hover:text-white/70">
                 ← pick a different operation
