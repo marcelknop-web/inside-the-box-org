@@ -1560,7 +1560,8 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         </div>
       )}
 
-      {/* ROW 2 — money level per player (staggered reveal, aligned columns) */}
+      {/* ROW 2 — money level per player (hidden on scoreboard: leaderboard already ranks cash) */}
+      {phase !== "scoreboard" && (
       <div className="rounded-2xl border border-white/10 bg-black/40 backdrop-blur-sm px-3 py-2.5 mb-2 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.8)]">
         <p className="text-[9px] font-mono tracking-[0.25em] text-white/35 mb-2">CASH ON HAND</p>
         <div className="space-y-2">
@@ -1598,6 +1599,8 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           ))}
         </div>
       </div>
+      )}
+
 
       {/* Human status: shields + heat + round progress (revealed after bars) */}
       <div
