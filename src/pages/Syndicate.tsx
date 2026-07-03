@@ -606,11 +606,11 @@ function WheelPopup({
   wide?: boolean;
 }) {
   return (
-    <div className="fixed inset-0 z-[55] flex items-center justify-center p-3 sm:p-4">
+    <div className="fixed inset-0 z-[55] flex items-start justify-center overflow-y-auto p-3 sm:p-4">
       {/* dim + blur the game board behind */}
-      <div className="absolute inset-0 bg-black/75 backdrop-blur-md animate-fade-in" />
+      <div className="fixed inset-0 bg-black/75 backdrop-blur-md animate-fade-in" />
       <div
-        className={`relative w-full ${wide ? "max-w-lg" : "max-w-md"} max-h-[94vh] overflow-y-auto overflow-x-hidden rounded-3xl border p-5 sm:p-7 animate-scale-in`}
+        className={`relative my-auto w-full ${wide ? "max-w-lg" : "max-w-md"} min-h-[600px] flex flex-col overflow-x-hidden rounded-3xl border p-5 sm:p-7 animate-scale-in`}
         style={{
           borderColor: `${accent}55`,
           background: "linear-gradient(180deg, rgba(12,16,26,0.97), rgba(4,6,12,0.99))",
@@ -1948,18 +1948,23 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             </div>
           </>
         ) : (
-          <div className="text-center">
-            <h2 className="font-bold text-2xl text-white mb-1">{selectedOp.name}</h2>
-            <p className="mx-auto max-w-md text-white/70 text-sm mb-2 leading-snug">
+          <WheelPopup accent="#f5b800">
+            <div className="h-16 flex flex-col justify-center">
+              <p className="text-center text-[10px] font-mono tracking-[0.3em] text-white/40 mb-1">RUNNING OPERATION</p>
+              <h2 className="font-bold text-xl text-white text-center leading-tight">{selectedOp.name}</h2>
+            </div>
+            <WheelStage accent="#f5b800">
+              <Wheel segments={segments} rotation={rotation} spinning={spinning} />
+            </WheelStage>
+            <p className="mx-auto max-w-md text-center text-white/70 text-sm mt-3 leading-snug">
               {selectedOp.description}
             </p>
-            <p className="text-white/45 text-xs font-mono mb-4">
+            <p className="text-center text-white/45 text-xs font-mono mt-2">
               Invested {fmt(selectedOp.cost)} · Caught {Math.round(effectiveCaught(selectedOp, round, event, 0) * 100)}%
             </p>
-            <Wheel segments={segments} rotation={rotation} spinning={spinning} />
             <button
               onClick={spin}
-              className="mt-4 rounded-lg px-10 py-3 font-mono font-bold text-black hover:brightness-110 transition"
+              className="mx-auto mt-4 block rounded-lg px-10 py-3 font-mono font-bold text-black hover:brightness-110 transition"
               style={{ background: "linear-gradient(90deg,#f5b800,#ffd34d)", boxShadow: "0 0 24px rgba(245,184,0,0.4)" }}
             >
               SPIN THE WHEEL
@@ -1967,12 +1972,12 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             <div className="mx-auto max-w-md">
               <WheelLegend />
             </div>
-            <div className="mt-3">
+            <div className="mt-3 text-center">
               <button onClick={() => setSelectedOp(null)} className="text-white/40 text-xs hover:text-white/70">
                 ← pick a different operation
               </button>
             </div>
-          </div>
+          </WheelPopup>
         )}
       </div>
     );
@@ -1984,8 +1989,10 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       <>
         <div className="max-w-3xl mx-auto">{hud}</div>
         <WheelPopup accent="#f5b800">
-          <p className="text-center text-[10px] font-mono tracking-[0.3em] text-white/40 mb-1">RUNNING OPERATION</p>
-          <h2 className="font-bold text-xl text-white mb-5 text-center">{selectedOp?.name}</h2>
+          <div className="h-16 flex flex-col justify-center">
+            <p className="text-center text-[10px] font-mono tracking-[0.3em] text-white/40 mb-1">RUNNING OPERATION</p>
+            <h2 className="font-bold text-xl text-white text-center leading-tight">{selectedOp?.name}</h2>
+          </div>
           <WheelStage accent="#f5b800" active>
             <Wheel segments={segments} rotation={rotation} spinning={spinning} />
           </WheelStage>
@@ -2005,24 +2012,10 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       <>
         <div className="max-w-3xl mx-auto">{hud}</div>
         <WheelPopup accent={accent}>
-          {coachBar(
-            caughtEl
-              ? {
-                  icon: Skull,
-                  tone: "danger",
-                  text: result.eliminated
-                    ? "You've been caught with no shields left — your crew is out of the game. Watch how the rest plays out below."
-                    : "Caught! You lost one shield token. When all shields are gone, you're eliminated — so weigh the risk next time.",
-                }
-              : {
-                  icon: net >= 0 ? TrendingUp : Coins,
-                  tone: net >= 0 ? "good" : "danger",
-                  text:
-                    net >= 0
-                      ? "The job paid off — this is your net profit after costs. Tap the button below to watch your rivals move."
-                      : "The job cost more than it earned this time. That happens — tap below to continue to your rivals' turn.",
-                },
-          )}
+          <div className="h-16 flex flex-col justify-center">
+            <p className="text-center text-[10px] font-mono tracking-[0.3em] text-white/40 mb-1">OPERATION RESULT</p>
+            <h2 className="font-bold text-xl text-white text-center leading-tight">{selectedOp?.name}</h2>
+          </div>
           <WheelStage accent={accent}>
             <Wheel segments={segments} rotation={rotation} spinning={false} />
           </WheelStage>
@@ -2048,6 +2041,24 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               <p className="mt-2 text-orange-300 font-mono text-sm animate-pulse">⚡ {closeCall}</p>
             )}
           </div>
+          {coachBar(
+            caughtEl
+              ? {
+                  icon: Skull,
+                  tone: "danger",
+                  text: result.eliminated
+                    ? "You've been caught with no shields left — your crew is out of the game. Watch how the rest plays out below."
+                    : "Caught! You lost one shield token. When all shields are gone, you're eliminated — so weigh the risk next time.",
+                }
+              : {
+                  icon: net >= 0 ? TrendingUp : Coins,
+                  tone: net >= 0 ? "good" : "danger",
+                  text:
+                    net >= 0
+                      ? "The job paid off — this is your net profit after costs. Tap the button below to watch your rivals move."
+                      : "The job cost more than it earned this time. That happens — tap below to continue to your rivals' turn.",
+                },
+          )}
           <button
             onClick={runAiTurns}
             className="mt-6 w-full rounded-lg px-8 py-3 font-mono font-bold text-black hover:brightness-110 transition"
