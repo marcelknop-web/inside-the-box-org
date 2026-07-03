@@ -1420,6 +1420,15 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           backgroundSize: "40px 40px",
         }}
       />
+      {/* CRT scanlines + screen flicker */}
+      <div className="syn-scanlines pointer-events-none absolute inset-0 z-20" />
+      {/* soft screen vignette */}
+      <div className="syn-vignette pointer-events-none absolute inset-0 z-20" />
+      {/* arcade HUD corner brackets */}
+      <div className="syn-corner z-20" style={{ top: 10, left: 10, borderRight: "none", borderBottom: "none" }} />
+      <div className="syn-corner z-20" style={{ top: 10, right: 10, borderLeft: "none", borderBottom: "none" }} />
+      <div className="syn-corner z-20" style={{ bottom: 10, left: 10, borderRight: "none", borderTop: "none" }} />
+      <div className="syn-corner z-20" style={{ bottom: 10, right: 10, borderLeft: "none", borderTop: "none" }} />
       <div className="absolute top-3 right-3 md:top-4 md:right-4 z-30 flex items-center gap-2">
         <button
           onClick={() => setMuted((m) => !m)}
