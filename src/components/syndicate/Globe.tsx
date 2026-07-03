@@ -119,7 +119,7 @@ function Attack({ attack }: { attack: GlobeAttack }) {
 
     // trail fades in with the flight, out on burst
     if (trailRef.current) {
-      const mat = trailRef.current.material as THREE.LineBasicMaterial;
+      const mat = trailRef.current.material as THREE.MeshBasicMaterial;
       mat.opacity = flight < 1 ? 0.35 + flight * 0.4 : Math.max(0, 0.75 - burst);
     }
 
