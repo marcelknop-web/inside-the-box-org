@@ -1948,18 +1948,21 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             </div>
           </>
         ) : (
-          <div className="text-center">
-            <h2 className="font-bold text-2xl text-white mb-1">{selectedOp.name}</h2>
-            <p className="mx-auto max-w-md text-white/70 text-sm mb-2 leading-snug">
+          <WheelPopup accent="#f5b800">
+            <p className="text-center text-[10px] font-mono tracking-[0.3em] text-white/40 mb-1">RUNNING OPERATION</p>
+            <h2 className="font-bold text-xl text-white text-center mb-1">{selectedOp.name}</h2>
+            <p className="mx-auto max-w-md text-center text-white/70 text-sm mb-4 leading-snug">
               {selectedOp.description}
             </p>
-            <p className="text-white/45 text-xs font-mono mb-4">
+            <WheelStage accent="#f5b800">
+              <Wheel segments={segments} rotation={rotation} spinning={spinning} />
+            </WheelStage>
+            <p className="text-center text-white/45 text-xs font-mono mt-3">
               Invested {fmt(selectedOp.cost)} · Caught {Math.round(effectiveCaught(selectedOp, round, event, 0) * 100)}%
             </p>
-            <Wheel segments={segments} rotation={rotation} spinning={spinning} />
             <button
               onClick={spin}
-              className="mt-4 rounded-lg px-10 py-3 font-mono font-bold text-black hover:brightness-110 transition"
+              className="mx-auto mt-4 block rounded-lg px-10 py-3 font-mono font-bold text-black hover:brightness-110 transition"
               style={{ background: "linear-gradient(90deg,#f5b800,#ffd34d)", boxShadow: "0 0 24px rgba(245,184,0,0.4)" }}
             >
               SPIN THE WHEEL
@@ -1967,12 +1970,12 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             <div className="mx-auto max-w-md">
               <WheelLegend />
             </div>
-            <div className="mt-3">
+            <div className="mt-3 text-center">
               <button onClick={() => setSelectedOp(null)} className="text-white/40 text-xs hover:text-white/70">
                 ← pick a different operation
               </button>
             </div>
-          </div>
+          </WheelPopup>
         )}
       </div>
     );
