@@ -2077,7 +2077,9 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             {(aiSub === "spinning" || aiSub === "result") && (
               <div className="flex flex-col items-center">
                 <div className="scale-90 origin-top">
-                  <Wheel segments={turn.segs} rotation={aiRotation} spinning={aiSub === "spinning"} />
+                  <WheelStage accent={theme.glow} active={aiSub === "spinning"}>
+                    <Wheel segments={turn.segs} rotation={aiRotation} spinning={aiSub === "spinning"} />
+                  </WheelStage>
                 </div>
                 {aiSub === "spinning" && (
                   <p className="text-cyan-300 font-mono mt-2 animate-pulse text-sm">Spinning…</p>
