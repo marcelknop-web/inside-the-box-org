@@ -1122,6 +1122,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       }, 150);
       window.setTimeout(() => {
         clearInterval(tickInt);
+        snd.land();
         const o = turn.res.outcome;
         if (o === "caught") {
           turn.res.eliminated ? snd.caught() : snd.lose();
@@ -1129,6 +1130,8 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           snd.bigWin();
         } else if (turn.res.delta > turn.op.cost) {
           snd.win();
+        } else {
+          snd.reveal();
         }
         setAiSub("result");
       }, 3600);
