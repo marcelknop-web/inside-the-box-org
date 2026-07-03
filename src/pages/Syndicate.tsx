@@ -1413,14 +1413,16 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       ref={shellRef}
       className={`relative w-full overflow-y-auto overflow-x-hidden ${isFullscreen ? "fixed inset-0 z-50 rounded-none" : "rounded-2xl"}`}
       style={{
-        minHeight: isFullscreen ? "100vh" : embedded ? 640 : "100vh",
-        height: isFullscreen ? "100vh" : undefined,
+        minHeight: isFullscreen ? "100vh" : embedded ? 520 : "100vh",
+        height: isFullscreen ? "100vh" : embedded ? "calc(100dvh - 196px)" : "100vh",
+
         background:
           "radial-gradient(1200px 600px at 20% -10%, rgba(0,188,212,0.12), transparent), radial-gradient(900px 500px at 90% 110%, rgba(245,184,0,0.1), transparent), #05070d",
         color: "#e5e7eb",
         fontFamily: "'DM Sans', system-ui, sans-serif",
       }}
     >
+
       <div className="pointer-events-none absolute inset-0 opacity-[0.06]"
         style={{
           backgroundImage:
@@ -1470,7 +1472,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           <HelpCircle size={18} />
         </button>
       </div>
-      <div className="relative z-10 px-3 py-4 sm:px-4 sm:py-5 md:px-8">{children}</div>
+      <div className="relative z-10 flex h-full flex-col px-3 py-4 sm:px-4 sm:py-5 md:px-8">{children}</div>
       {tipNode}
     </div>
   );
@@ -1585,7 +1587,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   /* ---- HUD (shared top bar for in-game phases) ---- */
   const maxCash = Math.max(1, ...players.map((p) => Math.max(0, p.cash)));
   const hud = human && (
-    <div className="max-w-3xl mx-auto mb-3">
+    <div className="w-full mb-3">
       {/* ROW 1 — player avatars on their power hubs */}
       <div className="flex items-stretch gap-2 mb-2">
         {players.map((p) => {
@@ -1623,7 +1625,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
       {/* GLOBE — freely visible world board between locations and stats */}
       {globePlayers.length > 0 && (
-        <div className="relative mb-2 h-[34vh] min-h-[220px] md:h-[40vh] rounded-2xl overflow-hidden border border-white/10 bg-[radial-gradient(60%_60%_at_50%_40%,rgba(0,188,212,0.08),transparent)]">
+        <div className="relative mb-2 h-[15vh] min-h-[110px] max-h-[180px] lg:h-[150px] rounded-2xl overflow-hidden border border-white/10 bg-[radial-gradient(60%_60%_at_50%_40%,rgba(0,188,212,0.08),transparent)]">
           <Globe
             players={globePlayers}
             attack={globeAttack}
@@ -1709,6 +1711,16 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     </div>
   );
 
+  /* ---- Two-column game layout: fixed HUD sidebar + gameplay pane (fits one screen) ---- */
+  const gameLayout = (main: React.ReactNode) => (
+    <div className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col gap-3 lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:items-stretch">
+      <aside className="min-h-0 lg:overflow-y-auto lg:pr-1">{hud}</aside>
+      <main className="flex min-h-0 min-w-0 flex-1 flex-col lg:overflow-y-auto">{main}</main>
+    </div>
+  );
+
+
+
 
 
   /* ---- Beginner coach bar (persistent, step-by-step guidance) ---- */
@@ -1728,9 +1740,10 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     const Icon = opts.icon;
     const t = COACH_TONE[opts.tone ?? "info"];
     return (
-      <div className="max-w-3xl mx-auto mb-3 md:mb-4 animate-fade-in">
+      <div className="w-full mb-2 animate-fade-in">
         <div
-          className="relative flex items-start gap-3 rounded-2xl border px-4 py-2.5"
+          className="relative flex items-start gap-3 rounded-2xl border px-3 py-2"
+
           style={{ borderColor: `${t.color}55`, background: t.bg, boxShadow: `0 0 30px -12px ${t.color}88` }}
         >
           <span
@@ -1762,9 +1775,8 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
 
   if (phase === "round-intro") {
-    return shell(
-      <div className="max-w-3xl mx-auto">
-        {hud}
+    return shell(gameLayout(
+      <>
         {coachBar({
           icon: event ? Flame : Crown,
           step: `ROUND ${round} · STEP 1`,
@@ -1773,7 +1785,8 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             ? `A global event just hit: "${event.name}". It changes the odds this round — read the orange card, then tap CHOOSE OPERATION.`
             : "Every round starts here. The streets are calm right now. Tap CHOOSE OPERATION to see the jobs you can run.",
         })}
-        <div className="text-center py-6">
+        <div className="text-center flex-1 flex flex-col items-center justify-center py-4">
+
 
           {event ? (
             <div className="rounded-xl border border-orange-400/40 bg-orange-500/10 p-6 mb-6 animate-scale-in">
@@ -1804,16 +1817,17 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             CHOOSE OPERATION
           </button>
         </div>
-      </div>
-    );
+      </>
+    ));
   }
+
 
   /* ---- CHOOSE ---- */
   if (phase === "choose") {
-    return shell(
-      <div className={selectedOp ? "max-w-3xl mx-auto" : "max-w-5xl mx-auto"}>
-        {hud}
+    return shell(gameLayout(
+      <>
         {coachBar(
+
           selectedOp
             ? {
                 icon: Dice5,
@@ -1856,7 +1870,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                 </span>
               ))}
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
 
               {OPERATIONS.map((op) => {
                 const afford = human!.cash >= op.cost;
@@ -1868,7 +1882,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                     key={op.id}
                     disabled={!afford}
                     onClick={() => pickOp(op)}
-                    className="group relative overflow-hidden rounded-2xl border p-2.5 text-left transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed enabled:hover:-translate-y-1"
+                    className="group relative overflow-hidden rounded-2xl border p-2 text-left transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed enabled:hover:-translate-y-1"
                     style={{
                       borderColor: `${theme.glow}55`,
                       background: "rgba(255,255,255,0.02)",
@@ -1887,27 +1901,27 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                     </span>
 
                     {/* icon tile */}
-                    <div className="relative z-10 flex items-center justify-center h-10 mb-1.5">
+                    <div className="relative z-10 flex items-center justify-center h-9 mb-1">
                       <span
-                        className="flex h-10 w-10 md:h-11 md:w-11 items-center justify-center rounded-2xl border transition group-hover:scale-110"
+                        className="flex h-9 w-9 items-center justify-center rounded-xl border transition group-hover:scale-110"
                         style={{
                           borderColor: `${theme.glow}55`,
                           background: `radial-gradient(circle at 50% 40%, ${theme.glow}33, transparent 70%)`,
                           boxShadow: `inset 0 0 20px ${theme.glow}22`,
                         }}
                       >
-                        <Icon size={20} style={{ color: theme.glow, filter: `drop-shadow(0 0 6px ${theme.glow}aa)` }} />
+                        <Icon size={18} style={{ color: theme.glow, filter: `drop-shadow(0 0 6px ${theme.glow}aa)` }} />
                       </span>
                     </div>
 
 
                     {/* title */}
-                    <p className="relative z-10 font-black uppercase tracking-wide text-white text-xs md:text-sm leading-tight mb-1 min-h-[1.6em]">
+                    <p className="relative z-10 font-black uppercase tracking-wide text-white text-[11px] md:text-xs leading-tight mb-1 min-h-[1.5em] line-clamp-1">
                       {op.name}
                     </p>
 
                     {/* short outline */}
-                    <p className="relative z-10 text-[10px] leading-snug text-white/55 mb-1.5 line-clamp-2 min-h-[2.4em]">
+                    <p className="relative z-10 text-[10px] leading-snug text-white/55 mb-1.5 line-clamp-1">
                       {op.description}
                     </p>
 
@@ -1915,6 +1929,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
                     {/* stat row + data bars (numbers preserved, visualised) */}
                     <div className="relative z-10 border-t border-white/10 pt-1.5 space-y-1">
+
                       {/* PAYOUT */}
                       <div className="flex items-center gap-1.5">
                         <TrendingUp size={10} style={{ color: theme.text }} className="shrink-0" />
@@ -1979,15 +1994,16 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             </div>
           </WheelPopup>
         )}
-      </div>
-    );
+      </>
+    ));
   }
+
 
   /* ---- SPINNING ---- */
   if (phase === "spinning") {
-    return shell(
+    return shell(gameLayout(
       <>
-        <div className="max-w-3xl mx-auto">{hud}</div>
+
         <WheelPopup accent="#f5b800">
           <div className="h-16 flex flex-col justify-center">
             <p className="text-center text-[10px] font-mono tracking-[0.3em] text-white/40 mb-1">RUNNING OPERATION</p>
@@ -1999,8 +2015,9 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           <p className="text-cyan-300 font-mono mt-5 animate-pulse text-center">Spinning…</p>
         </WheelPopup>
       </>
-    );
+    ));
   }
+
 
   /* ---- OUTCOME ---- */
   if (phase === "outcome" && result) {
@@ -2008,9 +2025,9 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     const good = result.delta > (selectedOp?.cost ?? 0);
     const net = result.delta - (selectedOp?.cost ?? 0);
     const accent = caughtEl ? "#ef4444" : good ? "#22c55e" : "#94a3b8";
-    return shell(
+    return shell(gameLayout(
       <>
-        <div className="max-w-3xl mx-auto">{hud}</div>
+
         <WheelPopup accent={accent}>
           <div className="h-16 flex flex-col justify-center">
             <p className="text-center text-[10px] font-mono tracking-[0.3em] text-white/40 mb-1">OPERATION RESULT</p>
@@ -2068,7 +2085,8 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           </button>
         </WheelPopup>
       </>
-    );
+    ));
+
   }
 
 
@@ -2085,10 +2103,10 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     const showResult = aiSub === "result";
     const isLast = aiStep >= aiLog.length - 1;
 
-    return shell(
-      <div className="max-w-2xl mx-auto">
-        {hud}
+    return shell(gameLayout(
+      <>
         {coachBar({
+
           icon: Eye,
           tone: "info",
           text:
@@ -2254,18 +2272,19 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             })}
           </div>
         )}
-      </div>
-    );
+      </>
+    ));
+
   }
 
 
 
   /* ---- SCOREBOARD ---- */
   if (phase === "scoreboard") {
-    return shell(
-      <div className="max-w-3xl mx-auto">
-        {hud}
+    return shell(gameLayout(
+      <>
         {coachBar({
+
           icon: BarChart3,
           step: "STEP 4",
           tone: "action",
@@ -2331,8 +2350,9 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             {players.filter((p) => p.alive).length <= 1 || round >= TOTAL_ROUNDS ? "SEE RESULTS →" : "NEXT ROUND →"}
           </button>
         </div>
-      </div>
-    );
+      </>
+    ));
+
   }
 
   /* ---- WINNER + FINAL STATS ---- */
