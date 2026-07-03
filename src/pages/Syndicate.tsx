@@ -2040,10 +2040,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       <>
 
         <WheelPopup accent={accent}>
-          <div className="h-16 flex flex-col justify-center">
-            <p className="text-center text-[10px] font-mono tracking-[0.3em] text-white/40 mb-1">OPERATION RESULT</p>
-            <h2 className="font-bold text-xl text-white text-center leading-tight">{selectedOp?.name}</h2>
-          </div>
+          <WheelHeader eyebrow="OPERATION RESULT" title={selectedOp?.name} />
           <WheelStage accent={accent}>
             <Wheel segments={segments} rotation={rotation} spinning={false} />
           </WheelStage>
