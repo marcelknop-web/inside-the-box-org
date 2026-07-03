@@ -1961,8 +1961,11 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
 
                     {/* title */}
-                    <p className="relative z-10 font-black uppercase tracking-wide text-white text-[10px] leading-tight mb-1 min-h-[1.25em] line-clamp-1">
+                    <p className="relative z-10 font-black uppercase tracking-wide text-white text-[10px] leading-tight mb-0.5 min-h-[1.25em] line-clamp-1">
                       {op.name}
+                    </p>
+                    <p className="relative z-10 text-[8px] leading-tight text-white/50 mb-0.5 line-clamp-1">
+                      {op.description}
                     </p>
 
 
