@@ -664,6 +664,19 @@ function WheelStage({
   );
 }
 
+/* Uniform popup header — fixed-height eyebrow + title used by every wheel popup
+   so the header/body hierarchy stays identical across phases. */
+function WheelHeader({ eyebrow, title }: { eyebrow: string; title?: string }) {
+  return (
+    <div className="h-16 flex flex-col justify-center border-b border-white/10 pb-3 mb-4">
+      <p className="text-center text-[10px] font-mono tracking-[0.3em] text-white/40 mb-1">
+        {eyebrow}
+      </p>
+      <h2 className="font-bold text-xl text-white text-center leading-tight">{title}</h2>
+    </div>
+  );
+}
+
 /* Legend explaining what each wheel slice means. */
 const WHEEL_LEGEND: { type: Outcome; blurb: string }[] = [
   { type: "success", blurb: "Job pays off — solid profit on your stake." },
@@ -1968,10 +1981,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           </>
         ) : (
           <WheelPopup accent="#f5b800">
-            <div className="h-16 flex flex-col justify-center">
-              <p className="text-center text-[10px] font-mono tracking-[0.3em] text-white/40 mb-1">RUNNING OPERATION</p>
-              <h2 className="font-bold text-xl text-white text-center leading-tight">{selectedOp.name}</h2>
-            </div>
+            <WheelHeader eyebrow="RUNNING OPERATION" title={selectedOp.name} />
             <WheelStage accent="#f5b800">
               <Wheel segments={segments} rotation={rotation} spinning={spinning} />
             </WheelStage>
@@ -2009,10 +2019,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       <>
 
         <WheelPopup accent="#f5b800">
-          <div className="h-16 flex flex-col justify-center">
-            <p className="text-center text-[10px] font-mono tracking-[0.3em] text-white/40 mb-1">RUNNING OPERATION</p>
-            <h2 className="font-bold text-xl text-white text-center leading-tight">{selectedOp?.name}</h2>
-          </div>
+          <WheelHeader eyebrow="RUNNING OPERATION" title={selectedOp?.name} />
           <WheelStage accent="#f5b800" active>
             <Wheel segments={segments} rotation={rotation} spinning={spinning} />
           </WheelStage>
@@ -2033,10 +2040,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       <>
 
         <WheelPopup accent={accent}>
-          <div className="h-16 flex flex-col justify-center">
-            <p className="text-center text-[10px] font-mono tracking-[0.3em] text-white/40 mb-1">OPERATION RESULT</p>
-            <h2 className="font-bold text-xl text-white text-center leading-tight">{selectedOp?.name}</h2>
-          </div>
+          <WheelHeader eyebrow="OPERATION RESULT" title={selectedOp?.name} />
           <WheelStage accent={accent}>
             <Wheel segments={segments} rotation={rotation} spinning={false} />
           </WheelStage>
@@ -2212,10 +2216,10 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         {/* wheel sequence popup — same premium treatment as the player's own spins */}
         {turn && (aiSub === "spinning" || aiSub === "result") && (
           <WheelPopup accent={showResult && caught ? "#ef4444" : theme.glow}>
-            <p className="text-center text-[10px] font-mono tracking-[0.3em] text-white/40 mb-1">
-              {turn.player.name.toUpperCase()} · RUNNING OPERATION
-            </p>
-            <h2 className="font-bold text-xl text-white mb-5 text-center">{turn.op.name}</h2>
+            <WheelHeader
+              eyebrow={`${turn.player.name.toUpperCase()} · RUNNING OPERATION`}
+              title={turn.op.name}
+            />
             <WheelStage accent={showResult && caught ? "#ef4444" : theme.glow} active={aiSub === "spinning"}>
               <Wheel segments={turn.segs} rotation={aiRotation} spinning={aiSub === "spinning"} />
             </WheelStage>
@@ -2223,22 +2227,20 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               <p className="text-cyan-300 font-mono mt-5 animate-pulse text-center">Spinning…</p>
             )}
             {showResult && (
-              <div className="mt-5 animate-fade-in">
-                <div className="flex items-center justify-between">
-                  <span
-                    className="font-mono font-bold text-sm px-3 py-1 rounded-full"
-                    style={{
-                      color: caught ? "#ef4444" : theme.glow,
-                      background: `${caught ? "#ef4444" : theme.glow}18`,
-                      border: `1px solid ${caught ? "#ef4444" : theme.glow}55`,
-                    }}
-                  >
-                    {caught ? "CAUGHT — SHIELD LOST" : turn.player.lastLabel}
-                  </span>
-                  <span className={`font-mono font-bold text-lg ${delta >= 0 ? "text-green-400" : "text-red-400"}`}>
-                    {delta >= 0 ? "+" : ""}{fmt(delta)}
-                  </span>
+              <div className="mt-5 text-center animate-scale-in">
+                <div
+                  className="inline-block rounded-xl px-8 py-4 font-black text-2xl"
+                  style={{
+                    background: `${caught ? "#ef4444" : theme.glow}18`,
+                    border: `1px solid ${caught ? "#ef4444" : theme.glow}`,
+                    color: caught ? "#fca5a5" : theme.glow,
+                  }}
+                >
+                  {caught ? "CAUGHT — SHIELD LOST" : turn.player.lastLabel}
                 </div>
+                <p className={`mt-3 text-xl font-mono font-bold ${delta >= 0 ? "text-green-400" : "text-red-400"}`}>
+                  {delta >= 0 ? "+" : ""}{fmt(delta)}
+                </p>
                 {turn.player.quip && (
                   <p className="mt-3 text-sm italic text-white/55">"{turn.player.quip}"</p>
                 )}
