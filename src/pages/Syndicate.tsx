@@ -594,6 +594,24 @@ const FALLBACK_LOCATIONS = [
   { city: "Hong Kong", lat: 22.32, lon: 114.17 },
 ];
 
+// Fictional target hubs a cyber operation "strikes" on the globe.
+const TARGET_CITIES: { lat: number; lon: number }[] = [
+  { lat: 35.68, lon: 139.69 }, // Tokyo
+  { lat: 1.35, lon: 103.82 }, // Singapore
+  { lat: -33.87, lon: 151.21 }, // Sydney
+  { lat: 37.77, lon: -122.42 }, // San Francisco
+  { lat: 52.52, lon: 13.4 }, // Berlin
+  { lat: 25.2, lon: 55.27 }, // Dubai
+  { lat: -23.55, lon: -46.63 }, // São Paulo
+  { lat: 19.08, lon: 72.88 }, // Mumbai
+];
+
+function targetForOp(opId: string): { lat: number; lon: number } {
+  let h = 0;
+  for (let i = 0; i < opId.length; i++) h = (h * 31 + opId.charCodeAt(i)) >>> 0;
+  return TARGET_CITIES[h % TARGET_CITIES.length];
+}
+
 // Decorative markers shown on the welcome-screen globe (before players exist).
 const WELCOME_GLOBE_PLAYERS: GlobePlayer[] = [
   { id: "w-you", color: "#f5b800", lat: HUMAN_LOCATION.lat, lon: HUMAN_LOCATION.lon, active: true },
