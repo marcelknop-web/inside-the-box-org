@@ -666,19 +666,19 @@ const WHEEL_LEGEND: { type: Outcome; blurb: string }[] = [
 
 function WheelLegend() {
   return (
-    <div className="mt-5 text-left">
-      <p className="text-[10px] font-mono tracking-[0.25em] text-white/40 mb-2 text-center">
+    <div className="mt-4 text-left rounded-xl border border-white/10 bg-white/[0.03] p-3 sm:p-4">
+      <p className="text-[10px] font-mono tracking-[0.25em] text-white/40 mb-2.5 text-center">
         WHAT THE SLICES MEAN
       </p>
-      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5">
+      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
         {WHEEL_LEGEND.map(({ type, blurb }) => (
           <li key={type} className="flex items-start gap-2">
             <span
               aria-hidden
-              className="mt-1 h-2.5 w-2.5 shrink-0 rounded-sm"
+              className="mt-[3px] h-2.5 w-2.5 shrink-0 rounded-sm"
               style={{ background: OUTCOME_COLOR[type], boxShadow: `0 0 6px ${OUTCOME_COLOR[type]}88` }}
             />
-            <span className="text-xs leading-tight text-white/70">
+            <span className="text-[11px] sm:text-xs leading-snug text-white/70">
               <span className="font-semibold text-white/90">{OUTCOME_LABEL[type]}</span>
               {" — "}
               {blurb}
@@ -689,6 +689,7 @@ function WheelLegend() {
     </div>
   );
 }
+
 
 
 
