@@ -221,6 +221,32 @@ export const syndicateSounds = {
     brass(c, 233, 0.05, 0.6, 0.16); // dissonant minor 2nd
     tone(c, { freq: 110, glideTo: 41, dur: 0.7, type: "sawtooth", gain: 0.16 });
   },
+  // Spin start — a rising arcade whoosh + soft cymbal swell as the wheel launches.
+  spinStart() {
+    if (!enabled) return;
+    const c = ac();
+    if (!c) return;
+    tone(c, { freq: 180, glideTo: 720, dur: 0.4, type: "sawtooth", gain: 0.1, attack: 0.02 });
+    tone(c, { freq: 90, glideTo: 360, dur: 0.4, type: "triangle", gain: 0.08 });
+    hat(c, 0, 0.05, 0.35);
+  },
+  // Landing lock — a crisp mechanical click as the pointer settles on a slice.
+  land() {
+    if (!enabled) return;
+    const c = ac();
+    if (!c) return;
+    hat(c, 0, 0.07, 0.05);
+    tone(c, { freq: 520, glideTo: 300, dur: 0.09, type: "square", gain: 0.09 });
+    tone(c, { freq: 160, dur: 0.12, type: "triangle", gain: 0.07 });
+  },
+  // Result reveal — a short suspense sting just before the outcome shows.
+  reveal() {
+    if (!enabled) return;
+    const c = ac();
+    if (!c) return;
+    tone(c, { freq: 300, glideTo: 480, dur: 0.18, type: "sine", gain: 0.07, attack: 0.03 });
+    twang(c, 329.6, 0.02, 0.07);
+  },
   // Scene change — cinematic cymbal swell + guitar twang.
   transition() {
     if (!enabled) return;

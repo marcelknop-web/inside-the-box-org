@@ -986,6 +986,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
   const spin = useCallback(() => {
     if (!human || !selectedOp) return;
+    snd.spinStart();
     setPhase("spinning");
     setSpinning(true);
     // predetermine landing
@@ -1014,6 +1015,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     window.setTimeout(() => {
       clearInterval(tickInt);
       setSpinning(false);
+      snd.land();
       finishHumanSpin(selectedOp, res);
     }, 4300);
   }, [human, selectedOp, round, event]);
@@ -1038,6 +1040,8 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         snd.bigWin();
       } else if (res.delta > op.cost) {
         snd.win();
+      } else {
+        snd.reveal();
       }
       setPhase("outcome");
     },
@@ -1102,6 +1106,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       const turn = aiLog[aiStep];
       if (!turn) return;
       setAiSub("spinning");
+      snd.spinStart();
       const base = aiRotationRef.current;
       const currentMod = ((base % 360) + 360) % 360;
       const target = base + (360 - currentMod) + 360 * 5 + (360 - turn.res.landing);
@@ -1117,6 +1122,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       }, 150);
       window.setTimeout(() => {
         clearInterval(tickInt);
+        snd.land();
         const o = turn.res.outcome;
         if (o === "caught") {
           turn.res.eliminated ? snd.caught() : snd.lose();
@@ -1124,6 +1130,8 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           snd.bigWin();
         } else if (turn.res.delta > turn.op.cost) {
           snd.win();
+        } else {
+          snd.reveal();
         }
         setAiSub("result");
       }, 3600);
