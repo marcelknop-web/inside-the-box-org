@@ -2216,10 +2216,10 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         {/* wheel sequence popup — same premium treatment as the player's own spins */}
         {turn && (aiSub === "spinning" || aiSub === "result") && (
           <WheelPopup accent={showResult && caught ? "#ef4444" : theme.glow}>
-            <p className="text-center text-[10px] font-mono tracking-[0.3em] text-white/40 mb-1">
-              {turn.player.name.toUpperCase()} · RUNNING OPERATION
-            </p>
-            <h2 className="font-bold text-xl text-white mb-5 text-center">{turn.op.name}</h2>
+            <WheelHeader
+              eyebrow={`${turn.player.name.toUpperCase()} · RUNNING OPERATION`}
+              title={turn.op.name}
+            />
             <WheelStage accent={showResult && caught ? "#ef4444" : theme.glow} active={aiSub === "spinning"}>
               <Wheel segments={turn.segs} rotation={aiRotation} spinning={aiSub === "spinning"} />
             </WheelStage>
