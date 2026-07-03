@@ -986,6 +986,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
   const spin = useCallback(() => {
     if (!human || !selectedOp) return;
+    snd.spinStart();
     setPhase("spinning");
     setSpinning(true);
     // predetermine landing
