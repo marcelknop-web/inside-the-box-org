@@ -2076,23 +2076,37 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               </div>
             </div>
 
-            {/* the wheel (spinning + result) */}
-            {(aiSub === "spinning" || aiSub === "result") && (
-              <div className="flex flex-col items-center">
-                <div className="scale-90 origin-top">
-                  <WheelStage accent={theme.glow} active={aiSub === "spinning"}>
-                    <Wheel segments={turn.segs} rotation={aiRotation} spinning={aiSub === "spinning"} />
-                  </WheelStage>
-                </div>
-                {aiSub === "spinning" && (
-                  <p className="text-cyan-300 font-mono mt-2 animate-pulse text-sm">Spinning…</p>
-                )}
-              </div>
-            )}
+          </div>
+        )}
 
-            {/* outcome — only once the wheel has stopped */}
+        {/* pacing control — spin trigger stays on the board; result advances from the popup */}
+        {aiSub === "choice" && (
+          <div className="text-center mt-6">
+            <button
+              onClick={advanceAi}
+              className="rounded-lg px-8 py-3 font-mono font-bold text-black hover:brightness-110 transition"
+              style={{ background: "linear-gradient(90deg,#f5b800,#ffd34d)" }}
+            >
+              SPIN THE WHEEL →
+            </button>
+          </div>
+        )}
+
+        {/* wheel sequence popup — same premium treatment as the player's own spins */}
+        {turn && (aiSub === "spinning" || aiSub === "result") && (
+          <WheelPopup accent={showResult && caught ? "#ef4444" : theme.glow}>
+            <p className="text-center text-[10px] font-mono tracking-[0.3em] text-white/40 mb-1">
+              {turn.player.name.toUpperCase()} · RUNNING OPERATION
+            </p>
+            <h2 className="font-bold text-xl text-white mb-5 text-center">{turn.op.name}</h2>
+            <WheelStage accent={showResult && caught ? "#ef4444" : theme.glow} active={aiSub === "spinning"}>
+              <Wheel segments={turn.segs} rotation={aiRotation} spinning={aiSub === "spinning"} />
+            </WheelStage>
+            {aiSub === "spinning" && (
+              <p className="text-cyan-300 font-mono mt-5 animate-pulse text-center">Spinning…</p>
+            )}
             {showResult && (
-              <div className="mt-4 animate-fade-in">
+              <div className="mt-5 animate-fade-in">
                 <div className="flex items-center justify-between">
                   <span
                     className="font-mono font-bold text-sm px-3 py-1 rounded-full"
@@ -2111,27 +2125,18 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                 {turn.player.quip && (
                   <p className="mt-3 text-sm italic text-white/55">"{turn.player.quip}"</p>
                 )}
+                <button
+                  onClick={advanceAi}
+                  className="mt-6 w-full rounded-lg px-8 py-3 font-mono font-bold text-black hover:brightness-110 transition"
+                  style={{ background: "linear-gradient(90deg,#f5b800,#ffd34d)" }}
+                >
+                  {isLast ? "SEE LEADERBOARD →" : "NEXT RIVAL →"}
+                </button>
               </div>
             )}
-          </div>
+          </WheelPopup>
         )}
 
-        {/* pacing control */}
-        {aiSub !== "spinning" && (
-          <div className="text-center mt-6">
-            <button
-              onClick={advanceAi}
-              className="rounded-lg px-8 py-3 font-mono font-bold text-black hover:brightness-110 transition"
-              style={{ background: "linear-gradient(90deg,#f5b800,#ffd34d)" }}
-            >
-              {aiSub === "choice"
-                ? "SPIN THE WHEEL →"
-                : isLast
-                ? "SEE LEADERBOARD →"
-                : "NEXT RIVAL →"}
-            </button>
-          </div>
-        )}
 
         {/* recap of rivals already resolved */}
         {idx > 0 && (
