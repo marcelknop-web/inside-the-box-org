@@ -1106,6 +1106,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       const turn = aiLog[aiStep];
       if (!turn) return;
       setAiSub("spinning");
+      snd.spinStart();
       const base = aiRotationRef.current;
       const currentMod = ((base % 360) + 360) % 360;
       const target = base + (360 - currentMod) + 360 * 5 + (360 - turn.res.landing);
