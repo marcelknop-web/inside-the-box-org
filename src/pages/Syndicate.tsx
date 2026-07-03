@@ -1244,7 +1244,30 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       active: p.id === activeId,
     }));
   const focusPlayer = players.find((p) => p.id === activeId && p.location);
-  const focusLon = focusPlayer?.location?.lon;
+
+  // Attack animation: while a wheel is spinning, strike a target city from the
+  // acting player's location.
+  const attackingOp: Operation | null =
+    phase === "spinning"
+      ? selectedOp
+      : phase === "ai" && aiSub === "spinning" && aiLog.length
+        ? aiLog[Math.min(aiStep, aiLog.length - 1)]?.op ?? null
+        : null;
+  const globeAttack: GlobeAttack | null =
+    attackingOp && focusPlayer?.location
+      ? (() => {
+          const tgt = targetForOp(attackingOp.id);
+          return {
+            id: `${focusPlayer.id}-${attackingOp.id}-${round}-${aiStep}`,
+            color: focusPlayer.color,
+            fromLat: focusPlayer.location!.lat,
+            fromLon: focusPlayer.location!.lon,
+            toLat: tgt.lat,
+            toLon: tgt.lon,
+          };
+        })()
+      : null;
+
   
 
   const shell = (children: React.ReactNode) => (
