@@ -1015,6 +1015,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     window.setTimeout(() => {
       clearInterval(tickInt);
       setSpinning(false);
+      snd.land();
       finishHumanSpin(selectedOp, res);
     }, 4300);
   }, [human, selectedOp, round, event]);
