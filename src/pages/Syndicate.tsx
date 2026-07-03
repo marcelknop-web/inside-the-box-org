@@ -1915,7 +1915,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                 </span>
               ))}
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
 
               {OPERATIONS.map((op) => {
                 const afford = human!.cash >= op.cost;
