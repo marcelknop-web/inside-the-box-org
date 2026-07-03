@@ -1625,7 +1625,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
       {/* GLOBE — freely visible world board between locations and stats */}
       {globePlayers.length > 0 && (
-        <div className="relative mb-2 h-[15vh] min-h-[110px] max-h-[180px] lg:h-[150px] rounded-2xl overflow-hidden border border-white/10 bg-[radial-gradient(60%_60%_at_50%_40%,rgba(0,188,212,0.08),transparent)]">
+        <div className="relative mb-2 h-[14vh] min-h-[96px] max-h-[160px] lg:h-[118px] rounded-2xl overflow-hidden border border-white/10 bg-[radial-gradient(60%_60%_at_50%_40%,rgba(0,188,212,0.08),transparent)]">
           <Globe
             players={globePlayers}
             attack={globeAttack}
