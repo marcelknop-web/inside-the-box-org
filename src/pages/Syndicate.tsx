@@ -664,6 +664,19 @@ function WheelStage({
   );
 }
 
+/* Uniform popup header — fixed-height eyebrow + title used by every wheel popup
+   so the header/body hierarchy stays identical across phases. */
+function WheelHeader({ eyebrow, title }: { eyebrow: string; title?: string }) {
+  return (
+    <div className="h-16 flex flex-col justify-center border-b border-white/10 pb-3 mb-4">
+      <p className="text-center text-[10px] font-mono tracking-[0.3em] text-white/40 mb-1">
+        {eyebrow}
+      </p>
+      <h2 className="font-bold text-xl text-white text-center leading-tight">{title}</h2>
+    </div>
+  );
+}
+
 /* Legend explaining what each wheel slice means. */
 const WHEEL_LEGEND: { type: Outcome; blurb: string }[] = [
   { type: "success", blurb: "Job pays off — solid profit on your stake." },
