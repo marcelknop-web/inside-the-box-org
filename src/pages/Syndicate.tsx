@@ -575,6 +575,81 @@ function Wheel({
 
 
 /* ------------------------------------------------------------------ */
+/*  Wheel popup — premium modal that frames the spin sequence           */
+/* ------------------------------------------------------------------ */
+
+function WheelPopup({
+  children,
+  accent = "#f5b800",
+  wide = false,
+}: {
+  children: React.ReactNode;
+  accent?: string;
+  wide?: boolean;
+}) {
+  return (
+    <div className="fixed inset-0 z-[55] flex items-center justify-center p-3 sm:p-4">
+      {/* dim + blur the game board behind */}
+      <div className="absolute inset-0 bg-black/75 backdrop-blur-md animate-fade-in" />
+      <div
+        className={`relative w-full ${wide ? "max-w-lg" : "max-w-md"} max-h-[94vh] overflow-y-auto rounded-3xl border p-5 sm:p-7 animate-scale-in`}
+        style={{
+          borderColor: `${accent}55`,
+          background: "linear-gradient(180deg, rgba(12,16,26,0.97), rgba(4,6,12,0.99))",
+          boxShadow: `0 0 0 1px ${accent}22, 0 40px 100px -24px ${accent}66, 0 0 160px -60px ${accent}`,
+        }}
+      >
+        {/* subtle top sheen */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-24 rounded-t-3xl"
+          style={{ background: `radial-gradient(120% 80% at 50% 0%, ${accent}18, transparent 70%)` }}
+        />
+        <div className="relative">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+/* A stage that frames the wheel with an animated glow ring while spinning. */
+function WheelStage({
+  children,
+  accent = "#f5b800",
+  active = false,
+}: {
+  children: React.ReactNode;
+  accent?: string;
+  active?: boolean;
+}) {
+  return (
+    <div className="relative mx-auto flex items-center justify-center" style={{ width: 320, maxWidth: "100%" }}>
+      {/* rotating conic halo behind the wheel */}
+      <div
+        aria-hidden
+        className={`pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full blur-2xl ${active ? "animate-spin" : ""}`}
+        style={{
+          width: 360,
+          height: 360,
+          opacity: active ? 0.6 : 0.32,
+          background: `conic-gradient(from 0deg, transparent 0%, ${accent} 25%, transparent 55%, ${accent}88 80%, transparent 100%)`,
+          animationDuration: "3.2s",
+        }}
+      />
+      {/* soft steady bloom */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
+        style={{ width: 260, height: 260, opacity: 0.25, background: `radial-gradient(circle, ${accent}, transparent 70%)` }}
+      />
+      <div className="relative">{children}</div>
+    </div>
+  );
+}
+
+
+
+
+/* ------------------------------------------------------------------ */
 /*  Player home bases — international centres of power                  */
 /* ------------------------------------------------------------------ */
 
