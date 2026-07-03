@@ -1414,7 +1414,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       className={`relative w-full overflow-y-auto overflow-x-hidden ${isFullscreen ? "fixed inset-0 z-50 rounded-none" : "rounded-2xl"}`}
       style={{
         minHeight: isFullscreen ? "100vh" : embedded ? 520 : "100vh",
-        height: isFullscreen ? "100vh" : embedded ? "calc(100dvh - 196px)" : "100vh",
+        height: isFullscreen ? "100vh" : embedded ? "calc(100dvh - 272px)" : "100vh",
 
         background:
           "radial-gradient(1200px 600px at 20% -10%, rgba(0,188,212,0.12), transparent), radial-gradient(900px 500px at 90% 110%, rgba(245,184,0,0.1), transparent), #05070d",
