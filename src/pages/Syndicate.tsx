@@ -19,6 +19,7 @@ import {
   outcomePayout,
   heatForRound,
   OUTCOME_LABEL,
+  OUTCOME_COLOR,
   type Operation,
   type RiskLevel,
   type Outcome,
