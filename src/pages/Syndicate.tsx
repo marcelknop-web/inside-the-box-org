@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Volume2, VolumeX, Skull, Shield, Crown, TrendingUp, Flame, Trophy, BarChart3, Calendar, Hash, Award, Copy, Check, X, Fish, VenetianMask, CreditCard, Wine, Gem, Lock, Rocket, ShoppingCart, Building2, Landmark, Dice5, Eye, Coins, Maximize2, Minimize2, HelpCircle } from "lucide-react";
 import { PageMeta } from "@/components/PageMeta";
-import Globe, { type GlobePlayer } from "@/components/syndicate/Globe";
+import Globe, { type GlobePlayer, type GlobeAttack } from "@/components/syndicate/Globe";
 import { MapPin } from "lucide-react";
 import {
   OPERATIONS,
@@ -593,6 +593,24 @@ const FALLBACK_LOCATIONS = [
   { city: "Dubai", lat: 25.2, lon: 55.27 },
   { city: "Hong Kong", lat: 22.32, lon: 114.17 },
 ];
+
+// Fictional target hubs a cyber operation "strikes" on the globe.
+const TARGET_CITIES: { lat: number; lon: number }[] = [
+  { lat: 35.68, lon: 139.69 }, // Tokyo
+  { lat: 1.35, lon: 103.82 }, // Singapore
+  { lat: -33.87, lon: 151.21 }, // Sydney
+  { lat: 37.77, lon: -122.42 }, // San Francisco
+  { lat: 52.52, lon: 13.4 }, // Berlin
+  { lat: 25.2, lon: 55.27 }, // Dubai
+  { lat: -23.55, lon: -46.63 }, // São Paulo
+  { lat: 19.08, lon: 72.88 }, // Mumbai
+];
+
+function targetForOp(opId: string): { lat: number; lon: number } {
+  let h = 0;
+  for (let i = 0; i < opId.length; i++) h = (h * 31 + opId.charCodeAt(i)) >>> 0;
+  return TARGET_CITIES[h % TARGET_CITIES.length];
+}
 
 // Decorative markers shown on the welcome-screen globe (before players exist).
 const WELCOME_GLOBE_PLAYERS: GlobePlayer[] = [
@@ -1226,7 +1244,30 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       active: p.id === activeId,
     }));
   const focusPlayer = players.find((p) => p.id === activeId && p.location);
-  const focusLon = focusPlayer?.location?.lon;
+
+  // Attack animation: while a wheel is spinning, strike a target city from the
+  // acting player's location.
+  const attackingOp: Operation | null =
+    phase === "spinning"
+      ? selectedOp
+      : phase === "ai" && aiSub === "spinning" && aiLog.length
+        ? aiLog[Math.min(aiStep, aiLog.length - 1)]?.op ?? null
+        : null;
+  const globeAttack: GlobeAttack | null =
+    attackingOp && focusPlayer?.location
+      ? (() => {
+          const tgt = targetForOp(attackingOp.id);
+          return {
+            id: `${focusPlayer.id}-${attackingOp.id}-${round}-${aiStep}`,
+            color: focusPlayer.color,
+            fromLat: focusPlayer.location!.lat,
+            fromLon: focusPlayer.location!.lon,
+            toLat: tgt.lat,
+            toLon: tgt.lon,
+          };
+        })()
+      : null;
+
   
 
   const shell = (children: React.ReactNode) => (
@@ -1438,7 +1479,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         <div className="relative mb-2 h-[34vh] min-h-[220px] md:h-[40vh] rounded-2xl overflow-hidden border border-white/10 bg-[radial-gradient(60%_60%_at_50%_40%,rgba(0,188,212,0.08),transparent)]">
           <Globe
             players={globePlayers}
-            focusLon={focusLon}
+            attack={globeAttack}
             className="pointer-events-none absolute inset-0 h-full w-full"
           />
         </div>
