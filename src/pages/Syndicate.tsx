@@ -19,6 +19,7 @@ import {
   outcomePayout,
   heatForRound,
   OUTCOME_LABEL,
+  OUTCOME_COLOR,
   type Operation,
   type RiskLevel,
   type Outcome,
@@ -520,34 +521,41 @@ function Wheel({
                 : "none",
             }}
           >
-            {segments.map((s, i) => (
-              <g key={i}>
-                <path
-                  d={arcPath(s.start, s.end)}
-                  fill={s.color}
-                  stroke="rgba(0,0,0,0.5)"
-                  strokeWidth={1.5}
-                  opacity={s.type === "safe" ? 0.9 : 1}
-                />
-                {s.end - s.start > 12 && (
-                  <text
-                    x={polar(s.mid, R * 0.66).x}
-                    y={polar(s.mid, R * 0.66).y}
-                    fill="#fff"
-                    fontSize={s.end - s.start > 26 ? 12 : 9}
-                    fontWeight={800}
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    transform={`rotate(${s.mid}, ${polar(s.mid, R * 0.66).x}, ${
-                      polar(s.mid, R * 0.66).y
-                    })`}
-                    style={{ textShadow: "0 1px 3px rgba(0,0,0,0.9)", letterSpacing: "0.02em" }}
-                  >
-                    {s.label}
-                  </text>
-                )}
-              </g>
-            ))}
+            {segments.map((s, i) => {
+              // Place the label along the radius, but flip any slice on the
+              // bottom half so text is always upright and reads outward-in.
+              const flip = s.mid > 90 && s.mid < 270;
+              const labelR = R * 0.62;
+              const p = polar(s.mid, labelR);
+              const rot = flip ? s.mid + 180 : s.mid;
+              return (
+                <g key={i}>
+                  <path
+                    d={arcPath(s.start, s.end)}
+                    fill={s.color}
+                    stroke="rgba(0,0,0,0.5)"
+                    strokeWidth={1.5}
+                    opacity={s.type === "safe" ? 0.9 : 1}
+                  />
+                  {s.end - s.start > 12 && (
+                    <text
+                      x={p.x}
+                      y={p.y}
+                      fill="#fff"
+                      fontSize={s.end - s.start > 26 ? 12 : 9}
+                      fontWeight={800}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      transform={`rotate(${rot}, ${p.x}, ${p.y})`}
+                      style={{ textShadow: "0 1px 3px rgba(0,0,0,0.9)", letterSpacing: "0.02em" }}
+                    >
+                      {s.label}
+                    </text>
+                  )}
+                </g>
+              );
+            })}
+
           </g>
 
           {/* glossy overlay (does not spin) */}
@@ -642,6 +650,42 @@ function WheelStage({
         style={{ width: 260, height: 260, opacity: 0.25, background: `radial-gradient(circle, ${accent}, transparent 70%)` }}
       />
       <div className="relative">{children}</div>
+    </div>
+  );
+}
+
+/* Legend explaining what each wheel slice means. */
+const WHEEL_LEGEND: { type: Outcome; blurb: string }[] = [
+  { type: "success", blurb: "Job pays off — solid profit on your stake." },
+  { type: "bigSuccess", blurb: "Jackpot — the biggest payout on the wheel." },
+  { type: "bonus", blurb: "Windfall — extra cash on top of the job." },
+  { type: "safe", blurb: "No harm done — you break even, keep your stake." },
+  { type: "investigation", blurb: "Heat rises — a small loss, but no token burned." },
+  { type: "caught", blurb: "Busted — you burn a shield token. Out at zero." },
+];
+
+function WheelLegend() {
+  return (
+    <div className="mt-5 text-left">
+      <p className="text-[10px] font-mono tracking-[0.25em] text-white/40 mb-2 text-center">
+        WHAT THE SLICES MEAN
+      </p>
+      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5">
+        {WHEEL_LEGEND.map(({ type, blurb }) => (
+          <li key={type} className="flex items-start gap-2">
+            <span
+              aria-hidden
+              className="mt-1 h-2.5 w-2.5 shrink-0 rounded-sm"
+              style={{ background: OUTCOME_COLOR[type], boxShadow: `0 0 6px ${OUTCOME_COLOR[type]}88` }}
+            />
+            <span className="text-xs leading-tight text-white/70">
+              <span className="font-semibold text-white/90">{OUTCOME_LABEL[type]}</span>
+              {" — "}
+              {blurb}
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -1883,6 +1927,9 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             >
               SPIN THE WHEEL
             </button>
+            <div className="mx-auto max-w-md">
+              <WheelLegend />
+            </div>
             <div className="mt-3">
               <button onClick={() => setSelectedOp(null)} className="text-white/40 text-xs hover:text-white/70">
                 ← pick a different operation
