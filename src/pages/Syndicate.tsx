@@ -522,12 +522,16 @@ function Wheel({
             }}
           >
             {segments.map((s, i) => {
-              // Place the label along the radius, but flip any slice on the
-              // bottom half so text is always upright and reads outward-in.
-              const flip = s.mid > 90 && s.mid < 270;
-              const labelR = R * 0.62;
+              // Professional prize-wheel labels: each sits along its slice's
+              // radius and always reads left-to-right (flipped upright on the
+              // left half so no label is ever mirrored or upside down).
+              const labelR = R * 0.6;
               const p = polar(s.mid, labelR);
-              const rot = flip ? s.mid + 180 : s.mid;
+              // Align the text with the radial direction, then keep it upright.
+              let rot = s.mid - 90;
+              const upsideDown = ((rot % 360) + 360) % 360 > 90 && ((rot % 360) + 360) % 360 < 270;
+              if (upsideDown) rot += 180;
+              const wide = s.end - s.start;
               return (
                 <g key={i}>
                   <path
@@ -537,23 +541,29 @@ function Wheel({
                     strokeWidth={1.5}
                     opacity={s.type === "safe" ? 0.9 : 1}
                   />
-                  {s.end - s.start > 12 && (
+                  {wide > 12 && (
                     <text
                       x={p.x}
                       y={p.y}
                       fill="#fff"
-                      fontSize={s.end - s.start > 26 ? 12 : 9}
-                      fontWeight={800}
+                      fontSize={wide > 26 ? 11 : 8.5}
+                      fontWeight={700}
                       textAnchor="middle"
-                      dominantBaseline="middle"
+                      dominantBaseline="central"
                       transform={`rotate(${rot}, ${p.x}, ${p.y})`}
-                      style={{ textShadow: "0 1px 3px rgba(0,0,0,0.9)", letterSpacing: "0.02em" }}
+                      style={{
+                        fontFamily: "'IBM Plex Mono', ui-monospace, monospace",
+                        textShadow: "0 1px 3px rgba(0,0,0,0.9)",
+                        letterSpacing: "0.08em",
+                        textTransform: "uppercase",
+                      }}
                     >
                       {s.label}
                     </text>
                   )}
                 </g>
               );
+
             })}
 
           </g>
