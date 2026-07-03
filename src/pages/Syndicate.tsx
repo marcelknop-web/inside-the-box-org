@@ -1981,10 +1981,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           </>
         ) : (
           <WheelPopup accent="#f5b800">
-            <div className="h-16 flex flex-col justify-center">
-              <p className="text-center text-[10px] font-mono tracking-[0.3em] text-white/40 mb-1">RUNNING OPERATION</p>
-              <h2 className="font-bold text-xl text-white text-center leading-tight">{selectedOp.name}</h2>
-            </div>
+            <WheelHeader eyebrow="RUNNING OPERATION" title={selectedOp.name} />
             <WheelStage accent="#f5b800">
               <Wheel segments={segments} rotation={rotation} spinning={spinning} />
             </WheelStage>
