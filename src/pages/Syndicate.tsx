@@ -1481,36 +1481,38 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   /* ---- WELCOME ---- */
   if (phase === "welcome") {
     return shell(
-      <div className="relative flex flex-col items-center justify-center text-center max-w-lg mx-auto py-10">
+      <div className="relative flex flex-1 flex-col items-center justify-center text-center max-w-md mx-auto py-4">
         <Globe
           players={WELCOME_GLOBE_PLAYERS}
-          className="pointer-events-none absolute -top-6 left-1/2 -translate-x-1/2 w-[120%] h-[42vh] opacity-40"
+          className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[130%] h-[38vh] opacity-25"
         />
-        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(60% 40% at 50% 30%, transparent, #05070d 75%)" }} />
-        <div className="relative">
-        <Skull size={56} style={{ color: "#f5b800" }} className="mb-4 drop-shadow-[0_0_18px_rgba(245,184,0,0.5)] mx-auto" />
+        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(65% 45% at 50% 28%, transparent, #05070d 80%)" }} />
+        <div className="relative w-full">
+        <Skull size={40} style={{ color: "#f5b800" }} className="mb-3 drop-shadow-[0_0_12px_rgba(245,184,0,0.35)] mx-auto" />
         <h1
-          className="text-6xl md:text-7xl font-black tracking-[0.15em] mb-3"
+          className="text-4xl sm:text-5xl font-black tracking-[0.22em] mb-3 pl-[0.22em]"
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
             color: "#fff",
-            textShadow: "0 0 24px rgba(0,188,212,0.6)",
+            textShadow: "0 0 18px rgba(0,188,212,0.35)",
           }}
         >
           SYNDICATE
         </h1>
-        <p className="text-cyan-300 font-mono text-sm md:text-base mb-1">Build your empire.</p>
-        <p className="text-cyan-300 font-mono text-sm md:text-base mb-1">Trust nobody.</p>
-        <p className="text-red-400 font-mono text-sm md:text-base mb-8">Don't get caught.</p>
+        <p className="font-mono text-xs sm:text-sm tracking-wide text-white/70 mb-6">
+          <span className="text-cyan-300">Build your empire.</span>{" "}
+          <span className="text-cyan-300">Trust nobody.</span>{" "}
+          <span className="text-red-400">Don't get caught.</span>
+        </p>
 
-        <div className="w-full max-w-xs">
+        <div className="w-full rounded-2xl border border-white/10 bg-white/[0.03] p-4 backdrop-blur-sm shadow-[0_10px_40px_-16px_rgba(0,0,0,0.8)]">
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && startGame()}
             placeholder="Enter your alias"
             maxLength={18}
-            className="w-full rounded-lg bg-black/50 border border-cyan-400/30 px-4 py-3 text-center text-white outline-none focus:border-cyan-400 mb-4"
+            className="w-full rounded-lg bg-black/40 border border-white/12 px-4 py-2.5 text-center text-white text-sm outline-none transition focus:border-cyan-400/70 mb-3"
           />
 
           {/* mode selector */}
@@ -1523,11 +1525,11 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               <button
                 key={m.id}
                 onClick={() => setGameMode(m.id)}
-                className="rounded-lg py-2 text-xs font-mono flex flex-col items-center gap-1 border transition"
+                className="rounded-lg py-2 text-[11px] font-mono flex flex-col items-center gap-1 border transition"
                 style={{
-                  borderColor: gameMode === m.id ? "#00bcd4" : "rgba(255,255,255,0.12)",
-                  background: gameMode === m.id ? "rgba(0,188,212,0.12)" : "rgba(255,255,255,0.02)",
-                  color: gameMode === m.id ? "#5eead4" : "rgba(255,255,255,0.6)",
+                  borderColor: gameMode === m.id ? "#00bcd4" : "rgba(255,255,255,0.10)",
+                  background: gameMode === m.id ? "rgba(0,188,212,0.10)" : "rgba(255,255,255,0.02)",
+                  color: gameMode === m.id ? "#5eead4" : "rgba(255,255,255,0.55)",
                 }}
               >
                 {m.icon}
@@ -1547,39 +1549,40 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               onChange={(e) => setSeedInput(e.target.value)}
               placeholder="Enter seed code (blank = random)"
               maxLength={12}
-              className="w-full rounded-lg bg-black/50 border border-cyan-400/30 px-4 py-2.5 text-center text-white text-sm font-mono outline-none focus:border-cyan-400 mb-3 uppercase"
+              className="w-full rounded-lg bg-black/40 border border-white/12 px-4 py-2 text-center text-white text-sm font-mono outline-none transition focus:border-cyan-400/70 mb-3 uppercase"
             />
           )}
 
           <button
             onClick={startGame}
-            className="w-full rounded-lg py-3 font-mono font-bold tracking-widest text-black transition hover:brightness-110"
-            style={{ background: "linear-gradient(90deg,#f5b800,#ffd34d)", boxShadow: "0 0 24px rgba(245,184,0,0.4)" }}
+            className="w-full rounded-lg py-3 font-mono font-bold tracking-[0.2em] text-black transition hover:brightness-110"
+            style={{ background: "linear-gradient(90deg,#f5b800,#ffd34d)", boxShadow: "0 0 20px rgba(245,184,0,0.3)" }}
           >
             START
           </button>
 
-          <div className="grid grid-cols-2 gap-2 mt-3">
+          <div className="grid grid-cols-2 gap-2 mt-2">
             <button
               onClick={() => { setStats(loadStats()); setOverlay("stats"); }}
-              className="rounded-lg py-2.5 text-xs font-mono flex items-center justify-center gap-1.5 border border-white/12 bg-white/[0.02] text-white/70 hover:text-white hover:border-cyan-400/50 transition"
+              className="rounded-lg py-2 text-[11px] font-mono flex items-center justify-center gap-1.5 border border-white/10 bg-white/[0.02] text-white/60 hover:text-white hover:border-cyan-400/40 transition"
             >
               <BarChart3 size={14} /> Statistics
             </button>
             <button
               onClick={() => { setUnlockedIds(loadUnlocked()); setOverlay("achievements"); }}
-              className="rounded-lg py-2.5 text-xs font-mono flex items-center justify-center gap-1.5 border border-white/12 bg-white/[0.02] text-white/70 hover:text-white hover:border-cyan-400/50 transition"
+              className="rounded-lg py-2 text-[11px] font-mono flex items-center justify-center gap-1.5 border border-white/10 bg-white/[0.02] text-white/60 hover:text-white hover:border-cyan-400/40 transition"
             >
               <Award size={14} /> Achievements
             </button>
           </div>
         </div>
-        <p className="text-white/40 text-xs mt-8 max-w-sm">
+        <p className="text-white/35 text-[11px] leading-relaxed mt-4 max-w-sm mx-auto">
           A fictional strategy game of luck and nerve. Outlast 2 AI rivals across up to {TOTAL_ROUNDS} rounds. Richest survivor wins.
         </p>
         </div>
         {overlayNode}
       </div>
+
     );
   }
 
