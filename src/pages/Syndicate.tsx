@@ -606,11 +606,11 @@ function WheelPopup({
   wide?: boolean;
 }) {
   return (
-    <div className="fixed inset-0 z-[55] flex items-center justify-center p-3 sm:p-4">
+    <div className="fixed inset-0 z-[55] flex items-start justify-center overflow-y-auto p-3 sm:p-4">
       {/* dim + blur the game board behind */}
-      <div className="absolute inset-0 bg-black/75 backdrop-blur-md animate-fade-in" />
+      <div className="fixed inset-0 bg-black/75 backdrop-blur-md animate-fade-in" />
       <div
-        className={`relative w-full ${wide ? "max-w-lg" : "max-w-md"} max-h-[94vh] overflow-y-auto overflow-x-hidden rounded-3xl border p-5 sm:p-7 animate-scale-in`}
+        className={`relative my-auto w-full ${wide ? "max-w-lg" : "max-w-md"} min-h-[600px] flex flex-col overflow-x-hidden rounded-3xl border p-5 sm:p-7 animate-scale-in`}
         style={{
           borderColor: `${accent}55`,
           background: "linear-gradient(180deg, rgba(12,16,26,0.97), rgba(4,6,12,0.99))",
