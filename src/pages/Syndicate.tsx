@@ -448,7 +448,7 @@ function Wheel({
 }) {
   return (
     <div
-      className="relative mx-auto select-none max-w-full origin-top scale-[0.82] xs:scale-90 sm:scale-100"
+      className="relative mx-auto select-none max-w-full origin-top scale-[0.82] sm:scale-100"
       style={{ width: 320, height: 356, perspective: 1100 }}
     >
       {/* pointer */}
