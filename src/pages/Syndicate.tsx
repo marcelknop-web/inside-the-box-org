@@ -1040,6 +1040,8 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         snd.bigWin();
       } else if (res.delta > op.cost) {
         snd.win();
+      } else {
+        snd.reveal();
       }
       setPhase("outcome");
     },
