@@ -575,6 +575,81 @@ function Wheel({
 
 
 /* ------------------------------------------------------------------ */
+/*  Wheel popup — premium modal that frames the spin sequence           */
+/* ------------------------------------------------------------------ */
+
+function WheelPopup({
+  children,
+  accent = "#f5b800",
+  wide = false,
+}: {
+  children: React.ReactNode;
+  accent?: string;
+  wide?: boolean;
+}) {
+  return (
+    <div className="fixed inset-0 z-[55] flex items-center justify-center p-3 sm:p-4">
+      {/* dim + blur the game board behind */}
+      <div className="absolute inset-0 bg-black/75 backdrop-blur-md animate-fade-in" />
+      <div
+        className={`relative w-full ${wide ? "max-w-lg" : "max-w-md"} max-h-[94vh] overflow-y-auto rounded-3xl border p-5 sm:p-7 animate-scale-in`}
+        style={{
+          borderColor: `${accent}55`,
+          background: "linear-gradient(180deg, rgba(12,16,26,0.97), rgba(4,6,12,0.99))",
+          boxShadow: `0 0 0 1px ${accent}22, 0 40px 100px -24px ${accent}66, 0 0 160px -60px ${accent}`,
+        }}
+      >
+        {/* subtle top sheen */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-24 rounded-t-3xl"
+          style={{ background: `radial-gradient(120% 80% at 50% 0%, ${accent}18, transparent 70%)` }}
+        />
+        <div className="relative">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+/* A stage that frames the wheel with an animated glow ring while spinning. */
+function WheelStage({
+  children,
+  accent = "#f5b800",
+  active = false,
+}: {
+  children: React.ReactNode;
+  accent?: string;
+  active?: boolean;
+}) {
+  return (
+    <div className="relative mx-auto flex items-center justify-center" style={{ width: 320, maxWidth: "100%" }}>
+      {/* rotating conic halo behind the wheel */}
+      <div
+        aria-hidden
+        className={`pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full blur-2xl ${active ? "animate-spin" : ""}`}
+        style={{
+          width: 360,
+          height: 360,
+          opacity: active ? 0.6 : 0.32,
+          background: `conic-gradient(from 0deg, transparent 0%, ${accent} 25%, transparent 55%, ${accent}88 80%, transparent 100%)`,
+          animationDuration: "3.2s",
+        }}
+      />
+      {/* soft steady bloom */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
+        style={{ width: 260, height: 260, opacity: 0.25, background: `radial-gradient(circle, ${accent}, transparent 70%)` }}
+      />
+      <div className="relative">{children}</div>
+    </div>
+  );
+}
+
+
+
+
+/* ------------------------------------------------------------------ */
 /*  Player home bases — international centres of power                  */
 /* ------------------------------------------------------------------ */
 
@@ -1819,12 +1894,17 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   /* ---- SPINNING ---- */
   if (phase === "spinning") {
     return shell(
-      <div className="max-w-3xl mx-auto text-center">
-        {hud}
-        <h2 className="font-bold text-xl text-white mb-4">{selectedOp?.name}</h2>
-        <Wheel segments={segments} rotation={rotation} spinning={spinning} />
-        <p className="text-cyan-300 font-mono mt-4 animate-pulse">Spinning…</p>
-      </div>
+      <>
+        <div className="max-w-3xl mx-auto">{hud}</div>
+        <WheelPopup accent="#f5b800">
+          <p className="text-center text-[10px] font-mono tracking-[0.3em] text-white/40 mb-1">RUNNING OPERATION</p>
+          <h2 className="font-bold text-xl text-white mb-5 text-center">{selectedOp?.name}</h2>
+          <WheelStage accent="#f5b800" active>
+            <Wheel segments={segments} rotation={rotation} spinning={spinning} />
+          </WheelStage>
+          <p className="text-cyan-300 font-mono mt-5 animate-pulse text-center">Spinning…</p>
+        </WheelPopup>
+      </>
     );
   }
 
@@ -1833,60 +1913,66 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     const caughtEl = result.outcome === "caught";
     const good = result.delta > (selectedOp?.cost ?? 0);
     const net = result.delta - (selectedOp?.cost ?? 0);
+    const accent = caughtEl ? "#ef4444" : good ? "#22c55e" : "#94a3b8";
     return shell(
-      <div className="max-w-3xl mx-auto text-center">
-        {hud}
-        {coachBar(
-          caughtEl
-            ? {
-                icon: Skull,
-                tone: "danger",
-                text: result.eliminated
-                  ? "You've been caught with no shields left — your crew is out of the game. Watch how the rest plays out below."
-                  : "Caught! You lost one shield token. When all shields are gone, you're eliminated — so weigh the risk next time.",
-              }
-            : {
-                icon: net >= 0 ? TrendingUp : Coins,
-                tone: net >= 0 ? "good" : "danger",
-                text:
-                  net >= 0
-                    ? "The job paid off — this is your net profit after costs. Tap the button below to watch your rivals move."
-                    : "The job cost more than it earned this time. That happens — tap below to continue to your rivals' turn.",
-              },
-        )}
-        <Wheel segments={segments} rotation={rotation} spinning={false} />
+      <>
+        <div className="max-w-3xl mx-auto">{hud}</div>
+        <WheelPopup accent={accent}>
+          {coachBar(
+            caughtEl
+              ? {
+                  icon: Skull,
+                  tone: "danger",
+                  text: result.eliminated
+                    ? "You've been caught with no shields left — your crew is out of the game. Watch how the rest plays out below."
+                    : "Caught! You lost one shield token. When all shields are gone, you're eliminated — so weigh the risk next time.",
+                }
+              : {
+                  icon: net >= 0 ? TrendingUp : Coins,
+                  tone: net >= 0 ? "good" : "danger",
+                  text:
+                    net >= 0
+                      ? "The job paid off — this is your net profit after costs. Tap the button below to watch your rivals move."
+                      : "The job cost more than it earned this time. That happens — tap below to continue to your rivals' turn.",
+                },
+          )}
+          <WheelStage accent={accent}>
+            <Wheel segments={segments} rotation={rotation} spinning={false} />
+          </WheelStage>
 
-        <div className="mt-5 animate-scale-in">
-          <div
-            className="inline-block rounded-xl px-8 py-4 font-black text-2xl"
-            style={{
-              background: caughtEl ? "rgba(239,68,68,0.15)" : good ? "rgba(34,197,94,0.15)" : "rgba(148,163,184,0.15)",
-              border: `1px solid ${caughtEl ? "#ef4444" : good ? "#22c55e" : "#94a3b8"}`,
-              color: caughtEl ? "#fca5a5" : good ? "#86efac" : "#cbd5e1",
-            }}
-          >
-            {OUTCOME_LABEL[result.outcome]}
-            {caughtEl && (result.eliminated ? " — ELIMINATED" : " — token lost!")}
+          <div className="mt-5 text-center animate-scale-in">
+            <div
+              className="inline-block rounded-xl px-8 py-4 font-black text-2xl"
+              style={{
+                background: caughtEl ? "rgba(239,68,68,0.15)" : good ? "rgba(34,197,94,0.15)" : "rgba(148,163,184,0.15)",
+                border: `1px solid ${accent}`,
+                color: caughtEl ? "#fca5a5" : good ? "#86efac" : "#cbd5e1",
+              }}
+            >
+              {OUTCOME_LABEL[result.outcome]}
+              {caughtEl && (result.eliminated ? " — ELIMINATED" : " — token lost!")}
+            </div>
+            {!caughtEl && (
+              <p className={`mt-3 text-xl font-mono font-bold ${net >= 0 ? "text-green-400" : "text-red-400"}`}>
+                {net >= 0 ? "+" : ""}{fmt(net)}
+              </p>
+            )}
+            {closeCall && !caughtEl && (
+              <p className="mt-2 text-orange-300 font-mono text-sm animate-pulse">⚡ {closeCall}</p>
+            )}
           </div>
-          {!caughtEl && (
-            <p className={`mt-3 text-xl font-mono font-bold ${net >= 0 ? "text-green-400" : "text-red-400"}`}>
-              {net >= 0 ? "+" : ""}{fmt(net)}
-            </p>
-          )}
-          {closeCall && !caughtEl && (
-            <p className="mt-2 text-orange-300 font-mono text-sm animate-pulse">⚡ {closeCall}</p>
-          )}
-        </div>
-        <button
-          onClick={runAiTurns}
-          className="mt-6 rounded-lg px-8 py-3 font-mono font-bold text-black hover:brightness-110 transition"
-          style={{ background: "linear-gradient(90deg,#00bcd4,#5eead4)" }}
-        >
-          {human?.alive ? "RIVALS' TURN →" : "SEE THE FALLOUT →"}
-        </button>
-      </div>
+          <button
+            onClick={runAiTurns}
+            className="mt-6 w-full rounded-lg px-8 py-3 font-mono font-bold text-black hover:brightness-110 transition"
+            style={{ background: "linear-gradient(90deg,#00bcd4,#5eead4)" }}
+          >
+            {human?.alive ? "RIVALS' TURN →" : "SEE THE FALLOUT →"}
+          </button>
+        </WheelPopup>
+      </>
     );
   }
+
 
   /* ---- AI TURNS (user-paced, step-by-step walk-through) ---- */
   if (phase === "ai") {
@@ -1991,7 +2077,9 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             {(aiSub === "spinning" || aiSub === "result") && (
               <div className="flex flex-col items-center">
                 <div className="scale-90 origin-top">
-                  <Wheel segments={turn.segs} rotation={aiRotation} spinning={aiSub === "spinning"} />
+                  <WheelStage accent={theme.glow} active={aiSub === "spinning"}>
+                    <Wheel segments={turn.segs} rotation={aiRotation} spinning={aiSub === "spinning"} />
+                  </WheelStage>
                 </div>
                 {aiSub === "spinning" && (
                   <p className="text-cyan-300 font-mono mt-2 animate-pulse text-sm">Spinning…</p>
