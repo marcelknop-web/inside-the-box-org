@@ -87,13 +87,12 @@ function Attack({ attack }: { attack: GlobeAttack }) {
   }, [attack.fromLat, attack.fromLon, attack.toLat, attack.toLon]);
 
   const trailGeom = useMemo(() => {
-    const g = new THREE.BufferGeometry().setFromPoints(curve.getPoints(60));
-    return g;
+    return new THREE.TubeGeometry(curve, 60, 0.012, 6, false);
   }, [curve]);
 
   const headRef = useRef<THREE.Mesh>(null);
   const ringRef = useRef<THREE.Mesh>(null);
-  const trailRef = useRef<THREE.Line>(null);
+  const trailRef = useRef<THREE.Mesh>(null);
   const startT = useRef<number | null>(null);
   const col = attack.color;
 
@@ -120,7 +119,7 @@ function Attack({ attack }: { attack: GlobeAttack }) {
 
     // trail fades in with the flight, out on burst
     if (trailRef.current) {
-      const mat = trailRef.current.material as THREE.LineBasicMaterial;
+      const mat = trailRef.current.material as THREE.MeshBasicMaterial;
       mat.opacity = flight < 1 ? 0.35 + flight * 0.4 : Math.max(0, 0.75 - burst);
     }
 
@@ -138,11 +137,10 @@ function Attack({ attack }: { attack: GlobeAttack }) {
 
   return (
     <group>
-      {/* eslint-disable-next-line react/no-unknown-property */}
-      <line ref={trailRef as never}>
+      <mesh ref={trailRef}>
         <primitive object={trailGeom} attach="geometry" />
-        <lineBasicMaterial color={col} transparent opacity={0.4} toneMapped={false} />
-      </line>
+        <meshBasicMaterial color={col} transparent opacity={0.4} toneMapped={false} />
+      </mesh>
       <mesh ref={headRef}>
         <sphereGeometry args={[0.06, 12, 12]} />
         <meshBasicMaterial color={col} toneMapped={false} />
