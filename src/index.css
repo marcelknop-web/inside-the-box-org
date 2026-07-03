@@ -471,3 +471,36 @@
     font-size: 14px;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/*  Syndicate — arcade / video-game shell FX                          */
+/* ------------------------------------------------------------------ */
+@keyframes syn-scanline-drift {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 100vh; }
+}
+@keyframes syn-flicker {
+  0%, 100% { opacity: 0.045; }
+  50% { opacity: 0.02; }
+  73% { opacity: 0.06; }
+}
+.syn-scanlines {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0px,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.35) 3px,
+    rgba(0, 0, 0, 0.35) 4px
+  );
+  animation: syn-flicker 3.2s steps(2, end) infinite;
+}
+.syn-vignette {
+  background: radial-gradient(120% 100% at 50% 45%, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+}
+.syn-corner {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border: 2px solid rgba(0, 188, 212, 0.55);
+  filter: drop-shadow(0 0 6px rgba(0, 188, 212, 0.5));
+}
