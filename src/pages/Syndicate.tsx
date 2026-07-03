@@ -520,34 +520,41 @@ function Wheel({
                 : "none",
             }}
           >
-            {segments.map((s, i) => (
-              <g key={i}>
-                <path
-                  d={arcPath(s.start, s.end)}
-                  fill={s.color}
-                  stroke="rgba(0,0,0,0.5)"
-                  strokeWidth={1.5}
-                  opacity={s.type === "safe" ? 0.9 : 1}
-                />
-                {s.end - s.start > 12 && (
-                  <text
-                    x={polar(s.mid, R * 0.66).x}
-                    y={polar(s.mid, R * 0.66).y}
-                    fill="#fff"
-                    fontSize={s.end - s.start > 26 ? 12 : 9}
-                    fontWeight={800}
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    transform={`rotate(${s.mid}, ${polar(s.mid, R * 0.66).x}, ${
-                      polar(s.mid, R * 0.66).y
-                    })`}
-                    style={{ textShadow: "0 1px 3px rgba(0,0,0,0.9)", letterSpacing: "0.02em" }}
-                  >
-                    {s.label}
-                  </text>
-                )}
-              </g>
-            ))}
+            {segments.map((s, i) => {
+              // Place the label along the radius, but flip any slice on the
+              // bottom half so text is always upright and reads outward-in.
+              const flip = s.mid > 90 && s.mid < 270;
+              const labelR = R * 0.62;
+              const p = polar(s.mid, labelR);
+              const rot = flip ? s.mid + 180 : s.mid;
+              return (
+                <g key={i}>
+                  <path
+                    d={arcPath(s.start, s.end)}
+                    fill={s.color}
+                    stroke="rgba(0,0,0,0.5)"
+                    strokeWidth={1.5}
+                    opacity={s.type === "safe" ? 0.9 : 1}
+                  />
+                  {s.end - s.start > 12 && (
+                    <text
+                      x={p.x}
+                      y={p.y}
+                      fill="#fff"
+                      fontSize={s.end - s.start > 26 ? 12 : 9}
+                      fontWeight={800}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      transform={`rotate(${rot}, ${p.x}, ${p.y})`}
+                      style={{ textShadow: "0 1px 3px rgba(0,0,0,0.9)", letterSpacing: "0.02em" }}
+                    >
+                      {s.label}
+                    </text>
+                  )}
+                </g>
+              );
+            })}
+
           </g>
 
           {/* glossy overlay (does not spin) */}
