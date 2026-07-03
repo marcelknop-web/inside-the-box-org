@@ -1874,9 +1874,15 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
 
                     {/* title */}
-                    <p className="relative z-10 font-black uppercase tracking-wide text-white text-xs md:text-sm leading-tight mb-1.5 min-h-[1.6em]">
+                    <p className="relative z-10 font-black uppercase tracking-wide text-white text-xs md:text-sm leading-tight mb-1 min-h-[1.6em]">
                       {op.name}
                     </p>
+
+                    {/* short outline */}
+                    <p className="relative z-10 text-[10px] leading-snug text-white/55 mb-1.5 line-clamp-2 min-h-[2.4em]">
+                      {op.description}
+                    </p>
+
 
 
                     {/* stat row + data bars (numbers preserved, visualised) */}
