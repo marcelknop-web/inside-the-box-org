@@ -653,6 +653,42 @@ function WheelStage({
   );
 }
 
+/* Legend explaining what each wheel slice means. */
+const WHEEL_LEGEND: { type: Outcome; blurb: string }[] = [
+  { type: "success", blurb: "Job pays off — solid profit on your stake." },
+  { type: "bigSuccess", blurb: "Jackpot — the biggest payout on the wheel." },
+  { type: "bonus", blurb: "Windfall — extra cash on top of the job." },
+  { type: "safe", blurb: "No harm done — you break even, keep your stake." },
+  { type: "investigation", blurb: "Heat rises — a small loss, but no token burned." },
+  { type: "caught", blurb: "Busted — you burn a shield token. Out at zero." },
+];
+
+function WheelLegend() {
+  return (
+    <div className="mt-5 text-left">
+      <p className="text-[10px] font-mono tracking-[0.25em] text-white/40 mb-2 text-center">
+        WHAT THE SLICES MEAN
+      </p>
+      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5">
+        {WHEEL_LEGEND.map(({ type, blurb }) => (
+          <li key={type} className="flex items-start gap-2">
+            <span
+              aria-hidden
+              className="mt-1 h-2.5 w-2.5 shrink-0 rounded-sm"
+              style={{ background: OUTCOME_COLOR[type], boxShadow: `0 0 6px ${OUTCOME_COLOR[type]}88` }}
+            />
+            <span className="text-xs leading-tight text-white/70">
+              <span className="font-semibold text-white/90">{OUTCOME_LABEL[type]}</span>
+              {" — "}
+              {blurb}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 
 
 
