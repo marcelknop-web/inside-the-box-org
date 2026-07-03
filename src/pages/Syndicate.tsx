@@ -1600,18 +1600,18 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   }
 
 
-  /* ---- HUD (shared top bar for in-game phases) ---- */
+  /* ---- HUD (shared top bar for in-game phases) — orbital tactical layout ---- */
   const maxCash = Math.max(1, ...players.map((p) => Math.max(0, p.cash)));
   const hud = human && (
-    <div className="w-full mb-3">
-      {/* ROW 1 — player avatars on their power hubs */}
-      <div className="flex items-stretch gap-2 mb-2">
+    <div className="w-full space-y-2">
+      {/* ROW 1 — orbital player status cards */}
+      <div className="grid grid-cols-3 gap-2">
         {players.map((p) => {
           const isActive = p.id === activeId;
           return (
             <div
               key={p.id}
-              className="flex-1 flex items-center gap-2 rounded-xl border px-2.5 py-1.5 min-w-0 transition"
+              className="flex items-center gap-1.5 rounded-xl border px-1.5 py-1.5 min-w-0 transition"
               style={{
                 borderColor: isActive ? `${p.color}` : "rgba(255,255,255,0.10)",
                 background: isActive ? `${p.color}18` : "rgba(255,255,255,0.03)",
@@ -1619,18 +1619,34 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                 opacity: p.alive ? 1 : 0.4,
               }}
             >
-              <div className="relative">
-                <Avatar img={p.img} fallback={p.avatar} color={p.color} size={30} />
+              <div className="relative shrink-0">
+                <Avatar img={p.img} fallback={p.avatar} color={p.color} size={38} />
                 {!p.alive && (
                   <Skull size={12} className="absolute -bottom-1 -right-1 text-red-400" />
                 )}
               </div>
-              <div className="min-w-0">
-                <div className="text-[12px] font-bold text-white leading-tight truncate">
-                  {p.name}
+              <div className="min-w-0 text-left">
+                {isActive && (
+                  <div
+                    className="text-[8px] font-mono tracking-[0.15em] uppercase leading-none mb-0.5"
+                    style={{ color: p.color }}
+                  >
+                    ACTIVE
+                  </div>
+                )}
+                <div className="flex items-center gap-1">
+                  {isActive && (
+                    <span
+                      className="inline-block w-1.5 h-1.5 rounded-full animate-pulse"
+                      style={{ background: p.color }}
+                    />
+                  )}
+                  <div className="text-[10px] font-bold text-white leading-tight truncate">
+                    {p.name}
+                  </div>
                 </div>
-                <div className="flex items-center gap-0.5 text-[10px] text-white/50 truncate">
-                  <MapPin size={9} style={{ color: p.color }} />
+                <div className="flex items-center gap-0.5 text-[9px] text-white/50 truncate leading-none">
+                  <MapPin size={8} style={{ color: p.color }} />
                   {p.location?.city ?? "—"}
                 </div>
               </div>
@@ -1639,9 +1655,26 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         })}
       </div>
 
-      {/* GLOBE — freely visible world board between locations and stats */}
+      {/* GLOBE — prominent orbital world board */}
       {globePlayers.length > 0 && (
-        <div className="relative mb-2 h-[14vh] min-h-[96px] max-h-[160px] lg:h-[118px] rounded-2xl overflow-hidden border border-white/10 bg-[radial-gradient(60%_60%_at_50%_40%,rgba(0,188,212,0.08),transparent)]">
+        <div className="relative h-[150px] lg:h-[180px] min-h-[150px] max-h-[180px] rounded-2xl overflow-hidden border border-white/10 bg-[radial-gradient(60%_60%_at_50%_40%,rgba(0,188,212,0.10),transparent)]">
+          {/* ambient orbital rings */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-500/10 animate-[spin_40s_linear_infinite]"
+            style={{ width: 260, height: 260 }}
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/5"
+            style={{ width: 220, height: 220 }}
+          />
+          {/* soft glow behind globe */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-500/10 blur-3xl"
+            style={{ width: 180, height: 180 }}
+          />
           <Globe
             players={globePlayers}
             attack={globeAttack}
@@ -1650,71 +1683,69 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         </div>
       )}
 
-      {/* ROW 2 — money level per player (hidden on scoreboard: leaderboard already ranks cash) */}
-      {phase !== "scoreboard" && (
-      <div className="rounded-2xl border border-white/10 bg-black/40 backdrop-blur-sm px-3 py-2.5 mb-2 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.8)]">
-        <p className="text-[9px] font-mono tracking-[0.25em] text-white/35 mb-2">CASH ON HAND</p>
-        <div className="space-y-2">
-          {players.map((p, i) => (
-            <div
-              key={p.id}
-              className="grid grid-cols-[3.5rem_1fr_5rem] items-center gap-2.5 animate-fade-in"
-              style={{ animationDelay: `${i * 140}ms`, animationFillMode: "backwards" }}
-            >
-              <span
-                className="text-[11px] font-mono font-semibold tracking-wide truncate"
-                style={{ color: p.alive ? p.color : "#64748b" }}
-              >
-                {p.isHuman ? "YOU" : p.name}
-              </span>
-              <div className="h-3 rounded-full bg-white/[0.06] overflow-hidden ring-1 ring-inset ring-white/5">
-                <div
-                  className="h-full rounded-full transition-all duration-700 ease-out"
-                  style={{
-                    width: `${Math.max(4, (Math.max(0, p.cash) / maxCash) * 100)}%`,
-                    background: p.alive
-                      ? `linear-gradient(90deg, ${p.color}, ${p.color}aa)`
-                      : "rgba(148,163,184,0.4)",
-                    boxShadow: p.alive ? `0 0 12px -2px ${p.color}` : "none",
-                  }}
-                />
-              </div>
-              <span
-                className="text-right text-[12px] font-mono font-bold tabular-nums"
-                style={{ color: p.alive ? "#fff" : "#94a3b8" }}
-              >
-                {p.isHuman ? <MoneyCounter value={p.cash} /> : fmt(p.cash)}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-      )}
-
-
-      {/* Human status: shields + heat + round progress (revealed after bars) */}
-      <div
-        className="rounded-2xl border border-white/10 bg-black/40 backdrop-blur-sm px-3 py-2.5 animate-fade-in"
-        style={{ animationDelay: `${players.length * 140 + 80}ms`, animationFillMode: "backwards" }}
-      >
+      {/* Combined status panel: cash + shields + heat + round */}
+      <div className="rounded-2xl border border-white/10 bg-black/40 backdrop-blur-sm px-3 py-2.5 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.8)]">
+        {/* panel header */}
         <div className="flex items-center justify-between gap-3 mb-2">
-          <div className="flex items-center gap-1.5">
-            <span className="text-[9px] font-mono tracking-[0.25em] text-white/35 mr-1">SHIELDS</span>
-            {Array.from({ length: START_TOKENS }).map((_, i) => (
-              <Shield
-                key={i}
-                size={15}
-                style={{ color: i < human.tokens ? "#00bcd4" : "rgba(255,255,255,0.15)" }}
-                fill={i < human.tokens ? "#00bcd4" : "transparent"}
-              />
+          <p className="text-[9px] font-mono tracking-[0.25em] text-white/35">CASH ON HAND</p>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1">
+              {Array.from({ length: START_TOKENS }).map((_, i) => (
+                <Shield
+                  key={i}
+                  size={13}
+                  style={{ color: i < human.tokens ? "#00bcd4" : "rgba(255,255,255,0.15)" }}
+                  fill={i < human.tokens ? "#00bcd4" : "transparent"}
+                />
+              ))}
+            </div>
+            <span className="flex items-center gap-1 text-orange-400 text-[10px] font-mono font-bold">
+              <Flame size={11} /> +{heatPct}%
+            </span>
+            <span className="text-[10px] font-mono text-cyan-300 tabular-nums">R{round}/{TOTAL_ROUNDS}</span>
+          </div>
+        </div>
+
+        {/* cash bars — hidden on scoreboard (leaderboard already ranks cash) */}
+        {phase !== "scoreboard" && (
+          <div className="space-y-1">
+            {players.map((p, i) => (
+              <div
+                key={p.id}
+                className="grid grid-cols-[2.5rem_1fr_4rem] items-center gap-1.5 animate-fade-in"
+                style={{ animationDelay: `${i * 140}ms`, animationFillMode: "backwards" }}
+              >
+                <span
+                  className="text-[9px] font-mono font-semibold tracking-wide truncate"
+                  style={{ color: p.alive ? p.color : "#64748b" }}
+                >
+                  {p.isHuman ? "YOU" : p.name}
+                </span>
+                <div className="h-2 rounded-full bg-white/[0.06] overflow-hidden ring-1 ring-inset ring-white/5">
+                  <div
+                    className="h-full rounded-full transition-all duration-700 ease-out"
+                    style={{
+                      width: `${Math.max(4, (Math.max(0, p.cash) / maxCash) * 100)}%`,
+                      background: p.alive
+                        ? `linear-gradient(90deg, ${p.color}, ${p.color}aa)`
+                        : "rgba(148,163,184,0.4)",
+                      boxShadow: p.alive ? `0 0 10px -2px ${p.color}` : "none",
+                    }}
+                  />
+                </div>
+                <span
+                  className="text-right text-[10px] font-mono font-bold tabular-nums"
+                  style={{ color: p.alive ? "#fff" : "#94a3b8" }}
+                >
+                  {p.isHuman ? <MoneyCounter value={p.cash} /> : fmt(p.cash)}
+                </span>
+              </div>
             ))}
           </div>
-          <span className="flex items-center gap-1 text-orange-400 text-xs font-mono font-bold">
-            <Flame size={13} /> +{heatPct}%
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] font-mono text-cyan-300 shrink-0 tabular-nums">R{round}/{TOTAL_ROUNDS}</span>
+        )}
+
+        {/* round progress bar (always visible) */}
+        <div className="mt-2 flex items-center gap-2">
           <div className="h-1.5 flex-1 rounded-full bg-white/10 overflow-hidden">
             <div
               className="h-full rounded-full transition-all"
@@ -1723,15 +1754,15 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           </div>
         </div>
       </div>
-
     </div>
   );
 
+
   /* ---- Two-column game layout: fixed HUD sidebar + gameplay pane (fits one screen) ---- */
   const gameLayout = (main: React.ReactNode) => (
-    <div className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col gap-3 lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:items-stretch">
-      <aside className="min-h-0 lg:overflow-y-auto lg:pr-1">{hud}</aside>
-      <main className="flex min-h-0 min-w-0 flex-1 flex-col lg:overflow-y-auto">{main}</main>
+    <div className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col gap-3 md:grid md:grid-cols-[340px_minmax(0,1fr)] md:items-stretch">
+      <aside className="min-h-0 md:overflow-y-auto md:pr-1">{hud}</aside>
+      <main className="flex min-h-0 min-w-0 flex-1 flex-col md:overflow-y-auto">{main}</main>
     </div>
   );
 
@@ -1758,7 +1789,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     return (
       <div className="w-full mb-2 animate-fade-in">
         <div
-          className="relative flex items-start gap-3 rounded-2xl border px-3 py-2"
+          className="relative flex items-start gap-3 rounded-2xl border px-3 py-1.5"
 
           style={{ borderColor: `${t.color}55`, background: t.bg, boxShadow: `0 0 30px -12px ${t.color}88` }}
         >
@@ -1775,7 +1806,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                 {opts.step} · YOUR COACH
               </p>
             )}
-            <p className="text-white/85 text-sm leading-snug">{opts.text}</p>
+            <p className="text-white/85 text-[13px] leading-snug">{opts.text}</p>
           </div>
           <button
             onClick={toggleCoach}
@@ -1862,23 +1893,21 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         {!selectedOp ? (
           <>
             {/* Ultra-compact visual key: icon + one word, no sentences */}
-            <div className="mb-2.5 flex flex-wrap items-center justify-center gap-2 text-[11px] font-mono">
-
-
-              <span className="flex items-center gap-1.5 rounded-full border border-amber-400/30 bg-amber-400/5 px-2.5 py-1 text-amber-300">
-                <Coins size={13} /> COST
+            <div className="mb-2 flex flex-wrap items-center justify-center gap-1.5 text-[11px] font-mono">
+              <span className="flex items-center gap-1 rounded-full border border-amber-400/30 bg-amber-400/5 px-2 py-0.5 text-amber-300">
+                <Coins size={12} /> COST
               </span>
-              <span className="flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-400/5 px-2.5 py-1 text-emerald-300">
-                <TrendingUp size={13} /> PAYOUT
+              <span className="flex items-center gap-1 rounded-full border border-emerald-400/30 bg-emerald-400/5 px-2 py-0.5 text-emerald-300">
+                <TrendingUp size={12} /> PAYOUT
               </span>
-              <span className="flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-white/60">
-                <Eye size={13} /> CAUGHT %
+              <span className="flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-2 py-0.5 text-white/60">
+                <Eye size={12} /> CAUGHT %
               </span>
               <span className="mx-1 h-4 w-px bg-white/10" />
               {(["low", "medium", "high", "veryhigh"] as RiskLevel[]).map((r) => (
                 <span
                   key={r}
-                  className="flex items-center gap-1.5 rounded-full px-2.5 py-1"
+                  className="flex items-center gap-1 rounded-full px-2 py-0.5"
                   style={{ color: RISK_THEME[r].glow, background: `${RISK_THEME[r].glow}12`, border: `1px solid ${RISK_THEME[r].glow}40` }}
                 >
                   <span className="h-2 w-2 rounded-full" style={{ background: RISK_THEME[r].glow }} />
@@ -1886,7 +1915,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                 </span>
               ))}
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
 
               {OPERATIONS.map((op) => {
                 const afford = human!.cash >= op.cost;
@@ -1898,7 +1927,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                     key={op.id}
                     disabled={!afford}
                     onClick={() => pickOp(op)}
-                    className="group relative overflow-hidden rounded-2xl border p-2 text-left transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed enabled:hover:-translate-y-1"
+                    className="group relative overflow-hidden rounded-2xl border p-1 text-left transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed enabled:hover:-translate-y-1"
                     style={{
                       borderColor: `${theme.glow}55`,
                       background: "rgba(255,255,255,0.02)",
@@ -1910,41 +1939,39 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
                     {/* risk badge */}
                     <span
-                      className="absolute top-2 right-2 z-10 text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider"
+                      className="absolute top-1 right-1 z-10 text-[8px] font-mono font-bold px-1 py-0.5 rounded-full uppercase tracking-wider"
                       style={{ color: theme.glow, background: `${theme.glow}22`, border: `1px solid ${theme.glow}66` }}
                     >
                       {RISK_LABEL[op.risk]}
                     </span>
 
                     {/* icon tile */}
-                    <div className="relative z-10 flex items-center justify-center h-9 mb-1">
+                    <div className="relative z-10 flex items-center justify-center h-7 mb-0.5">
                       <span
-                        className="flex h-9 w-9 items-center justify-center rounded-xl border transition group-hover:scale-110"
+                        className="flex h-7 w-7 items-center justify-center rounded-lg border transition group-hover:scale-110"
                         style={{
                           borderColor: `${theme.glow}55`,
                           background: `radial-gradient(circle at 50% 40%, ${theme.glow}33, transparent 70%)`,
                           boxShadow: `inset 0 0 20px ${theme.glow}22`,
                         }}
                       >
-                        <Icon size={18} style={{ color: theme.glow, filter: `drop-shadow(0 0 6px ${theme.glow}aa)` }} />
+                        <Icon size={14} style={{ color: theme.glow, filter: `drop-shadow(0 0 6px ${theme.glow}aa)` }} />
                       </span>
                     </div>
 
 
                     {/* title */}
-                    <p className="relative z-10 font-black uppercase tracking-wide text-white text-[11px] md:text-xs leading-tight mb-1 min-h-[1.5em] line-clamp-1">
+                    <p className="relative z-10 font-black uppercase tracking-wide text-white text-[10px] leading-tight mb-0.5 min-h-[1.25em] line-clamp-1">
                       {op.name}
                     </p>
-
-                    {/* short outline */}
-                    <p className="relative z-10 text-[10px] leading-snug text-white/55 mb-1.5 line-clamp-1">
+                    <p className="relative z-10 text-[8px] leading-tight text-white/50 mb-0.5 line-clamp-1">
                       {op.description}
                     </p>
 
 
 
                     {/* stat row + data bars (numbers preserved, visualised) */}
-                    <div className="relative z-10 border-t border-white/10 pt-1 space-y-0.5">
+                    <div className="relative z-10 border-t border-white/10 pt-0.5 space-y-0">
 
 
                       {/* PAYOUT */}
