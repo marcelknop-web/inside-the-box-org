@@ -1479,7 +1479,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         <div className="relative mb-2 h-[34vh] min-h-[220px] md:h-[40vh] rounded-2xl overflow-hidden border border-white/10 bg-[radial-gradient(60%_60%_at_50%_40%,rgba(0,188,212,0.08),transparent)]">
           <Globe
             players={globePlayers}
-            focusLon={focusLon}
+            attack={globeAttack}
             className="pointer-events-none absolute inset-0 h-full w-full"
           />
         </div>
