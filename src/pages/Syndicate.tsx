@@ -1928,7 +1928,8 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
 
                     {/* stat row + data bars (numbers preserved, visualised) */}
-                    <div className="relative z-10 border-t border-white/10 pt-1.5 space-y-1">
+                    <div className="relative z-10 border-t border-white/10 pt-1 space-y-0.5">
+
 
                       {/* PAYOUT */}
                       <div className="flex items-center gap-1.5">
