@@ -2227,22 +2227,20 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               <p className="text-cyan-300 font-mono mt-5 animate-pulse text-center">Spinning…</p>
             )}
             {showResult && (
-              <div className="mt-5 animate-fade-in">
-                <div className="flex items-center justify-between">
-                  <span
-                    className="font-mono font-bold text-sm px-3 py-1 rounded-full"
-                    style={{
-                      color: caught ? "#ef4444" : theme.glow,
-                      background: `${caught ? "#ef4444" : theme.glow}18`,
-                      border: `1px solid ${caught ? "#ef4444" : theme.glow}55`,
-                    }}
-                  >
-                    {caught ? "CAUGHT — SHIELD LOST" : turn.player.lastLabel}
-                  </span>
-                  <span className={`font-mono font-bold text-lg ${delta >= 0 ? "text-green-400" : "text-red-400"}`}>
-                    {delta >= 0 ? "+" : ""}{fmt(delta)}
-                  </span>
+              <div className="mt-5 text-center animate-scale-in">
+                <div
+                  className="inline-block rounded-xl px-8 py-4 font-black text-2xl"
+                  style={{
+                    background: `${caught ? "#ef4444" : theme.glow}18`,
+                    border: `1px solid ${caught ? "#ef4444" : theme.glow}`,
+                    color: caught ? "#fca5a5" : theme.glow,
+                  }}
+                >
+                  {caught ? "CAUGHT — SHIELD LOST" : turn.player.lastLabel}
                 </div>
+                <p className={`mt-3 text-xl font-mono font-bold ${delta >= 0 ? "text-green-400" : "text-red-400"}`}>
+                  {delta >= 0 ? "+" : ""}{fmt(delta)}
+                </p>
                 {turn.player.quip && (
                   <p className="mt-3 text-sm italic text-white/55">"{turn.player.quip}"</p>
                 )}
