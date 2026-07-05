@@ -1758,13 +1758,37 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   );
 
 
-  /* ---- Two-column game layout: fixed HUD sidebar + gameplay pane (fits one screen) ---- */
+  /* ---- Framed tactical command console: ticker header + HUD rail + gameplay + gold footer ---- */
   const gameLayout = (main: React.ReactNode) => (
-    <div className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col gap-3 md:grid md:grid-cols-[340px_minmax(0,1fr)] md:items-stretch">
-      <aside className="min-h-0 md:overflow-y-auto md:pr-1">{hud}</aside>
-      <main className="flex min-h-0 min-w-0 flex-1 flex-col md:overflow-y-auto">{main}</main>
+    <div className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col overflow-hidden rounded-2xl border border-white/10 bg-black/20 shadow-[0_24px_70px_-24px_rgba(0,0,0,0.9)]">
+      {/* Top status ticker */}
+      <div className="flex h-9 shrink-0 items-center justify-between gap-3 border-b border-white/10 bg-black/40 px-3 backdrop-blur-sm sm:px-4">
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#f5b800] animate-pulse" />
+          <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-[#f5b800]">Uplink Stable</span>
+        </div>
+        <div className="hidden min-w-0 flex-1 items-center justify-center sm:flex">
+          <span className="truncate font-mono text-[9px] uppercase tracking-[0.18em] text-white/35">
+            {event ? `Global event · ${event.name}` : "Intercepting rival comms · tactical analysis pending"}
+          </span>
+        </div>
+        <div className="flex shrink-0 items-center gap-1.5 font-mono">
+          <span className="text-[8px] uppercase tracking-widest text-white/30">Round</span>
+          <span className="text-sm leading-none text-[#f5b800] tabular-nums">{round}/{TOTAL_ROUNDS}</span>
+        </div>
+      </div>
+
+      {/* Body: HUD rail + gameplay pane */}
+      <div className="flex min-h-0 flex-1 flex-col gap-3 p-3 md:grid md:grid-cols-[340px_minmax(0,1fr)] md:items-stretch">
+        <aside className="min-h-0 md:overflow-y-auto md:pr-1">{hud}</aside>
+        <main className="flex min-h-0 min-w-0 flex-1 flex-col md:overflow-y-auto">{main}</main>
+      </div>
+
+      {/* Gold footer accent */}
+      <div className="h-0.5 shrink-0 bg-gradient-to-r from-transparent via-[#f5b800]/50 to-transparent" />
     </div>
   );
+
 
 
 
