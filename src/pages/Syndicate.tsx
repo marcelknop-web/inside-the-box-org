@@ -876,19 +876,20 @@ const FALLBACK_LOCATIONS = [
   { city: "Hong Kong", lat: 22.32, lon: 114.17 },
 ];
 
-// Fictional target hubs a cyber operation "strikes" on the globe.
-const TARGET_CITIES: { lat: number; lon: number }[] = [
-  { lat: 35.68, lon: 139.69 }, // Tokyo
-  { lat: 1.35, lon: 103.82 }, // Singapore
-  { lat: -33.87, lon: 151.21 }, // Sydney
-  { lat: 37.77, lon: -122.42 }, // San Francisco
-  { lat: 52.52, lon: 13.4 }, // Berlin
-  { lat: 25.2, lon: 55.27 }, // Dubai
-  { lat: -23.55, lon: -46.63 }, // São Paulo
-  { lat: 19.08, lon: 72.88 }, // Mumbai
+// Fictional target hubs a cyber operation "strikes" on the globe, each with a
+// fictional victim company for flavour during the strike sequence.
+const TARGET_CITIES: { lat: number; lon: number; city: string; company: string }[] = [
+  { lat: 35.68, lon: 139.69, city: "Tokyo", company: "Katsu Robotics KK" },
+  { lat: 1.35, lon: 103.82, city: "Singapore", company: "Meridian Trust Bank" },
+  { lat: -33.87, lon: 151.21, city: "Sydney", company: "Southern Cross Mining" },
+  { lat: 37.77, lon: -122.42, city: "San Francisco", company: "Helix Cloud Systems" },
+  { lat: 52.52, lon: 13.4, city: "Berlin", company: "Adler Energie AG" },
+  { lat: 25.2, lon: 55.27, city: "Dubai", company: "Zenith Capital Group" },
+  { lat: -23.55, lon: -46.63, city: "São Paulo", company: "Verde AgroCorp" },
+  { lat: 19.08, lon: 72.88, city: "Mumbai", company: "Sona Pharma Ltd" },
 ];
 
-function targetForOp(opId: string): { lat: number; lon: number } {
+function targetForOp(opId: string): { lat: number; lon: number; city: string; company: string } {
   let h = 0;
   for (let i = 0; i < opId.length; i++) h = (h * 31 + opId.charCodeAt(i)) >>> 0;
   return TARGET_CITIES[h % TARGET_CITIES.length];
