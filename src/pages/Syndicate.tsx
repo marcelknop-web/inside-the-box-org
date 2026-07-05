@@ -1689,25 +1689,10 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       {/* Combined status panel: cash + shields + heat + round */}
       <div className="rounded-2xl border border-white/10 bg-black/40 backdrop-blur-sm px-3 py-2.5 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.8)]">
         {/* panel header */}
-        <div className="flex items-center justify-between gap-3 mb-2">
-          <p className="text-[9px] font-mono tracking-[0.25em] text-white/35">CASH ON HAND</p>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1">
-              {Array.from({ length: START_TOKENS }).map((_, i) => (
-                <Shield
-                  key={i}
-                  size={13}
-                  style={{ color: i < human.tokens ? "#00bcd4" : "rgba(255,255,255,0.15)" }}
-                  fill={i < human.tokens ? "#00bcd4" : "transparent"}
-                />
-              ))}
-            </div>
-            <span className="flex items-center gap-1 text-orange-400 text-[10px] font-mono font-bold">
-              <Flame size={11} /> +{heatPct}%
-            </span>
-            <span className="text-[10px] font-mono text-cyan-300 tabular-nums">R{round}/{TOTAL_ROUNDS}</span>
-          </div>
+        <div className="mb-2">
+          <p className="text-[9px] font-mono uppercase tracking-[0.28em] text-white/40">Financial Assets</p>
         </div>
+
 
         {/* cash bars — hidden on scoreboard (leaderboard already ranks cash) */}
         {phase !== "scoreboard" && (
