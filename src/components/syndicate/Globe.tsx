@@ -335,8 +335,9 @@ export default function Globe({
     <div className={className} aria-hidden>
       <Canvas
         camera={{ position: [0, 0, 5.4], fov: 42 }}
-        dpr={[1, 1.75]}
-        gl={{ antialias: true, alpha: true }}
+        dpr={IS_MOBILE ? [1, 1.35] : [1, 1.75]}
+        gl={{ antialias: !IS_MOBILE, alpha: true, powerPreference: "high-performance" }}
+        frameloop="always"
       >
         <ambientLight intensity={0.9} />
         <directionalLight position={[5, 3, 5]} intensity={1.1} color="#cfeeff" />
