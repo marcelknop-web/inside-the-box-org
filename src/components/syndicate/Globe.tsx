@@ -304,6 +304,7 @@ function FlyoverCamera({ attack }: { attack: GlobeAttack }) {
   const { camera } = useThree();
   const startT = useRef<number | null>(null);
   const lookTarget = useRef(new THREE.Vector3());
+  const reduced = useMemo(() => prefersReducedMotion(), []);
 
   const { fromDir, toDir, toPoint, qFull } = useMemo(() => {
     const f = latLonToVec3(attack.fromLat, attack.fromLon, 1).applyQuaternion(BASE_QUAT).normalize();
