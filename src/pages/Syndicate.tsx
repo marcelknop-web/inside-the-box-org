@@ -1140,7 +1140,19 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     [human, round, event]
   );
 
+  // Launch: play the strike on the globe first (showing the victim company),
+  // then reveal the wheel and run the actual spin.
   const spin = useCallback(() => {
+    if (!human || !selectedOp) return;
+    snd.reveal();
+    setPhase("strike");
+    window.setTimeout(() => {
+      runSpin();
+    }, 2600);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [human, selectedOp]);
+
+  const runSpin = useCallback(() => {
     if (!human || !selectedOp) return;
     snd.spinStart();
     setPhase("spinning");
