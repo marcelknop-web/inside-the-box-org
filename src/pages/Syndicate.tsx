@@ -1162,6 +1162,14 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     }
   }, [aiSub, aiStep, aiLog, finishRound]);
 
+  /* Auto-start each rival's spin after a short 1s beat */
+  useEffect(() => {
+    if (phase !== "ai" || aiSub !== "choice") return;
+    if (!aiLog[aiStep]) return;
+    const t = window.setTimeout(() => advanceAi(), 1000);
+    return () => window.clearTimeout(t);
+  }, [phase, aiSub, aiStep, aiLog, advanceAi]);
+
 
 
   const nextRound = useCallback(() => {
