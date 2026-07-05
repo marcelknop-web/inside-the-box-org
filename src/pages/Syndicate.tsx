@@ -2378,7 +2378,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             />
             {/* target lock-on badge */}
             <div className="absolute left-1/2 top-3 -translate-x-1/2 animate-fade-in">
-              <span className="rounded-full border border-red-500/50 bg-red-500/10 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.25em] text-red-300">
+              <span className="whitespace-nowrap rounded-full border border-red-500/50 bg-black/60 px-3 py-1 font-mono text-[9px] uppercase tracking-[0.2em] text-red-300 backdrop-blur-sm">
                 ● Target acquired
               </span>
             </div>
