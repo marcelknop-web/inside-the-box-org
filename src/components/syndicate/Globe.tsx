@@ -311,7 +311,7 @@ function EarthMesh({ players, attack }: { players: GlobePlayer[]; attack?: Globe
       </mesh>
       {/* atmosphere */}
       <mesh scale={1.06}>
-        <sphereGeometry args={[R, 48, 48]} />
+        <sphereGeometry args={[R, LOD.atmoSeg, LOD.atmoSeg]} />
         <meshBasicMaterial color="#00bcd4" transparent opacity={0.06} side={THREE.BackSide} />
       </mesh>
       {players.map((p) => (
