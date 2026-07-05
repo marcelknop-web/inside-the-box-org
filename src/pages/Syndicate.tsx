@@ -168,6 +168,7 @@ type Phase =
   | "welcome"
   | "round-intro"
   | "choose"
+  | "strike"
   | "spinning"
   | "outcome"
   | "ai"
