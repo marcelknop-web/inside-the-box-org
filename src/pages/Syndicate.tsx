@@ -725,52 +725,97 @@ function WealthChart({ players }: { players: Player[] }) {
     ...players.flatMap((p) => p.cashHistory.map((v) => Math.max(0, v)))
   );
   const xAt = (i: number) => (maxLen <= 1 ? 0 : (i / (maxLen - 1)) * W);
-  const yAt = (v: number) => H - (Math.max(0, v) / maxVal) * (H - 3) - 1.5;
+  const yAt = (v: number) => H - (Math.max(0, v) / maxVal) * (H - 4) - 2;
+
+  // Smooth each series with a light Catmull-Rom → cubic bezier so lines read
+  // as a polished financial curve rather than jagged segments.
+  const smoothPath = (hist: number[]) => {
+    const pts = hist.map((v, i) => [xAt(i), yAt(v)] as const);
+    if (pts.length === 0) return "";
+    if (pts.length === 1) return `M ${pts[0][0]},${pts[0][1]}`;
+    let d = `M ${pts[0][0]},${pts[0][1]}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i - 1] ?? pts[i];
+      const p1 = pts[i];
+      const p2 = pts[i + 1];
+      const p3 = pts[i + 2] ?? p2;
+      const c1x = p1[0] + (p2[0] - p0[0]) / 6;
+      const c1y = p1[1] + (p2[1] - p0[1]) / 6;
+      const c2x = p2[0] - (p3[0] - p1[0]) / 6;
+      const c2y = p2[1] - (p3[1] - p1[1]) / 6;
+      d += ` C ${c1x},${c1y} ${c2x},${c2y} ${p2[0]},${p2[1]}`;
+    }
+    return d;
+  };
 
   return (
     <div>
-      <div className="relative w-full overflow-hidden rounded-lg border border-white/10 bg-black/20 px-1.5 pt-1.5">
+      <div className="relative w-full overflow-hidden rounded-lg border border-white/10 bg-[radial-gradient(120%_120%_at_0%_0%,rgba(0,188,212,0.06),transparent_60%)] px-1.5 pt-1.5">
+        {/* y-axis scale caps */}
+        <div className="pointer-events-none absolute right-2 top-1 z-10 font-mono text-[7px] tabular-nums text-white/40">
+          {fmtShort(maxVal)}
+        </div>
+        <div className="pointer-events-none absolute right-2 bottom-6 z-10 font-mono text-[7px] tabular-nums text-white/30">
+          $0
+        </div>
         <svg
           viewBox={`0 0 ${W} ${H}`}
           preserveAspectRatio="none"
-          className="h-24 w-full"
+          className="h-24 w-full overflow-visible"
           aria-label="Wealth progression chart"
         >
+          <defs>
+            {players.map((p) => (
+              <linearGradient key={p.id} id={`wc-fill-${p.id}`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={p.color} stopOpacity="0.28" />
+                <stop offset="100%" stopColor={p.color} stopOpacity="0" />
+              </linearGradient>
+            ))}
+          </defs>
           {/* horizontal gridlines */}
-          {[0.25, 0.5, 0.75].map((f) => (
+          {[0, 0.25, 0.5, 0.75, 1].map((f) => (
             <line
               key={f}
               x1={0}
               x2={W}
-              y1={H * f}
-              y2={H * f}
-              stroke="rgba(255,255,255,0.06)"
-              strokeWidth={0.4}
+              y1={2 + (H - 4) * f}
+              y2={2 + (H - 4) * f}
+              stroke="rgba(255,255,255,0.05)"
+              strokeWidth={0.35}
+              vectorEffect="non-scaling-stroke"
             />
           ))}
           {players.map((p) => {
             const hist = p.cashHistory;
             if (hist.length === 0) return null;
-            const pts = hist.map((v, i) => `${xAt(i)},${yAt(v)}`).join(" ");
+            const line = smoothPath(hist);
             const last = hist[hist.length - 1];
             const broke = !p.alive;
+            const area = `${line} L ${xAt(hist.length - 1)},${H} L 0,${H} Z`;
             return (
-              <g key={p.id} opacity={broke ? 0.55 : 1}>
-                <polyline
-                  points={pts}
+              <g key={p.id} opacity={broke ? 0.5 : 1}>
+                {!broke && hist.length > 1 && (
+                  <path d={area} fill={`url(#wc-fill-${p.id})`} stroke="none" />
+                )}
+                <path
+                  d={line}
                   fill="none"
                   stroke={p.color}
-                  strokeWidth={broke ? 0.9 : 1.3}
+                  strokeWidth={broke ? 1 : 1.5}
                   strokeLinejoin="round"
                   strokeLinecap="round"
                   strokeDasharray={broke ? "2 1.5" : undefined}
                   vectorEffect="non-scaling-stroke"
+                  style={broke ? undefined : { filter: `drop-shadow(0 0 2px ${p.color}88)` }}
                 />
                 <circle
                   cx={xAt(hist.length - 1)}
                   cy={yAt(last)}
-                  r={broke ? 1.3 : 1.6}
+                  r={broke ? 1.2 : 1.7}
                   fill={broke ? "#94a3b8" : p.color}
+                  stroke="rgba(0,0,0,0.4)"
+                  strokeWidth={0.4}
+                  vectorEffect="non-scaling-stroke"
                 />
               </g>
             );
