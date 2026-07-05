@@ -2207,6 +2207,50 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   }
 
 
+  /* ---- STRIKE (attack plays on the globe before the wheel appears) ---- */
+  if (phase === "strike" && selectedOp) {
+    const tgt = targetForOp(selectedOp.id);
+    return shell(gameLayout(
+      <>
+        {coachBar({
+          icon: Flame,
+          step: "STEP 4",
+          tone: "action",
+          text: `Launching "${selectedOp.name}" against ${tgt.company} in ${tgt.city}. Watch the strike hit — the wheel is next.`,
+        })}
+        <div className="relative flex flex-1 flex-col items-center justify-center">
+          <div className="relative aspect-square w-full max-w-[440px] overflow-hidden rounded-2xl border border-white/15 bg-[radial-gradient(60%_60%_at_50%_45%,rgba(0,188,212,0.12),transparent)]">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-500/10 blur-3xl"
+              style={{ width: "70%", height: "70%" }}
+            />
+            <Globe
+              players={globePlayers}
+              attack={globeAttack}
+              className="pointer-events-none absolute inset-0 h-full w-full"
+            />
+            {/* target lock-on badge */}
+            <div className="absolute left-1/2 top-3 -translate-x-1/2 animate-fade-in">
+              <span className="rounded-full border border-red-500/50 bg-red-500/10 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.25em] text-red-300">
+                ● Target acquired
+              </span>
+            </div>
+          </div>
+          {/* victim company readout */}
+          <div className="mt-4 w-full max-w-[440px] animate-scale-in rounded-xl border border-white/15 bg-black/40 px-4 py-3 text-center backdrop-blur-sm">
+            <p className="font-mono text-[9px] uppercase tracking-[0.28em] text-white/50">Breaching</p>
+            <p className="mt-1 text-lg font-black tracking-wide text-white">{tgt.company}</p>
+            <p className="mt-0.5 flex items-center justify-center gap-1 font-mono text-[11px] text-cyan-300">
+              <MapPin size={11} /> {tgt.city}
+            </p>
+            <p className="mt-2 font-mono text-[11px] text-[#f5b800] animate-pulse">Deploying payload…</p>
+          </div>
+        </div>
+      </>
+    ));
+  }
+
   /* ---- SPINNING ---- */
   if (phase === "spinning") {
     return shell(gameLayout(
