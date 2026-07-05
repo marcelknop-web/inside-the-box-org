@@ -1841,7 +1841,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
   /* ---- Framed tactical command console: ticker header + HUD rail + gameplay + gold footer ---- */
   const gameLayout = (main: React.ReactNode) => (
-    <div className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col overflow-hidden rounded-2xl border border-white/20 bg-black/10 shadow-[0_24px_70px_-24px_rgba(0,0,0,0.9)]">
+    <div className="mx-auto flex w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-white/20 bg-black/10 shadow-[0_24px_70px_-24px_rgba(0,0,0,0.9)] md:min-h-0 md:flex-1">
       {/* Top status ticker */}
       <div className="flex h-9 shrink-0 items-center justify-between gap-3 border-b border-white/20 bg-black/25 px-3 backdrop-blur-sm sm:px-4">
         <div className="flex items-center gap-2 shrink-0">
