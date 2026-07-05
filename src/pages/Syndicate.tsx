@@ -2495,16 +2495,17 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           tone: "action",
           text: `Launching "${selectedOp.name}" against ${tgt.company} in ${tgt.city}. Watch the strike hit — the wheel is next.`,
         })}
-        <div className="relative flex flex-1 flex-col items-center justify-center">
-          <div className="relative aspect-square w-full max-w-[440px] overflow-hidden rounded-2xl border border-white/15 bg-[radial-gradient(60%_60%_at_50%_45%,rgba(0,188,212,0.12),transparent)]">
+        <div className="relative flex flex-1 flex-col items-center justify-center overflow-hidden">
+          <div className="relative min-h-[420px] w-full flex-1 overflow-hidden rounded-2xl border border-white/15 bg-[radial-gradient(60%_60%_at_50%_45%,rgba(0,188,212,0.12),transparent)]">
             <div
               aria-hidden
               className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-500/10 blur-3xl"
-              style={{ width: "70%", height: "70%" }}
+              style={{ width: "92%", height: "92%" }}
             />
             <Globe
               players={globePlayers}
               attack={globeAttack}
+              attackFocus
               className="pointer-events-none absolute inset-0 h-full w-full"
             />
             {/* target lock-on badge */}
@@ -2515,7 +2516,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             </div>
           </div>
           {/* victim company readout */}
-          <div className="mt-4 w-full max-w-[440px] animate-scale-in rounded-xl border border-white/15 bg-black/40 px-4 py-3 text-center backdrop-blur-sm">
+          <div className="absolute bottom-4 left-1/2 w-[min(92%,520px)] -translate-x-1/2 animate-scale-in rounded-xl border border-white/15 bg-black/55 px-4 py-3 text-center backdrop-blur-sm">
             <p className="font-mono text-[9px] uppercase tracking-[0.28em] text-white/50">Breaching</p>
             <p className="mt-1 text-lg font-black tracking-wide text-white">{tgt.company}</p>
             <p className="mt-0.5 flex items-center justify-center gap-2 font-mono text-[11px] text-cyan-300">

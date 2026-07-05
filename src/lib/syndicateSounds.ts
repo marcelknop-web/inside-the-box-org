@@ -44,16 +44,16 @@ const SFX_URL: Record<SfxKey, string> = {
 
 // Per-effect playback gain so nothing clips and stingers sit above ticks.
 const SFX_GAIN: Record<SfxKey, number> = {
-  tick: 0.35,
-  land: 0.7,
-  select: 0.5,
-  spin: 0.7,
-  win: 0.85,
-  bigwin: 0.95,
-  lose: 0.8,
-  caught: 0.9,
-  reveal: 0.7,
-  transition: 0.7,
+  tick: 0.22,
+  land: 0.42,
+  select: 0.32,
+  spin: 0.4,
+  win: 0.5,
+  bigwin: 0.56,
+  lose: 0.48,
+  caught: 0.52,
+  reveal: 0.42,
+  transition: 0.38,
 };
 
 /* ------------------------------------------------------------------ */
@@ -103,7 +103,7 @@ function ac(): AudioContext | null {
     if (!AC) return null;
     ctx = new AC();
     master = ctx.createGain();
-    master.gain.value = 0.6;
+    master.gain.value = 0.42;
 
 
     // --- Mobile-speaker voicing chain ---------------------------------
@@ -246,7 +246,7 @@ export const syndicateSounds = {
     if (!musicEl) {
       musicEl = new Audio(musicAsset.url);
       musicEl.loop = true;
-      musicEl.volume = 0.45;
+      musicEl.volume = 0.62;
       musicEl.preload = "auto";
 
     }
