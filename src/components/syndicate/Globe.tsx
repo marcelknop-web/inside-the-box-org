@@ -299,7 +299,7 @@ function EarthMesh({ players, attack }: { players: GlobePlayer[]; attack?: Globe
   return (
     <group ref={groupRef} rotation={[0.35, 0, 0.05]}>
       <mesh>
-        <sphereGeometry args={[R, 64, 64]} />
+        <sphereGeometry args={[R, LOD.earthSeg, LOD.earthSeg]} />
         <meshStandardMaterial
           map={texture}
           emissive={new THREE.Color("#0a2a33")}
