@@ -1611,18 +1611,18 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   /* ---- HUD (shared top bar for in-game phases) — orbital tactical layout ---- */
   const maxCash = Math.max(1, ...players.map((p) => Math.max(0, p.cash)));
   const hud = human && (
-    <div className="w-full space-y-2">
+    <div className="w-full space-y-4">
       {/* Rail header */}
       <h3 className="font-mono text-[9px] uppercase tracking-[0.28em] text-white/65">Active Crews</h3>
       {/* ROW 1 — orbital player status cards */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-2.5">
 
         {players.map((p) => {
           const isActive = p.id === activeId;
           return (
             <div
               key={p.id}
-              className="flex items-center gap-1.5 rounded-xl border px-1.5 py-1.5 min-w-0 transition"
+              className="flex items-center gap-1.5 rounded-xl border px-2 py-2 min-w-0 transition"
               style={{
                 borderColor: isActive ? `${p.color}` : "rgba(255,255,255,0.10)",
                 background: isActive ? `${p.color}18` : "rgba(255,255,255,0.03)",
@@ -1695,16 +1695,16 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       )}
 
       {/* Combined status panel: cash + shields + heat + round */}
-      <div className="rounded-2xl border border-white/20 bg-black/25 backdrop-blur-sm px-3 py-2.5 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.8)]">
+      <div className="rounded-2xl border border-white/20 bg-black/25 backdrop-blur-sm px-4 py-3.5 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.8)]">
         {/* panel header */}
-        <div className="mb-2">
+        <div className="mb-3">
           <p className="text-[9px] font-mono uppercase tracking-[0.28em] text-white/65">Financial Assets</p>
         </div>
 
 
         {/* cash bars — hidden on scoreboard (leaderboard already ranks cash) */}
         {phase !== "scoreboard" && (
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             {players.map((p, i) => (
               <div
                 key={p.id}
@@ -1741,9 +1741,9 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         )}
 
         {/* Shields + Heat — bordered console boxes */}
-        <div className="mt-2.5 grid grid-cols-2 gap-2">
-          <div className="rounded-lg border border-white/20 bg-white/5 p-2">
-            <div className="mb-1 text-[8px] font-mono uppercase tracking-[0.2em] text-white/65">Shields</div>
+        <div className="mt-3.5 grid grid-cols-2 gap-2.5">
+          <div className="rounded-lg border border-white/20 bg-white/5 p-2.5">
+            <div className="mb-1.5 text-[8px] font-mono uppercase tracking-[0.2em] text-white/65">Shields</div>
             <div className="flex items-center gap-1">
               {Array.from({ length: START_TOKENS }).map((_, i) => (
                 <Shield
@@ -1755,15 +1755,15 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               ))}
             </div>
           </div>
-          <div className="rounded-lg border border-white/20 bg-white/5 p-2">
-            <div className="mb-1 text-[8px] font-mono uppercase tracking-[0.2em] text-white/65">Heat %</div>
+          <div className="rounded-lg border border-white/20 bg-white/5 p-2.5">
+            <div className="mb-1.5 text-[8px] font-mono uppercase tracking-[0.2em] text-white/65">Heat %</div>
             <div className="flex items-center gap-1 text-orange-400 text-base font-mono font-bold leading-none">
               <Flame size={13} /> +{heatPct}%
             </div>
           </div>
         </div>
 
-        <div className="mt-2 flex items-center gap-2">
+        <div className="mt-3 flex items-center gap-2">
           <div className="h-1.5 flex-1 rounded-full bg-white/10 overflow-hidden">
             <div
               className="h-full rounded-full transition-all"
@@ -1798,8 +1798,8 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       </div>
 
       {/* Body: HUD rail + gameplay pane */}
-      <div className="flex min-h-0 flex-1 flex-col gap-3 p-3 md:grid md:grid-cols-[340px_minmax(0,1fr)] md:items-stretch">
-        <aside className="min-h-0 md:overflow-y-auto md:pr-1">{hud}</aside>
+      <div className="flex min-h-0 flex-1 flex-col gap-5 p-4 md:grid md:grid-cols-[340px_minmax(0,1fr)] md:items-stretch md:gap-6 md:p-5">
+        <aside className="min-h-0 md:overflow-y-auto md:pr-1.5">{hud}</aside>
         <main className="flex min-h-0 min-w-0 flex-1 flex-col md:overflow-y-auto">{main}</main>
       </div>
 
