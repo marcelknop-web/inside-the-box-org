@@ -56,6 +56,33 @@ const SFX_GAIN: Record<SfxKey, number> = {
   transition: 0.7,
 };
 
+/* ------------------------------------------------------------------ */
+/*  Variation — keeps repeated cues from sounding mechanical.          */
+/*  `pitch` = max ± semitone spread, `gain` = max ± linear jitter.     */
+/*  Stingers (win/bigwin/lose/caught) stay tight so they read as       */
+/*  deliberate; frequent, incidental cues get more life.               */
+/* ------------------------------------------------------------------ */
+const SFX_VARY: Record<SfxKey, { pitch: number; gain: number }> = {
+  tick: { pitch: 1.4, gain: 0.12 },
+  land: { pitch: 0.9, gain: 0.08 },
+  select: { pitch: 1.2, gain: 0.1 },
+  spin: { pitch: 0.6, gain: 0.06 },
+  win: { pitch: 0.3, gain: 0.05 },
+  bigwin: { pitch: 0.15, gain: 0.04 },
+  lose: { pitch: 0.4, gain: 0.05 },
+  caught: { pitch: 0.3, gain: 0.05 },
+  reveal: { pitch: 0.7, gain: 0.06 },
+  transition: { pitch: 0.5, gain: 0.05 },
+};
+
+// Rotating pitch offsets (in semitones) so consecutive ticks alternate
+// instead of hammering the exact same tone — classic "roulette" feel.
+const TICK_STEPS = [0, 0.5, -0.4, 0.9, -0.2, 0.3];
+let tickStep = 0;
+
+const semitoneToRate = (semi: number) => Math.pow(2, semi / 12);
+const jitter = (amt: number) => (Math.random() * 2 - 1) * amt;
+
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
 let enabled = true;
