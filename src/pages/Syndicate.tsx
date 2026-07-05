@@ -2671,7 +2671,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           ))}
         </div>
 
-        {turn && (
+        {turn && aiSub === "choice" && (
           <div
             key={turn.player.id + aiStep}
             className="rounded-2xl border p-5 animate-fade-in"
