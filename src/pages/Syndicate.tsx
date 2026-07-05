@@ -858,6 +858,156 @@ function WealthChart({ players }: { players: Player[] }) {
 
 
 /* ------------------------------------------------------------------ */
+/*  Global-event cinematic — a themed hero shown between rounds.        */
+/* ------------------------------------------------------------------ */
+
+type EventVisual = { icon: typeof Skull; accent: string; motif: "surveillance" | "market-up" | "market-down" | "news" | "data" | "power" | "watch" };
+
+const EVENT_VISUALS: Record<string, EventVisual> = {
+  cooperation: { icon: ShieldAlert, accent: "#ef4444", motif: "surveillance" },
+  budgetcuts: { icon: Users, accent: "#22c55e", motif: "watch" },
+  boom: { icon: Bitcoin, accent: "#22c55e", motif: "market-up" },
+  crash: { icon: TrendingDown, accent: "#ef4444", motif: "market-down" },
+  media: { icon: Newspaper, accent: "#38bdf8", motif: "news" },
+  leak: { icon: Database, accent: "#a855f7", motif: "data" },
+  summit: { icon: Landmark, accent: "#ef4444", motif: "surveillance" },
+  goldrush: { icon: Rocket, accent: "#f5b800", motif: "market-up" },
+  informant: { icon: Eye, accent: "#f97316", motif: "watch" },
+  blackout: { icon: Zap, accent: "#06b6d4", motif: "power" },
+};
+
+const DEFAULT_EVENT_VISUAL: EventVisual = { icon: Radio, accent: "#f5b800", motif: "news" };
+
+function EventScene({ event }: { event: GlobalEvent }) {
+  const v = EVENT_VISUALS[event.id] ?? DEFAULT_EVENT_VISUAL;
+  const Icon = v.icon;
+  const riskUp = event.riskMult > 1;
+  const profitUp = event.profitMult > 1;
+  const riskPct = Math.round(Math.abs(event.riskMult - 1) * 100);
+  const profitPct = Math.round(Math.abs(event.profitMult - 1) * 100);
+
+  return (
+    <div
+      className="relative w-full max-w-xl overflow-hidden rounded-2xl border animate-scale-in"
+      style={{
+        borderColor: `${v.accent}55`,
+        background: `radial-gradient(120% 120% at 50% 0%, ${v.accent}22, rgba(0,0,0,0.5) 60%)`,
+        boxShadow: `0 24px 70px -24px ${v.accent}99, inset 0 0 60px -30px ${v.accent}`,
+      }}
+    >
+      {/* animated motif layer */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+        {/* grid */}
+        <div
+          className="absolute inset-0 opacity-[0.15]"
+          style={{
+            backgroundImage: `linear-gradient(${v.accent}44 1px, transparent 1px), linear-gradient(90deg, ${v.accent}44 1px, transparent 1px)`,
+            backgroundSize: "26px 26px",
+          }}
+        />
+        {/* sweeping scanline for surveillance / watch */}
+        {(v.motif === "surveillance" || v.motif === "watch") && (
+          <div
+            className="absolute inset-y-0 -left-1/3 w-1/3 animate-[slide-in-right_2.6s_linear_infinite]"
+            style={{ background: `linear-gradient(90deg, transparent, ${v.accent}33, transparent)` }}
+          />
+        )}
+        {/* pulsing power flicker */}
+        {v.motif === "power" && (
+          <div className="absolute inset-0 animate-pulse" style={{ background: `radial-gradient(60% 50% at 50% 40%, ${v.accent}22, transparent)` }} />
+        )}
+        {/* drifting data streams */}
+        {v.motif === "data" && (
+          <div
+            className="absolute inset-0 opacity-30 animate-[slide-in-right_5s_linear_infinite]"
+            style={{ backgroundImage: `repeating-linear-gradient(90deg, ${v.accent}33 0 2px, transparent 2px 16px)` }}
+          />
+        )}
+      </div>
+
+      <div className="relative z-10 flex flex-col items-center px-6 py-7 text-center">
+        {/* icon medallion */}
+        <span
+          className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border"
+          style={{
+            borderColor: `${v.accent}77`,
+            background: `radial-gradient(circle at 50% 35%, ${v.accent}44, transparent 70%)`,
+            boxShadow: `0 0 30px -6px ${v.accent}, inset 0 0 24px -8px ${v.accent}`,
+          }}
+        >
+          <Icon size={30} style={{ color: v.accent, filter: `drop-shadow(0 0 8px ${v.accent})` }} />
+        </span>
+
+        <p className="font-mono text-[10px] uppercase tracking-[0.35em]" style={{ color: v.accent }}>
+          Global Event
+        </p>
+        <h3 className="mt-1.5 text-2xl font-black tracking-tight text-white sm:text-3xl">{event.name}</h3>
+        <p className="mt-2 max-w-md text-sm leading-snug text-white/70">{event.description}</p>
+
+        {/* impact meters */}
+        <div className="mt-5 grid w-full max-w-sm grid-cols-2 gap-3">
+          <EventMeter
+            label="Detection"
+            active={event.riskMult !== 1}
+            up={riskUp}
+            pct={riskPct}
+            goodWhenDown
+          />
+          <EventMeter
+            label="Profit"
+            active={event.profitMult !== 1}
+            up={profitUp}
+            pct={profitPct}
+            goodWhenDown={false}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EventMeter({
+  label,
+  active,
+  up,
+  pct,
+  goodWhenDown,
+}: {
+  label: string;
+  active: boolean;
+  up: boolean;
+  pct: number;
+  goodWhenDown: boolean;
+}) {
+  // "good" (green) when the swing helps the player.
+  const good = active ? (goodWhenDown ? !up : up) : true;
+  const col = !active ? "#64748b" : good ? "#22c55e" : "#ef4444";
+  return (
+    <div className="rounded-xl border border-white/12 bg-black/30 px-3 py-2.5 text-left">
+      <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/50">{label}</p>
+      <div className="mt-1.5 flex items-center gap-1.5">
+        {active ? (
+          up ? <TrendingUp size={16} style={{ color: col }} /> : <TrendingDown size={16} style={{ color: col }} />
+        ) : (
+          <span className="h-0.5 w-4 rounded-full bg-white/30" />
+        )}
+        <span className="font-mono text-lg font-bold tabular-nums" style={{ color: col }}>
+          {active ? `${up ? "+" : "−"}${pct}%` : "—"}
+        </span>
+      </div>
+      {/* bar */}
+      <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+        <div
+          className="h-full rounded-full transition-all"
+          style={{ width: active ? `${Math.min(100, pct)}%` : "0%", background: col }}
+        />
+      </div>
+    </div>
+  );
+}
+
+
+/* ------------------------------------------------------------------ */
 /*  Player home bases — international centres of power                  */
 /* ------------------------------------------------------------------ */
 
