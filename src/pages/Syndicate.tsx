@@ -2173,9 +2173,11 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   /* ---- OUTCOME ---- */
   if (phase === "outcome" && result) {
     const caughtEl = result.outcome === "caught";
+    // Broke: not caught, but the operation drained the crew to $0 → eliminated.
+    const brokeEl = !caughtEl && !!human && !human.alive;
     const good = result.delta > (selectedOp?.cost ?? 0);
     const net = result.delta - (selectedOp?.cost ?? 0);
-    const accent = caughtEl ? "#ef4444" : good ? "#22c55e" : "#94a3b8";
+    const accent = caughtEl || brokeEl ? "#ef4444" : good ? "#22c55e" : "#94a3b8";
     return shell(gameLayout(
       <>
 
