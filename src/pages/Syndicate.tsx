@@ -156,6 +156,7 @@ interface Player {
   totalOutcomes: number;
   closestCall: number; // smallest degrees to a Caught slice while surviving
   cashAtElimination: number | null;
+  cashHistory: number[]; // wealth after each completed operation (starts with START_CASH)
   usedOps: Record<string, number>;
   ranHighRisk: boolean;
   lastLabel?: string;
@@ -714,6 +715,101 @@ function WheelLegend() {
 }
 
 
+/* Wealth-progression line chart — replaces the flat cash bars.
+   Plots each crew's fortune after every completed operation. A crew's line
+   ends the moment it goes broke ($0) or is eliminated. */
+function WealthChart({ players }: { players: Player[] }) {
+  const W = 100;
+  const H = 46;
+  const maxLen = Math.max(2, ...players.map((p) => p.cashHistory.length));
+  const maxVal = Math.max(
+    1,
+    ...players.flatMap((p) => p.cashHistory.map((v) => Math.max(0, v)))
+  );
+  const xAt = (i: number) => (maxLen <= 1 ? 0 : (i / (maxLen - 1)) * W);
+  const yAt = (v: number) => H - (Math.max(0, v) / maxVal) * (H - 3) - 1.5;
+
+  return (
+    <div>
+      <div className="relative w-full overflow-hidden rounded-lg border border-white/10 bg-black/20 px-1.5 pt-1.5">
+        <svg
+          viewBox={`0 0 ${W} ${H}`}
+          preserveAspectRatio="none"
+          className="h-24 w-full"
+          aria-label="Wealth progression chart"
+        >
+          {/* horizontal gridlines */}
+          {[0.25, 0.5, 0.75].map((f) => (
+            <line
+              key={f}
+              x1={0}
+              x2={W}
+              y1={H * f}
+              y2={H * f}
+              stroke="rgba(255,255,255,0.06)"
+              strokeWidth={0.4}
+            />
+          ))}
+          {players.map((p) => {
+            const hist = p.cashHistory;
+            if (hist.length === 0) return null;
+            const pts = hist.map((v, i) => `${xAt(i)},${yAt(v)}`).join(" ");
+            const last = hist[hist.length - 1];
+            const broke = !p.alive;
+            return (
+              <g key={p.id} opacity={broke ? 0.55 : 1}>
+                <polyline
+                  points={pts}
+                  fill="none"
+                  stroke={p.color}
+                  strokeWidth={broke ? 0.9 : 1.3}
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                  strokeDasharray={broke ? "2 1.5" : undefined}
+                  vectorEffect="non-scaling-stroke"
+                />
+                <circle
+                  cx={xAt(hist.length - 1)}
+                  cy={yAt(last)}
+                  r={broke ? 1.3 : 1.6}
+                  fill={broke ? "#94a3b8" : p.color}
+                />
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+      {/* legend + current cash */}
+      <div className="mt-2 space-y-1">
+        {players.map((p) => (
+          <div key={p.id} className="flex items-center gap-1.5 text-[9px] font-mono">
+            <span
+              className="h-1.5 w-3 shrink-0 rounded-full"
+              style={{ background: p.alive ? p.color : "#64748b" }}
+            />
+            <span
+              className="font-semibold tracking-wide truncate"
+              style={{ color: p.alive ? p.color : "#64748b" }}
+            >
+              {p.isHuman ? "YOU" : p.name}
+            </span>
+            {!p.alive && <span className="text-red-400/80 tracking-widest">OUT</span>}
+            <span
+              className="ml-auto tabular-nums font-bold"
+              style={{ color: p.alive ? "#fff" : "#94a3b8" }}
+            >
+              {fmt(Math.max(0, p.cash))}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+
+
+
 
 
 
@@ -932,6 +1028,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       totalOutcomes: 0,
       closestCall: 360,
       cashAtElimination: null,
+      cashHistory: [START_CASH],
       usedOps: {},
       ranHighRisk: false,
     };
@@ -956,6 +1053,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       totalOutcomes: 0,
       closestCall: 360,
       cashAtElimination: null,
+      cashHistory: [START_CASH],
       usedOps: {},
       ranHighRisk: false,
     }));
@@ -1199,12 +1297,19 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         cashAtElimination = cash;
       }
     }
+    // Broke — hitting $0 or below ends the run for this player.
+    if (alive && cash <= 0) {
+      cash = 0;
+      alive = false;
+      cashAtElimination = 0;
+    }
     return {
       ...p,
       cash,
       tokens,
       alive,
       cashAtElimination,
+      cashHistory: [...p.cashHistory, cash],
       opsCompleted: p.opsCompleted + 1,
       usedOps: { ...p.usedOps, [op.id]: (p.usedOps[op.id] ?? 0) + 1 },
       ranHighRisk: p.ranHighRisk || op.risk === "high" || op.risk === "veryhigh",
@@ -1609,7 +1714,6 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
 
   /* ---- HUD (shared top bar for in-game phases) — orbital tactical layout ---- */
-  const maxCash = Math.max(1, ...players.map((p) => Math.max(0, p.cash)));
   const hud = human && (
     <div className="w-full space-y-4">
       {/* Rail header */}
@@ -1702,43 +1806,8 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         </div>
 
 
-        {/* cash bars — hidden on scoreboard (leaderboard already ranks cash) */}
-        {phase !== "scoreboard" && (
-          <div className="space-y-1.5">
-            {players.map((p, i) => (
-              <div
-                key={p.id}
-                className="grid grid-cols-[2.5rem_1fr_4rem] items-center gap-1.5 animate-fade-in"
-                style={{ animationDelay: `${i * 140}ms`, animationFillMode: "backwards" }}
-              >
-                <span
-                  className="text-[9px] font-mono font-semibold tracking-wide truncate"
-                  style={{ color: p.alive ? p.color : "#64748b" }}
-                >
-                  {p.isHuman ? "YOU" : p.name}
-                </span>
-                <div className="h-2 rounded-full bg-white/[0.06] overflow-hidden ring-1 ring-inset ring-white/5">
-                  <div
-                    className="h-full rounded-full transition-all duration-700 ease-out"
-                    style={{
-                      width: `${Math.max(4, (Math.max(0, p.cash) / maxCash) * 100)}%`,
-                      background: p.alive
-                        ? `linear-gradient(90deg, ${p.color}, ${p.color}aa)`
-                        : "rgba(148,163,184,0.4)",
-                      boxShadow: p.alive ? `0 0 10px -2px ${p.color}` : "none",
-                    }}
-                  />
-                </div>
-                <span
-                  className="text-right text-[10px] font-mono font-bold tabular-nums"
-                  style={{ color: p.alive ? "#fff" : "#94a3b8" }}
-                >
-                  {p.isHuman ? <MoneyCounter value={p.cash} /> : fmt(p.cash)}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
+        {/* wealth progression chart — hidden on scoreboard (leaderboard already ranks cash) */}
+        {phase !== "scoreboard" && <WealthChart players={players} />}
 
         {/* Shields + Heat — bordered console boxes */}
         <div className="mt-3.5 grid grid-cols-2 gap-2.5">
@@ -2103,9 +2172,11 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   /* ---- OUTCOME ---- */
   if (phase === "outcome" && result) {
     const caughtEl = result.outcome === "caught";
+    // Broke: not caught, but the operation drained the crew to $0 → eliminated.
+    const brokeEl = !caughtEl && !!human && !human.alive;
     const good = result.delta > (selectedOp?.cost ?? 0);
     const net = result.delta - (selectedOp?.cost ?? 0);
-    const accent = caughtEl ? "#ef4444" : good ? "#22c55e" : "#94a3b8";
+    const accent = caughtEl || brokeEl ? "#ef4444" : good ? "#22c55e" : "#94a3b8";
     return shell(gameLayout(
       <>
 
@@ -2119,13 +2190,14 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             <div
               className="inline-block rounded-xl px-8 py-4 font-black text-2xl"
               style={{
-                background: caughtEl ? "rgba(239,68,68,0.15)" : good ? "rgba(34,197,94,0.15)" : "rgba(148,163,184,0.15)",
+                background: caughtEl || brokeEl ? "rgba(239,68,68,0.15)" : good ? "rgba(34,197,94,0.15)" : "rgba(148,163,184,0.15)",
                 border: `1px solid ${accent}`,
-                color: caughtEl ? "#fca5a5" : good ? "#86efac" : "#cbd5e1",
+                color: caughtEl || brokeEl ? "#fca5a5" : good ? "#86efac" : "#cbd5e1",
               }}
             >
               {OUTCOME_LABEL[result.outcome]}
               {caughtEl && (result.eliminated ? " — ELIMINATED" : " — token lost!")}
+              {brokeEl && " — BANKRUPT"}
             </div>
             {!caughtEl && (
               <p className={`mt-3 text-xl font-mono font-bold ${net >= 0 ? "text-green-400" : "text-red-400"}`}>
@@ -2145,14 +2217,20 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                     ? "You've been caught with no shields left — your crew is out of the game. Watch how the rest plays out below."
                     : "Caught! You lost one shield token. When all shields are gone, you're eliminated — so weigh the risk next time.",
                 }
-              : {
-                  icon: net >= 0 ? TrendingUp : Coins,
-                  tone: net >= 0 ? "good" : "danger",
-                  text:
-                    net >= 0
-                      ? "The job paid off — this is your net profit after costs. Tap the button below to watch your rivals move."
-                      : "The job cost more than it earned this time. That happens — tap below to continue to your rivals' turn.",
-                },
+              : brokeEl
+                ? {
+                    icon: Skull,
+                    tone: "danger",
+                    text: "You're broke — your fortune hit $0 and your crew is out of the game. Watch how the rest plays out below.",
+                  }
+                : {
+                    icon: net >= 0 ? TrendingUp : Coins,
+                    tone: net >= 0 ? "good" : "danger",
+                    text:
+                      net >= 0
+                        ? "The job paid off — this is your net profit after costs. Tap the button below to watch your rivals move."
+                        : "The job cost more than it earned this time. That happens — tap below to continue to your rivals' turn.",
+                  },
           )}
           <button
             onClick={runAiTurns}
