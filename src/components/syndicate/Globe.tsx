@@ -106,7 +106,7 @@ function Attack({ attack }: { attack: GlobeAttack }) {
     return { curve: c, startPos: start, endPos: end, endNormal: end.clone().normalize() };
   }, [attack.fromLat, attack.fromLon, attack.toLat, attack.toLon]);
 
-  const trailGeom = useMemo(() => new THREE.TubeGeometry(curve, 64, 0.02, 8, false), [curve]);
+  const trailGeom = useMemo(() => new THREE.TubeGeometry(curve, LOD.tubeSeg, 0.02, LOD.tubeRad, false), [curve]);
 
   const headRef = useRef<THREE.Mesh>(null);
   const headGlowRef = useRef<THREE.Mesh>(null);
