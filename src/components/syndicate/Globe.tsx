@@ -23,6 +23,24 @@ export interface GlobeAttack {
 
 const R = 2;
 
+// Detect low-power / mobile devices once so we can dial back geometry detail,
+// particle counts and pixel ratio to hold a stable frame rate.
+const IS_MOBILE =
+  typeof window !== "undefined" &&
+  (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+    (typeof window.matchMedia === "function" && window.matchMedia("(max-width: 768px)").matches));
+
+// Level-of-detail knobs — coarser on mobile.
+const LOD = {
+  earthSeg: IS_MOBILE ? 40 : 64,
+  atmoSeg: IS_MOBILE ? 24 : 48,
+  tubeSeg: IS_MOBILE ? 28 : 64,
+  tubeRad: IS_MOBILE ? 6 : 8,
+  ringSeg: IS_MOBILE ? 24 : 40,
+  glowSeg: IS_MOBILE ? 10 : 16,
+  ringCount: IS_MOBILE ? 2 : 3,
+};
+
 // Convert lat/lon (degrees) to a point on a sphere of radius r.
 // Tuned to line up with the equirectangular texture we ship.
 function latLonToVec3(lat: number, lon: number, r: number): THREE.Vector3 {
