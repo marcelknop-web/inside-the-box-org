@@ -1507,7 +1507,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           players={WELCOME_GLOBE_PLAYERS}
           className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[130%] h-[38vh] opacity-25"
         />
-        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(65% 45% at 50% 28%, transparent, #05070d 80%)" }} />
+        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(65% 45% at 50% 28%, transparent, #101725 80%)" }} />
         <div className="relative w-full">
         <Skull size={40} style={{ color: "#f5b800" }} className="mb-3 drop-shadow-[0_0_12px_rgba(245,184,0,0.35)] mx-auto" />
         <h1
