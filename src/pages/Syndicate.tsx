@@ -689,7 +689,7 @@ const WHEEL_LEGEND: { type: Outcome; blurb: string }[] = [
 
 function WheelLegend() {
   return (
-    <div className="mt-4 text-left rounded-xl border border-white/20 bg-white/[0.03] p-3 sm:p-4">
+    <div className="mt-4 text-left rounded-xl border border-white/20 bg-white/[0.06] p-3 sm:p-4">
       <p className="text-[10px] font-mono tracking-[0.25em] text-white/65 mb-2.5 text-center">
         WHAT THE SLICES MEAN
       </p>
@@ -1464,7 +1464,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         <button
           onClick={() => setMuted((m) => !m)}
           aria-label={muted ? "Unmute" : "Mute"}
-          className="rounded-full p-2 border border-cyan-400/30 bg-black/40 hover:bg-black/60 transition"
+          className="rounded-full p-2 border border-cyan-400/30 bg-black/25 hover:bg-black/60 transition"
           style={{ color: "#00bcd4" }}
         >
           {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
@@ -1472,7 +1472,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         <button
           onClick={toggleFullscreen}
           aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
-          className="rounded-full p-2 border border-cyan-400/30 bg-black/40 hover:bg-black/60 transition"
+          className="rounded-full p-2 border border-cyan-400/30 bg-black/25 hover:bg-black/60 transition"
           style={{ color: "#00bcd4" }}
         >
           {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
@@ -1487,7 +1487,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           }}
 
           aria-label="How to play"
-          className="rounded-full p-2 border border-cyan-400/30 bg-black/40 hover:bg-black/60 transition"
+          className="rounded-full p-2 border border-cyan-400/30 bg-black/25 hover:bg-black/60 transition"
           style={{ color: "#00bcd4" }}
         >
           <HelpCircle size={18} />
@@ -1526,14 +1526,14 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           <span className="text-red-400">Don't get caught.</span>
         </p>
 
-        <div className="w-full rounded-2xl border border-white/20 bg-white/[0.03] p-4 backdrop-blur-sm shadow-[0_10px_40px_-16px_rgba(0,0,0,0.8)]">
+        <div className="w-full rounded-2xl border border-white/20 bg-white/[0.06] p-4 backdrop-blur-sm shadow-[0_10px_40px_-16px_rgba(0,0,0,0.8)]">
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && startGame()}
             placeholder="Enter your alias"
             maxLength={18}
-            className="w-full rounded-lg bg-black/40 border border-white/25 px-4 py-2.5 text-center text-white text-sm outline-none transition focus:border-cyan-400/70 mb-3"
+            className="w-full rounded-lg bg-black/25 border border-white/25 px-4 py-2.5 text-center text-white text-sm outline-none transition focus:border-cyan-400/70 mb-3"
           />
 
           {/* mode selector */}
@@ -1570,7 +1570,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               onChange={(e) => setSeedInput(e.target.value)}
               placeholder="Enter seed code (blank = random)"
               maxLength={12}
-              className="w-full rounded-lg bg-black/40 border border-white/25 px-4 py-2 text-center text-white text-sm font-mono outline-none transition focus:border-cyan-400/70 mb-3 uppercase"
+              className="w-full rounded-lg bg-black/25 border border-white/25 px-4 py-2 text-center text-white text-sm font-mono outline-none transition focus:border-cyan-400/70 mb-3 uppercase"
             />
           )}
 
@@ -1585,13 +1585,13 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           <div className="grid grid-cols-2 gap-2 mt-2">
             <button
               onClick={() => { setStats(loadStats()); setOverlay("stats"); }}
-              className="rounded-lg py-2 text-[11px] font-mono flex items-center justify-center gap-1.5 border border-white/20 bg-white/[0.02] text-white/60 hover:text-white hover:border-cyan-400/40 transition"
+              className="rounded-lg py-2 text-[11px] font-mono flex items-center justify-center gap-1.5 border border-white/20 bg-white/[0.05] text-white/60 hover:text-white hover:border-cyan-400/40 transition"
             >
               <BarChart3 size={14} /> Statistics
             </button>
             <button
               onClick={() => { setUnlockedIds(loadUnlocked()); setOverlay("achievements"); }}
-              className="rounded-lg py-2 text-[11px] font-mono flex items-center justify-center gap-1.5 border border-white/20 bg-white/[0.02] text-white/60 hover:text-white hover:border-cyan-400/40 transition"
+              className="rounded-lg py-2 text-[11px] font-mono flex items-center justify-center gap-1.5 border border-white/20 bg-white/[0.05] text-white/60 hover:text-white hover:border-cyan-400/40 transition"
             >
               <Award size={14} /> Achievements
             </button>
@@ -1695,7 +1695,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       )}
 
       {/* Combined status panel: cash + shields + heat + round */}
-      <div className="rounded-2xl border border-white/20 bg-black/40 backdrop-blur-sm px-3 py-2.5 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.8)]">
+      <div className="rounded-2xl border border-white/20 bg-black/25 backdrop-blur-sm px-3 py-2.5 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.8)]">
         {/* panel header */}
         <div className="mb-2">
           <p className="text-[9px] font-mono uppercase tracking-[0.28em] text-white/65">Financial Assets</p>
@@ -1778,9 +1778,9 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
   /* ---- Framed tactical command console: ticker header + HUD rail + gameplay + gold footer ---- */
   const gameLayout = (main: React.ReactNode) => (
-    <div className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col overflow-hidden rounded-2xl border border-white/20 bg-black/20 shadow-[0_24px_70px_-24px_rgba(0,0,0,0.9)]">
+    <div className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col overflow-hidden rounded-2xl border border-white/20 bg-black/10 shadow-[0_24px_70px_-24px_rgba(0,0,0,0.9)]">
       {/* Top status ticker */}
-      <div className="flex h-9 shrink-0 items-center justify-between gap-3 border-b border-white/20 bg-black/40 px-3 backdrop-blur-sm sm:px-4">
+      <div className="flex h-9 shrink-0 items-center justify-between gap-3 border-b border-white/20 bg-black/25 px-3 backdrop-blur-sm sm:px-4">
         <div className="flex items-center gap-2 shrink-0">
           <span className="h-1.5 w-1.5 rounded-full bg-[#f5b800] animate-pulse" />
           <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-[#f5b800]">Uplink Stable</span>
@@ -2332,7 +2332,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               const c = !t.player.alive;
               const d = t.player.lastDelta ?? 0;
               return (
-                <div key={t.player.id} className="flex items-center justify-between rounded-lg border border-white/20 bg-white/[0.02] px-3 py-2">
+                <div key={t.player.id} className="flex items-center justify-between rounded-lg border border-white/20 bg-white/[0.05] px-3 py-2">
                   <span className="flex items-center gap-2 min-w-0">
                     <Avatar img={t.player.img} fallback={t.player.avatar} color={t.player.color} size={22} />
                     <span className="font-bold text-sm truncate" style={{ color: t.player.color }}>{t.player.name}</span>
@@ -2498,7 +2498,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-left">
           {stats.map((s) => (
-            <div key={s.label} className="rounded-lg border border-white/20 bg-white/[0.03] px-4 py-2.5 flex items-center justify-between">
+            <div key={s.label} className="rounded-lg border border-white/20 bg-white/[0.06] px-4 py-2.5 flex items-center justify-between">
               <div>
                 <div className="text-[11px] text-white/65 font-mono uppercase tracking-wide">{s.label}</div>
                 <div className="font-bold flex items-center gap-1.5" style={{ color: s.color }}>
@@ -2549,13 +2549,13 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         <div className="mt-6 flex gap-2">
           <button
             onClick={() => { setStats(loadStats()); setOverlay("stats"); }}
-            className="rounded-lg px-4 py-2 text-xs font-mono flex items-center gap-1.5 border border-white/25 bg-white/[0.02] text-white/70 hover:text-white hover:border-cyan-400/50 transition"
+            className="rounded-lg px-4 py-2 text-xs font-mono flex items-center gap-1.5 border border-white/25 bg-white/[0.05] text-white/70 hover:text-white hover:border-cyan-400/50 transition"
           >
             <BarChart3 size={14} /> Statistics
           </button>
           <button
             onClick={() => { setUnlockedIds(loadUnlocked()); setOverlay("achievements"); }}
-            className="rounded-lg px-4 py-2 text-xs font-mono flex items-center gap-1.5 border border-white/25 bg-white/[0.02] text-white/70 hover:text-white hover:border-cyan-400/50 transition"
+            className="rounded-lg px-4 py-2 text-xs font-mono flex items-center gap-1.5 border border-white/25 bg-white/[0.05] text-white/70 hover:text-white hover:border-cyan-400/50 transition"
           >
             <Award size={14} /> Achievements
           </button>
@@ -2599,7 +2599,7 @@ function RiskBadge({ risk }: { risk: Operation["risk"] }) {
 
 function StatChip({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-white/20 bg-white/[0.03] px-3 py-2">
+    <div className="rounded-lg border border-white/20 bg-white/[0.06] px-3 py-2">
       <div className="text-[10px] text-white/65 font-mono uppercase tracking-wide">{label}</div>
       <div className="font-mono font-bold text-white text-sm">{value}</div>
     </div>
