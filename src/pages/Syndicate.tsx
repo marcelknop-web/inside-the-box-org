@@ -715,6 +715,101 @@ function WheelLegend() {
 }
 
 
+/* Wealth-progression line chart — replaces the flat cash bars.
+   Plots each crew's fortune after every completed operation. A crew's line
+   ends the moment it goes broke ($0) or is eliminated. */
+function WealthChart({ players }: { players: Player[] }) {
+  const W = 100;
+  const H = 46;
+  const maxLen = Math.max(2, ...players.map((p) => p.cashHistory.length));
+  const maxVal = Math.max(
+    1,
+    ...players.flatMap((p) => p.cashHistory.map((v) => Math.max(0, v)))
+  );
+  const xAt = (i: number) => (maxLen <= 1 ? 0 : (i / (maxLen - 1)) * W);
+  const yAt = (v: number) => H - (Math.max(0, v) / maxVal) * (H - 3) - 1.5;
+
+  return (
+    <div>
+      <div className="relative w-full overflow-hidden rounded-lg border border-white/10 bg-black/20 px-1.5 pt-1.5">
+        <svg
+          viewBox={`0 0 ${W} ${H}`}
+          preserveAspectRatio="none"
+          className="h-24 w-full"
+          aria-label="Wealth progression chart"
+        >
+          {/* horizontal gridlines */}
+          {[0.25, 0.5, 0.75].map((f) => (
+            <line
+              key={f}
+              x1={0}
+              x2={W}
+              y1={H * f}
+              y2={H * f}
+              stroke="rgba(255,255,255,0.06)"
+              strokeWidth={0.4}
+            />
+          ))}
+          {players.map((p) => {
+            const hist = p.cashHistory;
+            if (hist.length === 0) return null;
+            const pts = hist.map((v, i) => `${xAt(i)},${yAt(v)}`).join(" ");
+            const last = hist[hist.length - 1];
+            const broke = !p.alive;
+            return (
+              <g key={p.id} opacity={broke ? 0.55 : 1}>
+                <polyline
+                  points={pts}
+                  fill="none"
+                  stroke={p.color}
+                  strokeWidth={broke ? 0.9 : 1.3}
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                  strokeDasharray={broke ? "2 1.5" : undefined}
+                  vectorEffect="non-scaling-stroke"
+                />
+                <circle
+                  cx={xAt(hist.length - 1)}
+                  cy={yAt(last)}
+                  r={broke ? 1.3 : 1.6}
+                  fill={broke ? "#94a3b8" : p.color}
+                />
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+      {/* legend + current cash */}
+      <div className="mt-2 space-y-1">
+        {players.map((p) => (
+          <div key={p.id} className="flex items-center gap-1.5 text-[9px] font-mono">
+            <span
+              className="h-1.5 w-3 shrink-0 rounded-full"
+              style={{ background: p.alive ? p.color : "#64748b" }}
+            />
+            <span
+              className="font-semibold tracking-wide truncate"
+              style={{ color: p.alive ? p.color : "#64748b" }}
+            >
+              {p.isHuman ? "YOU" : p.name}
+            </span>
+            {!p.alive && <span className="text-red-400/80 tracking-widest">OUT</span>}
+            <span
+              className="ml-auto tabular-nums font-bold"
+              style={{ color: p.alive ? "#fff" : "#94a3b8" }}
+            >
+              {fmt(Math.max(0, p.cash))}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+
+
+
 
 
 
