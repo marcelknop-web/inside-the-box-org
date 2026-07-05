@@ -1714,7 +1714,6 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
 
   /* ---- HUD (shared top bar for in-game phases) — orbital tactical layout ---- */
-  const maxCash = Math.max(1, ...players.map((p) => Math.max(0, p.cash)));
   const hud = human && (
     <div className="w-full space-y-4">
       {/* Rail header */}
