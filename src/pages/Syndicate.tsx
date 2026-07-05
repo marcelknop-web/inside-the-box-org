@@ -2506,6 +2506,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               players={globePlayers}
               attack={globeAttack}
               attackFocus
+              flyover
               className="pointer-events-none absolute inset-0 h-full w-full"
             />
             {/* target lock-on badge */}
