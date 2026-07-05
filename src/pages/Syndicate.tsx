@@ -1604,8 +1604,11 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   const maxCash = Math.max(1, ...players.map((p) => Math.max(0, p.cash)));
   const hud = human && (
     <div className="w-full space-y-2">
+      {/* Rail header */}
+      <h3 className="font-mono text-[9px] uppercase tracking-[0.28em] text-white/40">Active Crews</h3>
       {/* ROW 1 — orbital player status cards */}
       <div className="grid grid-cols-3 gap-2">
+
         {players.map((p) => {
           const isActive = p.id === activeId;
           return (
@@ -1686,25 +1689,10 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       {/* Combined status panel: cash + shields + heat + round */}
       <div className="rounded-2xl border border-white/10 bg-black/40 backdrop-blur-sm px-3 py-2.5 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.8)]">
         {/* panel header */}
-        <div className="flex items-center justify-between gap-3 mb-2">
-          <p className="text-[9px] font-mono tracking-[0.25em] text-white/35">CASH ON HAND</p>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1">
-              {Array.from({ length: START_TOKENS }).map((_, i) => (
-                <Shield
-                  key={i}
-                  size={13}
-                  style={{ color: i < human.tokens ? "#00bcd4" : "rgba(255,255,255,0.15)" }}
-                  fill={i < human.tokens ? "#00bcd4" : "transparent"}
-                />
-              ))}
-            </div>
-            <span className="flex items-center gap-1 text-orange-400 text-[10px] font-mono font-bold">
-              <Flame size={11} /> +{heatPct}%
-            </span>
-            <span className="text-[10px] font-mono text-cyan-300 tabular-nums">R{round}/{TOTAL_ROUNDS}</span>
-          </div>
+        <div className="mb-2">
+          <p className="text-[9px] font-mono uppercase tracking-[0.28em] text-white/40">Financial Assets</p>
         </div>
+
 
         {/* cash bars — hidden on scoreboard (leaderboard already ranks cash) */}
         {phase !== "scoreboard" && (
@@ -1744,7 +1732,29 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           </div>
         )}
 
-        {/* round progress bar (always visible) */}
+        {/* Shields + Heat — bordered console boxes */}
+        <div className="mt-2.5 grid grid-cols-2 gap-2">
+          <div className="rounded-lg border border-white/10 bg-white/5 p-2">
+            <div className="mb-1 text-[8px] font-mono uppercase tracking-[0.2em] text-white/40">Shields</div>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: START_TOKENS }).map((_, i) => (
+                <Shield
+                  key={i}
+                  size={13}
+                  style={{ color: i < human.tokens ? "#00bcd4" : "rgba(255,255,255,0.15)" }}
+                  fill={i < human.tokens ? "#00bcd4" : "transparent"}
+                />
+              ))}
+            </div>
+          </div>
+          <div className="rounded-lg border border-white/10 bg-white/5 p-2">
+            <div className="mb-1 text-[8px] font-mono uppercase tracking-[0.2em] text-white/40">Heat %</div>
+            <div className="flex items-center gap-1 text-orange-400 text-base font-mono font-bold leading-none">
+              <Flame size={13} /> +{heatPct}%
+            </div>
+          </div>
+        </div>
+
         <div className="mt-2 flex items-center gap-2">
           <div className="h-1.5 flex-1 rounded-full bg-white/10 overflow-hidden">
             <div
@@ -1758,13 +1768,38 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   );
 
 
-  /* ---- Two-column game layout: fixed HUD sidebar + gameplay pane (fits one screen) ---- */
+  /* ---- Framed tactical command console: ticker header + HUD rail + gameplay + gold footer ---- */
   const gameLayout = (main: React.ReactNode) => (
-    <div className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col gap-3 md:grid md:grid-cols-[340px_minmax(0,1fr)] md:items-stretch">
-      <aside className="min-h-0 md:overflow-y-auto md:pr-1">{hud}</aside>
-      <main className="flex min-h-0 min-w-0 flex-1 flex-col md:overflow-y-auto">{main}</main>
+    <div className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col overflow-hidden rounded-2xl border border-white/10 bg-black/20 shadow-[0_24px_70px_-24px_rgba(0,0,0,0.9)]">
+      {/* Top status ticker */}
+      <div className="flex h-9 shrink-0 items-center justify-between gap-3 border-b border-white/10 bg-black/40 px-3 backdrop-blur-sm sm:px-4">
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#f5b800] animate-pulse" />
+          <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-[#f5b800]">Uplink Stable</span>
+        </div>
+        <div className="hidden min-w-0 flex-1 items-center justify-center sm:flex">
+          <span className="truncate font-mono text-[9px] uppercase tracking-[0.18em] text-white/35">
+            {event ? `Global event · ${event.name}` : "Intercepting rival comms · tactical analysis pending"}
+          </span>
+        </div>
+        <div className="flex shrink-0 items-center gap-1.5 font-mono pr-24 sm:pr-28">
+          <span className="text-[8px] uppercase tracking-widest text-white/30">Round</span>
+          <span className="text-sm leading-none text-[#f5b800] tabular-nums">{round}/{TOTAL_ROUNDS}</span>
+        </div>
+
+      </div>
+
+      {/* Body: HUD rail + gameplay pane */}
+      <div className="flex min-h-0 flex-1 flex-col gap-3 p-3 md:grid md:grid-cols-[340px_minmax(0,1fr)] md:items-stretch">
+        <aside className="min-h-0 md:overflow-y-auto md:pr-1">{hud}</aside>
+        <main className="flex min-h-0 min-w-0 flex-1 flex-col md:overflow-y-auto">{main}</main>
+      </div>
+
+      {/* Gold footer accent */}
+      <div className="h-0.5 shrink-0 bg-gradient-to-r from-transparent via-[#f5b800]/50 to-transparent" />
     </div>
   );
+
 
 
 
