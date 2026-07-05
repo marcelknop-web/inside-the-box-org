@@ -2726,7 +2726,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
             {/* victim target readout — shown for every rival attack */}
             {(() => {
-              const tgt = targetForOp(turn.op.id);
+              const tgt = targetForOp(turn.op.id, round * 31 + aiStep * 7);
               return (
                 <div className="flex items-start gap-2.5 rounded-xl border border-white/12 bg-black/30 p-3">
                   <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-red-500/40 bg-red-500/10">
