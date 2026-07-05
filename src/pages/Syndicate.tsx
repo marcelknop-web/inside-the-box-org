@@ -2153,25 +2153,20 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
 
           {event ? (
-            <div className="rounded-xl border border-orange-400/40 bg-orange-500/10 p-6 mb-6 animate-scale-in">
-              <p className="text-orange-300 font-mono text-xs mb-1">GLOBAL EVENT</p>
-              <h3 className="text-2xl font-bold text-white mb-2">{event.name}</h3>
-              <p className="text-white/70 text-sm">{event.description}</p>
-              <div className="flex justify-center gap-4 mt-3 text-xs font-mono">
-                {event.riskMult !== 1 && (
-                  <span className={event.riskMult > 1 ? "text-red-400" : "text-green-400"}>
-                    Detection {event.riskMult > 1 ? "▲" : "▼"} {Math.round(Math.abs(event.riskMult - 1) * 100)}%
-                  </span>
-                )}
-                {event.profitMult !== 1 && (
-                  <span className={event.profitMult > 1 ? "text-green-400" : "text-red-400"}>
-                    Profit {event.profitMult > 1 ? "▲" : "▼"} {Math.round(Math.abs(event.profitMult - 1) * 100)}%
-                  </span>
-                )}
-              </div>
+            <div className="mb-6 w-full flex justify-center">
+              <EventScene event={event} />
             </div>
           ) : (
-            <p className="text-white/75 mb-6">The streets are quiet… for now.</p>
+            <div className="mb-6 w-full flex justify-center">
+              <div className="relative w-full max-w-xl overflow-hidden rounded-2xl border border-white/12 bg-[radial-gradient(120%_120%_at_50%_0%,rgba(0,188,212,0.12),rgba(0,0,0,0.45)_60%)] px-6 py-8 text-center animate-scale-in">
+                <span className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-cyan-400/40 bg-cyan-400/10 shadow-[0_0_30px_-8px_#22d3ee]">
+                  <Shield size={30} className="text-cyan-300" />
+                </span>
+                <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-cyan-300">No Global Event</p>
+                <h3 className="mt-1.5 text-2xl font-black tracking-tight text-white">All Quiet</h3>
+                <p className="mt-2 text-sm text-white/70">The streets are calm. Standard odds apply this round.</p>
+              </div>
+            </div>
           )}
           <button
             onClick={() => setPhase("choose")}
