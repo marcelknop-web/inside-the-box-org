@@ -1557,9 +1557,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         }
         // Now that this rival's wheel has landed, commit their result to the
         // standings so the financial chart updates in sync with the reveal.
-        setPlayers((prev) =>
-          prev.map((p) => (p.id === turn.player.id ? turn.player : p))
-        );
+        setPlayers((prev) => commitAiTurn(prev, turn));
         setAiSub("result");
       }, 3600);
       return;
