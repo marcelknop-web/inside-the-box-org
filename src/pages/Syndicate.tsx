@@ -1704,7 +1704,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
         {/* cash bars — hidden on scoreboard (leaderboard already ranks cash) */}
         {phase !== "scoreboard" && (
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             {players.map((p, i) => (
               <div
                 key={p.id}
