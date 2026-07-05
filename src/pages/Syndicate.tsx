@@ -894,13 +894,15 @@ const EVENT_REASONS: Record<string, string> = {
 
 
 
-function EventScene({ event }: { event: GlobalEvent }) {
+function EventScene({ event, victim }: { event: GlobalEvent; victim?: TargetCity | null }) {
   const v = EVENT_VISUALS[event.id] ?? DEFAULT_EVENT_VISUAL;
   const Icon = v.icon;
   const riskUp = event.riskMult > 1;
   const profitUp = event.profitMult > 1;
   const riskPct = Math.round(Math.abs(event.riskMult - 1) * 100);
   const profitPct = Math.round(Math.abs(event.profitMult - 1) * 100);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const reason = EVENT_REASONS[event.id] ?? event.description;
 
   return (
     <div
