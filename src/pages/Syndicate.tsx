@@ -1763,7 +1763,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           </div>
         </div>
 
-        <div className="mt-2 flex items-center gap-2">
+        <div className="mt-3 flex items-center gap-2">
           <div className="h-1.5 flex-1 rounded-full bg-white/10 overflow-hidden">
             <div
               className="h-full rounded-full transition-all"
