@@ -171,10 +171,24 @@ function play(key: SfxKey) {
   if (!c || !master) return;
   const start = (buf: AudioBuffer) => {
     if (!c || !master) return;
+    const vary = SFX_VARY[key];
+
+    // Pitch: rotate ticks through a fixed cadence, jitter everything else.
+    let semi: number;
+    if (key === "tick") {
+      semi = TICK_STEPS[tickStep % TICK_STEPS.length] + jitter(0.25);
+      tickStep++;
+    } else {
+      semi = jitter(vary.pitch);
+    }
+
     const src = c.createBufferSource();
     src.buffer = buf;
+    src.playbackRate.value = semitoneToRate(semi);
+    if (src.detune) src.detune.value = jitter(6); // subtle extra shimmer
+
     const g = c.createGain();
-    g.gain.value = SFX_GAIN[key];
+    g.gain.value = Math.max(0.05, SFX_GAIN[key] + jitter(vary.gain));
     src.connect(g).connect(master);
     src.start();
   };
