@@ -2531,7 +2531,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           {/* victim company readout — revealed as the fly-over lands on the target */}
           <div
             className="pointer-events-none absolute bottom-3 left-1/2 w-[min(94%,480px)] -translate-x-1/2 overflow-hidden rounded-2xl border border-cyan-400/25 bg-gradient-to-b from-black/80 to-black/65 px-4 py-3 text-center shadow-[0_8px_40px_-8px_rgba(0,188,212,0.45)] ring-1 ring-white/5 backdrop-blur-md animate-scale-in motion-reduce:animate-fade-in sm:bottom-4 sm:px-5 sm:py-4"
-            style={{ animationDelay: "4.3s", animationFillMode: "backwards" }}
+            style={{ animationDelay: reduceMotion ? "0.1s" : "4.3s", animationFillMode: "backwards" }}
           >
             {/* accent hairline */}
             <div
