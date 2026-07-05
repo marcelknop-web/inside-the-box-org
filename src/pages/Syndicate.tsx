@@ -1861,9 +1861,9 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       </div>
 
       {/* Body: HUD rail + gameplay pane */}
-      <div className="flex min-h-0 flex-1 flex-col gap-5 p-4 md:grid md:grid-cols-[340px_minmax(0,1fr)] md:items-stretch md:gap-6 md:p-5">
-        <aside className="min-h-0 md:overflow-y-auto md:pr-1.5">{hud}</aside>
-        <main className="flex min-h-0 min-w-0 flex-1 flex-col md:overflow-y-auto">{main}</main>
+      <div className="flex flex-col gap-5 p-4 md:min-h-0 md:flex-1 md:grid md:grid-cols-[340px_minmax(0,1fr)] md:items-stretch md:gap-6 md:p-5">
+        <aside className="min-w-0 md:min-h-0 md:overflow-y-auto md:pr-1.5">{hud}</aside>
+        <main className="flex min-w-0 flex-col md:min-h-0 md:flex-1 md:overflow-y-auto">{main}</main>
       </div>
 
       {/* Gold footer accent */}
