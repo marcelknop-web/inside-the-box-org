@@ -220,7 +220,7 @@ function Attack({ attack }: { attack: GlobeAttack }) {
     <group>
       {/* launch flash */}
       <mesh ref={launchRef} position={startPos} visible={false}>
-        <sphereGeometry args={[0.5, 16, 16]} />
+        <sphereGeometry args={[0.5, LOD.glowSeg, LOD.glowSeg]} />
         <meshBasicMaterial color={col} transparent opacity={0} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
       </mesh>
 
@@ -232,30 +232,30 @@ function Attack({ attack }: { attack: GlobeAttack }) {
 
       {/* comet head + soft glow */}
       <mesh ref={headGlowRef} visible={false}>
-        <sphereGeometry args={[0.13, 16, 16]} />
+        <sphereGeometry args={[0.13, LOD.glowSeg, LOD.glowSeg]} />
         <meshBasicMaterial color={col} transparent opacity={0.4} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
       </mesh>
       <mesh ref={headRef} visible={false}>
-        <sphereGeometry args={[0.055, 14, 14]} />
+        <sphereGeometry args={[0.055, LOD.glowSeg, LOD.glowSeg]} />
         <meshBasicMaterial color="#ffffff" transparent opacity={0.95} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
       </mesh>
 
       {/* target reticle before impact */}
       <mesh ref={reticleRef} position={endPos} quaternion={surfaceQuat} visible={false}>
-        <ringGeometry args={[0.09, 0.12, 32]} />
+        <ringGeometry args={[0.09, 0.12, LOD.ringSeg]} />
         <meshBasicMaterial color={col} transparent opacity={0.4} side={THREE.DoubleSide} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
       </mesh>
 
       {/* impact flash */}
       <mesh ref={flashRef} position={endPos} visible={false}>
-        <sphereGeometry args={[0.4, 16, 16]} />
+        <sphereGeometry args={[0.4, LOD.glowSeg, LOD.glowSeg]} />
         <meshBasicMaterial color="#ffffff" transparent opacity={0} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
       </mesh>
 
       {/* shockwave rings flat on the surface */}
-      {[ring0, ring1, ring2].map((ref, i) => (
+      {[ring0, ring1, ring2].slice(0, LOD.ringCount).map((ref, i) => (
         <mesh key={i} ref={ref} position={endPos} quaternion={surfaceQuat} visible={false}>
-          <ringGeometry args={[0.11, 0.16, 40]} />
+          <ringGeometry args={[0.11, 0.16, LOD.ringSeg]} />
           <meshBasicMaterial color={col} transparent opacity={0.9} side={THREE.DoubleSide} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
         </mesh>
       ))}
