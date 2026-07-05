@@ -104,10 +104,45 @@ function ac(): AudioContext | null {
     ctx = new AC();
     master = ctx.createGain();
     master.gain.value = 0.9;
+
+    // --- Mobile-speaker voicing chain ---------------------------------
+    // Tiny phone speakers can't reproduce sub-bass and turn it into mud
+    // or wasted headroom. Roll off lows, lift presence/"air" so cues cut
+    // through, then compress + soft-limit for consistent perceived level.
+    const highpass = ctx.createBiquadFilter();
+    highpass.type = "highpass";
+    highpass.frequency.value = 190; // drop energy the speaker can't play
+    highpass.Q.value = 0.7;
+
+    const presence = ctx.createBiquadFilter();
+    presence.type = "peaking";
+    presence.frequency.value = 2600; // where small speakers project best
+    presence.Q.value = 0.9;
+    presence.gain.value = 4.5;
+
+    const air = ctx.createBiquadFilter();
+    air.type = "highshelf";
+    air.frequency.value = 7000;
+    air.gain.value = 2.5;
+
     const comp = ctx.createDynamicsCompressor();
     comp.threshold.value = -14;
     comp.ratio.value = 3;
-    master.connect(comp).connect(ctx.destination);
+
+    const limiter = ctx.createDynamicsCompressor();
+    limiter.threshold.value = -2;
+    limiter.knee.value = 0;
+    limiter.ratio.value = 20;
+    limiter.attack.value = 0.002;
+    limiter.release.value = 0.1;
+
+    master
+      .connect(highpass)
+      .connect(presence)
+      .connect(air)
+      .connect(comp)
+      .connect(limiter)
+      .connect(ctx.destination);
   }
   if (ctx.state === "suspended") void ctx.resume();
   return ctx;
