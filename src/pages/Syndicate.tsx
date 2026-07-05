@@ -1407,7 +1407,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     setPhase("strike");
     window.setTimeout(() => {
       runSpin();
-    }, 2600);
+    }, 4000);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [human, selectedOp]);
 
