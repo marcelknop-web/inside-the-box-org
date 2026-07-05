@@ -282,7 +282,55 @@ function Attack({ attack }: { attack: GlobeAttack }) {
 
 const FOCUS_DIR = new THREE.Vector3(0, 0.28, 1).normalize();
 
-function EarthMesh({ players, attack, attackFocus = false }: { players: GlobePlayer[]; attack?: GlobeAttack | null; attackFocus?: boolean }) {
+// Base orientation applied to the earth group; lat/lon markers live inside it,
+// so the flyover camera applies the same rotation to aim at real world points.
+const BASE_QUAT = new THREE.Quaternion().setFromEuler(new THREE.Euler(0.35, 0, 0.05));
+
+// Cinematic camera that skims low over the globe from the attacker's location to
+// the victim's, then settles framing the victim so its readout reads as "here".
+function FlyoverCamera({ attack }: { attack: GlobeAttack }) {
+  const { camera } = useThree();
+  const startT = useRef<number | null>(null);
+  const lookTarget = useRef(new THREE.Vector3());
+
+  const { fromDir, toDir, toPoint, qFull } = useMemo(() => {
+    const f = latLonToVec3(attack.fromLat, attack.fromLon, 1).applyQuaternion(BASE_QUAT).normalize();
+    const t = latLonToVec3(attack.toLat, attack.toLon, 1).applyQuaternion(BASE_QUAT).normalize();
+    return {
+      fromDir: f,
+      toDir: t,
+      toPoint: t.clone().multiplyScalar(R),
+      qFull: new THREE.Quaternion().setFromUnitVectors(f, t),
+    };
+  }, [attack.fromLat, attack.fromLon, attack.toLat, attack.toLon]);
+
+  const qIdentity = useMemo(() => new THREE.Quaternion(), []);
+
+  useFrame(({ clock }) => {
+    if (startT.current === null) startT.current = clock.getElapsedTime();
+    const elapsed = clock.getElapsedTime() - startT.current;
+    const DUR = 2.8;
+    const raw = Math.min(1, elapsed / DUR);
+    // easeInOut so the fly-over accelerates off the attacker and eases onto the victim
+    const t = raw < 0.5 ? 2 * raw * raw : 1 - Math.pow(-2 * raw + 2, 2) / 2;
+
+    // travel along the great-circle between the two locations
+    const q = new THREE.Quaternion().slerpQuaternions(qIdentity, qFull, t);
+    const dir = fromDir.clone().applyQuaternion(q).normalize();
+
+    // dip low over the surface at mid-flight, rise to frame the victim on arrival
+    const radius = 4.5 - Math.sin(t * Math.PI) * 1.1;
+    camera.position.copy(dir.clone().multiplyScalar(radius));
+
+    // pan the look-at from the globe centre toward the victim so it fills the view
+    lookTarget.current.copy(toPoint).multiplyScalar(t * 0.9);
+    camera.lookAt(lookTarget.current);
+  });
+
+  return null;
+}
+
+function EarthMesh({ players, attack, attackFocus = false, flyover = false }: { players: GlobePlayer[]; attack?: GlobeAttack | null; attackFocus?: boolean; flyover?: boolean }) {
   const groupRef = useRef<THREE.Group>(null);
   const texture = useLoader(THREE.TextureLoader, earthTex);
   const targetQuat = useRef(new THREE.Quaternion());
@@ -298,6 +346,8 @@ function EarthMesh({ players, attack, attackFocus = false }: { players: GlobePla
   useFrame((_, delta) => {
     const g = groupRef.current;
     if (!g) return;
+    // During a fly-over the camera moves instead of the earth — hold it still.
+    if (flyover && attack) return;
     if (attack && focusVec) {
       // Smoothly rotate the earth so the strike faces the camera and hold it.
       targetQuat.current.setFromUnitVectors(focusVec, FOCUS_DIR);
