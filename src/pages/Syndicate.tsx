@@ -1611,18 +1611,18 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   /* ---- HUD (shared top bar for in-game phases) — orbital tactical layout ---- */
   const maxCash = Math.max(1, ...players.map((p) => Math.max(0, p.cash)));
   const hud = human && (
-    <div className="w-full space-y-2">
+    <div className="w-full space-y-4">
       {/* Rail header */}
       <h3 className="font-mono text-[9px] uppercase tracking-[0.28em] text-white/65">Active Crews</h3>
       {/* ROW 1 — orbital player status cards */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-2.5">
 
         {players.map((p) => {
           const isActive = p.id === activeId;
           return (
             <div
               key={p.id}
-              className="flex items-center gap-1.5 rounded-xl border px-1.5 py-1.5 min-w-0 transition"
+              className="flex items-center gap-1.5 rounded-xl border px-2 py-2 min-w-0 transition"
               style={{
                 borderColor: isActive ? `${p.color}` : "rgba(255,255,255,0.10)",
                 background: isActive ? `${p.color}18` : "rgba(255,255,255,0.03)",
