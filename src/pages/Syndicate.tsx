@@ -156,6 +156,7 @@ interface Player {
   totalOutcomes: number;
   closestCall: number; // smallest degrees to a Caught slice while surviving
   cashAtElimination: number | null;
+  cashHistory: number[]; // wealth after each completed operation (starts with START_CASH)
   usedOps: Record<string, number>;
   ranHighRisk: boolean;
   lastLabel?: string;
