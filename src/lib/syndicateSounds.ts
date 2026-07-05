@@ -56,6 +56,33 @@ const SFX_GAIN: Record<SfxKey, number> = {
   transition: 0.7,
 };
 
+/* ------------------------------------------------------------------ */
+/*  Variation — keeps repeated cues from sounding mechanical.          */
+/*  `pitch` = max ± semitone spread, `gain` = max ± linear jitter.     */
+/*  Stingers (win/bigwin/lose/caught) stay tight so they read as       */
+/*  deliberate; frequent, incidental cues get more life.               */
+/* ------------------------------------------------------------------ */
+const SFX_VARY: Record<SfxKey, { pitch: number; gain: number }> = {
+  tick: { pitch: 1.4, gain: 0.12 },
+  land: { pitch: 0.9, gain: 0.08 },
+  select: { pitch: 1.2, gain: 0.1 },
+  spin: { pitch: 0.6, gain: 0.06 },
+  win: { pitch: 0.3, gain: 0.05 },
+  bigwin: { pitch: 0.15, gain: 0.04 },
+  lose: { pitch: 0.4, gain: 0.05 },
+  caught: { pitch: 0.3, gain: 0.05 },
+  reveal: { pitch: 0.7, gain: 0.06 },
+  transition: { pitch: 0.5, gain: 0.05 },
+};
+
+// Rotating pitch offsets (in semitones) so consecutive ticks alternate
+// instead of hammering the exact same tone — classic "roulette" feel.
+const TICK_STEPS = [0, 0.5, -0.4, 0.9, -0.2, 0.3];
+let tickStep = 0;
+
+const semitoneToRate = (semi: number) => Math.pow(2, semi / 12);
+const jitter = (amt: number) => (Math.random() * 2 - 1) * amt;
+
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
 let enabled = true;
@@ -77,10 +104,45 @@ function ac(): AudioContext | null {
     ctx = new AC();
     master = ctx.createGain();
     master.gain.value = 0.9;
+
+    // --- Mobile-speaker voicing chain ---------------------------------
+    // Tiny phone speakers can't reproduce sub-bass and turn it into mud
+    // or wasted headroom. Roll off lows, lift presence/"air" so cues cut
+    // through, then compress + soft-limit for consistent perceived level.
+    const highpass = ctx.createBiquadFilter();
+    highpass.type = "highpass";
+    highpass.frequency.value = 190; // drop energy the speaker can't play
+    highpass.Q.value = 0.7;
+
+    const presence = ctx.createBiquadFilter();
+    presence.type = "peaking";
+    presence.frequency.value = 2600; // where small speakers project best
+    presence.Q.value = 0.9;
+    presence.gain.value = 4.5;
+
+    const air = ctx.createBiquadFilter();
+    air.type = "highshelf";
+    air.frequency.value = 7000;
+    air.gain.value = 2.5;
+
     const comp = ctx.createDynamicsCompressor();
     comp.threshold.value = -14;
     comp.ratio.value = 3;
-    master.connect(comp).connect(ctx.destination);
+
+    const limiter = ctx.createDynamicsCompressor();
+    limiter.threshold.value = -2;
+    limiter.knee.value = 0;
+    limiter.ratio.value = 20;
+    limiter.attack.value = 0.002;
+    limiter.release.value = 0.1;
+
+    master
+      .connect(highpass)
+      .connect(presence)
+      .connect(air)
+      .connect(comp)
+      .connect(limiter)
+      .connect(ctx.destination);
   }
   if (ctx.state === "suspended") void ctx.resume();
   return ctx;
@@ -109,10 +171,24 @@ function play(key: SfxKey) {
   if (!c || !master) return;
   const start = (buf: AudioBuffer) => {
     if (!c || !master) return;
+    const vary = SFX_VARY[key];
+
+    // Pitch: rotate ticks through a fixed cadence, jitter everything else.
+    let semi: number;
+    if (key === "tick") {
+      semi = TICK_STEPS[tickStep % TICK_STEPS.length] + jitter(0.25);
+      tickStep++;
+    } else {
+      semi = jitter(vary.pitch);
+    }
+
     const src = c.createBufferSource();
     src.buffer = buf;
+    src.playbackRate.value = semitoneToRate(semi);
+    if (src.detune) src.detune.value = jitter(6); // subtle extra shimmer
+
     const g = c.createGain();
-    g.gain.value = SFX_GAIN[key];
+    g.gain.value = Math.max(0.05, SFX_GAIN[key] + jitter(vary.gain));
     src.connect(g).connect(master);
     src.start();
   };
