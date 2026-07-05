@@ -1724,7 +1724,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           return (
             <div
               key={p.id}
-              className="flex items-center gap-1.5 rounded-xl border px-2 py-2 min-w-0 transition"
+              className="flex items-center gap-1.5 rounded-xl border px-2 py-2 min-w-0 overflow-hidden transition"
               style={{
                 borderColor: isActive ? `${p.color}` : "rgba(255,255,255,0.10)",
                 background: isActive ? `${p.color}18` : "rgba(255,255,255,0.03)",
@@ -1733,34 +1733,30 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               }}
             >
               <div className="relative shrink-0">
-                <Avatar img={p.img} fallback={p.avatar} color={p.color} size={38} />
+                <Avatar img={p.img} fallback={p.avatar} color={p.color} size={34} />
                 {!p.alive && (
                   <Skull size={12} className="absolute -bottom-1 -right-1 text-red-400" />
                 )}
               </div>
-              <div className="min-w-0 text-left">
+              <div className="min-w-0 flex-1 text-left">
                 {isActive && (
                   <div
-                    className="text-[8px] font-mono tracking-[0.15em] uppercase leading-none mb-0.5"
+                    className="flex items-center gap-1 text-[7px] font-mono tracking-[0.12em] uppercase leading-none mb-0.5"
                     style={{ color: p.color }}
                   >
+                    <span
+                      className="inline-block w-1 h-1 rounded-full animate-pulse shrink-0"
+                      style={{ background: p.color }}
+                    />
                     ACTIVE
                   </div>
                 )}
-                <div className="flex items-center gap-1">
-                  {isActive && (
-                    <span
-                      className="inline-block w-1.5 h-1.5 rounded-full animate-pulse"
-                      style={{ background: p.color }}
-                    />
-                  )}
-                  <div className="text-[10px] font-bold text-white leading-tight truncate">
-                    {p.name}
-                  </div>
+                <div className="text-[10px] font-bold text-white leading-tight truncate">
+                  {p.name}
                 </div>
-                <div className="flex items-center gap-0.5 text-[9px] text-white/75 truncate leading-none">
-                  <MapPin size={8} style={{ color: p.color }} />
-                  {p.location?.city ?? "—"}
+                <div className="flex items-center gap-0.5 text-[9px] text-white/75 leading-none mt-0.5">
+                  <MapPin size={8} style={{ color: p.color }} className="shrink-0" />
+                  <span className="truncate">{p.location?.city ?? "—"}</span>
                 </div>
               </div>
             </div>
