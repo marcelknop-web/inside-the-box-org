@@ -69,18 +69,18 @@ function Marker({ player }: { player: GlobePlayer }) {
     <group position={pos}>
       {/* core dot */}
       <mesh>
-        <sphereGeometry args={[0.05, 12, 12]} />
+        <sphereGeometry args={[0.05, 10, 10]} />
         <meshBasicMaterial color={col} toneMapped={false} />
       </mesh>
       {/* glow halo */}
       <mesh ref={haloRef}>
-        <sphereGeometry args={[0.11, 16, 16]} />
+        <sphereGeometry args={[0.11, LOD.glowSeg, LOD.glowSeg]} />
         <meshBasicMaterial color={col} transparent opacity={dead ? 0.15 : 0.35} toneMapped={false} />
       </mesh>
       {/* beacon beam pointing outward */}
       {!dead && (
         <mesh position={pos.clone().normalize().multiplyScalar(0.18)} quaternion={new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), pos.clone().normalize())}>
-          <cylinderGeometry args={[0.008, 0.03, 0.35, 8]} />
+          <cylinderGeometry args={[0.008, 0.03, 0.35, 6]} />
           <meshBasicMaterial color={col} transparent opacity={player.active ? 0.8 : 0.4} toneMapped={false} />
         </mesh>
       )}
