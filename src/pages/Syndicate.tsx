@@ -1856,7 +1856,10 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   const globeAttack: GlobeAttack | null =
     attackingOp && focusPlayer?.location
       ? (() => {
-          const tgt = targetForOp(attackingOp.id);
+          const salt = focusPlayer?.isHuman
+            ? round * 31 + (focusPlayer.opsCompleted ?? 0)
+            : round * 31 + aiStep * 7;
+          const tgt = targetForOp(attackingOp.id, salt);
           return {
             id: `${focusPlayer.id}-${attackingOp.id}-${round}-${aiStep}`,
             color: focusPlayer.color,
