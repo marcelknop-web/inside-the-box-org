@@ -1028,19 +1028,20 @@ const FALLBACK_LOCATIONS = [
 ];
 
 // Fictional target hubs a cyber operation "strikes" on the globe, each with a
-// fictional victim company for flavour during the strike sequence.
-const TARGET_CITIES: { lat: number; lon: number; city: string; company: string }[] = [
-  { lat: 35.68, lon: 139.69, city: "Tokyo", company: "Katsu Robotics KK" },
-  { lat: 1.35, lon: 103.82, city: "Singapore", company: "Meridian Trust Bank" },
-  { lat: -33.87, lon: 151.21, city: "Sydney", company: "Southern Cross Mining" },
-  { lat: 37.77, lon: -122.42, city: "San Francisco", company: "Helix Cloud Systems" },
-  { lat: 52.52, lon: 13.4, city: "Berlin", company: "Adler Energie AG" },
-  { lat: 25.2, lon: 55.27, city: "Dubai", company: "Zenith Capital Group" },
-  { lat: -23.55, lon: -46.63, city: "São Paulo", company: "Verde AgroCorp" },
-  { lat: 19.08, lon: 72.88, city: "Mumbai", company: "Sona Pharma Ltd" },
+// fictional victim company + one-line sector profile for flavour.
+type TargetCity = { lat: number; lon: number; city: string; company: string; sector: string; desc: string };
+const TARGET_CITIES: TargetCity[] = [
+  { lat: 35.68, lon: 139.69, city: "Tokyo", company: "Katsu Robotics KK", sector: "Industrial robotics", desc: "Factory automation giant with fragile OT networks." },
+  { lat: 1.35, lon: 103.82, city: "Singapore", company: "Meridian Trust Bank", sector: "Private banking", desc: "Offshore wealth vault holding elite client funds." },
+  { lat: -33.87, lon: 151.21, city: "Sydney", company: "Southern Cross Mining", sector: "Resources", desc: "Ore conglomerate running legacy control systems." },
+  { lat: 37.77, lon: -122.42, city: "San Francisco", company: "Helix Cloud Systems", sector: "Cloud infrastructure", desc: "Hyperscaler hosting half the startup economy." },
+  { lat: 52.52, lon: 13.4, city: "Berlin", company: "Adler Energie AG", sector: "Energy grid", desc: "Utility operator wired into the national grid." },
+  { lat: 25.2, lon: 55.27, city: "Dubai", company: "Zenith Capital Group", sector: "Sovereign fund", desc: "Petro-cash sovereign fund with thin security." },
+  { lat: -23.55, lon: -46.63, city: "São Paulo", company: "Verde AgroCorp", sector: "Agritech", desc: "Continental food supplier with exposed logistics." },
+  { lat: 19.08, lon: 72.88, city: "Mumbai", company: "Sona Pharma Ltd", sector: "Pharmaceuticals", desc: "Drug maker guarding priceless research IP." },
 ];
 
-function targetForOp(opId: string): { lat: number; lon: number; city: string; company: string } {
+function targetForOp(opId: string): TargetCity {
   let h = 0;
   for (let i = 0; i < opId.length; i++) h = (h * 31 + opId.charCodeAt(i)) >>> 0;
   return TARGET_CITIES[h % TARGET_CITIES.length];
