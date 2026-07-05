@@ -282,7 +282,7 @@ function Attack({ attack }: { attack: GlobeAttack }) {
 
 const FOCUS_DIR = new THREE.Vector3(0, 0.28, 1).normalize();
 
-function EarthMesh({ players, attack }: { players: GlobePlayer[]; attack?: GlobeAttack | null }) {
+function EarthMesh({ players, attack, attackFocus = false }: { players: GlobePlayer[]; attack?: GlobeAttack | null; attackFocus?: boolean }) {
   const groupRef = useRef<THREE.Group>(null);
   const texture = useLoader(THREE.TextureLoader, earthTex);
   const targetQuat = useRef(new THREE.Quaternion());
@@ -301,14 +301,14 @@ function EarthMesh({ players, attack }: { players: GlobePlayer[]; attack?: Globe
     if (attack && focusVec) {
       // Smoothly rotate the earth so the strike faces the camera and hold it.
       targetQuat.current.setFromUnitVectors(focusVec, FOCUS_DIR);
-      g.quaternion.slerp(targetQuat.current, Math.min(1, delta * 2.6));
+      g.quaternion.slerp(targetQuat.current, Math.min(1, delta * (attackFocus ? 4.4 : 2.6)));
     } else {
       g.rotation.y += delta * 0.06;
     }
   });
 
   return (
-    <group ref={groupRef} rotation={[0.35, 0, 0.05]}>
+    <group ref={groupRef} rotation={[0.35, 0, 0.05]} scale={attackFocus ? 1.18 : 1}>
       <mesh>
         <sphereGeometry args={[R, LOD.earthSeg, LOD.earthSeg]} />
         <meshStandardMaterial
@@ -337,15 +337,17 @@ export default function Globe({
   players,
   attack,
   className,
+  attackFocus = false,
 }: {
   players: GlobePlayer[];
   attack?: GlobeAttack | null;
   className?: string;
+  attackFocus?: boolean;
 }) {
   return (
     <div className={className} aria-hidden>
       <Canvas
-        camera={{ position: [0, 0, 5.4], fov: 42 }}
+        camera={{ position: [0, 0, attackFocus ? 3.75 : 5.4], fov: attackFocus ? 34 : 42 }}
         dpr={[1, LOD.dprCap]}
         gl={{ antialias: !IS_MOBILE, alpha: true, powerPreference: "high-performance" }}
         frameloop="always"
@@ -354,7 +356,7 @@ export default function Globe({
         <directionalLight position={[5, 3, 5]} intensity={1.1} color="#cfeeff" />
         <pointLight position={[-4, -2, -3]} intensity={0.5} color="#f5b800" />
         <Suspense fallback={null}>
-          <EarthMesh players={players} attack={attack} />
+          <EarthMesh players={players} attack={attack} attackFocus={attackFocus} />
         </Suspense>
       </Canvas>
     </div>
