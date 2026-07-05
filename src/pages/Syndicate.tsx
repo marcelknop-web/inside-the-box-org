@@ -40,6 +40,7 @@ import {
   makeSeedCode,
   normalizeSeedCode,
 } from "@/lib/syndicateRng";
+import { planAiTurns, commitAiTurn } from "@/lib/syndicateAiTurns";
 import {
   loadStats,
   recordGame,
