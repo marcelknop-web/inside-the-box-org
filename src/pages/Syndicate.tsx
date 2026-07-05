@@ -979,10 +979,100 @@ function EventScene({ event, victim }: { event: GlobalEvent; victim?: TargetCity
             goodWhenDown={false}
           />
         </div>
+
+        {/* details drawer trigger */}
+        <button
+          onClick={() => setDetailsOpen((o) => !o)}
+          aria-expanded={detailsOpen}
+          className="mt-4 flex items-center gap-1.5 rounded-full border px-4 py-1.5 font-mono text-[11px] uppercase tracking-[0.15em] transition hover:brightness-125"
+          style={{ borderColor: `${v.accent}66`, color: v.accent, background: `${v.accent}12` }}
+        >
+          <Eye size={13} /> {detailsOpen ? "Hide briefing" : "Event details"}
+          <ChevronDown size={14} className={`transition-transform ${detailsOpen ? "rotate-180" : ""}`} />
+        </button>
+
+        {/* inline details drawer — expands in place so the financial chart on the
+            left rail is never covered. */}
+        {detailsOpen && (
+          <div className="mt-3 w-full max-w-md animate-fade-in overflow-hidden rounded-xl border border-white/12 bg-black/50 text-left backdrop-blur-sm">
+            {/* event reason */}
+            <div className="border-b border-white/10 px-4 py-3">
+              <p className="font-mono text-[9px] uppercase tracking-[0.22em] text-white/45">Why it's happening</p>
+              <p className="mt-1.5 text-[13px] leading-snug text-white/80">{reason}</p>
+            </div>
+
+            {/* exact impact numbers */}
+            <div className="border-b border-white/10 px-4 py-3">
+              <p className="font-mono text-[9px] uppercase tracking-[0.22em] text-white/45">Exact impact this round</p>
+              <div className="mt-2 space-y-2">
+                <ImpactRow
+                  label="Detection risk"
+                  mult={event.riskMult}
+                  goodWhenDown
+                  note="Applied to every operation's caught chance."
+                />
+                <ImpactRow
+                  label="Payout"
+                  mult={event.profitMult}
+                  goodWhenDown={false}
+                  note="Applied to winning payouts."
+                />
+              </div>
+            </div>
+
+            {/* victim company — only when available */}
+            {victim && (
+              <div className="px-4 py-3">
+                <p className="font-mono text-[9px] uppercase tracking-[0.22em] text-white/45">Victim company</p>
+                <p className="mt-1.5 text-sm font-bold text-white">{victim.company}</p>
+                <p className="mt-0.5 flex items-center gap-1.5 font-mono text-[11px] text-cyan-300">
+                  <MapPin size={11} /> {victim.city}
+                  <span className="text-white/30">·</span>
+                  <span className="text-white/60">{victim.sector}</span>
+                </p>
+                <p className="mt-1 text-[12px] leading-snug text-white/65">{victim.desc}</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
 }
+
+// One precise before/after impact line inside the event drawer.
+function ImpactRow({
+  label,
+  mult,
+  goodWhenDown,
+  note,
+}: {
+  label: string;
+  mult: number;
+  goodWhenDown: boolean;
+  note: string;
+}) {
+  const active = mult !== 1;
+  const up = mult > 1;
+  const pct = Math.round(Math.abs(mult - 1) * 100);
+  const good = active ? (goodWhenDown ? !up : up) : true;
+  const col = !active ? "#94a3b8" : good ? "#22c55e" : "#ef4444";
+  return (
+    <div className="flex items-start justify-between gap-3">
+      <div className="min-w-0">
+        <p className="text-[12px] font-semibold text-white/85">{label}</p>
+        <p className="text-[10px] leading-snug text-white/45">{note}</p>
+      </div>
+      <div className="shrink-0 text-right">
+        <p className="font-mono text-sm font-bold tabular-nums" style={{ color: col }}>
+          {active ? `${up ? "+" : "−"}${pct}%` : "No change"}
+        </p>
+        <p className="font-mono text-[10px] text-white/40 tabular-nums">×{mult.toFixed(2)}</p>
+      </div>
+    </div>
+  );
+}
+
 
 function EventMeter({
   label,
