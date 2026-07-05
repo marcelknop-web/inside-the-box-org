@@ -2191,13 +2191,14 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             <div
               className="inline-block rounded-xl px-8 py-4 font-black text-2xl"
               style={{
-                background: caughtEl ? "rgba(239,68,68,0.15)" : good ? "rgba(34,197,94,0.15)" : "rgba(148,163,184,0.15)",
+                background: caughtEl || brokeEl ? "rgba(239,68,68,0.15)" : good ? "rgba(34,197,94,0.15)" : "rgba(148,163,184,0.15)",
                 border: `1px solid ${accent}`,
-                color: caughtEl ? "#fca5a5" : good ? "#86efac" : "#cbd5e1",
+                color: caughtEl || brokeEl ? "#fca5a5" : good ? "#86efac" : "#cbd5e1",
               }}
             >
               {OUTCOME_LABEL[result.outcome]}
               {caughtEl && (result.eliminated ? " — ELIMINATED" : " — token lost!")}
+              {brokeEl && " — BANKRUPT"}
             </div>
             {!caughtEl && (
               <p className={`mt-3 text-xl font-mono font-bold ${net >= 0 ? "text-green-400" : "text-red-400"}`}>
