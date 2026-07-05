@@ -1148,10 +1148,32 @@ const TARGET_CITIES: TargetCity[] = [
   { lat: 25.2, lon: 55.27, city: "Dubai", company: "Zenith Capital Group", sector: "Sovereign fund", desc: "Petro-cash sovereign fund with thin security." },
   { lat: -23.55, lon: -46.63, city: "São Paulo", company: "Verde AgroCorp", sector: "Agritech", desc: "Continental food supplier with exposed logistics." },
   { lat: 19.08, lon: 72.88, city: "Mumbai", company: "Sona Pharma Ltd", sector: "Pharmaceuticals", desc: "Drug maker guarding priceless research IP." },
+  { lat: 40.71, lon: -74.01, city: "New York", company: "Empire Payments Inc", sector: "Payment rails", desc: "Card processor clearing millions of transactions an hour." },
+  { lat: 51.51, lon: -0.13, city: "London", company: "Thames Ledger PLC", sector: "Fintech", desc: "Neobank with a sprawling, under-patched API surface." },
+  { lat: 48.86, lon: 2.35, city: "Paris", company: "Lumière Télécom", sector: "Telecom", desc: "Carrier routing traffic for half the continent." },
+  { lat: 55.76, lon: 37.62, city: "Moscow", company: "Volkov Logistics", sector: "Freight", desc: "Rail and port operator on brittle SCADA gear." },
+  { lat: 39.9, lon: 116.4, city: "Beijing", company: "Jade Semiconductor", sector: "Chip fab", desc: "Foundry hoarding bleeding-edge lithography secrets." },
+  { lat: 37.57, lon: 126.98, city: "Seoul", company: "Hanbit Motors", sector: "Automotive", desc: "EV maker with connected cars phoning home." },
+  { lat: 22.32, lon: 114.17, city: "Hong Kong", company: "Peak Holdings", sector: "Trading house", desc: "Commodities broker moving billions in the dark." },
+  { lat: 43.65, lon: -79.38, city: "Toronto", company: "Maple Health Network", sector: "Healthcare", desc: "Hospital chain guarding millions of patient records." },
+  { lat: -34.6, lon: -58.38, city: "Buenos Aires", company: "Pampas Grain Co", sector: "Commodities", desc: "Grain exporter with wide-open supplier portals." },
+  { lat: 30.04, lon: 31.24, city: "Cairo", company: "Nile Water Authority", sector: "Water utility", desc: "Public utility running decades-old control systems." },
+  { lat: -26.2, lon: 28.05, city: "Johannesburg", company: "Aurum Reserve", sector: "Bullion vault", desc: "Gold depository with paper-thin access controls." },
+  { lat: 59.33, lon: 18.07, city: "Stockholm", company: "Nordkraft Grid", sector: "Renewables", desc: "Wind operator remotely managing hundreds of turbines." },
+  { lat: 41.9, lon: 12.5, city: "Rome", company: "Aquila Insurance", sector: "Insurance", desc: "Insurer sitting on a lake of unencrypted claims data." },
+  { lat: 52.37, lon: 4.9, city: "Amsterdam", company: "Delta Port Systems", sector: "Maritime", desc: "Smart-port operator steering automated container cranes." },
+  { lat: 31.23, lon: 121.47, city: "Shanghai", company: "Orient Retail Group", sector: "E-commerce", desc: "Retail titan with a leaky loyalty database." },
+  { lat: -37.81, lon: 144.96, city: "Melbourne", company: "Coral Bay Casino", sector: "Gaming", desc: "Casino resort laundering cash through weak systems." },
+  { lat: 6.52, lon: 3.38, city: "Lagos", company: "Sahara Mobile", sector: "Mobile money", desc: "Wallet provider banking tens of millions of users." },
+  { lat: 50.11, lon: 8.68, city: "Frankfurt", company: "Rhein Clearing AG", sector: "Securities", desc: "Central clearinghouse for European stock trades." },
+  { lat: 32.09, lon: 34.78, city: "Tel Aviv", company: "Iron Dome Analytics", sector: "Defence tech", desc: "Contractor holding classified sensor blueprints." },
+  { lat: 45.42, lon: -75.7, city: "Ottawa", company: "Northern Grid Ops", sector: "Power grid", desc: "Grid operator balancing load across three provinces." },
+  { lat: 13.76, lon: 100.5, city: "Bangkok", company: "Siam Pay Wallet", sector: "Payments", desc: "Super-app wallet with reused admin credentials." },
+  { lat: 60.17, lon: 24.94, city: "Helsinki", company: "Boreal Datacenters", sector: "Colocation", desc: "Arctic data halls hosting sensitive government tenants." },
 ];
 
-function targetForOp(opId: string): TargetCity {
-  let h = 0;
+function targetForOp(opId: string, salt = 0): TargetCity {
+  let h = salt >>> 0;
   for (let i = 0; i < opId.length; i++) h = (h * 31 + opId.charCodeAt(i)) >>> 0;
   return TARGET_CITIES[h % TARGET_CITIES.length];
 }
