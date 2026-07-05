@@ -1216,6 +1216,18 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   const shellRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
+  // Honour the OS "reduce motion" preference — used to skip long animation
+  // delays (e.g. the fly-over readout) for accessibility.
+  const [reduceMotion, setReduceMotion] = useState(false);
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function") return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReduceMotion(mq.matches);
+    update();
+    mq.addEventListener?.("change", update);
+    return () => mq.removeEventListener?.("change", update);
+  }, []);
+
   // Fullscreen support (works on desktop + Android; iOS Safari falls back to CSS full-viewport).
   const toggleFullscreen = useCallback(() => {
     const el = shellRef.current;
