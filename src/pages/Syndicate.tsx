@@ -2486,7 +2486,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
   /* ---- STRIKE (attack plays on the globe before the wheel appears) ---- */
   if (phase === "strike" && selectedOp) {
-    const tgt = targetForOp(selectedOp.id);
+    const tgt = targetForOp(selectedOp.id, round * 31 + (human?.opsCompleted ?? 0));
     return shell(gameLayout(
       <>
         {coachBar({
