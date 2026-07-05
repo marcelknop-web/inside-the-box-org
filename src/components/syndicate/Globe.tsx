@@ -389,16 +389,19 @@ export default function Globe({
   attack,
   className,
   attackFocus = false,
+  flyover = false,
 }: {
   players: GlobePlayer[];
   attack?: GlobeAttack | null;
   className?: string;
   attackFocus?: boolean;
+  flyover?: boolean;
 }) {
+  const flying = flyover && !!attack;
   return (
     <div className={className} aria-hidden>
       <Canvas
-        camera={{ position: [0, 0, attackFocus ? 3.75 : 5.4], fov: attackFocus ? 34 : 42 }}
+        camera={{ position: [0, 0, attackFocus ? 3.75 : 5.4], fov: flying ? 46 : attackFocus ? 34 : 42 }}
         dpr={[1, LOD.dprCap]}
         gl={{ antialias: !IS_MOBILE, alpha: true, powerPreference: "high-performance" }}
         frameloop="always"
@@ -407,7 +410,8 @@ export default function Globe({
         <directionalLight position={[5, 3, 5]} intensity={1.1} color="#cfeeff" />
         <pointLight position={[-4, -2, -3]} intensity={0.5} color="#f5b800" />
         <Suspense fallback={null}>
-          <EarthMesh players={players} attack={attack} attackFocus={attackFocus} />
+          <EarthMesh players={players} attack={attack} attackFocus={attackFocus} flyover={flyover} />
+          {flying && attack && <FlyoverCamera key={attack.id} attack={attack} />}
         </Suspense>
       </Canvas>
     </div>
