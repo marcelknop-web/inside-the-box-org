@@ -1596,7 +1596,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           <HelpCircle size={18} />
         </button>
       </div>
-      <div className="relative z-10 flex h-full flex-col px-3 py-4 sm:px-4 sm:py-5 md:px-8">{children}</div>
+      <div className="relative z-10 flex min-h-full flex-col px-3 py-4 sm:px-4 sm:py-5 md:h-full md:px-8">{children}</div>
       {tipNode}
     </div>
   );
@@ -1724,7 +1724,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           return (
             <div
               key={p.id}
-              className="flex items-center gap-1.5 rounded-xl border px-2 py-2 min-w-0 transition"
+              className="flex flex-col items-center gap-1 rounded-xl border px-1.5 py-2.5 min-w-0 overflow-hidden text-center transition"
               style={{
                 borderColor: isActive ? `${p.color}` : "rgba(255,255,255,0.10)",
                 background: isActive ? `${p.color}18` : "rgba(255,255,255,0.03)",
@@ -1733,34 +1733,32 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               }}
             >
               <div className="relative shrink-0">
-                <Avatar img={p.img} fallback={p.avatar} color={p.color} size={38} />
+                <Avatar img={p.img} fallback={p.avatar} color={p.color} size={36} />
                 {!p.alive && (
                   <Skull size={12} className="absolute -bottom-1 -right-1 text-red-400" />
                 )}
               </div>
-              <div className="min-w-0 text-left">
-                {isActive && (
+              <div className="min-w-0 w-full">
+                {isActive ? (
                   <div
-                    className="text-[8px] font-mono tracking-[0.15em] uppercase leading-none mb-0.5"
+                    className="flex items-center justify-center gap-1 text-[7px] font-mono tracking-[0.15em] uppercase leading-none mb-0.5"
                     style={{ color: p.color }}
                   >
-                    ACTIVE
-                  </div>
-                )}
-                <div className="flex items-center gap-1">
-                  {isActive && (
                     <span
-                      className="inline-block w-1.5 h-1.5 rounded-full animate-pulse"
+                      className="inline-block w-1 h-1 rounded-full animate-pulse shrink-0"
                       style={{ background: p.color }}
                     />
-                  )}
-                  <div className="text-[10px] font-bold text-white leading-tight truncate">
-                    {p.name}
+                    ACTIVE
                   </div>
+                ) : (
+                  <div className="h-[7px] mb-0.5" aria-hidden />
+                )}
+                <div className="text-[11px] font-bold text-white leading-tight truncate">
+                  {p.name}
                 </div>
-                <div className="flex items-center gap-0.5 text-[9px] text-white/75 truncate leading-none">
-                  <MapPin size={8} style={{ color: p.color }} />
-                  {p.location?.city ?? "—"}
+                <div className="flex items-center justify-center gap-0.5 text-[9px] text-white/70 leading-none mt-0.5">
+                  <MapPin size={8} style={{ color: p.color }} className="shrink-0" />
+                  <span className="truncate">{p.location?.city ?? "—"}</span>
                 </div>
               </div>
             </div>
@@ -1845,7 +1843,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
   /* ---- Framed tactical command console: ticker header + HUD rail + gameplay + gold footer ---- */
   const gameLayout = (main: React.ReactNode) => (
-    <div className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col overflow-hidden rounded-2xl border border-white/20 bg-black/10 shadow-[0_24px_70px_-24px_rgba(0,0,0,0.9)]">
+    <div className="mx-auto flex w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-white/20 bg-black/10 shadow-[0_24px_70px_-24px_rgba(0,0,0,0.9)] md:min-h-0 md:flex-1">
       {/* Top status ticker */}
       <div className="flex h-9 shrink-0 items-center justify-between gap-3 border-b border-white/20 bg-black/25 px-3 backdrop-blur-sm sm:px-4">
         <div className="flex items-center gap-2 shrink-0">
@@ -1865,9 +1863,9 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       </div>
 
       {/* Body: HUD rail + gameplay pane */}
-      <div className="flex min-h-0 flex-1 flex-col gap-5 p-4 md:grid md:grid-cols-[340px_minmax(0,1fr)] md:items-stretch md:gap-6 md:p-5">
-        <aside className="min-h-0 md:overflow-y-auto md:pr-1.5">{hud}</aside>
-        <main className="flex min-h-0 min-w-0 flex-1 flex-col md:overflow-y-auto">{main}</main>
+      <div className="flex flex-col gap-5 p-4 md:min-h-0 md:flex-1 md:grid md:grid-cols-[340px_minmax(0,1fr)] md:items-stretch md:gap-6 md:p-5">
+        <aside className="min-w-0 md:min-h-0 md:overflow-y-auto md:pr-1.5">{hud}</aside>
+        <main className="flex min-w-0 flex-col md:min-h-0 md:flex-1 md:overflow-y-auto">{main}</main>
       </div>
 
       {/* Gold footer accent */}
