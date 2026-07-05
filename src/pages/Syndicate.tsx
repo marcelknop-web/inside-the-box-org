@@ -878,6 +878,22 @@ const EVENT_VISUALS: Record<string, EventVisual> = {
 
 const DEFAULT_EVENT_VISUAL: EventVisual = { icon: Radio, accent: "#f5b800", motif: "news" };
 
+// Extended "why is this happening" briefing shown inside the event details drawer.
+const EVENT_REASONS: Record<string, string> = {
+  cooperation: "Interpol has spun up a cross-border task force. Shared intel and synchronized raids mean any operation is far likelier to be traced.",
+  budgetcuts: "Blue teams are gutted by layoffs and burnout. Alerts pile up unread, so intrusions slip past overwhelmed defenders.",
+  boom: "A crypto bull run is inflating token prices. Every laundered cash-out converts to more real value while the market runs hot.",
+  crash: "Markets are in freefall. Liquidations and frozen exchanges mean large scores fetch a fraction of their usual value.",
+  media: "A rival scandal is dominating the news cycle. Investigators are pulled onto the story, easing pressure and lifting payouts slightly.",
+  leak: "A mega breach dumped billions of records overnight. Analysts are drowning in noise, so your moves hide in the flood.",
+  summit: "A global cybersecurity summit has nations sharing live threat intel. Coordination is at an all-time high and detection spikes.",
+  goldrush: "Demand for zero-days is surging on exploit markets. Buyers are paying a premium, so every successful score pays extra.",
+  informant: "An insider is feeding the authorities. Everyone is under surveillance and detection risk climbs across the board.",
+  blackout: "A critical infrastructure outage has plunged systems into chaos. Monitoring is down, masking your moves — while paying a little more.",
+};
+
+
+
 function EventScene({ event }: { event: GlobalEvent }) {
   const v = EVENT_VISUALS[event.id] ?? DEFAULT_EVENT_VISUAL;
   const Icon = v.icon;
