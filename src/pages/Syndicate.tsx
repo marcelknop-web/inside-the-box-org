@@ -2802,7 +2802,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
 
         {/* recap of rivals already resolved */}
-        {idx > 0 && (
+        {idx > 0 && aiSub === "choice" && (
           <div className="mt-6 space-y-1.5">
             {aiLog.slice(0, idx).map((t) => {
               const c = !t.player.alive;
