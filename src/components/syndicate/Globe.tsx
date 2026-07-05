@@ -282,6 +282,18 @@ function Attack({ attack }: { attack: GlobeAttack }) {
 
 const FOCUS_DIR = new THREE.Vector3(0, 0.28, 1).normalize();
 
+// Respect the OS "reduce motion" setting — when on we skip the sweeping camera
+// travel and cut straight to the framed victim so no vestibular-triggering
+// movement plays.
+function prefersReducedMotion(): boolean {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+// Total length of the cinematic sweep, plus a brief settle where the camera
+// holds on the victim before the readout is fully legible.
+const FLYOVER_DUR = 5.0;
+
 // Base orientation applied to the earth group; lat/lon markers live inside it,
 // so the flyover camera applies the same rotation to aim at real world points.
 const BASE_QUAT = new THREE.Quaternion().setFromEuler(new THREE.Euler(0.35, 0, 0.05));
@@ -292,6 +304,7 @@ function FlyoverCamera({ attack }: { attack: GlobeAttack }) {
   const { camera } = useThree();
   const startT = useRef<number | null>(null);
   const lookTarget = useRef(new THREE.Vector3());
+  const reduced = useMemo(() => prefersReducedMotion(), []);
 
   const { fromDir, toDir, toPoint, qFull } = useMemo(() => {
     const f = latLonToVec3(attack.fromLat, attack.fromLon, 1).applyQuaternion(BASE_QUAT).normalize();
@@ -308,11 +321,22 @@ function FlyoverCamera({ attack }: { attack: GlobeAttack }) {
 
   useFrame(({ clock }) => {
     if (startT.current === null) startT.current = clock.getElapsedTime();
+
+    // Reduced motion: pin the camera on the framed victim, no sweep.
+    if (reduced) {
+      const dir = toDir.clone();
+      camera.position.copy(dir.multiplyScalar(3.4));
+      lookTarget.current.copy(toPoint).multiplyScalar(0.9);
+      camera.lookAt(lookTarget.current);
+      return;
+    }
+
     const elapsed = clock.getElapsedTime() - startT.current;
-    const DUR = 4.2;
-    const raw = Math.min(1, elapsed / DUR);
-    // easeInOut so the fly-over accelerates off the attacker and eases onto the victim
-    const t = raw < 0.5 ? 2 * raw * raw : 1 - Math.pow(-2 * raw + 2, 2) / 2;
+    // Travel eases to a stop at ~85% of the clip, then holds on the victim for a
+    // legibility beat so the readout lands on a still frame.
+    const raw = Math.min(1, elapsed / (FLYOVER_DUR * 0.85));
+    // easeInOutCubic — a smoother accel/decel than quadratic for a filmic sweep
+    const t = raw < 0.5 ? 4 * raw * raw * raw : 1 - Math.pow(-2 * raw + 2, 3) / 2;
 
     // travel along the great-circle between the two locations
     const q = new THREE.Quaternion().slerpQuaternions(qIdentity, qFull, t);
