@@ -958,6 +958,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       totalOutcomes: 0,
       closestCall: 360,
       cashAtElimination: null,
+      cashHistory: [START_CASH],
       usedOps: {},
       ranHighRisk: false,
     }));
