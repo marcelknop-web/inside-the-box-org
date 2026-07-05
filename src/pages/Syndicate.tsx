@@ -1438,7 +1438,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         height: isFullscreen ? "100vh" : embedded ? "calc(100dvh - 272px)" : "100vh",
 
         background:
-          "radial-gradient(1200px 600px at 20% -10%, rgba(0,188,212,0.12), transparent), radial-gradient(900px 500px at 90% 110%, rgba(245,184,0,0.1), transparent), #05070d",
+          "radial-gradient(1200px 600px at 20% -10%, rgba(0,188,212,0.16), transparent), radial-gradient(900px 500px at 90% 110%, rgba(245,184,0,0.14), transparent), #101725",
         color: "#e5e7eb",
         fontFamily: "'DM Sans', system-ui, sans-serif",
       }}
