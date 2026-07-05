@@ -2519,7 +2519,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           {/* victim company readout — revealed as the fly-over lands on the target */}
           <div
             className="absolute bottom-4 left-1/2 w-[min(92%,520px)] -translate-x-1/2 animate-scale-in rounded-xl border border-white/15 bg-black/55 px-4 py-3 text-center backdrop-blur-sm"
-            style={{ animationDelay: "2.4s", animationFillMode: "backwards" }}
+            style={{ animationDelay: "4.1s", animationFillMode: "backwards" }}
           >
             <p className="font-mono text-[9px] uppercase tracking-[0.28em] text-white/50">Target location</p>
             <p className="mt-1 text-lg font-black tracking-wide text-white">{tgt.company}</p>

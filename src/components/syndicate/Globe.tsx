@@ -309,7 +309,7 @@ function FlyoverCamera({ attack }: { attack: GlobeAttack }) {
   useFrame(({ clock }) => {
     if (startT.current === null) startT.current = clock.getElapsedTime();
     const elapsed = clock.getElapsedTime() - startT.current;
-    const DUR = 2.8;
+    const DUR = 4.2;
     const raw = Math.min(1, elapsed / DUR);
     // easeInOut so the fly-over accelerates off the attacker and eases onto the victim
     const t = raw < 0.5 ? 2 * raw * raw : 1 - Math.pow(-2 * raw + 2, 2) / 2;
