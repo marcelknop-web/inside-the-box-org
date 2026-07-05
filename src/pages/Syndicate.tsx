@@ -2218,14 +2218,20 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                     ? "You've been caught with no shields left — your crew is out of the game. Watch how the rest plays out below."
                     : "Caught! You lost one shield token. When all shields are gone, you're eliminated — so weigh the risk next time.",
                 }
-              : {
-                  icon: net >= 0 ? TrendingUp : Coins,
-                  tone: net >= 0 ? "good" : "danger",
-                  text:
-                    net >= 0
-                      ? "The job paid off — this is your net profit after costs. Tap the button below to watch your rivals move."
-                      : "The job cost more than it earned this time. That happens — tap below to continue to your rivals' turn.",
-                },
+              : brokeEl
+                ? {
+                    icon: Skull,
+                    tone: "danger",
+                    text: "You're broke — your fortune hit $0 and your crew is out of the game. Watch how the rest plays out below.",
+                  }
+                : {
+                    icon: net >= 0 ? TrendingUp : Coins,
+                    tone: net >= 0 ? "good" : "danger",
+                    text:
+                      net >= 0
+                        ? "The job paid off — this is your net profit after costs. Tap the button below to watch your rivals move."
+                        : "The job cost more than it earned this time. That happens — tap below to continue to your rivals' turn.",
+                  },
           )}
           <button
             onClick={runAiTurns}
