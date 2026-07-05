@@ -613,7 +613,7 @@ function WheelPopup({
         className={`relative my-auto w-full ${wide ? "max-w-lg" : "max-w-md"} min-h-[600px] flex flex-col overflow-x-hidden rounded-3xl border p-5 sm:p-7 animate-scale-in`}
         style={{
           borderColor: `${accent}55`,
-          background: "linear-gradient(180deg, rgba(12,16,26,0.97), rgba(4,6,12,0.99))",
+          background: "linear-gradient(180deg, rgba(24,32,48,0.97), rgba(14,20,32,0.99))",
           boxShadow: `0 0 0 1px ${accent}22, 0 40px 100px -24px ${accent}66, 0 0 160px -60px ${accent}`,
         }}
       >
