@@ -1741,14 +1741,14 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               <div className="min-w-0 flex-1 text-left">
                 {isActive && (
                   <div
-                    className="flex items-center gap-1 text-[7px] font-mono tracking-[0.12em] uppercase leading-none mb-0.5"
+                    className="flex items-center gap-0.5 text-[7px] font-mono uppercase leading-none mb-0.5"
                     style={{ color: p.color }}
                   >
                     <span
                       className="inline-block w-1 h-1 rounded-full animate-pulse shrink-0"
                       style={{ background: p.color }}
                     />
-                    ACTIVE
+                    <span className="truncate">ACTIVE</span>
                   </div>
                 )}
                 <div className="text-[10px] font-bold text-white leading-tight truncate">
