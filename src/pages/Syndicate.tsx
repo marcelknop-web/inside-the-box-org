@@ -2518,18 +2518,25 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           </div>
           {/* victim company readout — revealed as the fly-over lands on the target */}
           <div
-            className="absolute bottom-4 left-1/2 w-[min(92%,520px)] -translate-x-1/2 animate-scale-in rounded-xl border border-white/15 bg-black/55 px-4 py-3 text-center backdrop-blur-sm"
-            style={{ animationDelay: "4.1s", animationFillMode: "backwards" }}
+            className="pointer-events-none absolute bottom-3 left-1/2 w-[min(94%,480px)] -translate-x-1/2 overflow-hidden rounded-2xl border border-cyan-400/25 bg-gradient-to-b from-black/80 to-black/65 px-4 py-3 text-center shadow-[0_8px_40px_-8px_rgba(0,188,212,0.45)] ring-1 ring-white/5 backdrop-blur-md animate-scale-in motion-reduce:animate-fade-in sm:bottom-4 sm:px-5 sm:py-4"
+            style={{ animationDelay: "4.3s", animationFillMode: "backwards" }}
           >
-            <p className="font-mono text-[9px] uppercase tracking-[0.28em] text-white/50">Target location</p>
-            <p className="mt-1 text-lg font-black tracking-wide text-white">{tgt.company}</p>
-            <p className="mt-0.5 flex items-center justify-center gap-2 font-mono text-[11px] text-cyan-300">
-              <span className="flex items-center gap-1"><MapPin size={11} /> {tgt.city}</span>
-              <span className="text-white/30">·</span>
-              <span className="text-white/60">{tgt.sector}</span>
+            {/* accent hairline */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent"
+            />
+            <p className="font-mono text-[9px] uppercase tracking-[0.32em] text-cyan-300/70">Target location</p>
+            <p className="mt-1 text-base font-black leading-tight tracking-wide text-white [text-shadow:0_2px_8px_rgba(0,0,0,0.9)] sm:text-lg">
+              {tgt.company}
             </p>
-            <p className="mt-1.5 text-[11px] leading-snug text-white/60">{tgt.desc}</p>
-            <p className="mt-2 font-mono text-[11px] text-[#f5b800] animate-pulse">Deploying payload…</p>
+            <p className="mt-1 flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 font-mono text-[11px] text-cyan-300">
+              <span className="flex items-center gap-1"><MapPin size={11} /> {tgt.city}</span>
+              <span className="text-white/25">·</span>
+              <span className="text-white/70">{tgt.sector}</span>
+            </p>
+            <p className="mx-auto mt-1.5 max-w-[42ch] text-[11px] leading-snug text-white/70">{tgt.desc}</p>
+            <p className="mt-2 font-mono text-[11px] text-[#f5b800] animate-pulse motion-reduce:animate-none">Deploying payload…</p>
           </div>
         </div>
       </>
