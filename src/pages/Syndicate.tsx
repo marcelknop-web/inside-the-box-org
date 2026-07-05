@@ -1202,12 +1202,19 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         cashAtElimination = cash;
       }
     }
+    // Broke — hitting $0 or below ends the run for this player.
+    if (alive && cash <= 0) {
+      cash = 0;
+      alive = false;
+      cashAtElimination = 0;
+    }
     return {
       ...p,
       cash,
       tokens,
       alive,
       cashAtElimination,
+      cashHistory: [...p.cashHistory, cash],
       opsCompleted: p.opsCompleted + 1,
       usedOps: { ...p.usedOps, [op.id]: (p.usedOps[op.id] ?? 0) + 1 },
       ranHighRisk: p.ranHighRisk || op.risk === "high" || op.risk === "veryhigh",
