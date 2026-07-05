@@ -23,23 +23,34 @@ export interface GlobeAttack {
 
 const R = 2;
 
-// Detect low-power / mobile devices once so we can dial back geometry detail,
-// particle counts and pixel ratio to hold a stable frame rate.
-const IS_MOBILE =
-  typeof window !== "undefined" &&
-  (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
-    (typeof window.matchMedia === "function" && window.matchMedia("(max-width: 768px)").matches));
+// Device performance profiling — we tune geometry detail, particle/ring counts
+// and the renderer pixel ratio to the device so the additive-glow strike stays
+// at a stable frame rate. Overdraw from the additive layers scales with the
+// pixel count, so capping DPR is the single biggest win on high-DPR phones.
+function detectTier(): "low" | "mid" | "high" {
+  if (typeof window === "undefined") return "high";
+  const ua = navigator.userAgent;
+  const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(ua) ||
+    (typeof window.matchMedia === "function" && window.matchMedia("(max-width: 768px)").matches);
+  if (!isMobile) return "high";
+  const cores = (navigator as Navigator & { hardwareConcurrency?: number }).hardwareConcurrency ?? 4;
+  const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 4;
+  const dpr = window.devicePixelRatio || 1;
+  // Constrained phones: few cores / little RAM, or very high-DPR panels that
+  // multiply overdraw (e.g. dpr 3 flagships pushing 9x the fragments).
+  if (cores <= 4 || mem <= 3 || dpr >= 2.5) return "low";
+  return "mid";
+}
 
-// Level-of-detail knobs — coarser on mobile.
+const TIER = detectTier();
+const IS_MOBILE = TIER !== "high";
+
+// Per-tier level-of-detail + renderer pixel-ratio caps.
 const LOD = {
-  earthSeg: IS_MOBILE ? 40 : 64,
-  atmoSeg: IS_MOBILE ? 24 : 48,
-  tubeSeg: IS_MOBILE ? 28 : 64,
-  tubeRad: IS_MOBILE ? 6 : 8,
-  ringSeg: IS_MOBILE ? 24 : 40,
-  glowSeg: IS_MOBILE ? 10 : 16,
-  ringCount: IS_MOBILE ? 2 : 3,
-};
+  low:  { earthSeg: 32, atmoSeg: 20, tubeSeg: 22, tubeRad: 5, ringSeg: 20, glowSeg: 8,  ringCount: 2, dprCap: 1.2 },
+  mid:  { earthSeg: 44, atmoSeg: 24, tubeSeg: 30, tubeRad: 6, ringSeg: 28, glowSeg: 10, ringCount: 2, dprCap: 1.5 },
+  high: { earthSeg: 64, atmoSeg: 48, tubeSeg: 64, tubeRad: 8, ringSeg: 40, glowSeg: 16, ringCount: 3, dprCap: 1.75 },
+}[TIER];
 
 // Convert lat/lon (degrees) to a point on a sphere of radius r.
 // Tuned to line up with the equirectangular texture we ship.
