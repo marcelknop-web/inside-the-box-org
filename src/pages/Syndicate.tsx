@@ -2387,9 +2387,12 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           <div className="mt-4 w-full max-w-[440px] animate-scale-in rounded-xl border border-white/15 bg-black/40 px-4 py-3 text-center backdrop-blur-sm">
             <p className="font-mono text-[9px] uppercase tracking-[0.28em] text-white/50">Breaching</p>
             <p className="mt-1 text-lg font-black tracking-wide text-white">{tgt.company}</p>
-            <p className="mt-0.5 flex items-center justify-center gap-1 font-mono text-[11px] text-cyan-300">
-              <MapPin size={11} /> {tgt.city}
+            <p className="mt-0.5 flex items-center justify-center gap-2 font-mono text-[11px] text-cyan-300">
+              <span className="flex items-center gap-1"><MapPin size={11} /> {tgt.city}</span>
+              <span className="text-white/30">·</span>
+              <span className="text-white/60">{tgt.sector}</span>
             </p>
+            <p className="mt-1.5 text-[11px] leading-snug text-white/60">{tgt.desc}</p>
             <p className="mt-2 font-mono text-[11px] text-[#f5b800] animate-pulse">Deploying payload…</p>
           </div>
         </div>
