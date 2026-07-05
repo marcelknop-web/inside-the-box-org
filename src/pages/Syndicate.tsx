@@ -1482,6 +1482,10 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     setAiSub("choice");
     setAiRotation(0);
     aiRotationRef.current = 0;
+    // Plan every rival's operation up front (so choices are based on the same
+    // pre-round standings) but DO NOT apply the cash results yet — each rival's
+    // money only lands on the financial chart once their wheel is revealed in
+    // advanceAi. This keeps results from showing before the attack plays.
     setPlayers((prev) => {
       const alive = prev.filter((p) => p.alive);
       const sorted = [...alive].sort((a, b) => b.cash - a.cash);
@@ -1490,12 +1494,10 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         return sorted.length > 1 ? idx / (sorted.length - 1) : 0;
       };
       const log: AiTurn[] = [];
-      const next = prev.map((p) => {
-        if (p.isHuman || !p.alive) return p;
+      prev.forEach((p) => {
+        if (p.isHuman || !p.alive) return;
         const op = chooseAiOp(p, rankFrac(p));
-        if (!op) {
-          return p;
-        }
+        if (!op) return;
         const res = resolveSpin(op, round, event, p);
         const updated = applyResult(p, op, res);
         if (p.profile) updated.quip = quipFor(p.profile.personality, rand);
@@ -1511,11 +1513,11 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           caughtPct: Math.round(effectiveCaught(op, round, event, 0) * 100),
           segs: angleSegments(buildWheel(caughtAdj)),
         });
-        return updated;
       });
       setAiLog(log);
-      return next;
+      return prev; // standings unchanged until each rival's spin resolves
     });
+
   }, [round, event]);
 
   /* ---- end of round bookkeeping ---- */
@@ -1560,6 +1562,11 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         } else {
           snd.reveal();
         }
+        // Now that this rival's wheel has landed, commit their result to the
+        // standings so the financial chart updates in sync with the reveal.
+        setPlayers((prev) =>
+          prev.map((p) => (p.id === turn.player.id ? turn.player : p))
+        );
         setAiSub("result");
       }, 3600);
       return;
