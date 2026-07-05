@@ -1604,8 +1604,11 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   const maxCash = Math.max(1, ...players.map((p) => Math.max(0, p.cash)));
   const hud = human && (
     <div className="w-full space-y-2">
+      {/* Rail header */}
+      <h3 className="font-mono text-[9px] uppercase tracking-[0.28em] text-white/40">Active Crews</h3>
       {/* ROW 1 — orbital player status cards */}
       <div className="grid grid-cols-3 gap-2">
+
         {players.map((p) => {
           const isActive = p.id === activeId;
           return (
