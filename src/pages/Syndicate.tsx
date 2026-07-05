@@ -1732,7 +1732,29 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           </div>
         )}
 
-        {/* round progress bar (always visible) */}
+        {/* Shields + Heat — bordered console boxes */}
+        <div className="mt-2.5 grid grid-cols-2 gap-2">
+          <div className="rounded-lg border border-white/10 bg-white/5 p-2">
+            <div className="mb-1 text-[8px] font-mono uppercase tracking-[0.2em] text-white/40">Shields</div>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: START_TOKENS }).map((_, i) => (
+                <Shield
+                  key={i}
+                  size={13}
+                  style={{ color: i < human.tokens ? "#00bcd4" : "rgba(255,255,255,0.15)" }}
+                  fill={i < human.tokens ? "#00bcd4" : "transparent"}
+                />
+              ))}
+            </div>
+          </div>
+          <div className="rounded-lg border border-white/10 bg-white/5 p-2">
+            <div className="mb-1 text-[8px] font-mono uppercase tracking-[0.2em] text-white/40">Heat %</div>
+            <div className="flex items-center gap-1 text-orange-400 text-base font-mono font-bold leading-none">
+              <Flame size={13} /> +{heatPct}%
+            </div>
+          </div>
+        </div>
+
         <div className="mt-2 flex items-center gap-2">
           <div className="h-1.5 flex-1 rounded-full bg-white/10 overflow-hidden">
             <div
