@@ -282,6 +282,18 @@ function Attack({ attack }: { attack: GlobeAttack }) {
 
 const FOCUS_DIR = new THREE.Vector3(0, 0.28, 1).normalize();
 
+// Respect the OS "reduce motion" setting — when on we skip the sweeping camera
+// travel and cut straight to the framed victim so no vestibular-triggering
+// movement plays.
+function prefersReducedMotion(): boolean {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+// Total length of the cinematic sweep, plus a brief settle where the camera
+// holds on the victim before the readout is fully legible.
+const FLYOVER_DUR = 5.0;
+
 // Base orientation applied to the earth group; lat/lon markers live inside it,
 // so the flyover camera applies the same rotation to aim at real world points.
 const BASE_QUAT = new THREE.Quaternion().setFromEuler(new THREE.Euler(0.35, 0, 0.05));
