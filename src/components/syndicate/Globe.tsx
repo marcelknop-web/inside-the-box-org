@@ -358,7 +358,8 @@ function EarthMesh({ players, attack, attackFocus = false, flyover = false }: { 
   });
 
   return (
-    <group ref={groupRef} rotation={[0.35, 0, 0.05]} scale={attackFocus ? 1.18 : 1}>
+    <group ref={groupRef} rotation={[0.35, 0, 0.05]} scale={attackFocus && !flyover ? 1.18 : 1}>
+
       <mesh>
         <sphereGeometry args={[R, LOD.earthSeg, LOD.earthSeg]} />
         <meshStandardMaterial
