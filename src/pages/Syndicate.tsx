@@ -1288,7 +1288,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   const tipNode = activeTip && (
     <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-4">
       <div
-        className="w-full max-w-sm rounded-2xl border border-cyan-400/40 bg-[#0a0e14] p-5 text-left animate-scale-in"
+        className="w-full max-w-sm rounded-2xl border border-cyan-400/40 bg-[#141d2e] p-5 text-left animate-scale-in"
         style={{ boxShadow: "0 0 40px -8px rgba(0,188,212,0.5)" }}
       >
         <div className="flex items-center gap-3 mb-3">
@@ -1326,7 +1326,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       onClick={() => setOverlay(null)}
     >
       <div
-        className="w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl border border-cyan-400/30 bg-[#0a0e14] p-6 text-left"
+        className="w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl border border-cyan-400/30 bg-[#141d2e] p-6 text-left"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
