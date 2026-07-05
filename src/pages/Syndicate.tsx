@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Volume2, VolumeX, Skull, Shield, Crown, TrendingUp, Flame, Trophy, BarChart3, Calendar, Hash, Award, Copy, Check, X, Fish, VenetianMask, CreditCard, Wine, Gem, Lock, Rocket, ShoppingCart, Building2, Landmark, Dice5, Eye, Coins, Maximize2, Minimize2, HelpCircle } from "lucide-react";
 import { PageMeta } from "@/components/PageMeta";
 import Globe, { type GlobePlayer, type GlobeAttack } from "@/components/syndicate/Globe";
-import { MapPin, Zap, Newspaper, Database, Users, TrendingDown, ShieldAlert, Bitcoin, Radio } from "lucide-react";
+import { MapPin, Zap, Newspaper, Database, Users, TrendingDown, ShieldAlert, Bitcoin, Radio, ChevronDown } from "lucide-react";
 import {
   OPERATIONS,
   AI_PROFILES,
@@ -878,13 +878,31 @@ const EVENT_VISUALS: Record<string, EventVisual> = {
 
 const DEFAULT_EVENT_VISUAL: EventVisual = { icon: Radio, accent: "#f5b800", motif: "news" };
 
-function EventScene({ event }: { event: GlobalEvent }) {
+// Extended "why is this happening" briefing shown inside the event details drawer.
+const EVENT_REASONS: Record<string, string> = {
+  cooperation: "Interpol has spun up a cross-border task force. Shared intel and synchronized raids mean any operation is far likelier to be traced.",
+  budgetcuts: "Blue teams are gutted by layoffs and burnout. Alerts pile up unread, so intrusions slip past overwhelmed defenders.",
+  boom: "A crypto bull run is inflating token prices. Every laundered cash-out converts to more real value while the market runs hot.",
+  crash: "Markets are in freefall. Liquidations and frozen exchanges mean large scores fetch a fraction of their usual value.",
+  media: "A rival scandal is dominating the news cycle. Investigators are pulled onto the story, easing pressure and lifting payouts slightly.",
+  leak: "A mega breach dumped billions of records overnight. Analysts are drowning in noise, so your moves hide in the flood.",
+  summit: "A global cybersecurity summit has nations sharing live threat intel. Coordination is at an all-time high and detection spikes.",
+  goldrush: "Demand for zero-days is surging on exploit markets. Buyers are paying a premium, so every successful score pays extra.",
+  informant: "An insider is feeding the authorities. Everyone is under surveillance and detection risk climbs across the board.",
+  blackout: "A critical infrastructure outage has plunged systems into chaos. Monitoring is down, masking your moves — while paying a little more.",
+};
+
+
+
+function EventScene({ event, victim }: { event: GlobalEvent; victim?: TargetCity | null }) {
   const v = EVENT_VISUALS[event.id] ?? DEFAULT_EVENT_VISUAL;
   const Icon = v.icon;
   const riskUp = event.riskMult > 1;
   const profitUp = event.profitMult > 1;
   const riskPct = Math.round(Math.abs(event.riskMult - 1) * 100);
   const profitPct = Math.round(Math.abs(event.profitMult - 1) * 100);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const reason = EVENT_REASONS[event.id] ?? event.description;
 
   return (
     <div
@@ -961,10 +979,100 @@ function EventScene({ event }: { event: GlobalEvent }) {
             goodWhenDown={false}
           />
         </div>
+
+        {/* details drawer trigger */}
+        <button
+          onClick={() => setDetailsOpen((o) => !o)}
+          aria-expanded={detailsOpen}
+          className="mt-4 flex items-center gap-1.5 rounded-full border px-4 py-1.5 font-mono text-[11px] uppercase tracking-[0.15em] transition hover:brightness-125"
+          style={{ borderColor: `${v.accent}66`, color: v.accent, background: `${v.accent}12` }}
+        >
+          <Eye size={13} /> {detailsOpen ? "Hide briefing" : "Event details"}
+          <ChevronDown size={14} className={`transition-transform ${detailsOpen ? "rotate-180" : ""}`} />
+        </button>
+
+        {/* inline details drawer — expands in place so the financial chart on the
+            left rail is never covered. */}
+        {detailsOpen && (
+          <div className="mt-3 w-full max-w-md animate-fade-in overflow-hidden rounded-xl border border-white/12 bg-black/50 text-left backdrop-blur-sm">
+            {/* event reason */}
+            <div className="border-b border-white/10 px-4 py-3">
+              <p className="font-mono text-[9px] uppercase tracking-[0.22em] text-white/45">Why it's happening</p>
+              <p className="mt-1.5 text-[13px] leading-snug text-white/80">{reason}</p>
+            </div>
+
+            {/* exact impact numbers */}
+            <div className="border-b border-white/10 px-4 py-3">
+              <p className="font-mono text-[9px] uppercase tracking-[0.22em] text-white/45">Exact impact this round</p>
+              <div className="mt-2 space-y-2">
+                <ImpactRow
+                  label="Detection risk"
+                  mult={event.riskMult}
+                  goodWhenDown
+                  note="Applied to every operation's caught chance."
+                />
+                <ImpactRow
+                  label="Payout"
+                  mult={event.profitMult}
+                  goodWhenDown={false}
+                  note="Applied to winning payouts."
+                />
+              </div>
+            </div>
+
+            {/* victim company — only when available */}
+            {victim && (
+              <div className="px-4 py-3">
+                <p className="font-mono text-[9px] uppercase tracking-[0.22em] text-white/45">Victim company</p>
+                <p className="mt-1.5 text-sm font-bold text-white">{victim.company}</p>
+                <p className="mt-0.5 flex items-center gap-1.5 font-mono text-[11px] text-cyan-300">
+                  <MapPin size={11} /> {victim.city}
+                  <span className="text-white/30">·</span>
+                  <span className="text-white/60">{victim.sector}</span>
+                </p>
+                <p className="mt-1 text-[12px] leading-snug text-white/65">{victim.desc}</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
 }
+
+// One precise before/after impact line inside the event drawer.
+function ImpactRow({
+  label,
+  mult,
+  goodWhenDown,
+  note,
+}: {
+  label: string;
+  mult: number;
+  goodWhenDown: boolean;
+  note: string;
+}) {
+  const active = mult !== 1;
+  const up = mult > 1;
+  const pct = Math.round(Math.abs(mult - 1) * 100);
+  const good = active ? (goodWhenDown ? !up : up) : true;
+  const col = !active ? "#94a3b8" : good ? "#22c55e" : "#ef4444";
+  return (
+    <div className="flex items-start justify-between gap-3">
+      <div className="min-w-0">
+        <p className="text-[12px] font-semibold text-white/85">{label}</p>
+        <p className="text-[10px] leading-snug text-white/45">{note}</p>
+      </div>
+      <div className="shrink-0 text-right">
+        <p className="font-mono text-sm font-bold tabular-nums" style={{ color: col }}>
+          {active ? `${up ? "+" : "−"}${pct}%` : "No change"}
+        </p>
+        <p className="font-mono text-[10px] text-white/40 tabular-nums">×{mult.toFixed(2)}</p>
+      </div>
+    </div>
+  );
+}
+
 
 function EventMeter({
   label,
