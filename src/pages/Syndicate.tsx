@@ -1695,9 +1695,9 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       )}
 
       {/* Combined status panel: cash + shields + heat + round */}
-      <div className="rounded-2xl border border-white/20 bg-black/25 backdrop-blur-sm px-3 py-2.5 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.8)]">
+      <div className="rounded-2xl border border-white/20 bg-black/25 backdrop-blur-sm px-4 py-3.5 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.8)]">
         {/* panel header */}
-        <div className="mb-2">
+        <div className="mb-3">
           <p className="text-[9px] font-mono uppercase tracking-[0.28em] text-white/65">Financial Assets</p>
         </div>
 
