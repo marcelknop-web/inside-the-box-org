@@ -23,6 +23,24 @@ export interface GlobeAttack {
 
 const R = 2;
 
+// Detect low-power / mobile devices once so we can dial back geometry detail,
+// particle counts and pixel ratio to hold a stable frame rate.
+const IS_MOBILE =
+  typeof window !== "undefined" &&
+  (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+    (typeof window.matchMedia === "function" && window.matchMedia("(max-width: 768px)").matches));
+
+// Level-of-detail knobs — coarser on mobile.
+const LOD = {
+  earthSeg: IS_MOBILE ? 40 : 64,
+  atmoSeg: IS_MOBILE ? 24 : 48,
+  tubeSeg: IS_MOBILE ? 28 : 64,
+  tubeRad: IS_MOBILE ? 6 : 8,
+  ringSeg: IS_MOBILE ? 24 : 40,
+  glowSeg: IS_MOBILE ? 10 : 16,
+  ringCount: IS_MOBILE ? 2 : 3,
+};
+
 // Convert lat/lon (degrees) to a point on a sphere of radius r.
 // Tuned to line up with the equirectangular texture we ship.
 function latLonToVec3(lat: number, lon: number, r: number): THREE.Vector3 {
@@ -51,18 +69,18 @@ function Marker({ player }: { player: GlobePlayer }) {
     <group position={pos}>
       {/* core dot */}
       <mesh>
-        <sphereGeometry args={[0.05, 12, 12]} />
+        <sphereGeometry args={[0.05, 10, 10]} />
         <meshBasicMaterial color={col} toneMapped={false} />
       </mesh>
       {/* glow halo */}
       <mesh ref={haloRef}>
-        <sphereGeometry args={[0.11, 16, 16]} />
+        <sphereGeometry args={[0.11, LOD.glowSeg, LOD.glowSeg]} />
         <meshBasicMaterial color={col} transparent opacity={dead ? 0.15 : 0.35} toneMapped={false} />
       </mesh>
       {/* beacon beam pointing outward */}
       {!dead && (
         <mesh position={pos.clone().normalize().multiplyScalar(0.18)} quaternion={new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), pos.clone().normalize())}>
-          <cylinderGeometry args={[0.008, 0.03, 0.35, 8]} />
+          <cylinderGeometry args={[0.008, 0.03, 0.35, 6]} />
           <meshBasicMaterial color={col} transparent opacity={player.active ? 0.8 : 0.4} toneMapped={false} />
         </mesh>
       )}
@@ -88,7 +106,7 @@ function Attack({ attack }: { attack: GlobeAttack }) {
     return { curve: c, startPos: start, endPos: end, endNormal: end.clone().normalize() };
   }, [attack.fromLat, attack.fromLon, attack.toLat, attack.toLon]);
 
-  const trailGeom = useMemo(() => new THREE.TubeGeometry(curve, 64, 0.02, 8, false), [curve]);
+  const trailGeom = useMemo(() => new THREE.TubeGeometry(curve, LOD.tubeSeg, 0.02, LOD.tubeRad, false), [curve]);
 
   const headRef = useRef<THREE.Mesh>(null);
   const headGlowRef = useRef<THREE.Mesh>(null);
@@ -202,7 +220,7 @@ function Attack({ attack }: { attack: GlobeAttack }) {
     <group>
       {/* launch flash */}
       <mesh ref={launchRef} position={startPos} visible={false}>
-        <sphereGeometry args={[0.5, 16, 16]} />
+        <sphereGeometry args={[0.5, LOD.glowSeg, LOD.glowSeg]} />
         <meshBasicMaterial color={col} transparent opacity={0} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
       </mesh>
 
@@ -214,30 +232,30 @@ function Attack({ attack }: { attack: GlobeAttack }) {
 
       {/* comet head + soft glow */}
       <mesh ref={headGlowRef} visible={false}>
-        <sphereGeometry args={[0.13, 16, 16]} />
+        <sphereGeometry args={[0.13, LOD.glowSeg, LOD.glowSeg]} />
         <meshBasicMaterial color={col} transparent opacity={0.4} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
       </mesh>
       <mesh ref={headRef} visible={false}>
-        <sphereGeometry args={[0.055, 14, 14]} />
+        <sphereGeometry args={[0.055, LOD.glowSeg, LOD.glowSeg]} />
         <meshBasicMaterial color="#ffffff" transparent opacity={0.95} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
       </mesh>
 
       {/* target reticle before impact */}
       <mesh ref={reticleRef} position={endPos} quaternion={surfaceQuat} visible={false}>
-        <ringGeometry args={[0.09, 0.12, 32]} />
+        <ringGeometry args={[0.09, 0.12, LOD.ringSeg]} />
         <meshBasicMaterial color={col} transparent opacity={0.4} side={THREE.DoubleSide} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
       </mesh>
 
       {/* impact flash */}
       <mesh ref={flashRef} position={endPos} visible={false}>
-        <sphereGeometry args={[0.4, 16, 16]} />
+        <sphereGeometry args={[0.4, LOD.glowSeg, LOD.glowSeg]} />
         <meshBasicMaterial color="#ffffff" transparent opacity={0} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
       </mesh>
 
       {/* shockwave rings flat on the surface */}
-      {[ring0, ring1, ring2].map((ref, i) => (
+      {[ring0, ring1, ring2].slice(0, LOD.ringCount).map((ref, i) => (
         <mesh key={i} ref={ref} position={endPos} quaternion={surfaceQuat} visible={false}>
-          <ringGeometry args={[0.11, 0.16, 40]} />
+          <ringGeometry args={[0.11, 0.16, LOD.ringSeg]} />
           <meshBasicMaterial color={col} transparent opacity={0.9} side={THREE.DoubleSide} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
         </mesh>
       ))}
@@ -281,7 +299,7 @@ function EarthMesh({ players, attack }: { players: GlobePlayer[]; attack?: Globe
   return (
     <group ref={groupRef} rotation={[0.35, 0, 0.05]}>
       <mesh>
-        <sphereGeometry args={[R, 64, 64]} />
+        <sphereGeometry args={[R, LOD.earthSeg, LOD.earthSeg]} />
         <meshStandardMaterial
           map={texture}
           emissive={new THREE.Color("#0a2a33")}
@@ -293,7 +311,7 @@ function EarthMesh({ players, attack }: { players: GlobePlayer[]; attack?: Globe
       </mesh>
       {/* atmosphere */}
       <mesh scale={1.06}>
-        <sphereGeometry args={[R, 48, 48]} />
+        <sphereGeometry args={[R, LOD.atmoSeg, LOD.atmoSeg]} />
         <meshBasicMaterial color="#00bcd4" transparent opacity={0.06} side={THREE.BackSide} />
       </mesh>
       {players.map((p) => (
@@ -317,8 +335,9 @@ export default function Globe({
     <div className={className} aria-hidden>
       <Canvas
         camera={{ position: [0, 0, 5.4], fov: 42 }}
-        dpr={[1, 1.75]}
-        gl={{ antialias: true, alpha: true }}
+        dpr={IS_MOBILE ? [1, 1.35] : [1, 1.75]}
+        gl={{ antialias: !IS_MOBILE, alpha: true, powerPreference: "high-performance" }}
+        frameloop="always"
       >
         <ambientLight intensity={0.9} />
         <directionalLight position={[5, 3, 5]} intensity={1.1} color="#cfeeff" />
