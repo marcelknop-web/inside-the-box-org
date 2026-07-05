@@ -103,7 +103,8 @@ function ac(): AudioContext | null {
     if (!AC) return null;
     ctx = new AC();
     master = ctx.createGain();
-    master.gain.value = 0.9;
+    master.gain.value = 0.6;
+
 
     // --- Mobile-speaker voicing chain ---------------------------------
     // Tiny phone speakers can't reproduce sub-bass and turn it into mud
@@ -245,8 +246,9 @@ export const syndicateSounds = {
     if (!musicEl) {
       musicEl = new Audio(musicAsset.url);
       musicEl.loop = true;
-      musicEl.volume = 0.28;
+      musicEl.volume = 0.45;
       musicEl.preload = "auto";
+
     }
     musicEl.muted = !enabled;
     void musicEl.play().catch(() => {
