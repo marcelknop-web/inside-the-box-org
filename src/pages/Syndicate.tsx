@@ -1028,19 +1028,20 @@ const FALLBACK_LOCATIONS = [
 ];
 
 // Fictional target hubs a cyber operation "strikes" on the globe, each with a
-// fictional victim company for flavour during the strike sequence.
-const TARGET_CITIES: { lat: number; lon: number; city: string; company: string }[] = [
-  { lat: 35.68, lon: 139.69, city: "Tokyo", company: "Katsu Robotics KK" },
-  { lat: 1.35, lon: 103.82, city: "Singapore", company: "Meridian Trust Bank" },
-  { lat: -33.87, lon: 151.21, city: "Sydney", company: "Southern Cross Mining" },
-  { lat: 37.77, lon: -122.42, city: "San Francisco", company: "Helix Cloud Systems" },
-  { lat: 52.52, lon: 13.4, city: "Berlin", company: "Adler Energie AG" },
-  { lat: 25.2, lon: 55.27, city: "Dubai", company: "Zenith Capital Group" },
-  { lat: -23.55, lon: -46.63, city: "São Paulo", company: "Verde AgroCorp" },
-  { lat: 19.08, lon: 72.88, city: "Mumbai", company: "Sona Pharma Ltd" },
+// fictional victim company + one-line sector profile for flavour.
+type TargetCity = { lat: number; lon: number; city: string; company: string; sector: string; desc: string };
+const TARGET_CITIES: TargetCity[] = [
+  { lat: 35.68, lon: 139.69, city: "Tokyo", company: "Katsu Robotics KK", sector: "Industrial robotics", desc: "Factory automation giant with fragile OT networks." },
+  { lat: 1.35, lon: 103.82, city: "Singapore", company: "Meridian Trust Bank", sector: "Private banking", desc: "Offshore wealth vault holding elite client funds." },
+  { lat: -33.87, lon: 151.21, city: "Sydney", company: "Southern Cross Mining", sector: "Resources", desc: "Ore conglomerate running legacy control systems." },
+  { lat: 37.77, lon: -122.42, city: "San Francisco", company: "Helix Cloud Systems", sector: "Cloud infrastructure", desc: "Hyperscaler hosting half the startup economy." },
+  { lat: 52.52, lon: 13.4, city: "Berlin", company: "Adler Energie AG", sector: "Energy grid", desc: "Utility operator wired into the national grid." },
+  { lat: 25.2, lon: 55.27, city: "Dubai", company: "Zenith Capital Group", sector: "Sovereign fund", desc: "Petro-cash sovereign fund with thin security." },
+  { lat: -23.55, lon: -46.63, city: "São Paulo", company: "Verde AgroCorp", sector: "Agritech", desc: "Continental food supplier with exposed logistics." },
+  { lat: 19.08, lon: 72.88, city: "Mumbai", company: "Sona Pharma Ltd", sector: "Pharmaceuticals", desc: "Drug maker guarding priceless research IP." },
 ];
 
-function targetForOp(opId: string): { lat: number; lon: number; city: string; company: string } {
+function targetForOp(opId: string): TargetCity {
   let h = 0;
   for (let i = 0; i < opId.length; i++) h = (h * 31 + opId.charCodeAt(i)) >>> 0;
   return TARGET_CITIES[h % TARGET_CITIES.length];
@@ -2377,7 +2378,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             />
             {/* target lock-on badge */}
             <div className="absolute left-1/2 top-3 -translate-x-1/2 animate-fade-in">
-              <span className="rounded-full border border-red-500/50 bg-red-500/10 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.25em] text-red-300">
+              <span className="whitespace-nowrap rounded-full border border-red-500/50 bg-black/60 px-3 py-1 font-mono text-[9px] uppercase tracking-[0.2em] text-red-300 backdrop-blur-sm">
                 ● Target acquired
               </span>
             </div>
@@ -2386,9 +2387,12 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           <div className="mt-4 w-full max-w-[440px] animate-scale-in rounded-xl border border-white/15 bg-black/40 px-4 py-3 text-center backdrop-blur-sm">
             <p className="font-mono text-[9px] uppercase tracking-[0.28em] text-white/50">Breaching</p>
             <p className="mt-1 text-lg font-black tracking-wide text-white">{tgt.company}</p>
-            <p className="mt-0.5 flex items-center justify-center gap-1 font-mono text-[11px] text-cyan-300">
-              <MapPin size={11} /> {tgt.city}
+            <p className="mt-0.5 flex items-center justify-center gap-2 font-mono text-[11px] text-cyan-300">
+              <span className="flex items-center gap-1"><MapPin size={11} /> {tgt.city}</span>
+              <span className="text-white/30">·</span>
+              <span className="text-white/60">{tgt.sector}</span>
             </p>
+            <p className="mt-1.5 text-[11px] leading-snug text-white/60">{tgt.desc}</p>
             <p className="mt-2 font-mono text-[11px] text-[#f5b800] animate-pulse">Deploying payload…</p>
           </div>
         </div>
@@ -2588,6 +2592,25 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                 </div>
               </div>
             </div>
+
+            {/* victim target readout — shown for every rival attack */}
+            {(() => {
+              const tgt = targetForOp(turn.op.id);
+              return (
+                <div className="flex items-start gap-2.5 rounded-xl border border-white/12 bg-black/30 p-3">
+                  <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-red-500/40 bg-red-500/10">
+                    <MapPin size={15} className="text-red-300" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/45">
+                      Target · {tgt.city}
+                    </p>
+                    <p className="text-sm font-bold text-white leading-tight truncate">{tgt.company}</p>
+                    <p className="text-[11px] leading-snug text-white/60">{tgt.desc}</p>
+                  </div>
+                </div>
+              );
+            })()}
 
           </div>
         )}
