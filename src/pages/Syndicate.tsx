@@ -1569,7 +1569,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   // Attack animation: while a wheel is spinning, strike a target city from the
   // acting player's location.
   const attackingOp: Operation | null =
-    phase === "spinning"
+    phase === "strike" || phase === "spinning"
       ? selectedOp
       : phase === "ai" && aiSub === "spinning" && aiLog.length
         ? aiLog[Math.min(aiStep, aiLog.length - 1)]?.op ?? null
