@@ -1,5 +1,5 @@
 import { useRef, useMemo, Suspense } from "react";
-import { Canvas, useFrame, useLoader } from "@react-three/fiber";
+import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import earthTex from "@/assets/syndicate/earth-cyber.jpg";
 
