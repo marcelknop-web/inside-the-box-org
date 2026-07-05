@@ -2516,9 +2516,12 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               </span>
             </div>
           </div>
-          {/* victim company readout */}
-          <div className="absolute bottom-4 left-1/2 w-[min(92%,520px)] -translate-x-1/2 animate-scale-in rounded-xl border border-white/15 bg-black/55 px-4 py-3 text-center backdrop-blur-sm">
-            <p className="font-mono text-[9px] uppercase tracking-[0.28em] text-white/50">Breaching</p>
+          {/* victim company readout — revealed as the fly-over lands on the target */}
+          <div
+            className="absolute bottom-4 left-1/2 w-[min(92%,520px)] -translate-x-1/2 animate-scale-in rounded-xl border border-white/15 bg-black/55 px-4 py-3 text-center backdrop-blur-sm"
+            style={{ animationDelay: "2.4s", animationFillMode: "backwards" }}
+          >
+            <p className="font-mono text-[9px] uppercase tracking-[0.28em] text-white/50">Target location</p>
             <p className="mt-1 text-lg font-black tracking-wide text-white">{tgt.company}</p>
             <p className="mt-0.5 flex items-center justify-center gap-2 font-mono text-[11px] text-cyan-300">
               <span className="flex items-center gap-1"><MapPin size={11} /> {tgt.city}</span>
