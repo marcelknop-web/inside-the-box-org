@@ -1596,7 +1596,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           <HelpCircle size={18} />
         </button>
       </div>
-      <div className="relative z-10 flex h-full flex-col px-3 py-4 sm:px-4 sm:py-5 md:px-8">{children}</div>
+      <div className="relative z-10 flex min-h-full flex-col px-3 py-4 sm:px-4 sm:py-5 md:h-full md:px-8">{children}</div>
       {tipNode}
     </div>
   );
