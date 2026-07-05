@@ -1807,43 +1807,8 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         </div>
 
 
-        {/* cash bars — hidden on scoreboard (leaderboard already ranks cash) */}
-        {phase !== "scoreboard" && (
-          <div className="space-y-1.5">
-            {players.map((p, i) => (
-              <div
-                key={p.id}
-                className="grid grid-cols-[2.5rem_1fr_4rem] items-center gap-1.5 animate-fade-in"
-                style={{ animationDelay: `${i * 140}ms`, animationFillMode: "backwards" }}
-              >
-                <span
-                  className="text-[9px] font-mono font-semibold tracking-wide truncate"
-                  style={{ color: p.alive ? p.color : "#64748b" }}
-                >
-                  {p.isHuman ? "YOU" : p.name}
-                </span>
-                <div className="h-2 rounded-full bg-white/[0.06] overflow-hidden ring-1 ring-inset ring-white/5">
-                  <div
-                    className="h-full rounded-full transition-all duration-700 ease-out"
-                    style={{
-                      width: `${Math.max(4, (Math.max(0, p.cash) / maxCash) * 100)}%`,
-                      background: p.alive
-                        ? `linear-gradient(90deg, ${p.color}, ${p.color}aa)`
-                        : "rgba(148,163,184,0.4)",
-                      boxShadow: p.alive ? `0 0 10px -2px ${p.color}` : "none",
-                    }}
-                  />
-                </div>
-                <span
-                  className="text-right text-[10px] font-mono font-bold tabular-nums"
-                  style={{ color: p.alive ? "#fff" : "#94a3b8" }}
-                >
-                  {p.isHuman ? <MoneyCounter value={p.cash} /> : fmt(p.cash)}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
+        {/* wealth progression chart — hidden on scoreboard (leaderboard already ranks cash) */}
+        {phase !== "scoreboard" && <WealthChart players={players} />}
 
         {/* Shields + Heat — bordered console boxes */}
         <div className="mt-3.5 grid grid-cols-2 gap-2.5">
