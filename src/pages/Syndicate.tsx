@@ -1162,6 +1162,14 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     }
   }, [aiSub, aiStep, aiLog, finishRound]);
 
+  /* Auto-start each rival's spin after a short 1s beat */
+  useEffect(() => {
+    if (phase !== "ai" || aiSub !== "choice") return;
+    if (!aiLog[aiStep]) return;
+    const t = window.setTimeout(() => advanceAi(), 1000);
+    return () => window.clearTimeout(t);
+  }, [phase, aiSub, aiStep, aiLog, advanceAi]);
+
 
 
   const nextRound = useCallback(() => {
@@ -2262,16 +2270,14 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           </div>
         )}
 
-        {/* pacing control — spin trigger stays on the board; result advances from the popup */}
+        {/* pacing control — rivals spin automatically; result advances from the popup */}
         {aiSub === "choice" && (
           <div className="text-center mt-6">
-            <button
-              onClick={advanceAi}
-              className="rounded-lg px-8 py-3 font-mono font-bold text-black hover:brightness-110 transition"
+            <span className="inline-block rounded-lg px-8 py-3 font-mono font-bold text-black/80 animate-pulse"
               style={{ background: "linear-gradient(90deg,#f5b800,#ffd34d)" }}
             >
-              SPIN THE WHEEL →
-            </button>
+              SPINNING UP…
+            </span>
           </div>
         )}
 
