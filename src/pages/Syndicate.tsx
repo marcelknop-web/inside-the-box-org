@@ -2593,6 +2593,25 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               </div>
             </div>
 
+            {/* victim target readout — shown for every rival attack */}
+            {(() => {
+              const tgt = targetForOp(turn.op.id);
+              return (
+                <div className="flex items-start gap-2.5 rounded-xl border border-white/12 bg-black/30 p-3">
+                  <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-red-500/40 bg-red-500/10">
+                    <MapPin size={15} className="text-red-300" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/45">
+                      Target · {tgt.city}
+                    </p>
+                    <p className="text-sm font-bold text-white leading-tight truncate">{tgt.company}</p>
+                    <p className="text-[11px] leading-snug text-white/60">{tgt.desc}</p>
+                  </div>
+                </div>
+              );
+            })()}
+
           </div>
         )}
 
