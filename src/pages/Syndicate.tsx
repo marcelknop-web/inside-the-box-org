@@ -1488,17 +1488,9 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     // money only lands on the financial chart once their wheel is revealed in
     // advanceAi. This keeps results from showing before the attack plays.
     setPlayers((prev) => {
-      const alive = prev.filter((p) => p.alive);
-      const sorted = [...alive].sort((a, b) => b.cash - a.cash);
-      const rankFrac = (p: Player) => {
-        const idx = sorted.findIndex((x) => x.id === p.id);
-        return sorted.length > 1 ? idx / (sorted.length - 1) : 0;
-      };
-      const log: AiTurn[] = [];
-      prev.forEach((p) => {
-        if (p.isHuman || !p.alive) return;
-        const op = chooseAiOp(p, rankFrac(p));
-        if (!op) return;
+      const { turns } = planAiTurns<Player, AiTurn>(prev, (p, rankFrac) => {
+        const op = chooseAiOp(p, rankFrac);
+        if (!op) return null;
         const res = resolveSpin(op, round, event, p);
         const updated = applyResult(p, op, res);
         if (p.profile) updated.quip = quipFor(p.profile.personality, rand);
@@ -1507,15 +1499,15 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             ? AI_ABILITY.conservativeCaughtAdj
             : 0;
         const caughtAdj = effectiveCaught(op, round, event, abilityAdj);
-        log.push({
+        return {
           player: updated,
           op,
           res,
           caughtPct: Math.round(effectiveCaught(op, round, event, 0) * 100),
           segs: angleSegments(buildWheel(caughtAdj)),
-        });
+        };
       });
-      setAiLog(log);
+      setAiLog(turns);
       return prev; // standings unchanged until each rival's spin resolves
     });
 
