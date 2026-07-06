@@ -511,7 +511,7 @@ const Overview = () => {
 
             {/* Byline */}
             <p
-              className="font-mono text-[13px] sm:text-[15px] tracking-[0.2em] sm:tracking-[0.24em] text-foreground/85 mb-10 sm:mb-12 opacity-0 animate-fade-in"
+              className="font-mono text-[13px] sm:text-[15px] tracking-[0.2em] sm:tracking-[0.24em] text-foreground/85 mb-8 sm:mb-10 opacity-0 animate-fade-in"
               style={{ animationDelay: '780ms', animationFillMode: 'forwards' }}
             >
               {t('welcome.heroByline')}
@@ -519,7 +519,7 @@ const Overview = () => {
 
             {/* Phases preview — non-interactive hint */}
             <div
-              className="mb-10 sm:mb-12 opacity-0 animate-fade-in"
+              className="mb-8 sm:mb-10 opacity-0 animate-fade-in"
               style={{ animationDelay: '950ms', animationFillMode: 'forwards' }}
               aria-hidden
             >
