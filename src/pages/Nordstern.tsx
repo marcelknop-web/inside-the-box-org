@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { PageMeta } from '@/components/PageMeta';
 import {
   Anchor, Compass, Wind, Loader2, CheckCircle2, XCircle, ArrowRight, Trophy,
-  RotateCcw, Sparkles, Waves, Zap, BookOpen, Users, X, ShieldCheck, Flame, CloudLightning,
+  RotateCcw, Sparkles, Zap, BookOpen, X, ShieldCheck, Flame, CloudLightning,
   Volume2, VolumeX, HelpCircle, Map, Award,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
