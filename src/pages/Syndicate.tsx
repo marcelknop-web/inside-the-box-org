@@ -2071,6 +2071,8 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             </button>
           </div>
         </div>
+        </div>
+
 
         {overlayNode}
       </div>
