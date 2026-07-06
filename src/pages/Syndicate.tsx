@@ -761,7 +761,7 @@ function WealthChart({ players }: { players: Player[] }) {
     <div>
       <div className="relative w-full overflow-hidden rounded-lg border border-white/10 bg-[radial-gradient(120%_120%_at_0%_0%,rgba(0,188,212,0.06),transparent_60%)] px-1.5 pt-1.5">
         {/* y-axis scale caps */}
-        <div className="pointer-events-none absolute right-2 top-1 z-10 font-mono text-[7px] tabular-nums text-white/40">
+        <div className="pointer-events-none absolute right-2 top-1 z-10 font-mono text-[9px] tabular-nums text-white/40">
           {fmtShort(maxVal)}
         </div>
         <div className="pointer-events-none absolute right-2 bottom-6 z-10 font-mono text-[7px] tabular-nums text-white/30">
