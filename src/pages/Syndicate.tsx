@@ -2056,20 +2056,6 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             START
           </button>
 
-          <div className="grid grid-cols-2 gap-2 mt-2">
-            <button
-              onClick={() => { setStats(loadStats()); setOverlay("stats"); }}
-              className="rounded-lg py-2 text-[11px] font-mono flex items-center justify-center gap-1.5 border border-white/20 bg-white/[0.05] text-white/60 hover:text-white hover:border-cyan-400/40 transition"
-            >
-              <BarChart3 size={14} /> Statistics
-            </button>
-            <button
-              onClick={() => { setUnlockedIds(loadUnlocked()); setOverlay("achievements"); }}
-              className="rounded-lg py-2 text-[11px] font-mono flex items-center justify-center gap-1.5 border border-white/20 bg-white/[0.05] text-white/60 hover:text-white hover:border-cyan-400/40 transition"
-            >
-              <Award size={14} /> Achievements
-            </button>
-          </div>
         </div>
         </div>
 
