@@ -2578,7 +2578,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
                     {/* risk badge */}
                     <span
-                      className="absolute top-1 right-1 z-10 text-[8px] font-mono font-bold px-1 py-0.5 rounded-full uppercase tracking-wider"
+                      className="absolute top-1 right-1 z-10 text-[9px] font-mono font-bold px-1 py-0.5 rounded-full uppercase tracking-wider"
                       style={{ color: theme.glow, background: `${theme.glow}22`, border: `1px solid ${theme.glow}66` }}
                     >
                       {RISK_LABEL[op.risk]}
