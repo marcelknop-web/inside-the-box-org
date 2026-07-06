@@ -18,8 +18,9 @@ export default {
 			}
 		},
 		extend: {
-		fontFamily: {
+			fontFamily: {
 				sans: ['DM Sans', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+				display: ['Space Grotesk', 'DM Sans', 'sans-serif'],
 				mono: ['IBM Plex Mono', 'Monaco', 'Menlo', 'monospace'],
 				rounded: ['DM Sans', 'sans-serif'],
 			},
@@ -72,6 +73,22 @@ export default {
 				linkedin: {
 					DEFAULT: 'hsl(var(--linkedin))',
 					foreground: 'hsl(var(--linkedin-foreground))'
+				},
+				'syndicate-start-bg': {
+					DEFAULT: 'hsl(var(--syndicate-start-bg))',
+					foreground: 'hsl(var(--foreground))'
+				},
+				'syndicate-start-panel': {
+					DEFAULT: 'hsl(var(--syndicate-start-panel))',
+					foreground: 'hsl(var(--foreground))'
+				},
+				'aurora-violet': {
+					DEFAULT: 'hsl(var(--aurora-violet))',
+					foreground: 'hsl(var(--syndicate-start-bg))'
+				},
+				'aurora-green': {
+					DEFAULT: 'hsl(var(--aurora-green))',
+					foreground: 'hsl(var(--syndicate-start-bg))'
 				}
 			},
 			backgroundImage: {
@@ -126,13 +143,17 @@ export default {
 					'100%': {
 						color: 'hsl(var(--primary))'
 					}
+				},
+				'shimmer': {
+					'100%': { transform: 'translateX(100%)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fade-in 0.6s ease-out',
-				'color-fade': 'color-fade 6s ease-in-out infinite'
+				'color-fade': 'color-fade 6s ease-in-out infinite',
+				'shimmer': 'shimmer 1.5s infinite'
 			}
 		}
 	},
