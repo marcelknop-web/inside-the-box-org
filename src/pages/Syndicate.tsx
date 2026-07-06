@@ -2392,7 +2392,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           </span>
         </div>
         <div className="flex shrink-0 items-center gap-1.5 font-mono pr-24 sm:pr-28">
-          <span className="text-[8px] uppercase tracking-widest text-white/55">Round</span>
+          <span className="text-[10px] uppercase tracking-widest text-white/55">Round</span>
           <span className="text-sm leading-none text-[#f5b800] tabular-nums">{round}/{TOTAL_ROUNDS}</span>
         </div>
 
