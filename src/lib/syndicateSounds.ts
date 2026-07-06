@@ -166,7 +166,7 @@ async function load(key: SfxKey): Promise<AudioBuffer | null> {
   return p;
 }
 
-function play(key: SfxKey) {
+function play(key: SfxKey, opts?: { pitchAdd?: number; gainMul?: number }) {
   if (!enabled) return;
   const c = ac();
   if (!c || !master) return;
@@ -182,6 +182,7 @@ function play(key: SfxKey) {
     } else {
       semi = jitter(vary.pitch);
     }
+    semi += opts?.pitchAdd ?? 0;
 
     const src = c.createBufferSource();
     src.buffer = buf;
@@ -189,7 +190,7 @@ function play(key: SfxKey) {
     if (src.detune) src.detune.value = jitter(6); // subtle extra shimmer
 
     const g = c.createGain();
-    g.gain.value = Math.max(0.05, SFX_GAIN[key] + jitter(vary.gain));
+    g.gain.value = Math.max(0.05, (SFX_GAIN[key] + jitter(vary.gain)) * (opts?.gainMul ?? 1));
     src.connect(g).connect(master);
     src.start();
   };
@@ -214,11 +215,15 @@ export const syndicateSounds = {
   tick() {
     play("tick");
   },
-  win() {
-    play("win");
+  // `intensity` (0..1) scales how "big" the win reads — bigger payouts ring
+  // higher and a touch louder so the ear tracks the money won off the wheel.
+  win(intensity = 0) {
+    const i = Math.max(0, Math.min(1, intensity));
+    play("win", { pitchAdd: i * 4, gainMul: 1 + i * 0.35 });
   },
-  bigWin() {
-    play("bigwin");
+  bigWin(intensity = 0) {
+    const i = Math.max(0, Math.min(1, intensity));
+    play("bigwin", { pitchAdd: i * 3, gainMul: 1 + i * 0.3 });
   },
   lose() {
     play("lose");

@@ -1185,6 +1185,17 @@ function targetForOp(opId: string, salt = 0): TargetCity {
   return TARGET_CITIES[h % TARGET_CITIES.length];
 }
 
+// Map a net profit to a 0..1 "how big is this win" value so the win stinger can
+// ring higher/louder the more money the wheel paid out. Scaled against the
+// operation's own gross payout so a huge op and a small op both feel calibrated.
+function winIntensity(profit: number, op: Operation): number {
+  if (profit <= 0) return 0;
+  const ref = Math.max(1, op.payout || op.cost * 4);
+  return Math.max(0, Math.min(1, profit / ref));
+}
+
+
+
 // Decorative markers shown on the welcome-screen globe (before players exist).
 const WELCOME_GLOBE_PLAYERS: GlobePlayer[] = [
   { id: "w-you", color: "#f5b800", lat: HUMAN_LOCATION.lat, lon: HUMAN_LOCATION.lon, active: true },
@@ -1535,9 +1546,9 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       if (res.outcome === "caught") {
         res.eliminated ? snd.caught() : snd.lose();
       } else if (res.outcome === "bigSuccess") {
-        snd.bigWin();
+        snd.bigWin(winIntensity(res.delta - op.cost, op));
       } else if (res.delta > op.cost) {
-        snd.win();
+        snd.win(winIntensity(res.delta - op.cost, op));
       } else {
         snd.reveal();
       }
@@ -1619,9 +1630,9 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         if (o === "caught") {
           turn.res.eliminated ? snd.caught() : snd.lose();
         } else if (o === "bigSuccess") {
-          snd.bigWin();
+          snd.bigWin(winIntensity(turn.res.delta - turn.op.cost, turn.op));
         } else if (turn.res.delta > turn.op.cost) {
-          snd.win();
+          snd.win(winIntensity(turn.res.delta - turn.op.cost, turn.op));
         } else {
           snd.reveal();
         }
