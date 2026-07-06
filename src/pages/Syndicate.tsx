@@ -2000,7 +2000,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         </button>
         <button
           onClick={() => setOverlay("guide")}
-          aria-label={tr("Quick Guide", "Quick Guide")}
+          aria-label={tr("guide.title", "Quick Guide")}
           className="rounded-full p-2 border border-cyan-400/30 bg-black/25 hover:bg-black/60 transition"
           style={{ color: "#00bcd4" }}
         >
