@@ -450,6 +450,7 @@ const DE: Record<string, string> = {
   Chaotic: "Chaotisch",
 
   /* --- quick guide --- */
+  "Welcome": "Willkommen",
   "guide.title": "Kurzanleitung",
   "guide.welcome":
     "Syndicate ist ein rundenbasiertes Taktikspiel. Du leitest eine kriminelle Operation, planst Jobs und versuchst, am Ende von 12 Runden die meisten Punkte zu besitzen. Jede Runde birgt Chancen und Risiken.",
