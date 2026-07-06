@@ -329,6 +329,7 @@ const DE: Record<string, string> = {
   Fullscreen: "Vollbild",
   "Exit fullscreen": "Vollbild verlassen",
   "How to play": "Spielanleitung",
+  "How to play?": "Wie spielt man?",
   "Hide guide": "Anleitung ausblenden",
   "YOUR COACH": "DEIN COACH",
   "System Initialization Sequence": "System-Initialisierungssequenz",
