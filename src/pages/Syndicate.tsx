@@ -713,9 +713,9 @@ function WheelLegend() {
               style={{ background: OUTCOME_COLOR[type], boxShadow: `0 0 6px ${OUTCOME_COLOR[type]}88` }}
             />
             <span className="text-[11px] sm:text-xs leading-snug text-white/70">
-              <span className="font-semibold text-white/90">{OUTCOME_LABEL[type]}</span>
+              <span className="font-semibold text-white/90">{tr(OUTCOME_LABEL[type])}</span>
               {" — "}
-              {blurb}
+              {tr(blurb)}
             </span>
           </li>
         ))}
@@ -970,20 +970,20 @@ function EventScene({ event, victim }: { event: GlobalEvent; victim?: TargetCity
         <p className="font-mono text-[10px] uppercase tracking-[0.35em]" style={{ color: v.accent }}>
           Global Event
         </p>
-        <h3 className="mt-1.5 text-2xl font-black tracking-tight text-white sm:text-3xl">{event.name}</h3>
-        <p className="mt-2 max-w-md text-sm leading-snug text-white/70">{event.description}</p>
+        <h3 className="mt-1.5 text-2xl font-black tracking-tight text-white sm:text-3xl">{tr(event.name)}</h3>
+        <p className="mt-2 max-w-md text-sm leading-snug text-white/70">{tr(event.description)}</p>
 
         {/* impact meters */}
         <div className="mt-5 grid w-full max-w-sm grid-cols-2 gap-3">
           <EventMeter
-            label="Detection"
+            label={tr("Detection")}
             active={event.riskMult !== 1}
             up={riskUp}
             pct={riskPct}
             goodWhenDown
           />
           <EventMeter
-            label="Profit"
+            label={tr("Profit")}
             active={event.profitMult !== 1}
             up={profitUp}
             pct={profitPct}
@@ -998,7 +998,7 @@ function EventScene({ event, victim }: { event: GlobalEvent; victim?: TargetCity
           className="mt-4 flex items-center gap-1.5 rounded-full border px-4 py-1.5 font-mono text-[11px] uppercase tracking-[0.15em] transition hover:brightness-125"
           style={{ borderColor: `${v.accent}66`, color: v.accent, background: `${v.accent}12` }}
         >
-          <Eye size={13} /> {detailsOpen ? "Hide briefing" : "Event details"}
+          <Eye size={13} /> {detailsOpen ? tr("Hide briefing") : tr("Event details")}
           <ChevronDown size={14} className={`transition-transform ${detailsOpen ? "rotate-180" : ""}`} />
         </button>
 
@@ -1008,25 +1008,25 @@ function EventScene({ event, victim }: { event: GlobalEvent; victim?: TargetCity
           <div className="mt-3 w-full max-w-md animate-fade-in overflow-hidden rounded-xl border border-white/12 bg-black/50 text-left backdrop-blur-sm">
             {/* event reason */}
             <div className="border-b border-white/10 px-4 py-3">
-              <p className="font-mono text-[9px] uppercase tracking-[0.22em] text-white/45">Why it's happening</p>
-              <p className="mt-1.5 text-[13px] leading-snug text-white/80">{reason}</p>
+              <p className="font-mono text-[9px] uppercase tracking-[0.22em] text-white/45">{tr("Why it's happening")}</p>
+              <p className="mt-1.5 text-[13px] leading-snug text-white/80">{tr(reason)}</p>
             </div>
 
             {/* exact impact numbers */}
             <div className="border-b border-white/10 px-4 py-3">
-              <p className="font-mono text-[9px] uppercase tracking-[0.22em] text-white/45">Exact impact this round</p>
+              <p className="font-mono text-[9px] uppercase tracking-[0.22em] text-white/45">{tr("Exact impact this round")}</p>
               <div className="mt-2 space-y-2">
                 <ImpactRow
-                  label="Detection risk"
+                  label={tr("Detection risk")}
                   mult={event.riskMult}
                   goodWhenDown
-                  note="Applied to every operation's caught chance."
+                  note={tr("Applied to every operation's caught chance.")}
                 />
                 <ImpactRow
-                  label="Payout"
+                  label={tr("Payout")}
                   mult={event.profitMult}
                   goodWhenDown={false}
-                  note="Applied to winning payouts."
+                  note={tr("Applied to winning payouts.")}
                 />
               </div>
             </div>
@@ -1034,7 +1034,7 @@ function EventScene({ event, victim }: { event: GlobalEvent; victim?: TargetCity
             {/* victim company — only when available */}
             {victim && (
               <div className="px-4 py-3">
-                <p className="font-mono text-[9px] uppercase tracking-[0.22em] text-white/45">Victim company</p>
+                <p className="font-mono text-[9px] uppercase tracking-[0.22em] text-white/45">{tr("Victim company")}</p>
                 <p className="mt-1.5 text-sm font-bold text-white">{victim.company}</p>
                 <p className="mt-0.5 flex items-center gap-1.5 font-mono text-[11px] text-cyan-300">
                   <MapPin size={11} /> {victim.city}
@@ -1076,7 +1076,7 @@ function ImpactRow({
       </div>
       <div className="shrink-0 text-right">
         <p className="font-mono text-sm font-bold tabular-nums" style={{ color: col }}>
-          {active ? `${up ? "+" : "−"}${pct}%` : "No change"}
+          {active ? `${up ? "+" : "−"}${pct}%` : tr("No change")}
         </p>
         <p className="font-mono text-[10px] text-white/40 tabular-nums">×{mult.toFixed(2)}</p>
       </div>
@@ -1772,29 +1772,29 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   const winRate = stats.gamesPlayed ? Math.round((stats.gamesWon / stats.gamesPlayed) * 100) : 0;
   const unlockedCount = Object.keys(unlockedIds).length;
   const statRows: [string, string][] = [
-    ["Games played", String(stats.gamesPlayed)],
-    ["Games won", String(stats.gamesWon)],
-    ["Win rate", `${winRate}%`],
-    ["Highest fortune", fmt(stats.highestFortune)],
-    ["Largest single payout", fmt(stats.largestPayout)],
-    ["Longest survival", `${stats.longestSurvival} rounds`],
-    ["Closest escape", stats.closestEscape < 360 ? `${stats.closestEscape.toFixed(1)}°` : "—"],
-    ["Most-used operation", mostUsedOp(stats)?.name ?? "—"],
+    [tr("Games played"), String(stats.gamesPlayed)],
+    [tr("Games won"), String(stats.gamesWon)],
+    [tr("Win rate"), `${winRate}%`],
+    [tr("Highest fortune"), fmt(stats.highestFortune)],
+    [tr("Largest single payout"), fmt(stats.largestPayout)],
+    [tr("Longest survival"), `${stats.longestSurvival} rounds`],
+    [tr("Closest escape"), stats.closestEscape < 360 ? `${stats.closestEscape.toFixed(1)}°` : "—"],
+    [tr("Most-used operation"), mostUsedOp(stats)?.name ?? "—"],
   ];
   const recordRows: [string, string][] = [
-    ["Highest Fortune Ever", fmt(stats.highestFortune)],
-    ["Longest Win Streak", String(stats.longestWinStreak)],
-    ["Luckiest Run", stats.closestEscape < 360 ? `${stats.closestEscape.toFixed(1)}° escape` : "—"],
-    ["Biggest Single Win", fmt(stats.largestPayout)],
-    ["Fastest Victory", stats.fastestVictory ? `${stats.fastestVictory} rounds` : "—"],
-    ["Most Eliminations Survived", String(stats.mostEliminationsSurvived)],
+    [tr("Highest Fortune Ever"), fmt(stats.highestFortune)],
+    [tr("Longest Win Streak"), String(stats.longestWinStreak)],
+    [tr("Luckiest Run"), stats.closestEscape < 360 ? `${stats.closestEscape.toFixed(1)}° escape` : "—"],
+    [tr("Biggest Single Win"), fmt(stats.largestPayout)],
+    [tr("Fastest Victory"), stats.fastestVictory ? `${stats.fastestVictory} rounds` : "—"],
+    [tr("Most Eliminations Survived"), String(stats.mostEliminationsSurvived)],
   ];
   const tipNode = activeTip && (
     <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-4">
       <div
         role="dialog"
         aria-modal="true"
-        aria-label={activeTip.title}
+        aria-label={tr(activeTip.title)}
         className="w-full max-w-sm rounded-2xl border border-cyan-400/40 bg-[#141d2e] p-5 text-left animate-scale-in"
         style={{ boxShadow: "0 0 40px -8px rgba(0,188,212,0.5)" }}
       >
@@ -1805,22 +1805,22 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           >
             <activeTip.icon size={22} style={{ color: "#00bcd4" }} />
           </span>
-          <h3 className="font-mono font-black tracking-wide text-white text-base">{activeTip.title}</h3>
+          <h3 className="font-mono font-black tracking-wide text-white text-base">{tr(activeTip.title)}</h3>
         </div>
-        <p className="text-white/70 text-sm leading-relaxed mb-5">{activeTip.body}</p>
+        <p className="text-white/70 text-sm leading-relaxed mb-5">{tr(activeTip.body)}</p>
         <div className="flex items-center gap-2">
           <button
             onClick={dismissTip}
             className="flex-1 rounded-lg py-2.5 font-mono font-bold text-sm text-black transition hover:brightness-110"
             style={{ background: "linear-gradient(90deg,#f5b800,#ffd34d)" }}
           >
-            Got it
+            {tr("Got it")}
           </button>
           <button
             onClick={skipTutorial}
             className="rounded-lg px-3 py-2.5 text-xs font-mono text-white/75 hover:text-white/80 transition"
           >
-            Skip guide
+            {tr("Skip guide")}
           </button>
         </div>
       </div>
@@ -1835,29 +1835,29 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       <div
         role="dialog"
         aria-modal="true"
-        aria-label={overlay === "stats" ? "Statistics" : "Achievements"}
+        aria-label={overlay === "stats" ? tr("Statistics") : tr("Achievements")}
         className="w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl border border-cyan-400/30 bg-[#141d2e] p-6 text-left"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-mono font-bold text-lg text-cyan-300">
-            {overlay === "stats" ? "STATISTICS" : `ACHIEVEMENTS · ${unlockedCount}/${ACHIEVEMENTS.length}`}
+            {overlay === "stats" ? tr("STATISTICS") : `ACHIEVEMENTS · ${unlockedCount}/${ACHIEVEMENTS.length}`}
           </h3>
-          <button onClick={() => setOverlay(null)} aria-label="Close" className="text-white/75 hover:text-white text-xl leading-none">×</button>
+          <button onClick={() => setOverlay(null)} aria-label={tr("Close")} className="text-white/75 hover:text-white text-xl leading-none">×</button>
         </div>
 
         {overlay === "stats" ? (
           <div className="space-y-1.5">
             {statRows.map(([k, v]) => (
               <div key={k} className="flex justify-between text-sm border-b border-white/15 py-1.5">
-                <span className="text-white/55">{k}</span>
+                <span className="text-white/55">{tr(k)}</span>
                 <span className="font-mono text-white">{v}</span>
               </div>
             ))}
-            <p className="pt-4 pb-1 text-xs font-mono uppercase tracking-widest text-amber-300/80">Hall of Fame</p>
+            <p className="pt-4 pb-1 text-xs font-mono uppercase tracking-widest text-amber-300/80">{tr("Hall of Fame")}</p>
             {recordRows.map(([k, v]) => (
               <div key={k} className="flex justify-between text-sm border-b border-white/15 py-1.5">
-                <span className="text-white/55">{k}</span>
+                <span className="text-white/55">{tr(k)}</span>
                 <span className="font-mono text-amber-200">{v}</span>
               </div>
             ))}
@@ -1984,7 +1984,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         </button>
         <button
           onClick={() => setMuted((m) => !m)}
-          aria-label={muted ? "Unmute" : "Mute"}
+          aria-label={muted ? tr("Unmute") : tr("Mute")}
           className="rounded-full p-2 border border-cyan-400/30 bg-black/25 hover:bg-black/60 transition"
           style={{ color: "#00bcd4" }}
         >
@@ -1992,7 +1992,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         </button>
         <button
           onClick={toggleFullscreen}
-          aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+          aria-label={isFullscreen ? tr("Exit fullscreen") : tr("Fullscreen")}
           className="rounded-full p-2 border border-cyan-400/30 bg-black/25 hover:bg-black/60 transition"
           style={{ color: "#00bcd4" }}
         >
@@ -2007,7 +2007,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             setActiveTip(TIPS[key] ?? TIPS.intro);
           }}
 
-          aria-label="How to play"
+          aria-label={tr("How to play")}
           className="rounded-full p-2 border border-cyan-400/30 bg-black/25 hover:bg-black/60 transition"
           style={{ color: "#00bcd4" }}
         >
@@ -2065,14 +2065,14 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           {/* branding */}
           <div className="text-center mb-6 sm:mb-10">
             <span className="block text-highlight text-[10px] tracking-[0.5em] uppercase font-bold mb-3 opacity-80">
-              System Initialization Sequence
+              {tr("System Initialization Sequence")}
             </span>
             <h1 className="font-display text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tighter text-foreground drop-shadow-[0_0_25px_hsl(var(--highlight)/0.3)]">
               SYNDICATE<span className="text-primary">.</span>
             </h1>
             <div className="h-[1px] w-32 bg-gradient-to-r from-transparent via-highlight to-transparent mx-auto my-5" />
             <p className="text-muted-foreground text-xs sm:text-sm tracking-[0.2em] uppercase font-light">
-              Strategic Command & Corporate Dominance
+              {tr("Strategic Command & Corporate Dominance")}
             </p>
           </div>
 
@@ -2081,14 +2081,14 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             <div className="space-y-5">
               <div className="relative group">
                 <label className="absolute -top-3 left-4 bg-background px-2 text-[10px] text-highlight uppercase tracking-widest font-bold">
-                  Operator Alias
+                  {tr("Operator Alias")}
                 </label>
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && startGame()}
                   maxLength={18}
-                  placeholder="ENTER IDENTIFIER..."
+                  placeholder={tr("ENTER IDENTIFIER...")}
                   className="w-full rounded-lg bg-background/60 border border-border px-5 py-4 text-foreground placeholder:text-foreground/20 text-center outline-none transition focus:border-aurora-green focus:ring-1 focus:ring-aurora-green/50 font-mono tracking-widest"
                 />
               </div>
@@ -2100,7 +2100,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:animate-shimmer" />
                 <div className="relative flex items-center justify-center gap-3">
                   <span className="font-display font-black text-primary-foreground text-sm sm:text-base tracking-[0.2em] uppercase">
-                    Establish Connection
+                    {tr("Establish Connection")}
                   </span>
                   <svg className="w-5 h-5 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
@@ -2144,7 +2144,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             className="font-mono text-[10px] sm:text-xs uppercase tracking-[0.4em] text-cyan-300/80 mb-1"
             style={{ animation: reduceMotion ? undefined : "fade-in 0.5s ease-out both" }}
           >
-            Meet the Syndicate
+            {tr("Meet the Syndicate")}
           </p>
           <h2
             className="text-2xl sm:text-3xl font-black tracking-[0.14em] text-white mb-1"
@@ -2154,13 +2154,13 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               animation: reduceMotion ? undefined : "fade-in 0.6s ease-out both",
             }}
           >
-            THE PLAYERS
+            {tr("THE PLAYERS")}
           </h2>
           <p
             className="text-white/60 text-[11px] sm:text-xs mb-5"
             style={{ animation: reduceMotion ? undefined : "fade-in 0.7s ease-out both" }}
           >
-            Three operators enter. One empire remains.
+            {tr("Three operators enter. One empire remains.")}
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
@@ -2235,13 +2235,13 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                       <span className="truncate">{p.location.city}</span>
                     </div>
                   )}
-                  <p className="text-[11px] leading-relaxed text-white/75">{blurb}</p>
+                  <p className="text-[11px] leading-relaxed text-white/75">{tr(blurb)}</p>
                   {ability && (
                     <div
                       className="mt-3 w-full rounded-lg border px-2 py-1.5 text-[10px] font-mono leading-snug text-white/80"
                       style={{ borderColor: `${p.color}40`, background: `${p.color}12` }}
                     >
-                      <span style={{ color: p.color }}>◆ </span>{ability}
+                      <span style={{ color: p.color }}>◆ </span>{tr(ability)}
                     </div>
                   )}
                 </div>
@@ -2259,7 +2259,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               animationDelay: reduceMotion ? undefined : "1.1s",
             }}
           >
-            ENTER THE GAME
+            {tr("ENTER THE GAME")}
           </button>
         </div>
         {overlayNode}
@@ -2272,7 +2272,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   const hud = human && (
     <div className="w-full space-y-4">
       {/* Rail header */}
-      <h3 className="font-mono text-[9px] uppercase tracking-[0.28em] text-white/65">Active Crews</h3>
+      <h3 className="font-mono text-[9px] uppercase tracking-[0.28em] text-white/65">{tr("Active Crews")}</h3>
       {/* ROW 1 — orbital player status cards */}
       <div className="grid grid-cols-3 gap-2.5">
 
@@ -2355,7 +2355,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       <div className="rounded-2xl border border-white/20 bg-black/25 backdrop-blur-sm px-4 py-3.5 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.8)]">
         {/* panel header */}
         <div className="mb-3">
-          <p className="text-[9px] font-mono uppercase tracking-[0.28em] text-white/65">Financial Assets</p>
+          <p className="text-[9px] font-mono uppercase tracking-[0.28em] text-white/65">{tr("Financial Assets")}</p>
         </div>
 
 
@@ -2365,7 +2365,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         {/* Shields + Heat — bordered console boxes */}
         <div className="mt-3.5 grid grid-cols-2 gap-2.5">
           <div className="rounded-lg border border-white/20 bg-white/5 p-2.5">
-            <div className="mb-1.5 text-[10px] font-mono uppercase tracking-[0.2em] text-white/65">Shields</div>
+            <div className="mb-1.5 text-[10px] font-mono uppercase tracking-[0.2em] text-white/65">{tr("Shields")}</div>
             <div className="flex items-center gap-1">
               {Array.from({ length: START_TOKENS }).map((_, i) => (
                 <Shield
@@ -2405,15 +2405,15 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       <div className="flex h-9 shrink-0 items-center justify-between gap-3 border-b border-white/20 bg-black/25 px-3 backdrop-blur-sm sm:px-4">
         <div className="flex items-center gap-2 shrink-0">
           <span className="h-1.5 w-1.5 rounded-full bg-[#f5b800] motion-safe:animate-pulse" />
-          <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-[#f5b800]">Uplink Stable</span>
+          <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-[#f5b800]">{tr("Uplink Stable")}</span>
         </div>
         <div className="hidden min-w-0 flex-1 items-center justify-center sm:flex">
           <span className="truncate font-mono text-[9px] uppercase tracking-[0.18em] text-white/60">
-            {event ? `Global event · ${event.name}` : "Intercepting rival comms · tactical analysis pending"}
+            {event ? `${tr("Global event")} · ${tr(event.name)}` : tr("Intercepting rival comms · tactical analysis pending")}
           </span>
         </div>
         <div className="flex shrink-0 items-center gap-1.5 font-mono pr-24 sm:pr-28">
-          <span className="text-[10px] uppercase tracking-widest text-white/55">Round</span>
+          <span className="text-[10px] uppercase tracking-widest text-white/55">{tr("Round")}</span>
           <span className="text-sm leading-none text-[#f5b800] tabular-nums">{round}/{TOTAL_ROUNDS}</span>
         </div>
 
@@ -2475,7 +2475,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           </div>
           <button
             onClick={toggleCoach}
-            aria-label="Hide guide"
+            aria-label={tr("Hide guide")}
             className="shrink-0 text-white/55 hover:text-white/70 transition"
           >
             <X size={15} />
@@ -2571,7 +2571,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                   style={{ color: RISK_THEME[r].glow, background: `${RISK_THEME[r].glow}12`, border: `1px solid ${RISK_THEME[r].glow}40` }}
                 >
                   <span className="h-2 w-2 rounded-full" style={{ background: RISK_THEME[r].glow }} />
-                  {RISK_LABEL[r]}
+                  {tr(RISK_LABEL[r])}
                 </span>
               ))}
             </div>
@@ -2602,7 +2602,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                       className="absolute top-1 right-1 z-10 text-[9px] font-mono font-bold px-1 py-0.5 rounded-full uppercase tracking-wider"
                       style={{ color: theme.glow, background: `${theme.glow}22`, border: `1px solid ${theme.glow}66` }}
                     >
-                      {RISK_LABEL[op.risk]}
+                      {tr(RISK_LABEL[op.risk])}
                     </span>
 
                     {/* icon tile */}
@@ -2622,10 +2622,10 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
                     {/* title */}
                     <p className="relative z-10 font-black uppercase tracking-wide text-white text-[10px] leading-tight mb-0.5 min-h-[1.25em] line-clamp-1">
-                      {op.name}
+                      {tr(op.name)}
                     </p>
                     <p className="relative z-10 text-[9px] leading-tight text-white/75 mb-0.5 line-clamp-1">
-                      {op.description}
+                      {tr(op.description)}
                     </p>
 
 
@@ -2668,12 +2668,12 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           </>
         ) : (
           <WheelPopup accent="#f5b800">
-            <WheelHeader eyebrow="RUNNING OPERATION" title={selectedOp.name} />
+            <WheelHeader eyebrow="RUNNING OPERATION" title={tr(selectedOp.name)} />
             <WheelStage accent="#f5b800">
               <Wheel segments={segments} rotation={rotation} spinning={spinning} />
             </WheelStage>
             <p className="mx-auto max-w-md text-center text-white/70 text-sm mt-3 leading-snug">
-              {selectedOp.description}
+              {tr(selectedOp.description)}
             </p>
             <p className="text-center text-white/70 text-xs font-mono mt-2">
               Invested {fmt(selectedOp.cost)} · Caught {Math.round(effectiveCaught(selectedOp, round, event, 0) * 100)}%
@@ -2749,7 +2749,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             <p className="mt-1 flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 font-mono text-[11px] text-cyan-300">
               <span className="flex items-center gap-1"><MapPin size={11} /> {tgt.city}</span>
               <span className="text-white/25">·</span>
-              <span className="text-white/70">{tgt.sector}</span>
+              <span className="text-white/70">{tr(tgt.sector)}</span>
             </p>
             <p className="mx-auto mt-1.5 max-w-[42ch] text-[11px] leading-snug text-white/70">{tgt.desc}</p>
             <p className="mt-2 font-mono text-[11px] text-[#f5b800] animate-pulse motion-reduce:animate-none">Deploying payload…</p>
@@ -2772,7 +2772,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       <>
 
         <WheelPopup accent="#f5b800">
-          <WheelHeader eyebrow="RUNNING OPERATION" title={selectedOp?.name} />
+          <WheelHeader eyebrow="RUNNING OPERATION" title={tr(selectedOp?.name)} />
           <WheelStage accent="#f5b800" active>
             <Wheel segments={segments} rotation={rotation} spinning={spinning} />
           </WheelStage>
@@ -2795,7 +2795,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       <>
 
         <WheelPopup accent={accent}>
-          <WheelHeader eyebrow="OPERATION RESULT" title={selectedOp?.name} />
+          <WheelHeader eyebrow="OPERATION RESULT" title={tr(selectedOp?.name)} />
           <WheelStage accent={accent}>
             <Wheel segments={segments} rotation={rotation} spinning={false} />
           </WheelStage>
@@ -2809,7 +2809,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                 color: caughtEl || brokeEl ? "#fca5a5" : good ? "#86efac" : "#cbd5e1",
               }}
             >
-              {OUTCOME_LABEL[result.outcome]}
+              {tr(OUTCOME_LABEL[result.outcome])}
               {caughtEl && (result.eliminated ? " — Eliminated" : " — Shield Lost")}
               {brokeEl && " — Bankrupt"}
             </div>
@@ -2819,7 +2819,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               </p>
             )}
             {closeCall && !caughtEl && (
-              <p className="mt-2 text-orange-300 font-mono text-sm animate-pulse">⚡ {closeCall}</p>
+              <p className="mt-2 text-orange-300 font-mono text-sm animate-pulse">⚡ {tr(closeCall)}</p>
             )}
           </div>
           {coachBar(
@@ -3047,7 +3047,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                   <span className="flex items-center gap-2 min-w-0">
                     <Avatar img={t.player.img} fallback={t.player.avatar} color={t.player.color} size={22} />
                     <span className="font-bold text-sm truncate" style={{ color: t.player.color }}>{t.player.name}</span>
-                    <span className="text-white/60 text-xs truncate">{t.op.name}</span>
+                    <span className="text-white/60 text-xs truncate">{tr(t.op.name)}</span>
                   </span>
                   <span className={`font-mono text-sm shrink-0 ${d >= 0 ? "text-green-400" : "text-red-400"}`}>
                     {c ? <span className="text-red-500 font-bold">Caught</span> : `${d >= 0 ? "+" : ""}${fmt(d)}`}
