@@ -1928,27 +1928,27 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             <section>
               <h4 className="font-mono font-bold text-primary text-xs uppercase tracking-widest mb-1">{tr("guide.outcomeTitle", "Possible outcomes")}</h4>
               <div className="space-y-1">
-                <div className="flex justify-between border-b border-white/10 py-1">
+                <div className="grid grid-cols-[100px_1fr] gap-2 border-b border-white/10 py-1">
                   <span className="font-mono text-emerald-400">Safe</span>
                   <span className="text-white/70">{tr("guide.safe", "Stake returned — no profit, no loss.")}</span>
                 </div>
-                <div className="flex justify-between border-b border-white/10 py-1">
+                <div className="grid grid-cols-[100px_1fr] gap-2 border-b border-white/10 py-1">
                   <span className="font-mono text-green-400">Success</span>
                   <span className="text-white/70">{tr("guide.success", "Normal payout.")}</span>
                 </div>
-                <div className="flex justify-between border-b border-white/10 py-1">
+                <div className="grid grid-cols-[100px_1fr] gap-2 border-b border-white/10 py-1">
                   <span className="font-mono text-amber-400">Big Success</span>
                   <span className="text-white/70">{tr("guide.bigSuccess", "Payout × 1.8.")}</span>
                 </div>
-                <div className="flex justify-between border-b border-white/10 py-1">
+                <div className="grid grid-cols-[100px_1fr] gap-2 border-b border-white/10 py-1">
                   <span className="font-mono text-cyan-400">Bonus</span>
                   <span className="text-white/70">{tr("guide.bonus", "Payout × 1.3.")}</span>
                 </div>
-                <div className="flex justify-between border-b border-white/10 py-1">
+                <div className="grid grid-cols-[100px_1fr] gap-2 border-b border-white/10 py-1">
                   <span className="font-mono text-orange-400">Investigation</span>
                   <span className="text-white/70">{tr("guide.investigation", "Only 50% of stake returned; heat rises.")}</span>
                 </div>
-                <div className="flex justify-between border-b border-white/10 py-1">
+                <div className="grid grid-cols-[100px_1fr] gap-2 border-b border-white/10 py-1">
                   <span className="font-mono text-red-400">Caught</span>
                   <span className="text-white/70">{tr("guide.caught", "Stake lost; shield token burned.")}</span>
                 </div>
