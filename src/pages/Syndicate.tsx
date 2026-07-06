@@ -761,10 +761,10 @@ function WealthChart({ players }: { players: Player[] }) {
     <div>
       <div className="relative w-full overflow-hidden rounded-lg border border-white/10 bg-[radial-gradient(120%_120%_at_0%_0%,rgba(0,188,212,0.06),transparent_60%)] px-1.5 pt-1.5">
         {/* y-axis scale caps */}
-        <div className="pointer-events-none absolute right-2 top-1 z-10 font-mono text-[7px] tabular-nums text-white/40">
+        <div className="pointer-events-none absolute right-2 top-1 z-10 font-mono text-[9px] tabular-nums text-white/40">
           {fmtShort(maxVal)}
         </div>
-        <div className="pointer-events-none absolute right-2 bottom-6 z-10 font-mono text-[7px] tabular-nums text-white/30">
+        <div className="pointer-events-none absolute right-2 bottom-6 z-10 font-mono text-[9px] tabular-nums text-white/30">
           $0
         </div>
         <svg
@@ -1466,7 +1466,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     strikeTimeoutRef.current = window.setTimeout(() => {
       strikeTimeoutRef.current = null;
       runSpin();
-    }, reduceMotion ? 400 : 4000);
+    }, reduceMotion ? 400 : 5200);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [human, selectedOp, reduceMotion]);
 
@@ -2277,7 +2277,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               <div className="min-w-0 w-full">
                 {isActive ? (
                   <div
-                    className="flex items-center justify-center gap-1 text-[7px] font-mono tracking-[0.15em] uppercase leading-none mb-0.5"
+                    className="flex items-center justify-center gap-1 text-[9px] font-mono tracking-[0.15em] uppercase leading-none mb-0.5"
                     style={{ color: p.color }}
                   >
                     <span
@@ -2287,7 +2287,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                     ACTIVE
                   </div>
                 ) : (
-                  <div className="h-[7px] mb-0.5" aria-hidden />
+                  <div className="h-[9px] mb-0.5" aria-hidden />
                 )}
                 <div className="text-[11px] font-bold text-white leading-tight truncate">
                   {p.name}
@@ -2344,7 +2344,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         {/* Shields + Heat — bordered console boxes */}
         <div className="mt-3.5 grid grid-cols-2 gap-2.5">
           <div className="rounded-lg border border-white/20 bg-white/5 p-2.5">
-            <div className="mb-1.5 text-[8px] font-mono uppercase tracking-[0.2em] text-white/65">Shields</div>
+            <div className="mb-1.5 text-[10px] font-mono uppercase tracking-[0.2em] text-white/65">Shields</div>
             <div className="flex items-center gap-1">
               {Array.from({ length: START_TOKENS }).map((_, i) => (
                 <Shield
@@ -2357,7 +2357,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             </div>
           </div>
           <div className="rounded-lg border border-white/20 bg-white/5 p-2.5">
-            <div className="mb-1.5 text-[8px] font-mono uppercase tracking-[0.2em] text-white/65">Heat %</div>
+            <div className="mb-1.5 text-[10px] font-mono uppercase tracking-[0.2em] text-white/65">Heat %</div>
             <div className="flex items-center gap-1 text-orange-400 text-base font-mono font-bold leading-none">
               <Flame size={13} /> +{heatPct}%
             </div>
@@ -2392,7 +2392,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           </span>
         </div>
         <div className="flex shrink-0 items-center gap-1.5 font-mono pr-24 sm:pr-28">
-          <span className="text-[8px] uppercase tracking-widest text-white/55">Round</span>
+          <span className="text-[10px] uppercase tracking-widest text-white/55">Round</span>
           <span className="text-sm leading-none text-[#f5b800] tabular-nums">{round}/{TOTAL_ROUNDS}</span>
         </div>
 
@@ -2578,7 +2578,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
                     {/* risk badge */}
                     <span
-                      className="absolute top-1 right-1 z-10 text-[8px] font-mono font-bold px-1 py-0.5 rounded-full uppercase tracking-wider"
+                      className="absolute top-1 right-1 z-10 text-[9px] font-mono font-bold px-1 py-0.5 rounded-full uppercase tracking-wider"
                       style={{ color: theme.glow, background: `${theme.glow}22`, border: `1px solid ${theme.glow}66` }}
                     >
                       {RISK_LABEL[op.risk]}
@@ -2603,7 +2603,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                     <p className="relative z-10 font-black uppercase tracking-wide text-white text-[10px] leading-tight mb-0.5 min-h-[1.25em] line-clamp-1">
                       {op.name}
                     </p>
-                    <p className="relative z-10 text-[8px] leading-tight text-white/75 mb-0.5 line-clamp-1">
+                    <p className="relative z-10 text-[9px] leading-tight text-white/75 mb-0.5 line-clamp-1">
                       {op.description}
                     </p>
 
@@ -2714,7 +2714,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           {/* victim company readout — revealed as the fly-over lands on the target */}
           <div
             className="pointer-events-none absolute bottom-3 left-1/2 w-[min(94%,480px)] -translate-x-1/2 overflow-hidden rounded-2xl border border-cyan-400/25 bg-gradient-to-b from-black/80 to-black/65 px-4 py-3 text-center shadow-[0_8px_40px_-8px_rgba(0,188,212,0.45)] ring-1 ring-white/5 backdrop-blur-md animate-scale-in motion-reduce:animate-fade-in sm:bottom-4 sm:px-5 sm:py-4"
-            style={{ animationDelay: reduceMotion ? "0.1s" : "4.3s", animationFillMode: "backwards" }}
+            style={{ animationDelay: reduceMotion ? "0.1s" : "4.0s", animationFillMode: "backwards" }}
           >
             {/* accent hairline */}
             <div
@@ -2789,8 +2789,8 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               }}
             >
               {OUTCOME_LABEL[result.outcome]}
-              {caughtEl && (result.eliminated ? " — ELIMINATED" : " — token lost!")}
-              {brokeEl && " — BANKRUPT"}
+              {caughtEl && (result.eliminated ? " — Eliminated" : " — Shield Lost")}
+              {brokeEl && " — Bankrupt"}
             </div>
             {!caughtEl && (
               <p className={`mt-3 text-xl font-mono font-bold ${net >= 0 ? "text-green-400" : "text-red-400"}`}>
@@ -2994,7 +2994,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                     color: caught ? "#fca5a5" : theme.glow,
                   }}
                 >
-                  {caught ? "CAUGHT — SHIELD LOST" : turn.player.lastLabel}
+                  {caught ? "Caught — Shield Lost" : turn.player.lastLabel}
                 </div>
                 <p className={`mt-3 text-xl font-mono font-bold ${delta >= 0 ? "text-green-400" : "text-red-400"}`}>
                   {delta >= 0 ? "+" : ""}{fmt(delta)}
@@ -3029,7 +3029,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                     <span className="text-white/60 text-xs truncate">{t.op.name}</span>
                   </span>
                   <span className={`font-mono text-sm shrink-0 ${d >= 0 ? "text-green-400" : "text-red-400"}`}>
-                    {c ? <span className="text-red-500 font-bold">CAUGHT</span> : `${d >= 0 ? "+" : ""}${fmt(d)}`}
+                    {c ? <span className="text-red-500 font-bold">Caught</span> : `${d >= 0 ? "+" : ""}${fmt(d)}`}
                   </span>
                 </div>
               );
@@ -3080,7 +3080,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                   <span className="font-bold" style={{ color: p.isHuman ? "#f5b800" : p.color }}>
                     {p.name}{p.isHuman && " (you)"}
                   </span>
-                  {!p.alive && <span className="text-red-500 font-bold text-xs font-mono px-2 py-0.5 rounded bg-red-500/15">CAUGHT</span>}
+                  {!p.alive && <span className="text-red-500 font-bold text-xs font-mono px-2 py-0.5 rounded bg-red-500/15">Out</span>}
                 </span>
                 <span className="flex items-center gap-3">
                   <span className="flex gap-0.5">

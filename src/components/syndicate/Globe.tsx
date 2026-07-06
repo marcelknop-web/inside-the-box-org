@@ -325,16 +325,16 @@ function FlyoverCamera({ attack }: { attack: GlobeAttack }) {
     // Reduced motion: pin the camera on the framed victim, no sweep.
     if (reduced) {
       const dir = toDir.clone();
-      camera.position.copy(dir.multiplyScalar(3.4));
-      lookTarget.current.copy(toPoint).multiplyScalar(0.9);
+      camera.position.copy(dir.multiplyScalar(3.6));
+      lookTarget.current.copy(toPoint);
       camera.lookAt(lookTarget.current);
       return;
     }
 
     const elapsed = clock.getElapsedTime() - startT.current;
-    // Travel eases to a stop at ~85% of the clip, then holds on the victim for a
-    // legibility beat so the readout lands on a still frame.
-    const raw = Math.min(1, elapsed / (FLYOVER_DUR * 0.85));
+    // Travel eases to a stop at ~82% of the clip, then holds on the victim for a
+    // legibility beat so the readout lands on a still, framed frame.
+    const raw = Math.min(1, elapsed / (FLYOVER_DUR * 0.82));
     // easeInOutCubic — a smoother accel/decel than quadratic for a filmic sweep
     const t = raw < 0.5 ? 4 * raw * raw * raw : 1 - Math.pow(-2 * raw + 2, 3) / 2;
 
@@ -342,12 +342,14 @@ function FlyoverCamera({ attack }: { attack: GlobeAttack }) {
     const q = new THREE.Quaternion().slerpQuaternions(qIdentity, qFull, t);
     const dir = fromDir.clone().applyQuaternion(q).normalize();
 
-    // dip low over the surface at mid-flight, rise to frame the victim on arrival
-    const radius = 4.5 - Math.sin(t * Math.PI) * 1.1;
+    // Pull in from a high establishing shot to a tight frame on the victim,
+    // dipping low over the surface at mid-flight for the skim.
+    const radius = 4.8 - 1.2 * t - Math.sin(t * Math.PI) * 0.7;
     camera.position.copy(dir.clone().multiplyScalar(radius));
 
-    // pan the look-at from the globe centre toward the victim so it fills the view
-    lookTarget.current.copy(toPoint).multiplyScalar(t * 0.9);
+    // pan the look-at from the globe centre to the exact victim point so it ends
+    // dead-centre on the target city.
+    lookTarget.current.copy(toPoint).multiplyScalar(t);
     camera.lookAt(lookTarget.current);
   });
 
