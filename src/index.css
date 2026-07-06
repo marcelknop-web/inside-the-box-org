@@ -149,6 +149,13 @@
     /* Typography */
     --font-ui: 'DM Sans', sans-serif;
     --font-mono: 'IBM Plex Mono', monospace;
+    --font-display: 'Space Grotesk', sans-serif;
+
+    /* Syndicate start screen — Glass Aurora palette */
+    --syndicate-start-bg: 240 28% 14%;
+    --syndicate-start-panel: 233 45% 17%;
+    --aurora-violet: 262 92% 76%;
+    --aurora-green: 142 70% 58%;
   }
 
   .light {
