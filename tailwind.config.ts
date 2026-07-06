@@ -143,6 +143,9 @@ export default {
 					'100%': {
 						color: 'hsl(var(--primary))'
 					}
+				},
+				'shimmer': {
+					'100%': { transform: 'translateX(100%)' }
 				}
 			},
 			animation: {
