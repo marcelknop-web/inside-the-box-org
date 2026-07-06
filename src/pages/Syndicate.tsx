@@ -1835,13 +1835,23 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       <div
         role="dialog"
         aria-modal="true"
-        aria-label={overlay === "stats" ? tr("Statistics") : tr("Achievements")}
-        className="w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl border border-cyan-400/30 bg-[#141d2e] p-6 text-left"
+        aria-label={
+          overlay === "stats"
+            ? tr("Statistics")
+            : overlay === "achievements"
+            ? tr("Achievements")
+            : tr("guide.title", "Quick Guide")
+        }
+        className="w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-2xl border border-cyan-400/30 bg-[#141d2e] p-6 text-left"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-mono font-bold text-lg text-cyan-300">
-            {overlay === "stats" ? tr("STATISTICS") : `ACHIEVEMENTS · ${unlockedCount}/${ACHIEVEMENTS.length}`}
+            {overlay === "stats"
+              ? tr("STATISTICS")
+              : overlay === "achievements"
+              ? `ACHIEVEMENTS · ${unlockedCount}/${ACHIEVEMENTS.length}`
+              : tr("guide.title", "Quick Guide")}
           </h3>
           <button onClick={() => setOverlay(null)} aria-label={tr("Close")} className="text-white/75 hover:text-white text-xl leading-none">×</button>
         </div>
@@ -1862,7 +1872,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               </div>
             ))}
           </div>
-        ) : (
+        ) : overlay === "achievements" ? (
           <div className="grid grid-cols-1 gap-2">
             {ACHIEVEMENTS.map((a) => {
               const got = !!unlockedIds[a.id];
@@ -1884,6 +1894,109 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                 </div>
               );
             })}
+          </div>
+        ) : (
+          <div className="space-y-4 text-sm text-white/80">
+            <section>
+              <h4 className="font-mono font-bold text-primary text-xs uppercase tracking-widest mb-1">{tr("Welcome", "Welcome")}</h4>
+              <p>{tr("guide.welcome", "Syndicate is a turn-based tactics game. You lead a criminal operation, plan jobs, and try to end 12 rounds with the most points. Every round holds opportunity and risk.")}</p>
+            </section>
+
+            <section>
+              <h4 className="font-mono font-bold text-primary text-xs uppercase tracking-widest mb-1">{tr("guide.objectiveTitle", "Objective")}</h4>
+              <p>{tr("guide.objective", "After 12 rounds, own more than your two AI rivals. Your score is cash plus current value of your activity minus heat. The best balance of risk and reward wins.")}</p>
+            </section>
+
+            <section>
+              <h4 className="font-mono font-bold text-primary text-xs uppercase tracking-widest mb-1">{tr("guide.startTitle", "Starting")}</h4>
+              <ul className="list-disc pl-4 space-y-1">
+                <li>{tr("guide.start1", "Choose a game mode: Free Play, Daily Challenge, or Seeded Game.")}</li>
+                <li>{tr("guide.start2", "Enter your name or alias.")}</li>
+                <li>{tr("guide.start3", "Choose an AI strategy for your character: conservative, risk-taker, greedy, adaptive, or chaotic.")}</li>
+              </ul>
+            </section>
+
+            <section>
+              <h4 className="font-mono font-bold text-primary text-xs uppercase tracking-widest mb-1">{tr("guide.roundTitle", "Round flow")}</h4>
+              <ul className="list-disc pl-4 space-y-1">
+                <li>{tr("guide.round1", "Global event — world news affects risk and reward. Read it carefully.")}</li>
+                <li>{tr("guide.round2", "Choose an operation — each of the 12 available actions has a cost, payout, and risk tier.")}</li>
+                <li>{tr("guide.round3", "Spin the wheel — it decides the outcome of your operation.")}</li>
+              </ul>
+            </section>
+
+            <section>
+              <h4 className="font-mono font-bold text-primary text-xs uppercase tracking-widest mb-1">{tr("guide.outcomeTitle", "Possible outcomes")}</h4>
+              <div className="space-y-1">
+                <div className="flex justify-between border-b border-white/10 py-1">
+                  <span className="font-mono text-emerald-400">Safe</span>
+                  <span className="text-white/70">{tr("guide.safe", "Stake returned — no profit, no loss.")}</span>
+                </div>
+                <div className="flex justify-between border-b border-white/10 py-1">
+                  <span className="font-mono text-green-400">Success</span>
+                  <span className="text-white/70">{tr("guide.success", "Normal payout.")}</span>
+                </div>
+                <div className="flex justify-between border-b border-white/10 py-1">
+                  <span className="font-mono text-amber-400">Big Success</span>
+                  <span className="text-white/70">{tr("guide.bigSuccess", "Payout × 1.8.")}</span>
+                </div>
+                <div className="flex justify-between border-b border-white/10 py-1">
+                  <span className="font-mono text-cyan-400">Bonus</span>
+                  <span className="text-white/70">{tr("guide.bonus", "Payout × 1.3.")}</span>
+                </div>
+                <div className="flex justify-between border-b border-white/10 py-1">
+                  <span className="font-mono text-orange-400">Investigation</span>
+                  <span className="text-white/70">{tr("guide.investigation", "Only 50% of stake returned; heat rises.")}</span>
+                </div>
+                <div className="flex justify-between border-b border-white/10 py-1">
+                  <span className="font-mono text-red-400">Caught</span>
+                  <span className="text-white/70">{tr("guide.caught", "Stake lost; shield token burned.")}</span>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <h4 className="font-mono font-bold text-primary text-xs uppercase tracking-widest mb-1">{tr("guide.shieldsTitle", "Shields & tokens")}</h4>
+              <ul className="list-disc pl-4 space-y-1">
+                <li>{tr("guide.shields1", "You start with 3 shields.")}</li>
+                <li>{tr("guide.shields2", "Caught loses one shield.")}</li>
+                <li>{tr("guide.shields3", "No shields left means a subsequent Caught ends the game.")}</li>
+              </ul>
+            </section>
+
+            <section>
+              <h4 className="font-mono font-bold text-primary text-xs uppercase tracking-widest mb-1">{tr("guide.heatTitle", "Heat")}</h4>
+              <p>{tr("guide.heat", "Heat rises each round and with investigations. High heat increases the chance of being caught.")}</p>
+            </section>
+
+            <section>
+              <h4 className="font-mono font-bold text-primary text-xs uppercase tracking-widest mb-1">{tr("guide.rivalsTitle", "AI rivals")}</h4>
+              <ul className="list-disc pl-4 space-y-1">
+                <li>{tr("guide.vex", "Vex — conservative, lowers detection risk.")}</li>
+                <li>{tr("guide.nyx", "Nyx — risk-taker, wins more on high-risk operations.")}</li>
+              </ul>
+            </section>
+
+            <section>
+              <h4 className="font-mono font-bold text-primary text-xs uppercase tracking-widest mb-1">{tr("guide.tipsTitle", "Tips")}</h4>
+              <ul className="list-disc pl-4 space-y-1">
+                <li>{tr("guide.tip1", "Low risks early preserve capital.")}</li>
+                <li>{tr("guide.tip2", "Watch world news: Boom or Gold Rush make expensive operations worthwhile.")}</li>
+                <li>{tr("guide.tip3", "During Interpol Joint Operation or Insider Informant, choose smaller risks.")}</li>
+                <li>{tr("guide.tip4", "Keep an eye on your shields; another Caught without protection ends the game.")}</li>
+                <li>{tr("guide.tip5", "Try to push in the final rounds before the final scoring.")}</li>
+              </ul>
+            </section>
+
+            <section>
+              <h4 className="font-mono font-bold text-primary text-xs uppercase tracking-widest mb-1">{tr("guide.languageTitle", "Language")}</h4>
+              <p>{tr("guide.language", "Use the switch in the top right to toggle German and English.")}</p>
+            </section>
+
+            <section>
+              <h4 className="font-mono font-bold text-primary text-xs uppercase tracking-widest mb-1">{tr("guide.endTitle", "Game end")}</h4>
+              <p>{tr("guide.end", "The game ends after 12 rounds or earlier if you lose all shields. The highscore list shows your best results.")}</p>
+            </section>
           </div>
         )}
       </div>
