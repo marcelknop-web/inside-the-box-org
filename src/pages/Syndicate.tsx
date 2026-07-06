@@ -2277,7 +2277,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               <div className="min-w-0 w-full">
                 {isActive ? (
                   <div
-                    className="flex items-center justify-center gap-1 text-[7px] font-mono tracking-[0.15em] uppercase leading-none mb-0.5"
+                    className="flex items-center justify-center gap-1 text-[9px] font-mono tracking-[0.15em] uppercase leading-none mb-0.5"
                     style={{ color: p.color }}
                   >
                     <span
