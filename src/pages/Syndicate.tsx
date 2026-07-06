@@ -1466,7 +1466,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     strikeTimeoutRef.current = window.setTimeout(() => {
       strikeTimeoutRef.current = null;
       runSpin();
-    }, reduceMotion ? 400 : 4000);
+    }, reduceMotion ? 400 : 5200);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [human, selectedOp, reduceMotion]);
 
