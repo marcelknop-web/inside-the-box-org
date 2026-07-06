@@ -40,11 +40,12 @@ export function useSynLang() {
   return { lang, setLang: setSynLang, tr };
 }
 
-/** Translate an English source string to the current language. */
-export function tr(s?: string | null): string {
+/** Translate an English source string to the current language.
+ *  Optionally pass an explicit English fallback for short keys. */
+export function tr(s?: string | null, enFallback?: string): string {
   if (s == null) return "";
-  if (current === "en") return s;
-  return DE[s] ?? s;
+  if (current === "en") return enFallback ?? s;
+  return DE[s] ?? enFallback ?? s;
 }
 
 /* ------------------------------------------------------------------ */
