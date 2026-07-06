@@ -17,6 +17,7 @@ import {
 import { useNordsternAudio } from '@/hooks/useNordsternAudio';
 import NauticalChart from '@/components/nordstern/NauticalChart';
 import { WindGauge, DistanceIcon, CrewIcon, TopicIcon } from '@/components/nordstern/BriefingIcons';
+import TopicScene, { type SceneTopic } from '@/components/nordstern/TopicScene';
 
 type Topic = 'navigation' | 'recht' | 'wetter' | 'seemannschaft';
 
@@ -667,12 +668,17 @@ const QuestionPanel: React.FC<{
 
       {current && !loading && !error && (
         <div className="flex-1 min-h-0 flex flex-col gap-2 md:gap-3 overflow-hidden">
+          <TopicScene
+            topic={(phase === 'harbor' ? 'seemannschaft' : (stage?.topicHint ?? 'navigation')) as SceneTopic}
+            className="shrink-0 animate-fade-in"
+          />
           <div className="relative bg-card/50 border border-border/50 rounded-lg p-3 md:p-4 shrink-0 overflow-hidden">
             <div className="absolute -right-2 -top-2 text-5xl opacity-[0.07] select-none pointer-events-none">{topicEmoji}</div>
             <p className="relative text-sm md:text-base font-medium leading-snug">
               {highlight(current.question, current.keywords)}
             </p>
           </div>
+
 
           <div className="grid gap-1.5 md:gap-2 shrink-0">
             {current.options.map((opt, i) => {
