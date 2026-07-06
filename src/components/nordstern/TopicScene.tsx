@@ -202,13 +202,20 @@ const Wetter: React.FC<{ rng: Rng }> = ({ rng }) => {
   const boltX = rng.range(18, 74);
   return (
     <Shell label="Wetter & See" hue={rng.int(205, 214)}>
-      <div className="absolute inset-0" style={{ animation: `ts-tilt ${tiltDur}s ease-in-out infinite`, transformOrigin: 'center' }}>
-        <svg viewBox="0 0 120 60" preserveAspectRatio="none" className="absolute bottom-0 left-0 w-full h-2/3">
-          <path d="M0 30 Q30 24 60 30 T120 30 V60 H0 Z" fill="hsl(210 60% 22% / .55)" />
-          <path d="M0 38 Q30 32 60 38 T120 38 V60 H0 Z" fill="hsl(210 60% 16% / .6)" />
-          <path d="M0 30 Q30 24 60 30 T120 30" fill="none" stroke={H} strokeWidth="0.6" opacity="0.5" />
+      <div className="absolute inset-0" style={{ animation: `ts-roll ${tiltDur}s ${SINE} infinite`, transformOrigin: 'center bottom' }}>
+        {/* wider-than-frame wave bands slide sideways to read as a moving swell */}
+        <svg viewBox="0 0 180 60" preserveAspectRatio="none" className="absolute bottom-0 -left-[16%] w-[132%] h-2/3"
+          style={{ animation: `ts-swell ${(rng.range(7, 11)).toFixed(2)}s linear infinite` }}>
+          <path d="M0 32 Q15 26 30 32 T60 32 T90 32 T120 32 T150 32 T180 32 V60 H0 Z" fill="hsl(210 60% 22% / .55)" />
+          <path d="M0 40 Q15 34 30 40 T60 40 T90 40 T120 40 T150 40 T180 40 V60 H0 Z" fill="hsl(210 60% 16% / .6)" />
+          <path d="M0 32 Q15 26 30 32 T60 32 T90 32 T120 32 T150 32 T180 32" fill="none" stroke={H} strokeWidth="0.6" opacity="0.5" />
+        </svg>
+        <svg viewBox="0 0 180 60" preserveAspectRatio="none" className="absolute bottom-0 -left-[8%] w-[124%] h-1/2"
+          style={{ animation: `ts-swell ${(rng.range(11, 16)).toFixed(2)}s linear infinite reverse` }}>
+          <path d="M0 44 Q22 40 45 44 T90 44 T135 44 T180 44 V60 H0 Z" fill="hsl(212 62% 12% / .55)" />
         </svg>
       </div>
+
       {clouds.map((c, i) => (
         <svg key={i} viewBox="0 0 40 20" className="absolute w-16 h-8 opacity-70"
           style={{ top: `${c.top}%`, animation: `ts-drift ${c.dur}s linear infinite ${c.delay}s` }}>
