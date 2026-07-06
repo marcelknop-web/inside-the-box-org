@@ -48,20 +48,32 @@ function makeRng(seed: number) {
   };
 }
 
+/*
+ * Motion is tuned for realism: the sine easing (cubic-bezier 0.37,0,0.63,1)
+ * matches how a real pendulum / bobbing hull moves — slowest at the extremes,
+ * fastest through the centre — instead of the constant speed of `linear` or the
+ * springy feel of plain `ease-in-out`. Radar sweeps and wheels stay linear
+ * because they rotate at constant angular velocity in reality.
+ */
+const SINE = 'cubic-bezier(0.37, 0, 0.63, 1)';
+
 const keyframes = `
 @keyframes ts-sweep { from { transform: rotate(0deg);} to { transform: rotate(360deg);} }
 @keyframes ts-sweepr { from { transform: rotate(360deg);} to { transform: rotate(0deg);} }
 @keyframes ts-ping { 0% { r: 2; opacity: .8;} 100% { r: 26; opacity: 0;} }
-@keyframes ts-blip { 0%,100% { opacity: 0;} 20%,60% { opacity: 1;} }
+@keyframes ts-blip { 0%,100% { opacity: 0;} 18% { opacity: 1;} 55% { opacity: .55;} }
 @keyframes ts-float { 0%,100% { transform: translateY(0);} 50% { transform: translateY(-3px);} }
 @keyframes ts-tilt { 0%,100% { transform: rotate(-2.2deg);} 50% { transform: rotate(2.2deg);} }
 @keyframes ts-drift { 0% { transform: translateX(-8%);} 100% { transform: translateX(108%);} }
-@keyframes ts-flash { 0%,92%,100% { opacity: 0;} 94%,97% { opacity: .9;} }
+@keyframes ts-flash { 0%,90%,100% { opacity: 0;} 92% { opacity: .95;} 93% { opacity: .2;} 95% { opacity: .8;} 97% { opacity: 0;} }
 @keyframes ts-swing { 0%,100% { transform: rotate(-9deg);} 50% { transform: rotate(9deg);} }
 @keyframes ts-spinw { from { transform: rotate(0);} to { transform: rotate(360deg);} }
-@keyframes ts-rise { 0% { transform: translateY(6px); opacity: 0;} 30% { opacity: .7;} 100% { transform: translateY(-30px); opacity: 0;} }
+@keyframes ts-rise { 0% { transform: translate(0,6px) scale(.85); opacity: 0;} 20% { opacity: .7;} 90% { opacity: .5;} 100% { transform: translate(var(--sway,4px),-30px) scale(1.05); opacity: 0;} }
 @keyframes ts-para { 0% { transform: translateY(4px) rotate(-6deg); opacity: 0;} 25%,70% { opacity: .8;} 100% { transform: translateY(-16px) rotate(6deg); opacity: 0;} }
 @keyframes ts-bob { 0%,100% { transform: translateY(0);} 50% { transform: translateY(-2.5px);} }
+/* combined roll+heave: a hull rolls and lifts on the swell out of phase */
+@keyframes ts-roll { 0%,100% { transform: rotate(-2.4deg) translateY(0);} 25% { transform: rotate(0deg) translateY(-1.6px);} 50% { transform: rotate(2.4deg) translateY(0);} 75% { transform: rotate(0deg) translateY(1.6px);} }
+@keyframes ts-swell { 0% { transform: translateX(0);} 100% { transform: translateX(-60px);} }
 `;
 
 const P = 'hsl(var(--primary))';
