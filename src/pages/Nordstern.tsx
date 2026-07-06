@@ -670,8 +670,10 @@ const QuestionPanel: React.FC<{
         <div className="flex-1 min-h-0 flex flex-col gap-2 md:gap-3 overflow-hidden">
           <TopicScene
             topic={(phase === 'harbor' ? 'seemannschaft' : (stage?.topicHint ?? 'navigation')) as SceneTopic}
+            seed={current.question}
             className="shrink-0 animate-fade-in"
           />
+
           <div className="relative bg-card/50 border border-border/50 rounded-lg p-3 md:p-4 shrink-0 overflow-hidden">
             <div className="absolute -right-2 -top-2 text-5xl opacity-[0.07] select-none pointer-events-none">{topicEmoji}</div>
             <p className="relative text-sm md:text-base font-medium leading-snug">
