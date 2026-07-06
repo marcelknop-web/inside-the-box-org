@@ -517,20 +517,6 @@ const TOPIC_EMOJI: Record<Topic, string> = {
   navigation: '🧭', recht: '⚖️', wetter: '🌬️', seemannschaft: '⚓',
 };
 
-// Visual wind dial showing Bft strength
-const WindDial: React.FC<{ bft: number }> = ({ bft }) => {
-  const pct = Math.min(1, bft / 9);
-  return (
-    <svg viewBox="0 0 60 60" className="w-16 h-16 md:w-20 md:h-20">
-      <circle cx="30" cy="30" r="26" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted/40" />
-      <circle cx="30" cy="30" r="26" fill="none" stroke="currentColor" strokeWidth="2"
-        strokeDasharray={`${pct * 163} 163`} strokeLinecap="round"
-        transform="rotate(-90 30 30)" className="text-primary" />
-      <text x="30" y="28" textAnchor="middle" fontSize="18" className="fill-primary font-bold" style={{ fontFamily: 'IBM Plex Mono, monospace' }}>{bft}</text>
-      <text x="30" y="42" textAnchor="middle" fontSize="7" className="fill-muted-foreground" style={{ fontFamily: 'IBM Plex Mono, monospace' }}>BFT</text>
-    </svg>
-  );
-};
 
 const Briefing: React.FC<{ stage: Stage; wind: typeof WIND_LABELS[0]; crewCount: number; onGo: () => void }> = ({ stage, wind, crewCount, onGo }) => (
   <div className="flex-1 min-h-0 max-w-2xl w-full mx-auto flex flex-col justify-center gap-4">
