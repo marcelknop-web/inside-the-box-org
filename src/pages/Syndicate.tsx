@@ -3029,7 +3029,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                     <span className="text-white/60 text-xs truncate">{t.op.name}</span>
                   </span>
                   <span className={`font-mono text-sm shrink-0 ${d >= 0 ? "text-green-400" : "text-red-400"}`}>
-                    {c ? <span className="text-red-500 font-bold">CAUGHT</span> : `${d >= 0 ? "+" : ""}${fmt(d)}`}
+                    {c ? <span className="text-red-500 font-bold">Caught</span> : `${d >= 0 ? "+" : ""}${fmt(d)}`}
                   </span>
                 </div>
               );
