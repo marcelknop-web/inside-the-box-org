@@ -15,6 +15,8 @@ interface TypedSectionProps {
   stagger?: number;
   /** ms pause between title → intro → blocks (default 500) */
   pause?: number;
+  /** Optional skeleton shown in the content area while the title/intro is still revealing. */
+  loadingSkeleton?: ReactNode;
 }
 
 /**
@@ -28,6 +30,7 @@ const TypedSection = ({
   children,
   stagger = 500,
   pause = 500,
+  loadingSkeleton,
 }: TypedSectionProps) => {
   const isMobile = useIsMobile();
   const effectiveStagger = isMobile ? Math.max(stagger, 700) : stagger;
