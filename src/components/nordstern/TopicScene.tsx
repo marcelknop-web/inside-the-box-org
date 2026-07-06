@@ -119,7 +119,7 @@ const Navigation: React.FC<{ rng: Rng }> = ({ rng }) => {
     <Shell label="Navigation" hue={rng.int(206, 216)}>
       <div className="absolute top-1/2" style={{ left: `calc(50% + ${dishX}px)`, transform: 'translate(-50%,-50%)' }}>
         <svg viewBox="-30 -30 60 60" className="w-28 h-28 md:w-36 md:h-36"
-          style={{ animation: `ts-float ${rng.range(5, 7).toFixed(2)}s ease-in-out infinite` }}>
+          style={{ animation: `ts-float ${rng.range(5, 7).toFixed(2)}s ${SINE} infinite` }}>
           {Array.from({ length: rings }).map((_, i) => (
             <circle key={i} cx="0" cy="0" r={10 + i * 8} fill="none" stroke={H} strokeWidth="0.4" opacity="0.35" />
           ))}
@@ -167,8 +167,8 @@ const Recht: React.FC<{ rng: Rng }> = ({ rng }) => {
           style={{ left: `${g.left}%`, top: `${g.top}%`, fontSize: `${g.size}px`, animation: `ts-para ${g.dur}s ease-in-out infinite ${g.delay}s` }}>§</span>
       ))}
       <div className="absolute top-1/2" style={{ left: `calc(50% + ${rng.range(-10, 10).toFixed(0)}px)`, transform: 'translate(-50%,-52%)' }}>
-        <svg viewBox="0 0 60 48" className="w-24 h-20 md:w-32 md:h-24" style={{ animation: `ts-bob ${rng.range(4.5, 6).toFixed(2)}s ease-in-out infinite` }}>
-          <g style={{ animation: `ts-tilt ${tiltDur}s ease-in-out infinite`, transformOrigin: '30px 8px' }}>
+        <svg viewBox="0 0 60 48" className="w-24 h-20 md:w-32 md:h-24" style={{ animation: `ts-bob ${rng.range(4.5, 6).toFixed(2)}s ${SINE} infinite` }}>
+          <g style={{ animation: `ts-tilt ${tiltDur}s ${SINE} infinite`, transformOrigin: '30px 8px' }}>
             <line x1="30" y1="6" x2="30" y2="30" stroke={P} strokeWidth="1.4" strokeLinecap="round" />
             <line x1="12" y1="12" x2="48" y2="12" stroke={P} strokeWidth="1.4" strokeLinecap="round" />
             <circle cx="30" cy="6" r="1.6" fill={P} />
@@ -249,7 +249,7 @@ const Seemannschaft: React.FC<{ rng: Rng }> = ({ rng }) => {
           style={{ left: `${b.x}%`, bottom: '18%', width: b.size, height: b.size, animation: `ts-rise ${b.dur}s ease-in infinite ${b.delay}s` }} />
       ))}
       <div className="absolute top-1/2" style={{ left: `calc(50% + ${wheelX.toFixed(0)}px)`, transform: 'translate(-50%,-50%)' }}>
-        <svg viewBox="-24 -24 48 48" className="w-24 h-24 md:w-32 md:h-32" style={{ animation: `ts-bob ${rng.range(4.5, 6).toFixed(2)}s ease-in-out infinite` }}>
+        <svg viewBox="-24 -24 48 48" className="w-24 h-24 md:w-32 md:h-32" style={{ animation: `ts-bob ${rng.range(4.5, 6).toFixed(2)}s ${SINE} infinite` }}>
           <g style={{ animation: `${spinDir} ${spinDur}s linear infinite`, transformOrigin: 'center' }}>
             <circle r="12" fill="none" stroke={P} strokeWidth="1.6" />
             <circle r="4.5" fill="none" stroke={P} strokeWidth="1.4" />
@@ -266,7 +266,7 @@ const Seemannschaft: React.FC<{ rng: Rng }> = ({ rng }) => {
           </g>
         </svg>
       </div>
-      <div className="absolute top-0" style={{ right: `${anchorX}%`, transformOrigin: 'top center', animation: `ts-swing ${swingDur}s ease-in-out infinite` }}>
+      <div className="absolute top-0" style={{ right: `${anchorX}%`, transformOrigin: 'top center', animation: `ts-swing ${swingDur}s ${SINE} infinite` }}>
         <div className="w-px h-6 md:h-9 mx-auto" style={{ background: `linear-gradient(${H}, transparent)` }} />
         <svg viewBox="0 0 24 30" className="w-6 h-8 -mt-0.5">
           <circle cx="12" cy="4" r="2.4" fill="none" stroke={P} strokeWidth="1.4" />
