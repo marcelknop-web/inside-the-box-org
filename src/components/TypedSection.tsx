@@ -68,6 +68,16 @@ const TypedSection = ({
   // Determine when content blocks can start (after intro done + 500ms)
   const blocksReady = intro ? introDone : titleDone;
 
+  // Fade the skeleton out once blocks are ready and remove it from the DOM.
+  useEffect(() => {
+    if (!blocksReady) {
+      setSkeletonVisible(true);
+      return;
+    }
+    const t = setTimeout(() => setSkeletonVisible(false), 400);
+    return () => clearTimeout(t);
+  }, [blocksReady]);
+
   const introRef = useRef<HTMLDivElement>(null);
 
 
