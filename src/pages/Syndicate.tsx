@@ -764,7 +764,7 @@ function WealthChart({ players }: { players: Player[] }) {
         <div className="pointer-events-none absolute right-2 top-1 z-10 font-mono text-[9px] tabular-nums text-white/40">
           {fmtShort(maxVal)}
         </div>
-        <div className="pointer-events-none absolute right-2 bottom-6 z-10 font-mono text-[7px] tabular-nums text-white/30">
+        <div className="pointer-events-none absolute right-2 bottom-6 z-10 font-mono text-[9px] tabular-nums text-white/30">
           $0
         </div>
         <svg
