@@ -54,12 +54,12 @@ const TypedSection = ({
     }
   }, [sectionKey, intro]);
 
-  // 500ms pause after title before showing intro
+  // pause after title before showing intro
   useEffect(() => {
     if (!titleDone || !intro) return;
-    const t = setTimeout(() => setIntroVisible(true), 500);
+    const t = setTimeout(() => setIntroVisible(true), pause);
     return () => clearTimeout(t);
-  }, [titleDone, intro]);
+  }, [titleDone, intro, pause]);
 
   // Determine when content blocks can start (after intro done + 500ms)
   const blocksReady = intro ? introDone : titleDone;
