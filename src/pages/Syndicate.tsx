@@ -2231,6 +2231,17 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             </div>
           </div>
 
+          {/* quick help tile — jumps straight into the guide overlay */}
+          <button
+            onClick={() => setOverlay("guide")}
+            className="mt-4 w-full max-w-md flex items-center justify-center gap-3 rounded-xl border border-cyan-400/30 bg-card/60 backdrop-blur-xl p-4 hover:bg-cyan-400/10 transition group"
+          >
+            <BookOpen size={20} className="text-cyan-400 group-hover:text-cyan-300 transition" />
+            <span className="font-mono font-bold text-cyan-300 tracking-widest uppercase text-sm group-hover:text-cyan-200 transition">
+              {tr("How to play?", "How to play?")}
+            </span>
+          </button>
+
           {/* technical metadata */}
           <div className="mt-8 sm:mt-12 flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-[9px] text-muted-foreground uppercase tracking-widest font-medium">
             <div className="flex items-center gap-2">
