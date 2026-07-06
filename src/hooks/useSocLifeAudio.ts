@@ -38,9 +38,24 @@ export function useSocLifeAudio() {
       const Ctx: typeof AudioContext =
         (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext);
       const ctx = new Ctx();
-      const master = ctx.createGain(); master.gain.value = 0.6; master.connect(ctx.destination);
+      // ── Professional master chain: glue-limiter + air EQ for cohesion & controlled loudness
+      const limiter = ctx.createDynamicsCompressor();
+      limiter.threshold.value = -3; limiter.knee.value = 2; limiter.ratio.value = 12;
+      limiter.attack.value = 0.003; limiter.release.value = 0.18;
+      limiter.connect(ctx.destination);
+      const airEq = ctx.createBiquadFilter();
+      airEq.type = "highshelf"; airEq.frequency.value = 8000; airEq.gain.value = 2.5;
+      airEq.connect(limiter);
+      const master = ctx.createGain(); master.gain.value = 0.6; master.connect(airEq);
+      // ── Shared convolution reverb bus → depth & space (studio polish)
+      const reverb = ctx.createConvolver(); reverb.buffer = makeImpulseResponse(ctx, 2.4, 2.6);
+      const reverbReturn = ctx.createGain(); reverbReturn.gain.value = 0.9; reverbReturn.connect(master);
+      reverb.connect(reverbReturn);
       const music = ctx.createGain(); music.gain.value = 0.45; music.connect(master);
       const sfx = ctx.createGain(); sfx.gain.value = 0.7; sfx.connect(master);
+      // Parallel reverb sends (subtle — keeps transients tight, adds room)
+      const musicSend = ctx.createGain(); musicSend.gain.value = 0.12; music.connect(musicSend); musicSend.connect(reverb);
+      const sfxSend = ctx.createGain(); sfxSend.gain.value = 0.18; sfx.connect(sfxSend); sfxSend.connect(reverb);
       ctxRef.current = ctx;
       masterRef.current = master;
       musicGainRef.current = music;
