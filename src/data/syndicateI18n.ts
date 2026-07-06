@@ -438,5 +438,14 @@ const DE: Record<string, string> = {
   Achievements: "Erfolge",
   "PLAY AGAIN": "NOCHMAL SPIELEN",
   "(you)": "(du)",
-  Caught_out: "Erwischt",
+  RIVAL: "RIVALE",
+  "Global event": "Globales Ereignis",
+  "← pick a different operation": "← andere Operation wählen",
+  Invested: "Investiert",
+  Conservative: "Konservativ",
+  Risktaker: "Risikofreudig",
+  Greedy: "Gierig",
+  Adaptive: "Anpassungsfähig",
+  Chaotic: "Chaotisch",
 };
+
