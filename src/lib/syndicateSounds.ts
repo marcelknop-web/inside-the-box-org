@@ -182,6 +182,7 @@ function play(key: SfxKey, opts?: { pitchAdd?: number; gainMul?: number }) {
     } else {
       semi = jitter(vary.pitch);
     }
+    semi += opts?.pitchAdd ?? 0;
 
     const src = c.createBufferSource();
     src.buffer = buf;
@@ -189,7 +190,7 @@ function play(key: SfxKey, opts?: { pitchAdd?: number; gainMul?: number }) {
     if (src.detune) src.detune.value = jitter(6); // subtle extra shimmer
 
     const g = c.createGain();
-    g.gain.value = Math.max(0.05, SFX_GAIN[key] + jitter(vary.gain));
+    g.gain.value = Math.max(0.05, (SFX_GAIN[key] + jitter(vary.gain)) * (opts?.gainMul ?? 1));
     src.connect(g).connect(master);
     src.start();
   };
