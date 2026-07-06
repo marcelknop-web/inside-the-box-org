@@ -91,16 +91,12 @@ const sections: Section[] = [
       { label: 'NIS-2 Awareness Quiz', path: '/nis2-dora', desc: 'Quiz zu NIS-2 Grundlagen.' },
       { label: 'Threat Drop Quiz', path: '/arena-training', desc: 'Bedrohungs-Quiz im Drop-Format.' },
       { label: 'SKS Navigation Quiz', path: '/sks-quiz', desc: 'Maritime Navigation Trainingsquiz.' },
-      { label: 'Cyber Frogger', path: '/arena-training', desc: 'Arcade-Spiel mit Security-Bezug.' },
       { label: 'Trigger Triage', path: '/incident-management', desc: 'Alert-Triage-Trainer.' },
-      { label: 'Butterfly Effect Lab', path: '/ki-lab', desc: 'Kausalketten-Visualisierung.' },
-      { label: 'Elite Ship Scene', path: '/ki-lab', desc: 'WebGL Demo-Szene.' },
-      { label: 'Enigma', path: '/enigma', desc: 'Enigma-Maschine Simulation.' },
       { label: 'Blind Spot Simulator', path: '/blind-spot', desc: 'Simulator für Navigation-Blind-Spot-Szenarien.' },
-      { label: 'Bockbär Bot', path: '/bockbaer-bot', desc: 'Persona-Chatbot Demo.' },
       { label: 'Nordstern', path: '/nordstern', desc: 'Maritime Nautik-Lerngame.' },
     ],
   },
+
 ];
 
 const SitemapContent = () => (

@@ -54,8 +54,6 @@ import { PasswordGate } from '@/components/PasswordGate';
 const AI_TOOL_ADDED_AT: Record<string, string> = {
   'soc-life': '2026-04-10',
   'ot-soc-life': '2026-04-24',
-  'butterfly-lab': '2026-04-05',
-  'wcst': '2026-06-24',
   'syndicate-game': '2026-07-02',
 };
 
