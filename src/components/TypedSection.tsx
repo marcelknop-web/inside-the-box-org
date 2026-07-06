@@ -15,6 +15,8 @@ interface TypedSectionProps {
   stagger?: number;
   /** ms pause between title → intro → blocks (default 500) */
   pause?: number;
+  /** Optional skeleton shown in the content area while the title/intro is still revealing. */
+  loadingSkeleton?: ReactNode;
 }
 
 /**
@@ -28,6 +30,7 @@ const TypedSection = ({
   children,
   stagger = 500,
   pause = 500,
+  loadingSkeleton,
 }: TypedSectionProps) => {
   const isMobile = useIsMobile();
   const effectiveStagger = isMobile ? Math.max(stagger, 700) : stagger;
@@ -35,6 +38,7 @@ const TypedSection = ({
   const [titleDone, setTitleDone] = useState(false);
   const [introDone, setIntroDone] = useState(!intro); // if no intro, skip
   const [suppressIntro, setSuppressIntro] = useState(false);
+  const [skeletonVisible, setSkeletonVisible] = useState(true);
   const sectionKey = `${title}-${mode}-${charDelay}`;
   const prevKeyRef = useRef(sectionKey);
 
@@ -64,6 +68,16 @@ const TypedSection = ({
   // Determine when content blocks can start (after intro done + 500ms)
   const blocksReady = intro ? introDone : titleDone;
 
+  // Fade the skeleton out once blocks are ready and remove it from the DOM.
+  useEffect(() => {
+    if (!blocksReady) {
+      setSkeletonVisible(true);
+      return;
+    }
+    const t = setTimeout(() => setSkeletonVisible(false), 400);
+    return () => clearTimeout(t);
+  }, [blocksReady]);
+
   const introRef = useRef<HTMLDivElement>(null);
 
 
@@ -85,6 +99,11 @@ const TypedSection = ({
           </div>
         )}
       </div>
+      {loadingSkeleton && skeletonVisible && (
+        <div className="transition-opacity duration-300 ease-out" style={{ opacity: blocksReady ? 0 : 1 }}>
+          {loadingSkeleton}
+        </div>
+      )}
       <StaggerReveal resetKey={sectionKey} stagger={effectiveStagger} startDelay={blocksReady ? pause : 999999}>
         {children}
       </StaggerReveal>

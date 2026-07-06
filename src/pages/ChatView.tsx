@@ -128,6 +128,33 @@ const GridItem = ({ icon: Icon, title, subtitle, desc, variant = 'primary', href
   );
 };
 
+// ── Loading skeleton for the KI-Lab tool grid ───────────────────────────────
+
+const ToolGridSkeleton = () => (
+  <div className="bg-highlight/5 border border-highlight/20 rounded-xl p-4 opacity-80">
+    <div className="h-4 w-40 bg-highlight/20 rounded mb-2 animate-pulse" />
+    <div className="h-3 w-3/4 bg-muted/40 rounded mb-3 animate-pulse" />
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+      <div className="sm:col-span-2 flex items-start gap-3 p-3.5 rounded-lg border border-highlight/20 bg-highlight/[0.07]">
+        <div className="w-5 h-5 rounded bg-highlight/30 flex-shrink-0 mt-0.5 animate-pulse" />
+        <div className="space-y-2 min-w-0 flex-1">
+          <div className="h-3.5 w-32 bg-highlight/25 rounded animate-pulse" />
+          <div className="h-2.5 w-full bg-muted/30 rounded animate-pulse" />
+        </div>
+      </div>
+      {[...Array(7)].map((_, i) => (
+        <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/15 bg-highlight/[0.04]">
+          <div className="w-5 h-5 rounded bg-highlight/20 flex-shrink-0 mt-0.5 animate-pulse" />
+          <div className="space-y-2 min-w-0 flex-1">
+            <div className="h-3.5 w-28 bg-highlight/20 rounded animate-pulse" />
+            <div className="h-2.5 w-full bg-muted/30 rounded animate-pulse" />
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 // ── Inline System Check (chat-style) ────────────────────────────────────────
 
 interface SysResult { label: string; status: 'pass' | 'fail' | 'unknown'; detail: string; }
@@ -909,7 +936,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'ki-lab': () => (
-      <TypedSection title={t('kiLab.title')} mode="fade" charDelay={4} pause={120} stagger={90} intro={<p>{t('kiLab.intro')}</p>}>
+      <TypedSection title={t('kiLab.title')} mode="fade" charDelay={4} pause={120} stagger={90} intro={<p>{t('kiLab.intro')}</p>} loadingSkeleton={<ToolGridSkeleton />}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('kiLab.introDetail')}</p>
         </Block>
