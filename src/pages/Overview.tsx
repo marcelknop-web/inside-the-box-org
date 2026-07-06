@@ -224,7 +224,7 @@ const PhasesPreview = ({
       </div>
 
       {/* DESKTOP LAYOUT (sm+): single row of 5 diamonds with one continuous line. */}
-      <ul className="hidden sm:grid sm:grid-cols-5 sm:gap-x-5 sm:gap-y-3 relative">
+      <ul className="hidden sm:grid sm:grid-cols-5 sm:gap-x-6 sm:gap-y-3 relative">
         {/* Continuous connector line — spans from the centre of the first
             column to the centre of the last column. The diamonds, with their
             opaque bg-background fill, mask the line beneath them. */}
