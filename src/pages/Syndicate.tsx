@@ -1546,9 +1546,9 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       if (res.outcome === "caught") {
         res.eliminated ? snd.caught() : snd.lose();
       } else if (res.outcome === "bigSuccess") {
-        snd.bigWin();
+        snd.bigWin(winIntensity(res.delta - op.cost, op));
       } else if (res.delta > op.cost) {
-        snd.win();
+        snd.win(winIntensity(res.delta - op.cost, op));
       } else {
         snd.reveal();
       }
