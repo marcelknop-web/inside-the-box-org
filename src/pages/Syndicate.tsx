@@ -167,6 +167,7 @@ interface Player {
 
 type Phase =
   | "welcome"
+  | "intro"
   | "round-intro"
   | "choose"
   | "strike"
