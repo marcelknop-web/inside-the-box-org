@@ -778,5 +778,12 @@ export function useMillionaireSound() {
     } catch {}
   }, []);
 
-  return { playQuestionReveal, playCorrect, playWrong, playSelect, playConfirm, playVictory, playDefeat, playTick, playTickUrgent, playMilestone };
+  // Unlock/resume the AudioContext from a user gesture so the very first
+  // programmatic sound (e.g. an auto-triggered reveal) isn't swallowed by
+  // the browser's autoplay policy.
+  const unlock = useCallback(() => {
+    try { getCtx(); } catch {}
+  }, []);
+
+  return { unlock, playQuestionReveal, playCorrect, playWrong, playSelect, playConfirm, playVictory, playDefeat, playTick, playTickUrgent, playMilestone };
 }
