@@ -65,6 +65,20 @@ export function useSocLifeAudio() {
     return ctxRef.current;
   }, []);
 
+  // ---------- Reverb impulse response (stereo, exponential decay) ----------
+  function makeImpulseResponse(ctx: AudioContext, seconds: number, decay: number): AudioBuffer {
+    const sr = ctx.sampleRate;
+    const len = Math.max(1, Math.floor(sr * seconds));
+    const buf = ctx.createBuffer(2, len, sr);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = buf.getChannelData(ch);
+      for (let i = 0; i < len; i++) {
+        d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
+      }
+    }
+    return buf;
+  }
+
   // ---------- Voice helpers ----------
   function pulseBuffer(ctx: AudioContext, freq: number, duty: number, length: number): AudioBuffer {
     const sr = ctx.sampleRate;
