@@ -2287,7 +2287,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                     ACTIVE
                   </div>
                 ) : (
-                  <div className="h-[7px] mb-0.5" aria-hidden />
+                  <div className="h-[9px] mb-0.5" aria-hidden />
                 )}
                 <div className="text-[11px] font-bold text-white leading-tight truncate">
                   {p.name}
