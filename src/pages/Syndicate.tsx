@@ -2227,7 +2227,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                     className="text-[10px] font-mono uppercase tracking-[0.18em] mb-2"
                     style={{ color: p.color }}
                   >
-                    {role}
+                    {tr(role)}
                   </div>
                   {p.location?.city && (
                     <div className="flex items-center justify-center gap-1 text-[10px] text-white/60 mb-2">
