@@ -1419,7 +1419,8 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     }));
     setPlayers([you, ...ais]);
     setRound(1);
-    beginRound(1);
+    snd.transition();
+    setPhase("intro");
   }, [name, gameMode, seedInput]);
 
   /* ---- begin a round: maybe roll an event ---- */
