@@ -127,15 +127,13 @@ const Navigation: React.FC<{ rng: Rng }> = ({ rng }) => {
           <line x1="0" y1="-28" x2="0" y2="28" stroke={H} strokeWidth="0.3" opacity="0.3" />
           <circle cx="0" cy="0" fill="none" stroke={P} strokeWidth="0.6" style={{ animation: `ts-ping ${sweepDur}s ease-out infinite` }} />
           <circle cx="0" cy="0" fill="none" stroke={P} strokeWidth="0.6" style={{ animation: `ts-ping ${sweepDur}s ease-out infinite ${(+sweepDur / 2).toFixed(2)}s` }} />
-          <g style={{ animation: `${sweepDir} ${sweepDur}s linear infinite`, transformBox: 'view-box', transformOrigin: 'center' }}>
-            <defs>
-              <linearGradient id={`ts-beam-${rng.int(0, 9999)}`} x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor={P} stopOpacity="0.55" />
-                <stop offset="100%" stopColor={P} stopOpacity="0" />
-              </linearGradient>
-            </defs>
+          <g>
             <path d="M0 0 L26 -7 A27 27 0 0 1 26 7 Z" fill={P} fillOpacity="0.28" />
             <line x1="0" y1="0" x2="27" y2="0" stroke={P} strokeWidth="0.6" />
+            <animateTransform attributeName="transform" type="rotate"
+              from={sweepDir === 'ts-sweep' ? '0 0 0' : '360 0 0'}
+              to={sweepDir === 'ts-sweep' ? '360 0 0' : '0 0 0'}
+              dur={`${sweepDur}s`} repeatCount="indefinite" />
           </g>
           {blips.map((b, i) => (
             <circle key={i} cx={b.x} cy={b.y} r={b.r} fill={b.c}
