@@ -1185,6 +1185,17 @@ function targetForOp(opId: string, salt = 0): TargetCity {
   return TARGET_CITIES[h % TARGET_CITIES.length];
 }
 
+// Map a net profit to a 0..1 "how big is this win" value so the win stinger can
+// ring higher/louder the more money the wheel paid out. Scaled against the
+// operation's own gross payout so a huge op and a small op both feel calibrated.
+function winIntensity(profit: number, op: Operation): number {
+  if (profit <= 0) return 0;
+  const ref = Math.max(1, op.payout || op.cost * 4);
+  return Math.max(0, Math.min(1, profit / ref));
+}
+
+
+
 // Decorative markers shown on the welcome-screen globe (before players exist).
 const WELCOME_GLOBE_PLAYERS: GlobePlayer[] = [
   { id: "w-you", color: "#f5b800", lat: HUMAN_LOCATION.lat, lon: HUMAN_LOCATION.lon, active: true },
