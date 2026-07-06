@@ -318,39 +318,67 @@ function FlyoverCamera({ attack }: { attack: GlobeAttack }) {
   }, [attack.fromLat, attack.fromLon, attack.toLat, attack.toLon]);
 
   const qIdentity = useMemo(() => new THREE.Quaternion(), []);
+  // Scratch objects reused every frame so the sweep allocates nothing (no GC
+  // hitches → consistently smooth motion).
+  const qCur = useRef(new THREE.Quaternion());
+  const qLook = useRef(new THREE.Quaternion());
+  const curDir = useRef(new THREE.Vector3());
+  const lookDir = useRef(new THREE.Vector3());
+  const settledFov = useRef(false);
 
   useFrame(({ clock }) => {
     if (startT.current === null) startT.current = clock.getElapsedTime();
+    const cam = camera as THREE.PerspectiveCamera;
 
     // Reduced motion: pin the camera on the framed victim, no sweep.
     if (reduced) {
-      const dir = toDir.clone();
-      camera.position.copy(dir.multiplyScalar(3.6));
+      cam.up.set(0, 1, 0);
+      cam.position.copy(toDir).multiplyScalar(3.55);
       lookTarget.current.copy(toPoint);
-      camera.lookAt(lookTarget.current);
+      cam.lookAt(lookTarget.current);
+      if (!settledFov.current && "fov" in cam) {
+        cam.fov = 40;
+        cam.updateProjectionMatrix();
+        settledFov.current = true;
+      }
       return;
     }
 
     const elapsed = clock.getElapsedTime() - startT.current;
-    // Travel eases to a stop at ~82% of the clip, then holds on the victim for a
-    // legibility beat so the readout lands on a still, framed frame.
-    const raw = Math.min(1, elapsed / (FLYOVER_DUR * 0.82));
-    // easeInOutCubic — a smoother accel/decel than quadratic for a filmic sweep
+    // Travel eases to a stop at ~80% of the clip, then holds on the victim for a
+    // legibility beat so the readout lands on a still, precisely framed frame.
+    const raw = Math.min(1, elapsed / (FLYOVER_DUR * 0.8));
+    // easeInOutCubic — smooth filmic accel/decel.
     const t = raw < 0.5 ? 4 * raw * raw * raw : 1 - Math.pow(-2 * raw + 2, 3) / 2;
 
-    // travel along the great-circle between the two locations
-    const q = new THREE.Quaternion().slerpQuaternions(qIdentity, qFull, t);
-    const dir = fromDir.clone().applyQuaternion(q).normalize();
+    // Sub-satellite point: exact position along the great circle between the two
+    // real-world locations. slerp of the shortest-arc quaternion keeps it precise.
+    qCur.current.slerpQuaternions(qIdentity, qFull, t);
+    curDir.current.copy(fromDir).applyQuaternion(qCur.current).normalize();
 
-    // Pull in from a high establishing shot to a tight frame on the victim,
-    // dipping low over the surface at mid-flight for the skim.
-    const radius = 4.8 - 1.2 * t - Math.sin(t * Math.PI) * 0.7;
-    camera.position.copy(dir.clone().multiplyScalar(radius));
+    // Look slightly ahead along the same path for a sense of travel, easing the
+    // lead to zero so the camera lands looking dead-on the victim at t = 1.
+    const lead = 0.14 * (1 - t);
+    qLook.current.slerpQuaternions(qIdentity, qFull, Math.min(1, t + lead));
+    lookDir.current.copy(fromDir).applyQuaternion(qLook.current).normalize();
 
-    // pan the look-at from the globe centre to the exact victim point so it ends
-    // dead-centre on the target city.
-    lookTarget.current.copy(toPoint).multiplyScalar(t);
-    camera.lookAt(lookTarget.current);
+    // Altitude arc: high establishing shot → low skim at mid-flight → tight,
+    // precise frame on arrival.
+    const radius = 4.9 - 1.4 * t - Math.sin(t * Math.PI) * 0.62;
+    cam.position.copy(curDir.current).multiplyScalar(radius);
+
+    // Look target rides the surface and, because lookDir === toDir at t = 1,
+    // resolves exactly onto the victim point (toPoint) with no drift.
+    lookTarget.current.copy(lookDir.current).multiplyScalar(R);
+    cam.up.set(0, 1, 0);
+    cam.lookAt(lookTarget.current);
+
+    // Gentle push-in (dolly-zoom) narrows the field of view as we close on the
+    // target — adds cinematic weight without moving the landing point.
+    if ("fov" in cam) {
+      cam.fov = 52 - 13 * t;
+      cam.updateProjectionMatrix();
+    }
   });
 
   return null;
