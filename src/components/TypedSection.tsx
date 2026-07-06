@@ -27,6 +27,7 @@ const TypedSection = ({
   intro,
   children,
   stagger = 500,
+  pause = 500,
 }: TypedSectionProps) => {
   const isMobile = useIsMobile();
   const effectiveStagger = isMobile ? Math.max(stagger, 700) : stagger;
