@@ -541,29 +541,38 @@ const Briefing: React.FC<{ stage: Stage; wind: typeof WIND_LABELS[0]; crewCount:
 
     {/* Visual hero card */}
     <div className="relative bg-gradient-to-br from-card/60 to-card/30 border border-border/50 rounded-lg p-4 md:p-5 overflow-hidden">
-      <div className="absolute -right-4 -top-4 text-7xl md:text-8xl opacity-10 select-none pointer-events-none">{TOPIC_EMOJI[stage.topicHint]}</div>
+      <TopicIcon topic={stage.topicHint} className="absolute -right-3 -top-3 w-28 h-28 md:w-32 md:h-32 opacity-[0.07] select-none pointer-events-none" />
       <div className="relative flex items-center gap-4">
-        <WindDial bft={wind.bft} />
+        <div className="shrink-0 relative">
+          <WindGauge bft={wind.bft} className="w-20 h-20 md:w-24 md:h-24" />
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-xl md:text-2xl font-bold font-mono text-primary leading-none">{wind.bft}</span>
+            <span className="text-[8px] font-mono uppercase tracking-widest text-muted-foreground">Bft</span>
+          </div>
+        </div>
         <div className="flex-1 min-w-0">
           <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{wind.label}</div>
           <div className="text-sm md:text-base text-foreground/90 italic leading-snug line-clamp-3">"{stage.scene}"</div>
         </div>
       </div>
       <div className="relative grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-border/30">
-        <div className="text-center">
-          <Waves className="w-4 h-4 mx-auto text-primary" />
-          <div className="text-base font-bold font-mono mt-0.5">{stage.nm}<span className="text-[10px] text-muted-foreground ml-0.5">sm</span></div>
+        <div className="flex flex-col items-center text-center">
+          <DistanceIcon className="w-8 h-8" />
+          <div className="text-base font-bold font-mono mt-1">{stage.nm}<span className="text-[10px] text-muted-foreground ml-0.5">sm</span></div>
+          <div className="text-[9px] font-mono uppercase tracking-wider text-muted-foreground">Distanz</div>
         </div>
-        <div className="text-center">
-          <div className="text-xl">{TOPIC_EMOJI[stage.topicHint]}</div>
-          <div className="text-[10px] font-mono uppercase text-muted-foreground mt-0.5">{TOPIC_LABEL[stage.topicHint]}</div>
+        <div className="flex flex-col items-center text-center">
+          <TopicIcon topic={stage.topicHint} className="w-8 h-8" />
+          <div className="text-[10px] font-mono uppercase text-muted-foreground mt-1">{TOPIC_LABEL[stage.topicHint]}</div>
         </div>
-        <div className="text-center">
-          <Users className="w-4 h-4 mx-auto text-primary" />
-          <div className="text-base font-bold font-mono mt-0.5">{crewCount}<span className="text-[10px] text-muted-foreground ml-0.5">Crew</span></div>
+        <div className="flex flex-col items-center text-center">
+          <CrewIcon className="w-8 h-8" />
+          <div className="text-base font-bold font-mono mt-1">{crewCount}<span className="text-[10px] text-muted-foreground ml-0.5">Crew</span></div>
+          <div className="text-[9px] font-mono uppercase tracking-wider text-muted-foreground">an Bord</div>
         </div>
       </div>
     </div>
+
 
     <div className="flex items-center justify-center gap-1.5 text-[11px] font-mono text-muted-foreground shrink-0">
       <span className="text-primary">5</span>×Szene
