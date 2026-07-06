@@ -1292,7 +1292,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   const [stats, setStats] = useState<SyndicateStats>(() => loadStats());
   const [unlockedIds, setUnlockedIds] = useState<Record<string, number>>(() => loadUnlocked());
   const [freshAch, setFreshAch] = useState<Achievement[]>([]);
-  const [overlay, setOverlay] = useState<null | "stats" | "achievements">(null);
+  const [overlay, setOverlay] = useState<null | "stats" | "achievements" | "guide">(null);
 
   // Close the stats/achievements overlay with the Escape key.
   useEffect(() => {
