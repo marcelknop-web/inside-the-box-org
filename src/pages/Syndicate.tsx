@@ -2494,7 +2494,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           step: `ROUND ${round} · STEP 1`,
           tone: event ? "danger" : "info",
           text: event
-            ? `A global event just hit: "${event.name}". It changes the odds this round — read the orange card, then tap CHOOSE OPERATION.`
+            ? (lang === "de" ? `Ein globales Ereignis ist eingetreten: „${tr(event.name)}". Es verändert die Chancen diese Runde — lies die orangefarbene Karte, dann tippe auf OPERATION WÄHLEN.` : `A global event just hit: "${event.name}". It changes the odds this round — read the orange card, then tap CHOOSE OPERATION.`)
             : tr("Every round starts here. The streets are calm right now. Tap CHOOSE OPERATION to see the jobs you can run."),
         })}
         <div className="text-center flex-1 flex flex-col items-center justify-center py-4">
@@ -2540,7 +2540,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                 icon: Dice5,
                 step: "STEP 3",
                 tone: "action",
-                text: `You picked "${selectedOp.name}". Now tap SPIN THE WHEEL — most slices pay you, but a red slice means you're caught and lose a shield. Not sure? Tap "pick a different operation".`,
+                text: lang === "de" ? `Du hast „${tr(selectedOp.name)}" gewählt. Tippe jetzt auf DREH DAS RAD — die meisten Felder zahlen dir aus, aber ein rotes Feld bedeutet, dass du erwischt wirst und ein Schild verlierst. Unsicher? Tippe auf „andere Operation wählen".` : `You picked "${selectedOp.name}". Now tap SPIN THE WHEEL — most slices pay you, but a red slice means you're caught and lose a shield. Not sure? Tap "pick a different operation".`,
               }
             : {
                 icon: Coins,
@@ -2709,7 +2709,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           icon: Flame,
           step: "STEP 4",
           tone: "action",
-          text: `Launching "${selectedOp.name}" against ${tgt.company} in ${tgt.city}. Watch the strike hit — the wheel is next.`,
+          text: lang === "de" ? `Starte „${tr(selectedOp.name)}" gegen ${tgt.company} in ${tgt.city}. Sieh zu, wie der Schlag trifft — das Rad kommt als Nächstes.` : `Launching "${selectedOp.name}" against ${tgt.company} in ${tgt.city}. Watch the strike hit — the wheel is next.`,
         })}
         <div className="relative flex flex-1 flex-col items-center justify-center overflow-hidden">
           <div className="relative min-h-[420px] w-full flex-1 overflow-hidden rounded-2xl border border-white/15 bg-[radial-gradient(60%_60%_at_50%_45%,rgba(0,188,212,0.12),transparent)]">
@@ -2828,22 +2828,22 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                   icon: Skull,
                   tone: "danger",
                   text: result.eliminated
-                    ? "You've been caught with no shields left — your crew is out of the game. Watch how the rest plays out below."
-                    : "Caught! You lost one shield token. When all shields are gone, you're eliminated — so weigh the risk next time.",
+                    ? tr("You've been caught with no shields left — your crew is out of the game. Watch how the rest plays out below.")
+                    : tr("Caught! You lost one shield token. When all shields are gone, you're eliminated — so weigh the risk next time."),
                 }
               : brokeEl
                 ? {
                     icon: Skull,
                     tone: "danger",
-                    text: "You're broke — your fortune hit $0 and your crew is out of the game. Watch how the rest plays out below.",
+                    text: tr("You're broke — your fortune hit $0 and your crew is out of the game. Watch how the rest plays out below."),
                   }
                 : {
                     icon: net >= 0 ? TrendingUp : Coins,
                     tone: net >= 0 ? "good" : "danger",
                     text:
                       net >= 0
-                        ? "The job paid off — this is your net profit after costs. Tap the button below to watch your rivals move."
-                        : "The job cost more than it earned this time. That happens — tap below to continue to your rivals' turn.",
+                        ? tr("The job paid off — this is your net profit after costs. Tap the button below to watch your rivals move.")
+                        : tr("The job cost more than it earned this time. That happens — tap below to continue to your rivals' turn."),
                   },
           )}
           <button
@@ -2881,14 +2881,14 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           tone: "info",
           text:
             aiSub === "choice"
-              ? "This rival has locked in their operation. Read it, then spin their wheel to see how it plays out."
+              ? tr("This rival has locked in their operation. Read it, then spin their wheel to see how it plays out.")
               : aiSub === "spinning"
-              ? "The wheel is deciding this rival's fate…"
-              : "Here's their result. Tap continue to move on to the next rival.",
+              ? tr("The wheel is deciding this rival's fate…")
+              : tr("Here's their result. Tap continue to move on to the next rival."),
         })}
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-mono text-cyan-300 text-sm">
-            RIVAL {idx + 1} / {aiLog.length}
+            {tr("RIVAL")} {idx + 1} / {aiLog.length}
           </h2>
           <button onClick={skipAll} className="text-white/65 text-xs hover:text-white/70 font-mono">
             {tr("skip all →")}
