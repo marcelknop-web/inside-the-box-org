@@ -1630,9 +1630,9 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         if (o === "caught") {
           turn.res.eliminated ? snd.caught() : snd.lose();
         } else if (o === "bigSuccess") {
-          snd.bigWin();
+          snd.bigWin(winIntensity(turn.res.delta - turn.op.cost, turn.op));
         } else if (turn.res.delta > turn.op.cost) {
-          snd.win();
+          snd.win(winIntensity(turn.res.delta - turn.op.cost, turn.op));
         } else {
           snd.reveal();
         }
