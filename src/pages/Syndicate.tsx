@@ -3080,7 +3080,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                   <span className="font-bold" style={{ color: p.isHuman ? "#f5b800" : p.color }}>
                     {p.name}{p.isHuman && " (you)"}
                   </span>
-                  {!p.alive && <span className="text-red-500 font-bold text-xs font-mono px-2 py-0.5 rounded bg-red-500/15">CAUGHT</span>}
+                  {!p.alive && <span className="text-red-500 font-bold text-xs font-mono px-2 py-0.5 rounded bg-red-500/15">Out</span>}
                 </span>
                 <span className="flex items-center gap-3">
                   <span className="flex gap-0.5">
