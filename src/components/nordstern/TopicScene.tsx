@@ -48,20 +48,32 @@ function makeRng(seed: number) {
   };
 }
 
+/*
+ * Motion is tuned for realism: the sine easing (cubic-bezier 0.37,0,0.63,1)
+ * matches how a real pendulum / bobbing hull moves — slowest at the extremes,
+ * fastest through the centre — instead of the constant speed of `linear` or the
+ * springy feel of plain `ease-in-out`. Radar sweeps and wheels stay linear
+ * because they rotate at constant angular velocity in reality.
+ */
+const SINE = 'cubic-bezier(0.37, 0, 0.63, 1)';
+
 const keyframes = `
 @keyframes ts-sweep { from { transform: rotate(0deg);} to { transform: rotate(360deg);} }
 @keyframes ts-sweepr { from { transform: rotate(360deg);} to { transform: rotate(0deg);} }
 @keyframes ts-ping { 0% { r: 2; opacity: .8;} 100% { r: 26; opacity: 0;} }
-@keyframes ts-blip { 0%,100% { opacity: 0;} 20%,60% { opacity: 1;} }
+@keyframes ts-blip { 0%,100% { opacity: 0;} 18% { opacity: 1;} 55% { opacity: .55;} }
 @keyframes ts-float { 0%,100% { transform: translateY(0);} 50% { transform: translateY(-3px);} }
 @keyframes ts-tilt { 0%,100% { transform: rotate(-2.2deg);} 50% { transform: rotate(2.2deg);} }
 @keyframes ts-drift { 0% { transform: translateX(-8%);} 100% { transform: translateX(108%);} }
-@keyframes ts-flash { 0%,92%,100% { opacity: 0;} 94%,97% { opacity: .9;} }
+@keyframes ts-flash { 0%,90%,100% { opacity: 0;} 92% { opacity: .95;} 93% { opacity: .2;} 95% { opacity: .8;} 97% { opacity: 0;} }
 @keyframes ts-swing { 0%,100% { transform: rotate(-9deg);} 50% { transform: rotate(9deg);} }
 @keyframes ts-spinw { from { transform: rotate(0);} to { transform: rotate(360deg);} }
-@keyframes ts-rise { 0% { transform: translateY(6px); opacity: 0;} 30% { opacity: .7;} 100% { transform: translateY(-30px); opacity: 0;} }
+@keyframes ts-rise { 0% { transform: translate(0,6px) scale(.85); opacity: 0;} 20% { opacity: .7;} 90% { opacity: .5;} 100% { transform: translate(var(--sway,4px),-30px) scale(1.05); opacity: 0;} }
 @keyframes ts-para { 0% { transform: translateY(4px) rotate(-6deg); opacity: 0;} 25%,70% { opacity: .8;} 100% { transform: translateY(-16px) rotate(6deg); opacity: 0;} }
 @keyframes ts-bob { 0%,100% { transform: translateY(0);} 50% { transform: translateY(-2.5px);} }
+/* combined roll+heave: a hull rolls and lifts on the swell out of phase */
+@keyframes ts-roll { 0%,100% { transform: rotate(-2.4deg) translateY(0);} 25% { transform: rotate(0deg) translateY(-1.6px);} 50% { transform: rotate(2.4deg) translateY(0);} 75% { transform: rotate(0deg) translateY(1.6px);} }
+@keyframes ts-swell { 0% { transform: translateX(0);} 100% { transform: translateX(-60px);} }
 `;
 
 const P = 'hsl(var(--primary))';
@@ -107,7 +119,7 @@ const Navigation: React.FC<{ rng: Rng }> = ({ rng }) => {
     <Shell label="Navigation" hue={rng.int(206, 216)}>
       <div className="absolute top-1/2" style={{ left: `calc(50% + ${dishX}px)`, transform: 'translate(-50%,-50%)' }}>
         <svg viewBox="-30 -30 60 60" className="w-28 h-28 md:w-36 md:h-36"
-          style={{ animation: `ts-float ${rng.range(5, 7).toFixed(2)}s ease-in-out infinite` }}>
+          style={{ animation: `ts-float ${rng.range(5, 7).toFixed(2)}s ${SINE} infinite` }}>
           {Array.from({ length: rings }).map((_, i) => (
             <circle key={i} cx="0" cy="0" r={10 + i * 8} fill="none" stroke={H} strokeWidth="0.4" opacity="0.35" />
           ))}
@@ -155,8 +167,8 @@ const Recht: React.FC<{ rng: Rng }> = ({ rng }) => {
           style={{ left: `${g.left}%`, top: `${g.top}%`, fontSize: `${g.size}px`, animation: `ts-para ${g.dur}s ease-in-out infinite ${g.delay}s` }}>§</span>
       ))}
       <div className="absolute top-1/2" style={{ left: `calc(50% + ${rng.range(-10, 10).toFixed(0)}px)`, transform: 'translate(-50%,-52%)' }}>
-        <svg viewBox="0 0 60 48" className="w-24 h-20 md:w-32 md:h-24" style={{ animation: `ts-bob ${rng.range(4.5, 6).toFixed(2)}s ease-in-out infinite` }}>
-          <g style={{ animation: `ts-tilt ${tiltDur}s ease-in-out infinite`, transformOrigin: '30px 8px' }}>
+        <svg viewBox="0 0 60 48" className="w-24 h-20 md:w-32 md:h-24" style={{ animation: `ts-bob ${rng.range(4.5, 6).toFixed(2)}s ${SINE} infinite` }}>
+          <g style={{ animation: `ts-tilt ${tiltDur}s ${SINE} infinite`, transformOrigin: '30px 8px' }}>
             <line x1="30" y1="6" x2="30" y2="30" stroke={P} strokeWidth="1.4" strokeLinecap="round" />
             <line x1="12" y1="12" x2="48" y2="12" stroke={P} strokeWidth="1.4" strokeLinecap="round" />
             <circle cx="30" cy="6" r="1.6" fill={P} />
@@ -190,13 +202,20 @@ const Wetter: React.FC<{ rng: Rng }> = ({ rng }) => {
   const boltX = rng.range(18, 74);
   return (
     <Shell label="Wetter & See" hue={rng.int(205, 214)}>
-      <div className="absolute inset-0" style={{ animation: `ts-tilt ${tiltDur}s ease-in-out infinite`, transformOrigin: 'center' }}>
-        <svg viewBox="0 0 120 60" preserveAspectRatio="none" className="absolute bottom-0 left-0 w-full h-2/3">
-          <path d="M0 30 Q30 24 60 30 T120 30 V60 H0 Z" fill="hsl(210 60% 22% / .55)" />
-          <path d="M0 38 Q30 32 60 38 T120 38 V60 H0 Z" fill="hsl(210 60% 16% / .6)" />
-          <path d="M0 30 Q30 24 60 30 T120 30" fill="none" stroke={H} strokeWidth="0.6" opacity="0.5" />
+      <div className="absolute inset-0" style={{ animation: `ts-roll ${tiltDur}s ${SINE} infinite`, transformOrigin: 'center bottom' }}>
+        {/* wider-than-frame wave bands slide sideways to read as a moving swell */}
+        <svg viewBox="0 0 180 60" preserveAspectRatio="none" className="absolute bottom-0 -left-[16%] w-[132%] h-2/3"
+          style={{ animation: `ts-swell ${(rng.range(7, 11)).toFixed(2)}s linear infinite` }}>
+          <path d="M0 32 Q15 26 30 32 T60 32 T90 32 T120 32 T150 32 T180 32 V60 H0 Z" fill="hsl(210 60% 22% / .55)" />
+          <path d="M0 40 Q15 34 30 40 T60 40 T90 40 T120 40 T150 40 T180 40 V60 H0 Z" fill="hsl(210 60% 16% / .6)" />
+          <path d="M0 32 Q15 26 30 32 T60 32 T90 32 T120 32 T150 32 T180 32" fill="none" stroke={H} strokeWidth="0.6" opacity="0.5" />
+        </svg>
+        <svg viewBox="0 0 180 60" preserveAspectRatio="none" className="absolute bottom-0 -left-[8%] w-[124%] h-1/2"
+          style={{ animation: `ts-swell ${(rng.range(11, 16)).toFixed(2)}s linear infinite reverse` }}>
+          <path d="M0 44 Q22 40 45 44 T90 44 T135 44 T180 44 V60 H0 Z" fill="hsl(212 62% 12% / .55)" />
         </svg>
       </div>
+
       {clouds.map((c, i) => (
         <svg key={i} viewBox="0 0 40 20" className="absolute w-16 h-8 opacity-70"
           style={{ top: `${c.top}%`, animation: `ts-drift ${c.dur}s linear infinite ${c.delay}s` }}>
@@ -220,7 +239,8 @@ const Wetter: React.FC<{ rng: Rng }> = ({ rng }) => {
 const Seemannschaft: React.FC<{ rng: Rng }> = ({ rng }) => {
   const bubbles = useMemo(
     () => Array.from({ length: rng.int(2, 4) }).map((_, i) => ({
-      x: rng.range(15, 82), size: rng.range(3, 6), dur: rng.range(2.6, 4.5).toFixed(2), delay: (i * 0.8).toFixed(2),
+      x: rng.range(15, 82), size: rng.range(3, 6), dur: rng.range(2.6, 4.5).toFixed(2),
+      delay: (i * 0.8).toFixed(2), sway: `${rng.range(-6, 6).toFixed(1)}px`,
     })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
@@ -234,10 +254,10 @@ const Seemannschaft: React.FC<{ rng: Rng }> = ({ rng }) => {
     <Shell label="Seemannschaft" hue={rng.int(210, 218)}>
       {bubbles.map((b, i) => (
         <span key={i} className="absolute rounded-full border border-highlight/50"
-          style={{ left: `${b.x}%`, bottom: '18%', width: b.size, height: b.size, animation: `ts-rise ${b.dur}s ease-in infinite ${b.delay}s` }} />
+          style={{ left: `${b.x}%`, bottom: '18%', width: b.size, height: b.size, ['--sway' as string]: b.sway, animation: `ts-rise ${b.dur}s ${SINE} infinite ${b.delay}s` } as React.CSSProperties} />
       ))}
       <div className="absolute top-1/2" style={{ left: `calc(50% + ${wheelX.toFixed(0)}px)`, transform: 'translate(-50%,-50%)' }}>
-        <svg viewBox="-24 -24 48 48" className="w-24 h-24 md:w-32 md:h-32" style={{ animation: `ts-bob ${rng.range(4.5, 6).toFixed(2)}s ease-in-out infinite` }}>
+        <svg viewBox="-24 -24 48 48" className="w-24 h-24 md:w-32 md:h-32" style={{ animation: `ts-bob ${rng.range(4.5, 6).toFixed(2)}s ${SINE} infinite` }}>
           <g style={{ animation: `${spinDir} ${spinDur}s linear infinite`, transformOrigin: 'center' }}>
             <circle r="12" fill="none" stroke={P} strokeWidth="1.6" />
             <circle r="4.5" fill="none" stroke={P} strokeWidth="1.4" />
@@ -254,7 +274,7 @@ const Seemannschaft: React.FC<{ rng: Rng }> = ({ rng }) => {
           </g>
         </svg>
       </div>
-      <div className="absolute top-0" style={{ right: `${anchorX}%`, transformOrigin: 'top center', animation: `ts-swing ${swingDur}s ease-in-out infinite` }}>
+      <div className="absolute top-0" style={{ right: `${anchorX}%`, transformOrigin: 'top center', animation: `ts-swing ${swingDur}s ${SINE} infinite` }}>
         <div className="w-px h-6 md:h-9 mx-auto" style={{ background: `linear-gradient(${H}, transparent)` }} />
         <svg viewBox="0 0 24 30" className="w-6 h-8 -mt-0.5">
           <circle cx="12" cy="4" r="2.4" fill="none" stroke={P} strokeWidth="1.4" />
