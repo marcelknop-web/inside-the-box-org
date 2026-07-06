@@ -166,7 +166,7 @@ async function load(key: SfxKey): Promise<AudioBuffer | null> {
   return p;
 }
 
-function play(key: SfxKey) {
+function play(key: SfxKey, opts?: { pitchAdd?: number; gainMul?: number }) {
   if (!enabled) return;
   const c = ac();
   if (!c || !master) return;
