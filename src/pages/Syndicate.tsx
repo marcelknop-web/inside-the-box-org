@@ -2045,43 +2045,8 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             className="w-full rounded-lg bg-black/25 border border-white/25 px-4 py-2.5 text-center text-white text-sm outline-none transition focus:border-cyan-400/70 mb-3"
           />
 
-          {/* mode selector */}
-          <div className="grid grid-cols-3 gap-2 mb-3">
-            {([
-              { id: "normal", label: "Normal", icon: <Skull size={14} /> },
-              { id: "daily", label: "Daily", icon: <Calendar size={14} /> },
-              { id: "seeded", label: "Seeded", icon: <Hash size={14} /> },
-            ] as const).map((m) => (
-              <button
-                key={m.id}
-                onClick={() => setGameMode(m.id)}
-                className="rounded-lg py-2 text-[11px] font-mono flex flex-col items-center gap-1 border transition"
-                style={{
-                  borderColor: gameMode === m.id ? "#00bcd4" : "rgba(255,255,255,0.10)",
-                  background: gameMode === m.id ? "rgba(0,188,212,0.10)" : "rgba(255,255,255,0.02)",
-                  color: gameMode === m.id ? "#5eead4" : "rgba(255,255,255,0.55)",
-                }}
-              >
-                {m.icon}
-                {m.label}
-              </button>
-            ))}
-          </div>
 
-          {gameMode === "daily" && (
-            <p className="text-[11px] text-cyan-300/80 font-mono mb-3">
-              Everyone plays the same board today · {dailySeedString().replace("DAILY-", "")}
-            </p>
-          )}
-          {gameMode === "seeded" && (
-            <input
-              value={seedInput}
-              onChange={(e) => setSeedInput(e.target.value)}
-              placeholder="Enter seed code (blank = random)"
-              maxLength={12}
-              className="w-full rounded-lg bg-black/25 border border-white/25 px-4 py-2 text-center text-white text-sm font-mono outline-none transition focus:border-cyan-400/70 mb-3 uppercase"
-            />
-          )}
+
 
           <button
             onClick={startGame}
