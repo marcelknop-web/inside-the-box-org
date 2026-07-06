@@ -2344,7 +2344,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         {/* Shields + Heat — bordered console boxes */}
         <div className="mt-3.5 grid grid-cols-2 gap-2.5">
           <div className="rounded-lg border border-white/20 bg-white/5 p-2.5">
-            <div className="mb-1.5 text-[8px] font-mono uppercase tracking-[0.2em] text-white/65">Shields</div>
+            <div className="mb-1.5 text-[10px] font-mono uppercase tracking-[0.2em] text-white/65">Shields</div>
             <div className="flex items-center gap-1">
               {Array.from({ length: START_TOKENS }).map((_, i) => (
                 <Shield
