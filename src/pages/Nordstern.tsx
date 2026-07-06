@@ -16,6 +16,7 @@ import {
 } from '@/lib/nordstern/sm2';
 import { useNordsternAudio } from '@/hooks/useNordsternAudio';
 import NauticalChart from '@/components/nordstern/NauticalChart';
+import { WindGauge, DistanceIcon, CrewIcon, TopicIcon } from '@/components/nordstern/BriefingIcons';
 
 type Topic = 'navigation' | 'recht' | 'wetter' | 'seemannschaft';
 
