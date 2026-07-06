@@ -38,6 +38,7 @@ const TypedSection = ({
   const [titleDone, setTitleDone] = useState(false);
   const [introDone, setIntroDone] = useState(!intro); // if no intro, skip
   const [suppressIntro, setSuppressIntro] = useState(false);
+  const [skeletonVisible, setSkeletonVisible] = useState(true);
   const sectionKey = `${title}-${mode}-${charDelay}`;
   const prevKeyRef = useRef(sectionKey);
 
