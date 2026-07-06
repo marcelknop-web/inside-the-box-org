@@ -62,7 +62,19 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
   const lang = language as 'de' | 'en' | 'fr';
   const t = (obj: Record<string, string>) => obj[lang] || obj.en;
   const isMobile = useIsMobile();
-  const { playQuestionReveal, playCorrect, playWrong, playSelect, playConfirm, playVictory, playDefeat, playTick, playTickUrgent, playMilestone } = useMillionaireSound();
+  const { unlock, playQuestionReveal, playCorrect, playWrong, playSelect, playConfirm, playVictory, playDefeat, playTick, playTickUrgent, playMilestone } = useMillionaireSound();
+
+  // Unlock audio on the first user interaction (covers embedded mode where the
+  // reveal sound would otherwise be blocked by the browser autoplay policy).
+  useEffect(() => {
+    const handler = () => unlock();
+    window.addEventListener('pointerdown', handler, { once: true });
+    window.addEventListener('keydown', handler, { once: true });
+    return () => {
+      window.removeEventListener('pointerdown', handler);
+      window.removeEventListener('keydown', handler);
+    };
+  }, [unlock]);
 
   const [started, setStarted] = useState(embedded);
   const [currentQ, setCurrentQ] = useState(0);
