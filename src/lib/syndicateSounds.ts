@@ -215,11 +215,15 @@ export const syndicateSounds = {
   tick() {
     play("tick");
   },
-  win() {
-    play("win");
+  // `intensity` (0..1) scales how "big" the win reads — bigger payouts ring
+  // higher and a touch louder so the ear tracks the money won off the wheel.
+  win(intensity = 0) {
+    const i = Math.max(0, Math.min(1, intensity));
+    play("win", { pitchAdd: i * 4, gainMul: 1 + i * 0.35 });
   },
-  bigWin() {
-    play("bigwin");
+  bigWin(intensity = 0) {
+    const i = Math.max(0, Math.min(1, intensity));
+    play("bigwin", { pitchAdd: i * 3, gainMul: 1 + i * 0.3 });
   },
   lose() {
     play("lose");
