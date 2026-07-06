@@ -127,7 +127,7 @@ const Navigation: React.FC<{ rng: Rng }> = ({ rng }) => {
           <line x1="0" y1="-28" x2="0" y2="28" stroke={H} strokeWidth="0.3" opacity="0.3" />
           <circle cx="0" cy="0" fill="none" stroke={P} strokeWidth="0.6" style={{ animation: `ts-ping ${sweepDur}s ease-out infinite` }} />
           <circle cx="0" cy="0" fill="none" stroke={P} strokeWidth="0.6" style={{ animation: `ts-ping ${sweepDur}s ease-out infinite ${(+sweepDur / 2).toFixed(2)}s` }} />
-          <g style={{ animation: `${sweepDir} ${sweepDur}s linear infinite`, transformOrigin: 'center' }}>
+          <g style={{ animation: `${sweepDir} ${sweepDur}s linear infinite`, transformBox: 'view-box', transformOrigin: 'center' }}>
             <defs>
               <linearGradient id={`ts-beam-${rng.int(0, 9999)}`} x1="0" y1="0" x2="1" y2="0">
                 <stop offset="0%" stopColor={P} stopOpacity="0.55" />
