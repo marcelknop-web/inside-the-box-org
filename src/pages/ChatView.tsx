@@ -936,7 +936,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'ki-lab': () => (
-      <TypedSection title={t('kiLab.title')} mode="fade" charDelay={4} pause={120} stagger={90} intro={<p>{t('kiLab.intro')}</p>}>
+      <TypedSection title={t('kiLab.title')} mode="fade" charDelay={4} pause={120} stagger={90} intro={<p>{t('kiLab.intro')}</p>} loadingSkeleton={<ToolGridSkeleton />}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('kiLab.introDetail')}</p>
         </Block>
