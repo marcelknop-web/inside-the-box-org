@@ -18,8 +18,9 @@ export default {
 			}
 		},
 		extend: {
-		fontFamily: {
+			fontFamily: {
 				sans: ['DM Sans', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+				display: ['Space Grotesk', 'DM Sans', 'sans-serif'],
 				mono: ['IBM Plex Mono', 'Monaco', 'Menlo', 'monospace'],
 				rounded: ['DM Sans', 'sans-serif'],
 			},
@@ -72,6 +73,22 @@ export default {
 				linkedin: {
 					DEFAULT: 'hsl(var(--linkedin))',
 					foreground: 'hsl(var(--linkedin-foreground))'
+				},
+				'syndicate-start-bg': {
+					DEFAULT: 'hsl(var(--syndicate-start-bg))',
+					foreground: 'hsl(var(--foreground))'
+				},
+				'syndicate-start-panel': {
+					DEFAULT: 'hsl(var(--syndicate-start-panel))',
+					foreground: 'hsl(var(--foreground))'
+				},
+				'aurora-violet': {
+					DEFAULT: 'hsl(var(--aurora-violet))',
+					foreground: 'hsl(var(--syndicate-start-bg))'
+				},
+				'aurora-green': {
+					DEFAULT: 'hsl(var(--aurora-green))',
+					foreground: 'hsl(var(--syndicate-start-bg))'
 				}
 			},
 			backgroundImage: {
