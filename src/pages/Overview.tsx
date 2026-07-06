@@ -483,7 +483,8 @@ const Overview = () => {
       {!entered ? (
         /* Opener Hero — claim-dominant hierarchy */
         <section className="flex-1 flex items-center justify-center px-5 sm:px-6 py-8 sm:py-14 max-w-5xl mx-auto w-full">
-          <div className="w-full max-w-3xl text-center">
+          <div className="w-full max-w-3xl text-center sm:-translate-y-[3vh]">
+
             {/* Category label */}
             <div
               className="font-mono text-[10px] sm:text-[13px] md:text-[14px] tracking-[0.3em] sm:tracking-[0.4em] text-primary mb-5 sm:mb-6 opacity-0 animate-fade-in"
