@@ -85,7 +85,7 @@ const TypedSection = ({
           </div>
         )}
       </div>
-      <StaggerReveal resetKey={sectionKey} stagger={effectiveStagger} startDelay={blocksReady ? 500 : 999999}>
+      <StaggerReveal resetKey={sectionKey} stagger={effectiveStagger} startDelay={blocksReady ? pause : 999999}>
         {children}
       </StaggerReveal>
     </div>
