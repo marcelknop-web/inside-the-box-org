@@ -448,5 +448,60 @@ const DE: Record<string, string> = {
   Greedy: "Gierig",
   Adaptive: "Anpassungsfähig",
   Chaotic: "Chaotisch",
+
+  /* --- quick guide --- */
+  "guide.title": "Kurzanleitung",
+  "guide.welcome":
+    "Syndicate ist ein rundenbasiertes Taktikspiel. Du leitest eine kriminelle Operation, planst Jobs und versuchst, am Ende von 12 Runden die meisten Punkte zu besitzen. Jede Runde birgt Chancen und Risiken.",
+  "guide.objective":
+    "Verdiene nach 12 Runden mehr als deine zwei KI-Rivalen. Dein Ergebnis setzt sich aus Bargeld, dem aktuellen Wert deiner Aktivitäten und deinem Heat-Stand ab. Wer die beste Balance aus Risiko und Rendite findet, gewinnt.",
+  "guide.startTitle": "Starten",
+  "guide.start1":
+    "Wähle einen Spielmodus: Free Play (Standard mit Zufallsereignissen), Daily Challenge (jeder Tag hat einen festen Seed) oder Seeded Game (eigener Code für identische Bedingungen).",
+  "guide.start2": "Gib deinen Namen oder Alias ein.",
+  "guide.start3":
+    "Wähle eine KI-Strategie für deinen Charakter: konservativ, risikofreudig, gierig, adaptiv oder chaotisch.",
+  "guide.roundTitle": "Rundenablauf",
+  "guide.round1":
+    "Globales Ereignis — Weltweite Nachrichten beeinflussen Risiko und Gewinn. Lies sie aufmerksam.",
+  "guide.round2":
+    "Operation wählen — Klicke eine der 12 verfügbaren Aktionen. Jede hat Kosten, mögliche Auszahlung und eine Risikostufe.",
+  "guide.round3": "Glücksrad drehen — Das Rad entscheidet über den Ausgang deiner Operation.",
+  "guide.outcomeTitle": "Mögliche Ergebnisse",
+  "guide.safe": "Safe — Einsatz zurück, kein Gewinn, kein Verlust.",
+  "guide.success": "Success — Normale Auszahlung.",
+  "guide.bigSuccess": "Big Success — Auszahlung × 1,8.",
+  "guide.bonus": "Bonus — Auszahlung × 1,3.",
+  "guide.investigation":
+    "Investigation — Nur 50 % des Einsatzes zurück, Heat steigt.",
+  "guide.caught": "Caught — Einsatz verloren, Schild-Token verbraucht.",
+  "guide.shieldsTitle": "Schilder & Tokens",
+  "guide.shields1": "Du startest mit 3 Schildern.",
+  "guide.shields2": "Bei Caught verlierst du ein Schild.",
+  "guide.shields3":
+    "Hast du keine Schilder mehr, bedeutet ein weiterer Caught das Spielende.",
+  "guide.heatTitle": "Heat (Aufmerksamkeit)",
+  "guide.heat":
+    "Heat steigt mit jeder Runde und bei Ermittlungen. Hoher Heat erhöht die Wahrscheinlichkeit, erwischt zu werden.",
+  "guide.rivalsTitle": "KI-Rivalen",
+  "guide.vex": "Vex — Konservativ, reduziert das Entdeckungsrisiko.",
+  "guide.nyx": "Nyx — Risikofreudig, gewinnt bei hohen Risiken mehr.",
+  "guide.tipsTitle": "Tipps",
+  "guide.tip1": "Niedrige Risiken am Anfang sichern dein Kapital.",
+  "guide.tip2":
+    "Weltnachrichten beachten: Bei Boom oder Gold Rush lohnen sich teure Operationen.",
+  "guide.tip3":
+    "Bei „Interpol Joint Operation“ oder „Insider Informant“ lieber kleinere Risiken wählen.",
+  "guide.tip4":
+    "Behalte deine Schilder im Auge; ein weiteres Caught ohne Schutz beendet das Spiel.",
+  "guide.tip5":
+    "Versuche, in den letzten Runden noch einmal zu pushen, bevor die Endwertung zählt.",
+  "guide.languageTitle": "Sprache",
+  "guide.language":
+    "Über den Schalter oben rechts kannst du zwischen Deutsch und Englisch wechseln.",
+  "guide.endTitle": "Spiel beenden",
+  "guide.end":
+    "Das Spiel endet nach 12 Runden oder früher, wenn du alle Schilder verlierst. Die Highscore-Liste zeigt deine besten Ergebnisse.",
+  "guide.close": "Schließen",
 };
 
