@@ -572,13 +572,22 @@ export default function Starfighter() {
 
   const startGame = useCallback(() => {
     const w = worldRef.current;
-    Object.assign(w, freshWorld());
-    w.phase = 'playing';
-    // seed first wave
+    // reset state WITHOUT wiping the mounted geometry pools
+    const fresh = freshWorld();
+    w.aim = fresh.aim;
+    w.fireHeld = false; w.fireCd = 0;
+    w.shotsFired = 0; w.shotsHit = 0;
+    w.shield = 1; w.score = 0; w.combo = 0; w.comboTimer = 0; w.kills = 0;
+    w.spawnCd = 0.6; w.spawnInterval = 1.8; w.enemySpeedMul = 1; w.enemyFireMul = 1;
+    w.diffTimer = 3; w.toSpawnThisWave = 6; w.spawnedThisWave = 0; w.aliveThisWave = 0;
+    w.waveState = 'spawning'; w.interTimer = 0; w.shake = 0; w.invuln = 0;
     w.wave = 1;
-    w.waveState = 'spawning';
-    w.toSpawnThisWave = 6;
-    w.spawnCd = 0.6;
+    // deactivate any pooled objects still in flight
+    w.enemies.forEach((e) => { e.active = false; e.mesh.visible = false; });
+    w.pBolts.forEach((b) => { b.active = false; b.mesh.visible = false; });
+    w.eBolts.forEach((b) => { b.active = false; b.mesh.visible = false; });
+    w.bursts.forEach((b) => { b.active = false; b.line.visible = false; });
+    w.phase = 'playing';
     setPhase('playing');
     setHud({ shield: 1, score: 0, wave: 1, combo: 0, kills: 0, accuracy: 0, diff: 'ADAPTIV · STABIL', hint: '' });
     setHint(STORY_HINTS[1]); setHintKey((k) => k + 1);
