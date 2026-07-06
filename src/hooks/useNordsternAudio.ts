@@ -1,241 +1,248 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import correctAsset from '@/assets/nordstern/correct.mp3.asset.json';
+import wrongAsset from '@/assets/nordstern/wrong.mp3.asset.json';
+import bellAsset from '@/assets/nordstern/bell.mp3.asset.json';
+import foghornAsset from '@/assets/nordstern/foghorn.mp3.asset.json';
+import thunderAsset from '@/assets/nordstern/thunder.mp3.asset.json';
+import wavesAsset from '@/assets/nordstern/waves.mp3.asset.json';
+import windAsset from '@/assets/nordstern/wind.mp3.asset.json';
+import stormAsset from '@/assets/nordstern/storm.mp3.asset.json';
+
 /**
- * Procedural maritime sound design for Nordstern.
- * - Ambient waves (filtered noise + slow LFO)
- * - Wind layer scaled by Bft
- * - Storm layer with occasional thunder rumble
- * - SFX: correct (bell ding), wrong (low thud), bell (etappe), gull (briefing)
+ * Sample-based maritime sound design for Nordstern — same engine architecture
+ * as the Syndicate game: studio-quality MP3 samples served from the Lovable
+ * CDN, played through the Web Audio API with a mobile-speaker mastering chain
+ * (highpass / presence / air / compressor / limiter), pitch/gain variation on
+ * one-shots, and gain-controlled, cross-fadeable looping ambient beds.
  *
- * Pure Web Audio — no external APIs. AudioContext lazily on first user gesture.
+ * Public API is unchanged (ensure / playCorrect / playWrong / playBell /
+ * playFoghorn / setWind / setStorm / muted / setMuted) so the page needs no
+ * edits.
  */
 
-type AudioRefs = {
-  ctx: AudioContext;
-  master: GainNode;
-  wavesGain: GainNode;
-  windGain: GainNode;
-  stormGain: GainNode;
-  thunderTimer: number | null;
-  wavesLfo: OscillatorNode;
-  windLfo: OscillatorNode;
+type SfxKey = 'correct' | 'wrong' | 'bell' | 'foghorn' | 'thunder';
+type LoopKey = 'waves' | 'wind' | 'storm';
+
+const SFX_URL: Record<SfxKey, string> = {
+  correct: correctAsset.url,
+  wrong: wrongAsset.url,
+  bell: bellAsset.url,
+  foghorn: foghornAsset.url,
+  thunder: thunderAsset.url,
 };
 
-function createNoiseBuffer(ctx: AudioContext, seconds = 2): AudioBuffer {
-  const len = ctx.sampleRate * seconds;
-  const buf = ctx.createBuffer(1, len, ctx.sampleRate);
-  const data = buf.getChannelData(0);
-  // pink-ish noise (Voss-McCartney lite)
-  let b0 = 0, b1 = 0, b2 = 0;
-  for (let i = 0; i < len; i++) {
-    const w = Math.random() * 2 - 1;
-    b0 = 0.99765 * b0 + w * 0.0990460;
-    b1 = 0.96300 * b1 + w * 0.2965164;
-    b2 = 0.57000 * b2 + w * 1.0526913;
-    data[i] = (b0 + b1 + b2 + w * 0.1848) * 0.15;
-  }
-  return buf;
-}
+const LOOP_URL: Record<LoopKey, string> = {
+  waves: wavesAsset.url,
+  wind: windAsset.url,
+  storm: stormAsset.url,
+};
+
+const SFX_GAIN: Record<SfxKey, number> = {
+  correct: 0.5,
+  wrong: 0.5,
+  bell: 0.55,
+  foghorn: 0.6,
+  thunder: 0.55,
+};
+
+const SFX_VARY: Record<SfxKey, { pitch: number; gain: number }> = {
+  correct: { pitch: 0.3, gain: 0.05 },
+  wrong: { pitch: 0.4, gain: 0.05 },
+  bell: { pitch: 0.2, gain: 0.04 },
+  foghorn: { pitch: 0.15, gain: 0.04 },
+  thunder: { pitch: 0.7, gain: 0.06 },
+};
+
+const semitoneToRate = (semi: number) => Math.pow(2, semi / 12);
+const jitter = (amt: number) => (Math.random() * 2 - 1) * amt;
 
 const STORAGE_KEY = 'nordstern.audio.muted';
 
+type Engine = {
+  ctx: AudioContext;
+  master: GainNode;
+  loopGain: Record<LoopKey, GainNode>;
+  loopSrc: Partial<Record<LoopKey, AudioBufferSourceNode>>;
+  buffers: Map<string, AudioBuffer>;
+  loading: Map<string, Promise<AudioBuffer | null>>;
+  thunderTimer: number | null;
+};
+
 export function useNordsternAudio() {
-  const refs = useRef<AudioRefs | null>(null);
+  const engineRef = useRef<Engine | null>(null);
   const [muted, setMutedState] = useState<boolean>(() => {
     try { return localStorage.getItem(STORAGE_KEY) === '1'; } catch { return false; }
   });
   const mutedRef = useRef(muted);
   mutedRef.current = muted;
 
-  const ensure = useCallback(async (): Promise<AudioRefs | null> => {
-    if (refs.current) {
-      if (refs.current.ctx.state === 'suspended') {
-        try { await refs.current.ctx.resume(); } catch { /* noop */ }
+  const ensure = useCallback(async (): Promise<Engine | null> => {
+    if (engineRef.current) {
+      if (engineRef.current.ctx.state === 'suspended') {
+        try { await engineRef.current.ctx.resume(); } catch { /* noop */ }
       }
-      return refs.current;
+      return engineRef.current;
     }
     try {
-      const Ctx = window.AudioContext || (window as any).webkitAudioContext;
-      if (!Ctx) return null;
-      const ctx: AudioContext = new Ctx();
+      const AC = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!AC) return null;
+      const ctx = new AC();
       const master = ctx.createGain();
       master.gain.value = mutedRef.current ? 0 : 0.55;
-      master.connect(ctx.destination);
 
-      const noise = createNoiseBuffer(ctx, 4);
+      // --- Mobile-speaker voicing chain (mirrors Syndicate) ---
+      const highpass = ctx.createBiquadFilter();
+      highpass.type = 'highpass';
+      highpass.frequency.value = 120; // keep some sea rumble but drop unusable sub
+      highpass.Q.value = 0.7;
 
-      // ---- WAVES: low-pass filtered noise with slow swell ----
-      const wavesSrc = ctx.createBufferSource();
-      wavesSrc.buffer = noise; wavesSrc.loop = true;
-      const wavesLp = ctx.createBiquadFilter();
-      wavesLp.type = 'lowpass'; wavesLp.frequency.value = 380; wavesLp.Q.value = 0.7;
-      const wavesGain = ctx.createGain(); wavesGain.gain.value = 0.0;
-      const wavesLfo = ctx.createOscillator();
-      const wavesLfoGain = ctx.createGain();
-      wavesLfo.frequency.value = 0.18; wavesLfoGain.gain.value = 0.14;
-      wavesLfo.connect(wavesLfoGain); wavesLfoGain.connect(wavesGain.gain);
-      wavesSrc.connect(wavesLp); wavesLp.connect(wavesGain); wavesGain.connect(master);
-      wavesSrc.start(); wavesLfo.start();
+      const presence = ctx.createBiquadFilter();
+      presence.type = 'peaking';
+      presence.frequency.value = 2400;
+      presence.Q.value = 0.9;
+      presence.gain.value = 3.5;
 
-      // ---- WIND: band-pass noise, breathier ----
-      const windSrc = ctx.createBufferSource();
-      windSrc.buffer = noise; windSrc.loop = true;
-      const windBp = ctx.createBiquadFilter();
-      windBp.type = 'bandpass'; windBp.frequency.value = 900; windBp.Q.value = 0.9;
-      const windGain = ctx.createGain(); windGain.gain.value = 0.0;
-      const windLfo = ctx.createOscillator();
-      const windLfoGain = ctx.createGain();
-      windLfo.frequency.value = 0.27; windLfoGain.gain.value = 0.10;
-      windLfo.connect(windLfoGain); windLfoGain.connect(windGain.gain);
-      windSrc.connect(windBp); windBp.connect(windGain); windGain.connect(master);
-      windSrc.start(); windLfo.start();
+      const air = ctx.createBiquadFilter();
+      air.type = 'highshelf';
+      air.frequency.value = 7000;
+      air.gain.value = 2;
 
-      // ---- STORM: low-rumble noise base, idle 0 ----
-      const stormSrc = ctx.createBufferSource();
-      stormSrc.buffer = noise; stormSrc.loop = true;
-      const stormLp = ctx.createBiquadFilter();
-      stormLp.type = 'lowpass'; stormLp.frequency.value = 220; stormLp.Q.value = 1;
-      const stormGain = ctx.createGain(); stormGain.gain.value = 0.0;
-      stormSrc.connect(stormLp); stormLp.connect(stormGain); stormGain.connect(master);
-      stormSrc.start();
+      const comp = ctx.createDynamicsCompressor();
+      comp.threshold.value = -14;
+      comp.ratio.value = 3;
 
-      refs.current = {
-        ctx, master, wavesGain, windGain, stormGain,
-        thunderTimer: null, wavesLfo, windLfo,
+      const limiter = ctx.createDynamicsCompressor();
+      limiter.threshold.value = -2;
+      limiter.knee.value = 0;
+      limiter.ratio.value = 20;
+      limiter.attack.value = 0.002;
+      limiter.release.value = 0.1;
+
+      master.connect(highpass).connect(presence).connect(air).connect(comp).connect(limiter).connect(ctx.destination);
+
+      const loopGain: Record<LoopKey, GainNode> = {
+        waves: ctx.createGain(),
+        wind: ctx.createGain(),
+        storm: ctx.createGain(),
       };
-      // Soft fade-in of waves
-      wavesGain.gain.linearRampToValueAtTime(0.22, ctx.currentTime + 1.2);
-      return refs.current;
+      (Object.keys(loopGain) as LoopKey[]).forEach((k) => {
+        loopGain[k].gain.value = 0;
+        loopGain[k].connect(master);
+      });
+
+      const engine: Engine = {
+        ctx, master, loopGain, loopSrc: {},
+        buffers: new Map(), loading: new Map(), thunderTimer: null,
+      };
+      engineRef.current = engine;
+
+      // Warm-load everything, then start ambient beds.
+      const startLoop = async (key: LoopKey) => {
+        const buf = await loadBuffer(engine, key, LOOP_URL[key]);
+        if (!buf || !engineRef.current || engine.loopSrc[key]) return;
+        const src = ctx.createBufferSource();
+        src.buffer = buf; src.loop = true;
+        src.connect(loopGain[key]);
+        src.start();
+        engine.loopSrc[key] = src;
+      };
+      startLoop('waves').then(() => {
+        loopGain.waves.gain.linearRampToValueAtTime(0.28, ctx.currentTime + 1.4);
+      });
+      startLoop('wind');
+      startLoop('storm');
+      (Object.keys(SFX_URL) as SfxKey[]).forEach((k) => void loadBuffer(engine, k, SFX_URL[k]));
+
+      return engine;
     } catch (e) {
       console.warn('Nordstern audio init failed', e);
       return null;
     }
   }, []);
 
-  // SFX builders
-  const playBell = useCallback(async (freq = 880, dur = 1.4, vol = 0.5) => {
-    const r = await ensure(); if (!r) return;
-    const { ctx, master } = r;
-    const t = ctx.currentTime;
-    [freq, freq * 2.01, freq * 3.02].forEach((f, i) => {
-      const o = ctx.createOscillator(); o.type = 'sine'; o.frequency.value = f;
+  const playSfx = useCallback(async (key: SfxKey, opts?: { rateMul?: number; gainMul?: number }) => {
+    const e = await ensure(); if (!e) return;
+    const start = (buf: AudioBuffer) => {
+      const { ctx, master } = e;
+      const vary = SFX_VARY[key];
+      const semi = jitter(vary.pitch);
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.playbackRate.value = semitoneToRate(semi) * (opts?.rateMul ?? 1);
       const g = ctx.createGain();
-      const v = vol * (i === 0 ? 1 : i === 1 ? 0.4 : 0.2);
-      g.gain.setValueAtTime(0, t);
-      g.gain.linearRampToValueAtTime(v, t + 0.005);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-      o.connect(g); g.connect(master);
-      o.start(t); o.stop(t + dur + 0.05);
-    });
+      g.gain.value = Math.max(0.05, (SFX_GAIN[key] + jitter(vary.gain)) * (opts?.gainMul ?? 1));
+      src.connect(g).connect(master);
+      src.start();
+    };
+    const cached = e.buffers.get(key);
+    if (cached) start(cached);
+    else { const b = await loadBuffer(e, key, SFX_URL[key]); if (b) start(b); }
   }, [ensure]);
 
-  const playCorrect = useCallback(async () => {
-    const r = await ensure(); if (!r) return;
-    const { ctx, master } = r;
-    const t = ctx.currentTime;
-    [659.25, 987.77].forEach((f, i) => {
-      const o = ctx.createOscillator(); o.type = 'sine'; o.frequency.value = f;
-      const g = ctx.createGain();
-      g.gain.setValueAtTime(0, t + i * 0.08);
-      g.gain.linearRampToValueAtTime(0.32, t + i * 0.08 + 0.01);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.08 + 0.45);
-      o.connect(g); g.connect(master);
-      o.start(t + i * 0.08); o.stop(t + i * 0.08 + 0.5);
-    });
-  }, [ensure]);
+  const playCorrect = useCallback(() => playSfx('correct'), [playSfx]);
+  const playWrong = useCallback(() => playSfx('wrong'), [playSfx]);
+  const playThunder = useCallback(() => playSfx('thunder'), [playSfx]);
+  const playFoghorn = useCallback(() => playSfx('foghorn'), [playSfx]);
 
-  const playWrong = useCallback(async () => {
-    const r = await ensure(); if (!r) return;
-    const { ctx, master } = r;
-    const t = ctx.currentTime;
-    const o = ctx.createOscillator(); o.type = 'sawtooth';
-    o.frequency.setValueAtTime(180, t);
-    o.frequency.exponentialRampToValueAtTime(70, t + 0.45);
-    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 420;
-    const g = ctx.createGain();
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(0.28, t + 0.01);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
-    o.connect(lp); lp.connect(g); g.connect(master);
-    o.start(t); o.stop(t + 0.55);
-  }, [ensure]);
+  // Keep the legacy signature (freq, dur, vol): map freq to a pitch offset and
+  // vol to a gain multiplier so existing call sites keep their intent.
+  const playBell = useCallback((freq = 880, _dur = 1.4, vol = 0.5) => {
+    const rateMul = Math.max(0.5, Math.min(2, freq / 880));
+    const gainMul = Math.max(0.3, Math.min(1.6, vol / 0.5));
+    return playSfx('bell', { rateMul, gainMul });
+  }, [playSfx]);
 
-  const playFoghorn = useCallback(async () => {
-    const r = await ensure(); if (!r) return;
-    const { ctx, master } = r;
-    const t = ctx.currentTime;
-    const o = ctx.createOscillator(); o.type = 'sine';
-    o.frequency.setValueAtTime(110, t);
-    o.frequency.linearRampToValueAtTime(95, t + 1.6);
-    const o2 = ctx.createOscillator(); o2.type = 'sine';
-    o2.frequency.setValueAtTime(165, t);
-    o2.frequency.linearRampToValueAtTime(140, t + 1.6);
-    const g = ctx.createGain();
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(0.35, t + 0.25);
-    g.gain.setValueAtTime(0.35, t + 1.2);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 1.9);
-    o.connect(g); o2.connect(g); g.connect(master);
-    o.start(t); o2.start(t); o.stop(t + 2); o2.stop(t + 2);
-  }, [ensure]);
-
-  const playThunder = useCallback(async () => {
-    const r = await ensure(); if (!r) return;
-    const { ctx, master } = r;
-    const t = ctx.currentTime;
-    const buf = createNoiseBuffer(ctx, 2);
-    const src = ctx.createBufferSource(); src.buffer = buf;
-    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass';
-    lp.frequency.setValueAtTime(180, t);
-    lp.frequency.exponentialRampToValueAtTime(60, t + 1.6);
-    const g = ctx.createGain();
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(0.45, t + 0.05);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 1.8);
-    src.connect(lp); lp.connect(g); g.connect(master);
-    src.start(t); src.stop(t + 1.9);
-  }, [ensure]);
-
-  // Ambient controls
   const setWind = useCallback(async (bft: number) => {
-    const r = await ensure(); if (!r) return;
-    const target = Math.max(0, Math.min(0.32, (bft - 1) / 9 * 0.32));
-    r.windGain.gain.linearRampToValueAtTime(target, r.ctx.currentTime + 0.8);
+    const e = await ensure(); if (!e) return;
+    const target = Math.max(0, Math.min(0.34, (bft - 1) / 9 * 0.34));
+    e.loopGain.wind.gain.linearRampToValueAtTime(target, e.ctx.currentTime + 0.9);
   }, [ensure]);
 
   const setStorm = useCallback(async (active: boolean) => {
-    const r = await ensure(); if (!r) return;
-    const t = r.ctx.currentTime;
-    r.stormGain.gain.linearRampToValueAtTime(active ? 0.28 : 0.0, t + 0.7);
-    if (active && r.thunderTimer == null) {
+    const e = await ensure(); if (!e) return;
+    const t = e.ctx.currentTime;
+    e.loopGain.storm.gain.linearRampToValueAtTime(active ? 0.3 : 0, t + 0.8);
+    if (active && e.thunderTimer == null) {
       const tick = () => {
-        if (!refs.current) return;
-        playThunder();
+        if (!engineRef.current) return;
+        void playThunder();
         const next = 6000 + Math.random() * 8000;
-        refs.current.thunderTimer = window.setTimeout(tick, next);
+        engineRef.current.thunderTimer = window.setTimeout(tick, next);
       };
-      r.thunderTimer = window.setTimeout(tick, 1500 + Math.random() * 2500);
-    } else if (!active && r.thunderTimer != null) {
-      clearTimeout(r.thunderTimer); r.thunderTimer = null;
+      e.thunderTimer = window.setTimeout(tick, 1500 + Math.random() * 2500);
+    } else if (!active && e.thunderTimer != null) {
+      clearTimeout(e.thunderTimer); e.thunderTimer = null;
     }
   }, [ensure, playThunder]);
 
   const setMuted = useCallback((next: boolean) => {
     setMutedState(next);
     try { localStorage.setItem(STORAGE_KEY, next ? '1' : '0'); } catch { /* noop */ }
-    const r = refs.current;
-    if (r) r.master.gain.linearRampToValueAtTime(next ? 0 : 0.55, r.ctx.currentTime + 0.2);
+    const e = engineRef.current;
+    if (e) e.master.gain.linearRampToValueAtTime(next ? 0 : 0.55, e.ctx.currentTime + 0.2);
   }, []);
 
-  // Cleanup
   useEffect(() => () => {
-    const r = refs.current;
-    if (r) {
-      if (r.thunderTimer != null) clearTimeout(r.thunderTimer);
-      try { r.ctx.close(); } catch { /* noop */ }
-      refs.current = null;
+    const e = engineRef.current;
+    if (e) {
+      if (e.thunderTimer != null) clearTimeout(e.thunderTimer);
+      try { e.ctx.close(); } catch { /* noop */ }
+      engineRef.current = null;
     }
   }, []);
 
   return { muted, setMuted, ensure, playCorrect, playWrong, playBell, playFoghorn, setWind, setStorm };
+}
+
+async function loadBuffer(engine: Engine, key: string, url: string): Promise<AudioBuffer | null> {
+  if (engine.buffers.has(key)) return engine.buffers.get(key)!;
+  if (engine.loading.has(key)) return engine.loading.get(key)!;
+  const p = fetch(url)
+    .then((r) => r.arrayBuffer())
+    .then((ab) => engine.ctx.decodeAudioData(ab))
+    .then((buf) => { engine.buffers.set(key, buf); return buf; })
+    .catch(() => null);
+  engine.loading.set(key, p);
+  return p;
 }
