@@ -239,7 +239,8 @@ const Wetter: React.FC<{ rng: Rng }> = ({ rng }) => {
 const Seemannschaft: React.FC<{ rng: Rng }> = ({ rng }) => {
   const bubbles = useMemo(
     () => Array.from({ length: rng.int(2, 4) }).map((_, i) => ({
-      x: rng.range(15, 82), size: rng.range(3, 6), dur: rng.range(2.6, 4.5).toFixed(2), delay: (i * 0.8).toFixed(2),
+      x: rng.range(15, 82), size: rng.range(3, 6), dur: rng.range(2.6, 4.5).toFixed(2),
+      delay: (i * 0.8).toFixed(2), sway: `${rng.range(-6, 6).toFixed(1)}px`,
     })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
