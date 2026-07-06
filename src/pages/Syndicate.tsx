@@ -2357,7 +2357,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             </div>
           </div>
           <div className="rounded-lg border border-white/20 bg-white/5 p-2.5">
-            <div className="mb-1.5 text-[8px] font-mono uppercase tracking-[0.2em] text-white/65">Heat %</div>
+            <div className="mb-1.5 text-[10px] font-mono uppercase tracking-[0.2em] text-white/65">Heat %</div>
             <div className="flex items-center gap-1 text-orange-400 text-base font-mono font-bold leading-none">
               <Flame size={13} /> +{heatPct}%
             </div>
