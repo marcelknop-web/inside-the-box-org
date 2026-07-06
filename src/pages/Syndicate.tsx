@@ -2994,7 +2994,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                     color: caught ? "#fca5a5" : theme.glow,
                   }}
                 >
-                  {caught ? "CAUGHT — SHIELD LOST" : turn.player.lastLabel}
+                  {caught ? "Caught — Shield Lost" : turn.player.lastLabel}
                 </div>
                 <p className={`mt-3 text-xl font-mono font-bold ${delta >= 0 ? "text-green-400" : "text-red-400"}`}>
                   {delta >= 0 ? "+" : ""}{fmt(delta)}
