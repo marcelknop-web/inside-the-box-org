@@ -13,6 +13,8 @@ interface TypedSectionProps {
   children: ReactNode;
   /** ms between each box appearing */
   stagger?: number;
+  /** ms pause between title → intro → blocks (default 500) */
+  pause?: number;
 }
 
 /**
@@ -25,6 +27,7 @@ const TypedSection = ({
   intro,
   children,
   stagger = 500,
+  pause = 500,
 }: TypedSectionProps) => {
   const isMobile = useIsMobile();
   const effectiveStagger = isMobile ? Math.max(stagger, 700) : stagger;
@@ -51,12 +54,12 @@ const TypedSection = ({
     }
   }, [sectionKey, intro]);
 
-  // 500ms pause after title before showing intro
+  // pause after title before showing intro
   useEffect(() => {
     if (!titleDone || !intro) return;
-    const t = setTimeout(() => setIntroVisible(true), 500);
+    const t = setTimeout(() => setIntroVisible(true), pause);
     return () => clearTimeout(t);
-  }, [titleDone, intro]);
+  }, [titleDone, intro, pause]);
 
   // Determine when content blocks can start (after intro done + 500ms)
   const blocksReady = intro ? introDone : titleDone;
@@ -82,7 +85,7 @@ const TypedSection = ({
           </div>
         )}
       </div>
-      <StaggerReveal resetKey={sectionKey} stagger={effectiveStagger} startDelay={blocksReady ? 500 : 999999}>
+      <StaggerReveal resetKey={sectionKey} stagger={effectiveStagger} startDelay={blocksReady ? pause : 999999}>
         {children}
       </StaggerReveal>
     </div>

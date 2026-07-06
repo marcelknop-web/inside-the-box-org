@@ -909,7 +909,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'ki-lab': () => (
-      <TypedSection title={t('kiLab.title')} mode="typewriter" intro={<p>{t('kiLab.intro')}</p>}>
+      <TypedSection title={t('kiLab.title')} mode="fade" charDelay={4} pause={120} stagger={90} intro={<p>{t('kiLab.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('kiLab.introDetail')}</p>
         </Block>
@@ -917,9 +917,9 @@ const useServiceContent = () => {
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('aiWorkflows.tryAgentsTitle')}</SubTitle>
           <p className="text-foreground text-sm md:text-[15px] mb-3">{t('aiWorkflows.tryAgentsDesc')}</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {/* — Flagship: Krisensimulator — */}
-            <button onClick={() => setActive('crisis-sim')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+            <button onClick={() => setActive('crisis-sim')} className="sm:col-span-2 flex items-start gap-3 p-3.5 rounded-lg border border-highlight/40 bg-highlight/10 hover:bg-highlight/15 hover:border-highlight/60 transition-electric text-left">
               <AlertTriangle size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-highlight font-semibold font-mono text-sm">{t('crisisSim.sidebarLabel')}</p>

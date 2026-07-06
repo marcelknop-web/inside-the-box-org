@@ -224,7 +224,7 @@ const PhasesPreview = ({
       </div>
 
       {/* DESKTOP LAYOUT (sm+): single row of 5 diamonds with one continuous line. */}
-      <ul className="hidden sm:grid sm:grid-cols-5 sm:gap-x-5 sm:gap-y-3 relative">
+      <ul className="hidden sm:grid sm:grid-cols-5 sm:gap-x-6 sm:gap-y-3 relative">
         {/* Continuous connector line — spans from the centre of the first
             column to the centre of the last column. The diamonds, with their
             opaque bg-background fill, mask the line beneath them. */}
@@ -483,7 +483,8 @@ const Overview = () => {
       {!entered ? (
         /* Opener Hero — claim-dominant hierarchy */
         <section className="flex-1 flex items-center justify-center px-5 sm:px-6 py-8 sm:py-14 max-w-5xl mx-auto w-full">
-          <div className="w-full max-w-3xl text-center">
+          <div className="w-full max-w-3xl text-center sm:-translate-y-[3vh]">
+
             {/* Category label */}
             <div
               className="font-mono text-[10px] sm:text-[13px] md:text-[14px] tracking-[0.3em] sm:tracking-[0.4em] text-primary mb-5 sm:mb-6 opacity-0 animate-fade-in"
@@ -510,7 +511,7 @@ const Overview = () => {
 
             {/* Byline */}
             <p
-              className="font-mono text-[13px] sm:text-[15px] tracking-[0.2em] sm:tracking-[0.24em] text-foreground/85 mb-10 sm:mb-12 opacity-0 animate-fade-in"
+              className="font-mono text-[13px] sm:text-[15px] tracking-[0.2em] sm:tracking-[0.24em] text-foreground/85 mb-8 sm:mb-10 opacity-0 animate-fade-in"
               style={{ animationDelay: '780ms', animationFillMode: 'forwards' }}
             >
               {t('welcome.heroByline')}
@@ -518,7 +519,7 @@ const Overview = () => {
 
             {/* Phases preview — non-interactive hint */}
             <div
-              className="mb-10 sm:mb-12 opacity-0 animate-fade-in"
+              className="mb-8 sm:mb-10 opacity-0 animate-fade-in"
               style={{ animationDelay: '950ms', animationFillMode: 'forwards' }}
               aria-hidden
             >
