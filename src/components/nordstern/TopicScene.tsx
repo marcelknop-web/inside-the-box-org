@@ -254,7 +254,7 @@ const Seemannschaft: React.FC<{ rng: Rng }> = ({ rng }) => {
     <Shell label="Seemannschaft" hue={rng.int(210, 218)}>
       {bubbles.map((b, i) => (
         <span key={i} className="absolute rounded-full border border-highlight/50"
-          style={{ left: `${b.x}%`, bottom: '18%', width: b.size, height: b.size, animation: `ts-rise ${b.dur}s ease-in infinite ${b.delay}s` }} />
+          style={{ left: `${b.x}%`, bottom: '18%', width: b.size, height: b.size, ['--sway' as string]: b.sway, animation: `ts-rise ${b.dur}s ${SINE} infinite ${b.delay}s` } as React.CSSProperties} />
       ))}
       <div className="absolute top-1/2" style={{ left: `calc(50% + ${wheelX.toFixed(0)}px)`, transform: 'translate(-50%,-50%)' }}>
         <svg viewBox="-24 -24 48 48" className="w-24 h-24 md:w-32 md:h-32" style={{ animation: `ts-bob ${rng.range(4.5, 6).toFixed(2)}s ${SINE} infinite` }}>
