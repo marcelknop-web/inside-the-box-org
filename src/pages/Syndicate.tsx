@@ -702,7 +702,7 @@ function WheelLegend() {
   return (
     <div className="mt-4 text-left rounded-xl border border-white/20 bg-white/[0.06] p-3 sm:p-4">
       <p className="text-[10px] font-mono tracking-[0.25em] text-white/65 mb-2.5 text-center">
-        WHAT THE SLICES MEAN
+        {tr("WHAT THE SLICES MEAN")}
       </p>
       <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
         {WHEEL_LEGEND.map(({ type, blurb }) => (
@@ -2495,7 +2495,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           tone: event ? "danger" : "info",
           text: event
             ? `A global event just hit: "${event.name}". It changes the odds this round — read the orange card, then tap CHOOSE OPERATION.`
-            : "Every round starts here. The streets are calm right now. Tap CHOOSE OPERATION to see the jobs you can run.",
+            : tr("Every round starts here. The streets are calm right now. Tap CHOOSE OPERATION to see the jobs you can run."),
         })}
         <div className="text-center flex-1 flex flex-col items-center justify-center py-4">
 
@@ -2510,9 +2510,9 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                 <span className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-cyan-400/40 bg-cyan-400/10 shadow-[0_0_30px_-8px_#22d3ee]">
                   <Shield size={30} className="text-cyan-300" />
                 </span>
-                <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-cyan-300">No Global Event</p>
-                <h3 className="mt-1.5 text-2xl font-black tracking-tight text-white">All Quiet</h3>
-                <p className="mt-2 text-sm text-white/70">The streets are calm. Standard odds apply this round.</p>
+                <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-cyan-300">{tr("No Global Event")}</p>
+                <h3 className="mt-1.5 text-2xl font-black tracking-tight text-white">{tr("All Quiet")}</h3>
+                <p className="mt-2 text-sm text-white/70">{tr("The streets are calm. Standard odds apply this round.")}</p>
               </div>
             </div>
           )}
@@ -2521,7 +2521,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             className="rounded-lg px-8 py-3 font-mono font-bold text-black hover:brightness-110 transition"
             style={{ background: "linear-gradient(90deg,#00bcd4,#5eead4)" }}
           >
-            CHOOSE OPERATION
+            {tr("CHOOSE OPERATION")}
           </button>
         </div>
       </>
@@ -2546,7 +2546,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                 icon: Coins,
                 step: "STEP 2",
                 tone: "info",
-                text: "Tap a card to run a job. Gold = cost, green = payout, eye = caught chance. Green cards are safe, purple are high-risk.",
+                text: tr("Tap a card to run a job. Gold = cost, green = payout, eye = caught chance. Green cards are safe, purple are high-risk."),
               },
 
         )}
@@ -2668,7 +2668,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           </>
         ) : (
           <WheelPopup accent="#f5b800">
-            <WheelHeader eyebrow="RUNNING OPERATION" title={tr(selectedOp.name)} />
+            <WheelHeader eyebrow={tr("RUNNING OPERATION")} title={tr(selectedOp.name)} />
             <WheelStage accent="#f5b800">
               <Wheel segments={segments} rotation={rotation} spinning={spinning} />
             </WheelStage>
@@ -2676,21 +2676,21 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               {tr(selectedOp.description)}
             </p>
             <p className="text-center text-white/70 text-xs font-mono mt-2">
-              Invested {fmt(selectedOp.cost)} · Caught {Math.round(effectiveCaught(selectedOp, round, event, 0) * 100)}%
+              {tr("Invested")} {fmt(selectedOp.cost)} · {tr("Caught")} {Math.round(effectiveCaught(selectedOp, round, event, 0) * 100)}%
             </p>
             <button
               onClick={spin}
               className="mx-auto mt-4 block rounded-lg px-10 py-3 font-mono font-bold text-black hover:brightness-110 transition"
               style={{ background: "linear-gradient(90deg,#f5b800,#ffd34d)", boxShadow: "0 0 24px rgba(245,184,0,0.4)" }}
             >
-              SPIN THE WHEEL
+              {tr("SPIN THE WHEEL")}
             </button>
             <div className="mx-auto max-w-md">
               <WheelLegend />
             </div>
             <div className="mt-3 text-center">
               <button onClick={() => setSelectedOp(null)} className="text-white/65 text-xs hover:text-white/70">
-                ← pick a different operation
+                {tr("← pick a different operation")}
               </button>
             </div>
           </WheelPopup>
@@ -2728,7 +2728,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             {/* target lock-on badge */}
             <div className="absolute left-1/2 top-3 -translate-x-1/2 animate-fade-in">
               <span className="whitespace-nowrap rounded-full border border-red-500/50 bg-black/60 px-3 py-1 font-mono text-[9px] uppercase tracking-[0.2em] text-red-300 backdrop-blur-sm">
-                ● Target acquired
+                ● {tr("Target acquired")}
               </span>
             </div>
           </div>
@@ -2742,7 +2742,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               aria-hidden
               className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent"
             />
-            <p className="font-mono text-[9px] uppercase tracking-[0.32em] text-cyan-300/70">Target location</p>
+            <p className="font-mono text-[9px] uppercase tracking-[0.32em] text-cyan-300/70">{tr("Target location")}</p>
             <p className="mt-1 text-base font-black leading-tight tracking-wide text-white [text-shadow:0_2px_8px_rgba(0,0,0,0.9)] sm:text-lg">
               {tgt.company}
             </p>
@@ -2751,15 +2751,15 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               <span className="text-white/25">·</span>
               <span className="text-white/70">{tr(tgt.sector)}</span>
             </p>
-            <p className="mx-auto mt-1.5 max-w-[42ch] text-[11px] leading-snug text-white/70">{tgt.desc}</p>
-            <p className="mt-2 font-mono text-[11px] text-[#f5b800] animate-pulse motion-reduce:animate-none">Deploying payload…</p>
+            <p className="mx-auto mt-1.5 max-w-[42ch] text-[11px] leading-snug text-white/70">{tr(tgt.desc)}</p>
+            <p className="mt-2 font-mono text-[11px] text-[#f5b800] animate-pulse motion-reduce:animate-none">{tr("Deploying payload…")}</p>
           </div>
           {/* Let players who don't want the cinematic jump straight to the wheel. */}
           <button
             onClick={skipStrike}
             className="absolute right-3 top-3 z-10 rounded-full border border-white/20 bg-black/50 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-white/70 backdrop-blur-sm transition hover:border-white/40 hover:text-white"
           >
-            Skip →
+            {tr("Skip →")}
           </button>
         </div>
       </>
@@ -2772,11 +2772,11 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       <>
 
         <WheelPopup accent="#f5b800">
-          <WheelHeader eyebrow="RUNNING OPERATION" title={tr(selectedOp?.name)} />
+          <WheelHeader eyebrow={tr("RUNNING OPERATION")} title={tr(selectedOp?.name)} />
           <WheelStage accent="#f5b800" active>
             <Wheel segments={segments} rotation={rotation} spinning={spinning} />
           </WheelStage>
-          <p className="text-cyan-300 font-mono mt-5 animate-pulse text-center">Spinning…</p>
+          <p className="text-cyan-300 font-mono mt-5 animate-pulse text-center">{tr("Spinning…")}</p>
         </WheelPopup>
       </>
     ));
@@ -2795,7 +2795,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       <>
 
         <WheelPopup accent={accent}>
-          <WheelHeader eyebrow="OPERATION RESULT" title={tr(selectedOp?.name)} />
+          <WheelHeader eyebrow={tr("OPERATION RESULT")} title={tr(selectedOp?.name)} />
           <WheelStage accent={accent}>
             <Wheel segments={segments} rotation={rotation} spinning={false} />
           </WheelStage>
@@ -2851,7 +2851,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             className="mt-6 w-full rounded-lg px-8 py-3 font-mono font-bold text-black hover:brightness-110 transition"
             style={{ background: "linear-gradient(90deg,#00bcd4,#5eead4)" }}
           >
-            {human?.alive ? "RIVALS' TURN →" : "SEE THE FALLOUT →"}
+            {human?.alive ? tr("RIVALS' TURN →") : tr("SEE THE FALLOUT →")}
           </button>
         </WheelPopup>
       </>
@@ -2891,7 +2891,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             RIVAL {idx + 1} / {aiLog.length}
           </h2>
           <button onClick={skipAll} className="text-white/65 text-xs hover:text-white/70 font-mono">
-            skip all →
+            {tr("skip all →")}
           </button>
         </div>
 
@@ -2972,7 +2972,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                       Target · {tgt.city}
                     </p>
                     <p className="text-sm font-bold text-white leading-tight truncate">{tgt.company}</p>
-                    <p className="text-[11px] leading-snug text-white/60">{tgt.desc}</p>
+                    <p className="text-[11px] leading-snug text-white/60">{tr(tgt.desc)}</p>
                   </div>
                 </div>
               );
@@ -2996,14 +2996,14 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         {turn && (aiSub === "spinning" || aiSub === "result") && (
           <WheelPopup accent={showResult && caught ? "#ef4444" : theme.glow}>
             <WheelHeader
-              eyebrow={`${turn.player.name.toUpperCase()} · RUNNING OPERATION`}
+              eyebrow={`${turn.player.name.toUpperCase()} · ${tr("RUNNING OPERATION")}`}
               title={turn.op.name}
             />
             <WheelStage accent={showResult && caught ? "#ef4444" : theme.glow} active={aiSub === "spinning"}>
               <Wheel segments={turn.segs} rotation={aiRotation} spinning={aiSub === "spinning"} />
             </WheelStage>
             {aiSub === "spinning" && (
-              <p className="text-cyan-300 font-mono mt-5 animate-pulse text-center">Spinning…</p>
+              <p className="text-cyan-300 font-mono mt-5 animate-pulse text-center">{tr("Spinning…")}</p>
             )}
             {showResult && (
               <div className="mt-5 text-center animate-scale-in">
@@ -3015,7 +3015,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                     color: caught ? "#fca5a5" : theme.glow,
                   }}
                 >
-                  {caught ? "Caught — Shield Lost" : turn.player.lastLabel}
+                  {caught ? tr("Caught — Shield Lost") : tr(turn.player.lastLabel)}
                 </div>
                 <p className={`mt-3 text-xl font-mono font-bold ${delta >= 0 ? "text-green-400" : "text-red-400"}`}>
                   {delta >= 0 ? "+" : ""}{fmt(delta)}
@@ -3028,7 +3028,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                   className="mt-6 w-full rounded-lg px-8 py-3 font-mono font-bold text-black hover:brightness-110 transition"
                   style={{ background: "linear-gradient(90deg,#f5b800,#ffd34d)" }}
                 >
-                  {isLast ? "SEE LEADERBOARD →" : "NEXT RIVAL →"}
+                  {isLast ? tr("SEE LEADERBOARD →") : tr("NEXT RIVAL →")}
                 </button>
               </div>
             )}
@@ -3050,7 +3050,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                     <span className="text-white/60 text-xs truncate">{tr(t.op.name)}</span>
                   </span>
                   <span className={`font-mono text-sm shrink-0 ${d >= 0 ? "text-green-400" : "text-red-400"}`}>
-                    {c ? <span className="text-red-500 font-bold">Caught</span> : `${d >= 0 ? "+" : ""}${fmt(d)}`}
+                    {c ? <span className="text-red-500 font-bold">{tr("Caught")}</span> : `${d >= 0 ? "+" : ""}${fmt(d)}`}
                   </span>
                 </div>
               );
@@ -3073,9 +3073,9 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           icon: BarChart3,
           step: "STEP 4",
           tone: "action",
-          text: "The round is over. You're ranked by cash — gold row is you, shields show lives left. Goal: be the richest crew still standing. Tap NEXT ROUND to keep going.",
+          text: tr("The round is over. You're ranked by cash — gold row is you, shields show lives left. Goal: be the richest crew still standing. Tap NEXT ROUND to keep going."),
         })}
-        <h2 className="text-center font-mono text-cyan-300 mb-4 text-sm">LEADERBOARD</h2>
+        <h2 className="text-center font-mono text-cyan-300 mb-4 text-sm">{tr("LEADERBOARD")}</h2>
 
         {(() => {
           const maxCash = Math.max(1, ...ranked.map((p) => Math.max(0, p.cash)));
@@ -3132,7 +3132,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             className="rounded-lg px-8 py-3 font-mono font-bold text-black hover:brightness-110 transition"
             style={{ background: "linear-gradient(90deg,#f5b800,#ffd34d)" }}
           >
-            {players.filter((p) => p.alive).length <= 1 || round >= TOTAL_ROUNDS ? "SEE RESULTS →" : "NEXT ROUND →"}
+            {players.filter((p) => p.alive).length <= 1 || round >= TOTAL_ROUNDS ? tr("SEE RESULTS →") : tr("NEXT ROUND →")}
           </button>
         </div>
       </>
@@ -3161,23 +3161,23 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     const eliminated = players.filter((p) => !p.alive);
 
     const stats = [
-      superlative("Biggest Winner", (a) => maxBy(a, (p) => p.cash), (p) => fmt(p.cash)),
-      superlative("Highest Single Profit", (a) => maxBy(a, (p) => p.biggestWin), (p) => fmt(p.biggestWin)),
-      superlative("Biggest Gamble", (a) => maxBy(a, (p) => p.biggestGamble), (p) => fmt(p.biggestGamble)),
+      superlative(tr("Biggest Winner"), (a) => maxBy(a, (p) => p.cash), (p) => fmt(p.cash)),
+      superlative(tr("Highest Single Profit"), (a) => maxBy(a, (p) => p.biggestWin), (p) => fmt(p.biggestWin)),
+      superlative(tr("Biggest Gamble"), (a) => maxBy(a, (p) => p.biggestGamble), (p) => fmt(p.biggestGamble)),
       superlative(
-        "Luckiest Player",
+        tr("Luckiest Player"),
         (a) => maxBy(a.filter((p) => p.totalOutcomes > 0), (p) => p.goodOutcomes / p.totalOutcomes),
         (p) => `${Math.round((p.goodOutcomes / Math.max(1, p.totalOutcomes)) * 100)}% wins`
       ),
-      superlative("Most Wanted", (a) => maxBy(a, (p) => p.caughtHits), (p) => `${p.caughtHits} raids`),
+      superlative(tr("Most Wanted"), (a) => maxBy(a, (p) => p.caughtHits), (p) => `${p.caughtHits} raids`),
       superlative(
-        "Closest Escape",
+        tr("Closest Escape"),
         (a) => minBy(a.filter((p) => p.closestCall < 360), (p) => p.closestCall),
         (p) => `${Math.round(p.closestCall)}° margin`
       ),
       eliminated.length
         ? superlative(
-            "Richest Eliminated",
+            tr("Richest Eliminated"),
             (a) => maxBy(a, (p) => p.cashAtElimination ?? -1),
             (p) => fmt(p.cashAtElimination ?? 0),
             eliminated
@@ -3188,7 +3188,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     return shell(
       <div className="max-w-2xl mx-auto text-center">
         <Crown size={52} style={{ color: "#f5b800" }} className="mx-auto mb-3 drop-shadow-[0_0_18px_rgba(245,184,0,0.6)]" />
-        <p className="font-mono text-cyan-300 text-sm">CHAMPION</p>
+        <p className="font-mono text-cyan-300 text-sm">{tr("CHAMPION")}</p>
         <div className="flex items-center justify-center gap-3 mb-1">
           <Avatar img={champion.img} fallback={champion.avatar} color="#f5b800" size={56} />
           <h1 className="text-5xl font-black text-white" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
@@ -3198,14 +3198,14 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         <p className="text-3xl font-mono font-bold" style={{ color: "#f5b800" }}>{fmt(champion.cash)}</p>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-6 text-xs">
-          <StatChip label="Final Fortune" value={fmt(champion.cash)} />
-          <StatChip label="Rounds Survived" value={String(champion.roundsSurvived)} />
-          <StatChip label="Biggest Win" value={fmt(champion.biggestWin)} />
-          <StatChip label="Operations" value={String(champion.opsCompleted)} />
+          <StatChip label={tr("Final Fortune")} value={fmt(champion.cash)} />
+          <StatChip label={tr("Rounds Survived")} value={String(champion.roundsSurvived)} />
+          <StatChip label={tr("Biggest Win")} value={fmt(champion.biggestWin)} />
+          <StatChip label={tr("Operations")} value={String(champion.opsCompleted)} />
         </div>
 
         <h3 className="font-mono text-cyan-300 text-sm mb-3 flex items-center justify-center gap-2">
-          <TrendingUp size={15} /> HALL OF FAME
+          <TrendingUp size={15} /> {tr("HALL OF FAME")}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-left">
           {stats.map((s) => (
@@ -3233,7 +3233,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               }}
               className="ml-1 inline-flex items-center gap-1 rounded px-2 py-1 border border-white/25 hover:border-cyan-400/50 text-white/70"
             >
-              {copied ? <Check size={12} /> : <Copy size={12} />} {copied ? "Copied" : "Share seed"}
+              {copied ? <Check size={12} /> : <Copy size={12} />} {copied ? tr("Copied") : tr("Share seed")}
             </button>
           </div>
         )}
@@ -3262,13 +3262,13 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             onClick={() => { setStats(loadStats()); setOverlay("stats"); }}
             className="rounded-lg px-4 py-2 text-xs font-mono flex items-center gap-1.5 border border-white/25 bg-white/[0.05] text-white/70 hover:text-white hover:border-cyan-400/50 transition"
           >
-            <BarChart3 size={14} /> Statistics
+            <BarChart3 size={14} /> {tr("Statistics")}
           </button>
           <button
             onClick={() => { setUnlockedIds(loadUnlocked()); setOverlay("achievements"); }}
             className="rounded-lg px-4 py-2 text-xs font-mono flex items-center gap-1.5 border border-white/25 bg-white/[0.05] text-white/70 hover:text-white hover:border-cyan-400/50 transition"
           >
-            <Award size={14} /> Achievements
+            <Award size={14} /> {tr("Achievements")}
           </button>
         </div>
 
@@ -3281,7 +3281,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           className="mt-8 rounded-lg px-10 py-3 font-mono font-bold text-black hover:brightness-110 transition"
           style={{ background: "linear-gradient(90deg,#f5b800,#ffd34d)", boxShadow: "0 0 24px rgba(245,184,0,0.4)" }}
         >
-          PLAY AGAIN
+          {tr("PLAY AGAIN")}
         </button>
         {overlayNode}
       </div>
