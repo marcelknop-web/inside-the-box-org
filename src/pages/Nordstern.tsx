@@ -383,49 +383,8 @@ const Nordstern = () => {
 
 // ---------- Komponenten ----------
 
-const RouteMap: React.FC<{ currentStage: number }> = ({ currentStage }) => (
-  <svg viewBox="0 0 100 80" className="w-auto h-auto max-w-full max-h-full" style={{ aspectRatio: '100 / 80' }} preserveAspectRatio="xMidYMid meet">
-    <defs>
-      <pattern id="grid" width="5" height="5" patternUnits="userSpaceOnUse">
-        <path d="M 5 0 L 0 0 0 5" fill="none" stroke="currentColor" strokeWidth="0.1" className="text-primary/10" />
-      </pattern>
-      <radialGradient id="sea" cx="50%" cy="50%" r="70%">
-        <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.04" />
-        <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
-      </radialGradient>
-      <filter id="glow"><feGaussianBlur stdDeviation="0.6" /></filter>
-    </defs>
-    <rect width="100" height="80" fill="url(#sea)" />
-    <rect width="100" height="80" fill="url(#grid)" />
-    {/* wave hints */}
-    {[18, 30, 45, 65].map(y => (
-      <path key={y} d={`M0 ${y} Q 25 ${y - 1.5}, 50 ${y} T 100 ${y}`} fill="none" stroke="currentColor" strokeWidth="0.15" className="text-primary/20" />
-    ))}
-    {/* compass rose */}
-    <g transform="translate(92,8)" className="text-primary/40">
-      <circle r="3" fill="none" stroke="currentColor" strokeWidth="0.15" />
-      <path d="M0,-3 L0.6,0 L0,3 L-0.6,0 Z" fill="currentColor" />
-      <text y="-4" textAnchor="middle" fontSize="1.6" className="fill-primary/60 font-mono">N</text>
-    </g>
-    <polyline points={PORTS.map(p => `${p.x},${p.y}`).join(' ')} fill="none" stroke="currentColor" strokeWidth="0.4" strokeDasharray="1 1" className="text-primary/40" />
-    <polyline points={PORTS.slice(0, currentStage + 1).map(p => `${p.x},${p.y}`).join(' ')} fill="none" stroke="currentColor" strokeWidth="0.7" className="text-primary" filter="url(#glow)" />
-    <polyline points={PORTS.slice(0, currentStage + 1).map(p => `${p.x},${p.y}`).join(' ')} fill="none" stroke="currentColor" strokeWidth="0.5" className="text-primary" />
-    {PORTS.map((p, i) => {
-      const done = i <= currentStage;
-      const active = i === currentStage;
-      return (
-        <g key={p.name}>
-          {active && <circle cx={p.x} cy={p.y} r="2.5" className="fill-primary/30"><animate attributeName="r" values="1.6;3;1.6" dur="2.4s" repeatCount="indefinite" /><animate attributeName="opacity" values="0.6;0;0.6" dur="2.4s" repeatCount="indefinite" /></circle>}
-          <circle cx={p.x} cy={p.y} r={active ? 1.4 : 0.8} className={active ? 'fill-primary' : done ? 'fill-primary/60' : 'fill-muted-foreground/40'} />
-          <text x={p.x} y={p.y - 2} textAnchor="middle" fontSize="2" className={active ? 'fill-primary font-bold' : 'fill-muted-foreground'}>{p.name}</text>
-        </g>
-      );
-    })}
-    {currentStage < PORTS.length && (
-      <text x={PORTS[currentStage].x} y={PORTS[currentStage].y + 0.8} textAnchor="middle" fontSize="4">⛵</text>
-    )}
-  </svg>
-);
+
+
 
 // Mini route ribbon for in-question HUD
 const RouteRibbon: React.FC<{ currentStage: number; questionIdx: number; limit: number; phase: 'scene' | 'harbor' }> = ({ currentStage, questionIdx, limit, phase }) => {
