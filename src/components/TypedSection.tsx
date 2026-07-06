@@ -13,6 +13,8 @@ interface TypedSectionProps {
   children: ReactNode;
   /** ms between each box appearing */
   stagger?: number;
+  /** ms pause between title → intro → blocks (default 500) */
+  pause?: number;
 }
 
 /**
