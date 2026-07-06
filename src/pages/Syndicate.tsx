@@ -449,6 +449,12 @@ function Wheel({
   rotation: number;
   spinning: boolean;
 }) {
+  // Respect the OS "reduce motion" setting — snap the disc to its final angle
+  // instead of running the long spin transition for users who opt out.
+  const reduceMotion =
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   return (
     <div
       className="relative mx-auto select-none max-w-full origin-top scale-[0.82] sm:scale-100"
@@ -519,7 +525,7 @@ function Wheel({
             style={{
               transform: `rotate(${rotation}deg)`,
               transformOrigin: `${CX}px ${CY}px`,
-              transition: spinning
+              transition: spinning && !reduceMotion
                 ? "transform 4.2s cubic-bezier(0.15,0.9,0.2,1)"
                 : "none",
             }}
@@ -1214,6 +1220,8 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   const aiRotationRef = useRef(0);
   const rotationRef = useRef(0);
   const shellRef = useRef<HTMLDivElement>(null);
+  // Pending strike→spin timer, kept so the player can skip the cinematic.
+  const strikeTimeoutRef = useRef<number | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Honour the OS "reduce motion" preference — used to skip long animation
@@ -1227,6 +1235,8 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     mq.addEventListener?.("change", update);
     return () => mq.removeEventListener?.("change", update);
   }, []);
+
+
 
   // Fullscreen support (works on desktop + Android; iOS Safari falls back to CSS full-viewport).
   const toggleFullscreen = useCallback(() => {
@@ -1267,6 +1277,16 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   const [unlockedIds, setUnlockedIds] = useState<Record<string, number>>(() => loadUnlocked());
   const [freshAch, setFreshAch] = useState<Achievement[]>([]);
   const [overlay, setOverlay] = useState<null | "stats" | "achievements">(null);
+
+  // Close the stats/achievements overlay with the Escape key.
+  useEffect(() => {
+    if (!overlay) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOverlay(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [overlay]);
   const [copied, setCopied] = useState(false);
   const recordedRef = useRef(false);
 
@@ -1440,11 +1460,23 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     if (!human || !selectedOp) return;
     snd.reveal();
     setPhase("strike");
-    window.setTimeout(() => {
+    if (strikeTimeoutRef.current) window.clearTimeout(strikeTimeoutRef.current);
+    strikeTimeoutRef.current = window.setTimeout(() => {
+      strikeTimeoutRef.current = null;
       runSpin();
-    }, 4000);
+    }, reduceMotion ? 400 : 4000);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [human, selectedOp]);
+  }, [human, selectedOp, reduceMotion]);
+
+  // Skip the strike cinematic and go straight to the wheel.
+  const skipStrike = useCallback(() => {
+    if (strikeTimeoutRef.current) {
+      window.clearTimeout(strikeTimeoutRef.current);
+      strikeTimeoutRef.current = null;
+    }
+    runSpin();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [human, selectedOp, round, event, reduceMotion]);
 
   const runSpin = useCallback(() => {
     if (!human || !selectedOp) return;
@@ -1466,21 +1498,23 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       requestAnimationFrame(() => setRotation(target));
     });
 
-    // ticking sound during spin
+    // ticking sound during spin (skipped when motion is reduced)
     let ticks = 0;
-    const tickInt = setInterval(() => {
-      snd.tick();
-      ticks++;
-      if (ticks > 26) clearInterval(tickInt);
-    }, 130);
+    const tickInt = reduceMotion
+      ? null
+      : setInterval(() => {
+          snd.tick();
+          ticks++;
+          if (ticks > 26) clearInterval(tickInt as ReturnType<typeof setInterval>);
+        }, 130);
 
     window.setTimeout(() => {
-      clearInterval(tickInt);
+      if (tickInt) clearInterval(tickInt);
       setSpinning(false);
       snd.land();
       finishHumanSpin(selectedOp, res);
-    }, 4300);
-  }, [human, selectedOp, round, event]);
+    }, reduceMotion ? 500 : 4300);
+  }, [human, selectedOp, round, event, reduceMotion]);
 
   const finishHumanSpin = useCallback(
     (op: Operation, res: SpinResult) => {
@@ -1741,6 +1775,9 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   const tipNode = activeTip && (
     <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-4">
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={activeTip.title}
         className="w-full max-w-sm rounded-2xl border border-cyan-400/40 bg-[#141d2e] p-5 text-left animate-scale-in"
         style={{ boxShadow: "0 0 40px -8px rgba(0,188,212,0.5)" }}
       >
@@ -1779,6 +1816,9 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       onClick={() => setOverlay(null)}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={overlay === "stats" ? "Statistics" : "Achievements"}
         className="w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl border border-cyan-400/30 bg-[#141d2e] p-6 text-left"
         onClick={(e) => e.stopPropagation()}
       >
@@ -1786,7 +1826,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           <h3 className="font-mono font-bold text-lg text-cyan-300">
             {overlay === "stats" ? "STATISTICS" : `ACHIEVEMENTS · ${unlockedCount}/${ACHIEVEMENTS.length}`}
           </h3>
-          <button onClick={() => setOverlay(null)} className="text-white/75 hover:text-white text-xl leading-none">×</button>
+          <button onClick={() => setOverlay(null)} aria-label="Close" className="text-white/75 hover:text-white text-xl leading-none">×</button>
         </div>
 
         {overlay === "stats" ? (
@@ -1890,8 +1930,8 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       ref={shellRef}
       className={`relative w-full overflow-y-auto overflow-x-hidden ${isFullscreen ? "fixed inset-0 z-50 rounded-none" : "rounded-2xl"}`}
       style={{
-        minHeight: isFullscreen ? "100vh" : embedded ? 520 : "100vh",
-        height: isFullscreen ? "100vh" : embedded ? "calc(100dvh - 272px)" : "100vh",
+        minHeight: isFullscreen ? "100dvh" : embedded ? 520 : "100dvh",
+        height: isFullscreen ? "100dvh" : embedded ? "calc(100dvh - 272px)" : "100dvh",
 
         background:
           "radial-gradient(1200px 600px at 20% -10%, rgba(0,188,212,0.16), transparent), radial-gradient(900px 500px at 90% 110%, rgba(245,184,0,0.14), transparent), #101725",
@@ -2200,7 +2240,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       {/* Top status ticker */}
       <div className="flex h-9 shrink-0 items-center justify-between gap-3 border-b border-white/20 bg-black/25 px-3 backdrop-blur-sm sm:px-4">
         <div className="flex items-center gap-2 shrink-0">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#f5b800] animate-pulse" />
+          <span className="h-1.5 w-1.5 rounded-full bg-[#f5b800] motion-safe:animate-pulse" />
           <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-[#f5b800]">Uplink Stable</span>
         </div>
         <div className="hidden min-w-0 flex-1 items-center justify-center sm:flex">
@@ -2550,6 +2590,13 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             <p className="mx-auto mt-1.5 max-w-[42ch] text-[11px] leading-snug text-white/70">{tgt.desc}</p>
             <p className="mt-2 font-mono text-[11px] text-[#f5b800] animate-pulse motion-reduce:animate-none">Deploying payload…</p>
           </div>
+          {/* Let players who don't want the cinematic jump straight to the wheel. */}
+          <button
+            onClick={skipStrike}
+            className="absolute right-3 top-3 z-10 rounded-full border border-white/20 bg-black/50 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-white/70 backdrop-blur-sm transition hover:border-white/40 hover:text-white"
+          >
+            Skip →
+          </button>
         </div>
       </>
     ));
@@ -2589,7 +2636,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
             <Wheel segments={segments} rotation={rotation} spinning={false} />
           </WheelStage>
 
-          <div className="mt-5 text-center animate-scale-in">
+          <div className="mt-5 text-center animate-scale-in" role="status" aria-live="polite" aria-atomic="true">
             <div
               className="inline-block rounded-xl px-8 py-4 font-black text-2xl"
               style={{
@@ -3084,18 +3131,6 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 /*  Small components                                                   */
 /* ------------------------------------------------------------------ */
 
-function RiskBadge({ risk }: { risk: Operation["risk"] }) {
-  const color =
-    risk === "low" ? "#22c55e" : risk === "medium" ? "#f5b800" : risk === "high" ? "#f97316" : "#ef4444";
-  return (
-    <span
-      className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full"
-      style={{ color, background: `${color}22`, border: `1px solid ${color}55` }}
-    >
-      {RISK_LABEL[risk]}
-    </span>
-  );
-}
 
 function StatChip({ label, value }: { label: string; value: string }) {
   return (
