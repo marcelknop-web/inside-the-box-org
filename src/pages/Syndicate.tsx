@@ -2008,61 +2008,109 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   );
 
 
-  /* ---- WELCOME ---- */
+  /* ---- WELCOME — cinematic cyber-tactical entry screen ---- */
   if (phase === "welcome") {
     return shell(
-      <div className="relative flex flex-1 flex-col items-center justify-center text-center max-w-md mx-auto py-4">
+      <div className="relative flex flex-1 flex-col items-center justify-center text-center overflow-hidden">
+        {/* ambient globe + aurora backdrop */}
         <Globe
           players={WELCOME_GLOBE_PLAYERS}
-          className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[130%] h-[38vh] opacity-25"
+          className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[130%] h-[40vh] opacity-25"
         />
-        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(65% 45% at 50% 28%, transparent, #101725 80%)" }} />
-        <div className="relative w-full">
-        <Skull size={40} style={{ color: "#f5b800" }} className="mb-3 drop-shadow-[0_0_12px_rgba(245,184,0,0.35)] mx-auto" />
-        <h1
-          className="text-4xl sm:text-5xl font-black tracking-[0.22em] mb-3 pl-[0.22em]"
-          style={{
-            fontFamily: "'IBM Plex Mono', monospace",
-            color: "#fff",
-            textShadow: "0 0 18px rgba(0,188,212,0.35)",
-          }}
-        >
-          SYNDICATE
-        </h1>
-        <p className="font-mono text-xs sm:text-sm tracking-wide text-white/70 mb-6">
-          <span className="text-cyan-300">Build your empire.</span>{" "}
-          <span className="text-cyan-300">Trust nobody.</span>{" "}
-          <span className="text-red-400">Don't get caught.</span>
-        </p>
-
-        <div className="w-full rounded-2xl border border-white/20 bg-white/[0.06] p-4 backdrop-blur-sm shadow-[0_10px_40px_-16px_rgba(0,0,0,0.8)]">
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && startGame()}
-            placeholder="Enter your alias"
-            maxLength={18}
-            className="w-full rounded-lg bg-black/25 border border-white/25 px-4 py-2.5 text-center text-white text-sm outline-none transition focus:border-cyan-400/70 mb-3"
+        <div className="pointer-events-none absolute inset-0 z-0">
+          <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-aurora-violet/15 blur-[120px]" />
+          <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-aurora-green/15 blur-[120px]" />
+          <div
+            className="absolute inset-0 opacity-20"
+            style={{
+              backgroundImage:
+                "linear-gradient(hsl(var(--syndicate-start-panel)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--syndicate-start-panel)) 1px, transparent 1px)",
+              backgroundSize: "50px 50px",
+            }}
           />
-
-
-
-
-          <button
-            onClick={startGame}
-            className="w-full rounded-lg py-3 font-mono font-bold tracking-[0.2em] text-black transition hover:brightness-110"
-            style={{ background: "linear-gradient(90deg,#f5b800,#ffd34d)", boxShadow: "0 0 20px rgba(245,184,0,0.3)" }}
-          >
-            START
-          </button>
-
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(circle, transparent 0%, hsl(var(--syndicate-start-bg) / 0.5) 50%, hsl(var(--syndicate-start-bg)) 100%)",
+            }}
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background: "radial-gradient(65% 45% at 50% 28%, transparent, hsl(var(--background)) 80%)",
+            }}
+          />
         </div>
-        </div>
 
+        <div className="relative z-10 w-full max-w-2xl px-6 flex flex-col items-center">
+          {/* decorative frame corners */}
+          <div className="absolute -top-10 sm:-top-12 left-2 sm:-left-4 w-10 sm:w-12 h-10 sm:h-12 border-t-2 border-l-2 border-highlight/30" />
+          <div className="absolute -top-10 sm:-top-12 right-2 sm:-right-4 w-10 sm:w-12 h-10 sm:h-12 border-t-2 border-r-2 border-highlight/30" />
+          <div className="absolute -bottom-10 sm:-bottom-12 left-2 sm:-left-4 w-10 sm:w-12 h-10 sm:h-12 border-b-2 border-l-2 border-highlight/30" />
+          <div className="absolute -bottom-10 sm:-bottom-12 right-2 sm:-right-4 w-10 sm:w-12 h-10 sm:h-12 border-b-2 border-r-2 border-highlight/30" />
+
+          {/* branding */}
+          <div className="text-center mb-6 sm:mb-10">
+            <span className="block text-highlight text-[10px] tracking-[0.5em] uppercase font-bold mb-3 opacity-80">
+              System Initialization Sequence
+            </span>
+            <h1 className="font-display text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tighter text-foreground drop-shadow-[0_0_25px_hsl(var(--highlight)/0.3)]">
+              SYNDICATE<span className="text-primary">.</span>
+            </h1>
+            <div className="h-[1px] w-32 bg-gradient-to-r from-transparent via-highlight to-transparent mx-auto my-5" />
+            <p className="text-muted-foreground text-xs sm:text-sm tracking-[0.2em] uppercase font-light">
+              Strategic Command & Corporate Dominance
+            </p>
+          </div>
+
+          {/* action card */}
+          <div className="w-full max-w-md bg-card/80 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border border-border shadow-2xl">
+            <div className="space-y-5">
+              <div className="relative group">
+                <label className="absolute -top-3 left-4 bg-background px-2 text-[10px] text-highlight uppercase tracking-widest font-bold">
+                  Operator Alias
+                </label>
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && startGame()}
+                  maxLength={18}
+                  placeholder="ENTER IDENTIFIER..."
+                  className="w-full rounded-lg bg-background/60 border border-border px-5 py-4 text-foreground placeholder:text-foreground/20 text-center outline-none transition focus:border-aurora-green focus:ring-1 focus:ring-aurora-green/50 font-mono tracking-widest"
+                />
+              </div>
+
+              <button
+                onClick={startGame}
+                className="relative w-full group overflow-hidden bg-primary py-5 rounded-lg transition-all hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_hsl(var(--primary)/0.3)]"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:animate-shimmer" />
+                <div className="relative flex items-center justify-center gap-3">
+                  <span className="font-display font-black text-primary-foreground text-sm sm:text-base tracking-[0.2em] uppercase">
+                    Establish Connection
+                  </span>
+                  <svg className="w-5 h-5 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* technical metadata */}
+          <div className="mt-8 sm:mt-12 flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-[9px] text-muted-foreground uppercase tracking-widest font-medium">
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-aurora-green animate-pulse" />
+              <span>Server: Node_01_Online</span>
+            </div>
+            <div className="hidden sm:block">Lat: 34.0522 • Long: -118.2437</div>
+            <div>Ver 2.0.44-Stable</div>
+          </div>
+        </div>
 
         {overlayNode}
       </div>
-
     );
   }
 
