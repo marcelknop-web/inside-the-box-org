@@ -52,6 +52,9 @@ import {
   type GameSummary,
   type Achievement,
 } from "@/lib/syndicateProgress";
+import { useSynLang, tr } from "@/data/syndicateI18n";
+
+
 
 /* ------------------------------------------------------------------ */
 /*  Operation visual language — icon + accent per operation.          */
@@ -1213,6 +1216,7 @@ interface SyndicateProps {
 }
 
 export default function Syndicate({ embedded = false }: SyndicateProps) {
+  const { lang, setLang } = useSynLang();
   const [phase, setPhase] = useState<Phase>("welcome");
   const [name, setName] = useState("");
   const [muted, setMuted] = useState(false);
@@ -1970,6 +1974,14 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       <div className="syn-corner z-20" style={{ bottom: 10, left: 10, borderRight: "none", borderTop: "none" }} />
       <div className="syn-corner z-20" style={{ bottom: 10, right: 10, borderLeft: "none", borderTop: "none" }} />
       <div className="absolute top-3 right-3 md:top-4 md:right-4 z-30 flex items-center gap-2">
+        <button
+          onClick={() => setLang(lang === "en" ? "de" : "en")}
+          aria-label={lang === "en" ? "Auf Deutsch umstellen" : "Switch to English"}
+          className="rounded-full px-3 py-2 border border-cyan-400/30 bg-black/25 hover:bg-black/60 transition font-mono text-[11px] font-bold tracking-widest"
+          style={{ color: "#00bcd4" }}
+        >
+          {lang === "en" ? "DE" : "EN"}
+        </button>
         <button
           onClick={() => setMuted((m) => !m)}
           aria-label={muted ? "Unmute" : "Mute"}
