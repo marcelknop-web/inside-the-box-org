@@ -3099,7 +3099,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
                   <span className="font-mono text-white/65 w-5 text-sm">{i + 1}</span>
                   <Avatar img={p.img} fallback={p.avatar} color={p.isHuman ? "#f5b800" : p.color} size={32} />
                   <span className="font-bold" style={{ color: p.isHuman ? "#f5b800" : p.color }}>
-                    {p.name}{p.isHuman && " (you)"}
+                    {p.name}{p.isHuman && ` ${tr("(you)")}`}
                   </span>
                   {!p.alive && <span className="text-red-500 font-bold text-xs font-mono px-2 py-0.5 rounded bg-red-500/15">Out</span>}
                 </span>
