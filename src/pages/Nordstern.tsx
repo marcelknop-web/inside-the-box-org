@@ -15,6 +15,7 @@ import {
   CREW_POOL, pickNewCrew, type SrsCard, type NordsternState, type CrewMember, type KnowledgeCard,
 } from '@/lib/nordstern/sm2';
 import { useNordsternAudio } from '@/hooks/useNordsternAudio';
+import NauticalChart from '@/components/nordstern/NauticalChart';
 
 type Topic = 'navigation' | 'recht' | 'wetter' | 'seemannschaft';
 
