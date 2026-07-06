@@ -99,6 +99,11 @@ const TypedSection = ({
           </div>
         )}
       </div>
+      {loadingSkeleton && skeletonVisible && (
+        <div className="transition-opacity duration-300 ease-out" style={{ opacity: blocksReady ? 0 : 1 }}>
+          {loadingSkeleton}
+        </div>
+      )}
       <StaggerReveal resetKey={sectionKey} stagger={effectiveStagger} startDelay={blocksReady ? pause : 999999}>
         {children}
       </StaggerReveal>
