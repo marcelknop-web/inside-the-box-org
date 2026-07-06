@@ -2789,8 +2789,8 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               }}
             >
               {OUTCOME_LABEL[result.outcome]}
-              {caughtEl && (result.eliminated ? " — ELIMINATED" : " — token lost!")}
-              {brokeEl && " — BANKRUPT"}
+              {caughtEl && (result.eliminated ? " — Eliminated" : " — Shield Lost")}
+              {brokeEl && " — Bankrupt"}
             </div>
             {!caughtEl && (
               <p className={`mt-3 text-xl font-mono font-bold ${net >= 0 ? "text-green-400" : "text-red-400"}`}>
