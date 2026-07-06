@@ -167,6 +167,7 @@ interface Player {
 
 type Phase =
   | "welcome"
+  | "intro"
   | "round-intro"
   | "choose"
   | "strike"
@@ -1418,7 +1419,8 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     }));
     setPlayers([you, ...ais]);
     setRound(1);
-    beginRound(1);
+    snd.transition();
+    setPhase("intro");
   }, [name, gameMode, seedInput]);
 
   /* ---- begin a round: maybe roll an event ---- */
@@ -2100,6 +2102,147 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         {overlayNode}
       </div>
 
+    );
+  }
+
+
+  /* ---- INTRO — cinematic roster reveal of the players ---- */
+  if (phase === "intro") {
+    const roster = players;
+    return shell(
+      <div className="relative flex flex-1 flex-col items-center justify-center py-4 mx-auto w-full max-w-3xl">
+        {/* ambient globe backdrop */}
+        <Globe
+          players={WELCOME_GLOBE_PLAYERS}
+          className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[130%] h-[36vh] opacity-20"
+        />
+        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(70% 50% at 50% 30%, transparent, #101725 82%)" }} />
+
+        <div className="relative w-full text-center">
+          <p
+            className="font-mono text-[10px] sm:text-xs uppercase tracking-[0.4em] text-cyan-300/80 mb-1"
+            style={{ animation: reduceMotion ? undefined : "fade-in 0.5s ease-out both" }}
+          >
+            Meet the Syndicate
+          </p>
+          <h2
+            className="text-2xl sm:text-3xl font-black tracking-[0.14em] text-white mb-1"
+            style={{
+              fontFamily: "'IBM Plex Mono', monospace",
+              textShadow: "0 0 18px rgba(0,188,212,0.35)",
+              animation: reduceMotion ? undefined : "fade-in 0.6s ease-out both",
+            }}
+          >
+            THE PLAYERS
+          </h2>
+          <p
+            className="text-white/60 text-[11px] sm:text-xs mb-5"
+            style={{ animation: reduceMotion ? undefined : "fade-in 0.7s ease-out both" }}
+          >
+            Three operators enter. One empire remains.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+            {roster.map((p, i) => {
+              const role = p.isHuman
+                ? "You — the newcomer"
+                : (p.profile?.personality ?? "").replace(/^\w/, (c) => c.toUpperCase());
+              const blurb = p.isHuman
+                ? "An ambitious upstart with everything to prove. Your move first."
+                : p.profile?.blurb ?? "";
+              const ability = p.isHuman ? null : p.profile?.ability ?? null;
+              return (
+                <div
+                  key={p.id}
+                  className="group relative flex flex-col items-center rounded-2xl border bg-gradient-to-b from-white/[0.07] to-black/40 backdrop-blur-md p-4 text-center overflow-hidden"
+                  style={{
+                    borderColor: `${p.color}55`,
+                    boxShadow: `0 10px 40px -18px ${p.color}, inset 0 0 0 1px rgba(255,255,255,0.04)`,
+                    animation: reduceMotion
+                      ? undefined
+                      : `fade-in 0.6s ease-out both`,
+                    animationDelay: reduceMotion ? undefined : `${0.35 + i * 0.28}s`,
+                  }}
+                >
+                  {/* accent hairline */}
+                  <div
+                    aria-hidden
+                    className="absolute top-0 left-0 right-0 h-[2px]"
+                    style={{ background: `linear-gradient(90deg, transparent, ${p.color}, transparent)` }}
+                  />
+                  {/* halo behind avatar */}
+                  <div className="relative mb-3">
+                    <div
+                      aria-hidden
+                      className="absolute inset-0 rounded-full blur-xl"
+                      style={{ background: `${p.color}44` }}
+                    />
+                    <img
+                      src={p.img}
+                      alt={p.name}
+                      width={96}
+                      height={96}
+                      className="relative rounded-full object-cover"
+                      style={{
+                        width: 96,
+                        height: 96,
+                        border: `2px solid ${p.color}`,
+                        boxShadow: `0 0 18px ${p.color}66`,
+                      }}
+                    />
+                    {p.isHuman && (
+                      <span
+                        className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full px-2 py-0.5 text-[8px] font-mono font-bold tracking-widest text-black"
+                        style={{ background: p.color }}
+                      >
+                        YOU
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-lg font-black text-white leading-none mb-1" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+                    {p.name}
+                  </div>
+                  <div
+                    className="text-[10px] font-mono uppercase tracking-[0.18em] mb-2"
+                    style={{ color: p.color }}
+                  >
+                    {role}
+                  </div>
+                  {p.location?.city && (
+                    <div className="flex items-center justify-center gap-1 text-[10px] text-white/60 mb-2">
+                      <MapPin size={10} style={{ color: p.color }} />
+                      <span className="truncate">{p.location.city}</span>
+                    </div>
+                  )}
+                  <p className="text-[11px] leading-relaxed text-white/75">{blurb}</p>
+                  {ability && (
+                    <div
+                      className="mt-3 w-full rounded-lg border px-2 py-1.5 text-[10px] font-mono leading-snug text-white/80"
+                      style={{ borderColor: `${p.color}40`, background: `${p.color}12` }}
+                    >
+                      <span style={{ color: p.color }}>◆ </span>{ability}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <button
+            onClick={() => beginRound(1)}
+            className="mt-6 w-full max-w-xs mx-auto rounded-lg py-3 font-mono font-bold tracking-[0.2em] text-black transition hover:brightness-110"
+            style={{
+              background: "linear-gradient(90deg,#f5b800,#ffd34d)",
+              boxShadow: "0 0 20px rgba(245,184,0,0.3)",
+              animation: reduceMotion ? undefined : "fade-in 0.6s ease-out both",
+              animationDelay: reduceMotion ? undefined : "1.1s",
+            }}
+          >
+            ENTER THE GAME
+          </button>
+        </div>
+        {overlayNode}
+      </div>
     );
   }
 
