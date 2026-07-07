@@ -551,7 +551,8 @@ function Scene({ phase, ctrlRef, onHud, onDead }: {
   return (
     <>
       <color attach="background" args={['#010206']} />
-      <fog attach="fog" args={['#010206', 70, 260]} />
+      <fog attach="fog" args={['#010206', 90, 460]} />
+
       <Starfield />
       <Tunnel curve={curve} matRef={matRef} />
       <GameRunner curve={curve} phase={phase} matRef={matRef} ctrlRef={ctrlRef} onHud={onHud} onDead={onDead} />
