@@ -697,6 +697,27 @@ export default function Starfighter() {
 
       <div className="pointer-events-none absolute inset-0" style={{ boxShadow: 'inset 0 0 220px 40px rgba(0,0,0,0.85)' }} />
 
+      {/* Edge-proximity warning: the closer to the wall, the stronger the red glow */}
+      {phase === 'playing' && (
+        <div
+          className="pointer-events-none absolute inset-0 z-10 transition-opacity duration-100"
+          style={{
+            opacity: Math.max(0, (hud.danger - 0.5) / 0.5),
+            boxShadow: 'inset 0 0 160px 60px rgba(255,40,70,0.9)',
+          }}
+        />
+      )}
+
+      {/* Explicit "you're at the edge" banner */}
+      {phase === 'playing' && hud.danger > 0.82 && (
+        <div className="pointer-events-none absolute inset-x-0 top-24 z-20 flex justify-center">
+          <div className="animate-pulse rounded-full border border-red-400/60 bg-red-500/20 px-4 py-1.5 text-sm font-bold uppercase tracking-widest text-red-200 backdrop-blur-sm">
+            ⚠ Tunnelrand — zurück zur Mitte
+          </div>
+        </div>
+      )}
+
+
       {phase === 'playing' && (
         <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between p-4 md:p-6">
           <div className="rounded-lg bg-black/30 px-3 py-2 backdrop-blur-sm">
