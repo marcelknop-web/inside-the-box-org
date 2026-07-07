@@ -638,6 +638,16 @@ export default function Starfighter() {
 
   useEffect(() => () => { stopAmbient(); }, []);
 
+  /* Centre the reticle when a run begins (transform is set imperatively). */
+  useEffect(() => {
+    if (phase !== 'playing') return;
+    const ret = reticleRef.current;
+    if (ret) {
+      ret.style.transform = `translate(${window.innerWidth / 2}px, ${window.innerHeight / 2}px) translate(-50%, -50%)`;
+    }
+  }, [phase]);
+
+
   /* input */
   useEffect(() => {
     const setFromClient = (cx: number, cy: number) => {
