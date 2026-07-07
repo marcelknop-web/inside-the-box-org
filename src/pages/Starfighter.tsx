@@ -265,7 +265,7 @@ function GameRunner({
   }, []);
 
   const st = useRef({
-    u: 0, speed: 0.055,
+    u: 0, speed: 0.03,
     off: new THREE.Vector2(0, 0),
     offVel: new THREE.Vector2(0, 0),
     shield: 1, dist: 0, dead: false, danger: 0, invuln: 0, hudAcc: 0,
@@ -281,7 +281,7 @@ function GameRunner({
   useEffect(() => {
     if (phase === 'playing') {
       const s = st.current;
-      s.u = 0; s.speed = 0.055; s.off.set(0, 0); s.offVel.set(0, 0);
+      s.u = 0; s.speed = 0.03; s.off.set(0, 0); s.offVel.set(0, 0);
       s.shield = 1; s.dist = 0; s.dead = false; s.danger = 0; s.invuln = 1.4;
       s.time = 0; s.hitCd = 0;
       obstacles.forEach((o) => { o.grp.visible = false; });
@@ -315,7 +315,7 @@ function GameRunner({
     const dt = Math.min(rawDt, 0.05);
     s.time += dt;
 
-    s.speed = Math.min(0.13, s.speed + dt * 0.0016);
+    s.speed = Math.min(0.07, s.speed + dt * 0.0009);
     s.u += DIR * s.speed * dt;
     s.dist += s.speed * dt * length;
 
@@ -431,7 +431,7 @@ function GameRunner({
     }
 
     // ── audio ──
-    const speed01 = (s.speed - 0.055) / (0.13 - 0.055);
+    const speed01 = (s.speed - 0.03) / (0.07 - 0.03);
     setSpeed(speed01);
 
     s.hudAcc += dt;
