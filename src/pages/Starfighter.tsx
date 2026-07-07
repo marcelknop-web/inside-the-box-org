@@ -399,14 +399,16 @@ function GameRunner({
       }
     }
 
-    // ── camera (chase) ──
-    placeAt(u, s.off.x, s.off.y, tmp.pos);
+    // ── camera (chase) ── keep the viewpoint near the tube centre so the
+    // walls never crowd in; only the ship swings out to the target.
+    placeAt(u, s.off.x * 0.4, s.off.y * 0.4, tmp.pos);
     sampleFrame(u);
     camera.up.copy(tmp.n);
     camera.position.copy(tmp.pos);
-    placeAt(u + DIR * 0.018, s.off.x * 0.6, s.off.y * 0.6, tmp.look);
+    placeAt(u + DIR * 0.018, s.off.x * 0.45, s.off.y * 0.45, tmp.look);
     camera.lookAt(tmp.look);
-    camera.rotateZ(-ctrl.x * 0.28);
+    camera.rotateZ(-ctrl.x * 0.22);
+
 
     // ── ship (ahead in travel direction) ──
     placeAt(u + DIR * 0.006, s.off.x * 0.85, s.off.y * 0.85, tmp.posShip);
