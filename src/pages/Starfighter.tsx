@@ -25,31 +25,33 @@ interface Hud {
 
 /* ─────────────────────────  Tunnel curve  ───────────────────────── */
 const SEGMENTS = 1600;
-const TUBE_R = 7;                 // world radius of the tube
+const TUBE_R = 12;                 // world radius of the tube
 const SAFE = TUBE_R * 0.74;       // player boundary (crash beyond this)
 const DIR = -1;                   // travel direction along the curve
 
 const OBST_COUNT = 46;
-const ORB_R = 1.25;
+const ORB_R = 1.7;
 const SHIP_R = 0.7;
 const HIT_WINDOW = 0.0032;        // u proximity for collision
 
 function makeCurve(): THREE.CatmullRomCurve3 {
   const pts: THREE.Vector3[] = [];
-  const N = 18;
+  const N = 14;
   for (let i = 0; i < N; i++) {
     const a = (i / N) * Math.PI * 2;
-    const rad = 70 + Math.sin(i * 1.7) * 26 + Math.cos(i * 0.9) * 14;
-    const y = Math.sin(i * 1.3) * 42 + Math.cos(i * 2.1) * 22;
-    const twist = Math.sin(i * 0.6) * 18;
+    // Big, gently sweeping loop so the tunnel bends softly relative to its
+    // radius — you always see down the gang, never straight into a wall.
+    const rad = 150 + Math.sin(i * 1.1) * 28;
+    const y = Math.sin(i * 0.8) * 55 + Math.cos(i * 1.3) * 20;
     pts.push(new THREE.Vector3(
-      Math.cos(a) * rad + twist,
+      Math.cos(a) * rad,
       y,
-      Math.sin(a) * rad - twist * 0.5,
+      Math.sin(a) * rad,
     ));
   }
   return new THREE.CatmullRomCurve3(pts, true, 'catmullrom', 0.5);
 }
+
 
 /* ─────────────────────────  Tunnel mesh (neon grid shader)  ───────────────────────── */
 function Tunnel({ curve, matRef }: { curve: THREE.CatmullRomCurve3; matRef: React.MutableRefObject<THREE.ShaderMaterial | null> }) {
@@ -263,7 +265,7 @@ function GameRunner({
   }, []);
 
   const st = useRef({
-    u: 0, speed: 0.055,
+    u: 0, speed: 0.03,
     off: new THREE.Vector2(0, 0),
     offVel: new THREE.Vector2(0, 0),
     shield: 1, dist: 0, dead: false, danger: 0, invuln: 0, hudAcc: 0,
@@ -279,7 +281,7 @@ function GameRunner({
   useEffect(() => {
     if (phase === 'playing') {
       const s = st.current;
-      s.u = 0; s.speed = 0.055; s.off.set(0, 0); s.offVel.set(0, 0);
+      s.u = 0; s.speed = 0.03; s.off.set(0, 0); s.offVel.set(0, 0);
       s.shield = 1; s.dist = 0; s.dead = false; s.danger = 0; s.invuln = 1.4;
       s.time = 0; s.hitCd = 0;
       obstacles.forEach((o) => { o.grp.visible = false; });
@@ -313,7 +315,7 @@ function GameRunner({
     const dt = Math.min(rawDt, 0.05);
     s.time += dt;
 
-    s.speed = Math.min(0.13, s.speed + dt * 0.0016);
+    s.speed = Math.min(0.07, s.speed + dt * 0.0009);
     s.u += DIR * s.speed * dt;
     s.dist += s.speed * dt * length;
 
@@ -399,14 +401,16 @@ function GameRunner({
       }
     }
 
-    // ── camera (chase) ──
-    placeAt(u, s.off.x, s.off.y, tmp.pos);
+    // ── camera (chase) ── keep the viewpoint near the tube centre so the
+    // walls never crowd in; only the ship swings out to the target.
+    placeAt(u, s.off.x * 0.4, s.off.y * 0.4, tmp.pos);
     sampleFrame(u);
     camera.up.copy(tmp.n);
     camera.position.copy(tmp.pos);
-    placeAt(u + DIR * 0.018, s.off.x * 0.6, s.off.y * 0.6, tmp.look);
+    placeAt(u + DIR * 0.018, s.off.x * 0.45, s.off.y * 0.45, tmp.look);
     camera.lookAt(tmp.look);
-    camera.rotateZ(-ctrl.x * 0.28);
+    camera.rotateZ(-ctrl.x * 0.22);
+
 
     // ── ship (ahead in travel direction) ──
     placeAt(u + DIR * 0.006, s.off.x * 0.85, s.off.y * 0.85, tmp.posShip);
@@ -427,7 +431,7 @@ function GameRunner({
     }
 
     // ── audio ──
-    const speed01 = (s.speed - 0.055) / (0.13 - 0.055);
+    const speed01 = (s.speed - 0.03) / (0.07 - 0.03);
     setSpeed(speed01);
 
     s.hudAcc += dt;
@@ -469,7 +473,7 @@ function Scene({ phase, ctrlRef, onHud, onDead }: {
   return (
     <>
       <color attach="background" args={['#02040a']} />
-      <fog attach="fog" args={['#02040a', 18, 60]} />
+      <fog attach="fog" args={['#02040a', 34, 120]} />
       <Tunnel curve={curve} matRef={matRef} />
       <GameRunner curve={curve} phase={phase} matRef={matRef} ctrlRef={ctrlRef} onHud={onHud} onDead={onDead} />
     </>
@@ -603,7 +607,7 @@ export default function Starfighter() {
       </Helmet>
 
       <Canvas
-        camera={{ fov: 82, near: 0.1, far: 400, position: [0, 0, 0] }}
+        camera={{ fov: 66, near: 0.1, far: 500, position: [0, 0, 0] }}
         gl={{ antialias: true, powerPreference: 'high-performance' }}
         dpr={[1, 2]}
       >
