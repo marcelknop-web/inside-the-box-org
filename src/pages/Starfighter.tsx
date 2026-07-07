@@ -111,7 +111,10 @@ function Tunnel({ curve, matRef }: { curve: THREE.CatmullRomCurve3; matRef: Reac
           vec3 glow = mix(uGlow, vec3(1.0, 0.24, 0.36), uDanger);
           vec3 col = base * 0.42 + glow * g * (1.3 + uDanger * 0.8);
           col += vec3(0.7, 0.85, 1.0) * speck * 1.4;
-          gl_FragColor = vec4(col, 1.0);
+          // Walls stay solid where they glow, but thin out between ribs so the
+          // starfield behind shows through — deep, open space feel.
+          float alpha = clamp(0.52 + g * 0.9 + speck * 1.5, 0.0, 1.0);
+          gl_FragColor = vec4(col, alpha);
         }
       `,
     });
