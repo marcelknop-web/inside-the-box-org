@@ -36,20 +36,22 @@ const HIT_WINDOW = 0.0032;        // u proximity for collision
 
 function makeCurve(): THREE.CatmullRomCurve3 {
   const pts: THREE.Vector3[] = [];
-  const N = 18;
+  const N = 14;
   for (let i = 0; i < N; i++) {
     const a = (i / N) * Math.PI * 2;
-    const rad = 70 + Math.sin(i * 1.7) * 26 + Math.cos(i * 0.9) * 14;
-    const y = Math.sin(i * 1.3) * 42 + Math.cos(i * 2.1) * 22;
-    const twist = Math.sin(i * 0.6) * 18;
+    // Big, gently sweeping loop so the tunnel bends softly relative to its
+    // radius — you always see down the gang, never straight into a wall.
+    const rad = 150 + Math.sin(i * 1.1) * 28;
+    const y = Math.sin(i * 0.8) * 55 + Math.cos(i * 1.3) * 20;
     pts.push(new THREE.Vector3(
-      Math.cos(a) * rad + twist,
+      Math.cos(a) * rad,
       y,
-      Math.sin(a) * rad - twist * 0.5,
+      Math.sin(a) * rad,
     ));
   }
   return new THREE.CatmullRomCurve3(pts, true, 'catmullrom', 0.5);
 }
+
 
 /* ─────────────────────────  Tunnel mesh (neon grid shader)  ───────────────────────── */
 function Tunnel({ curve, matRef }: { curve: THREE.CatmullRomCurve3; matRef: React.MutableRefObject<THREE.ShaderMaterial | null> }) {
