@@ -115,7 +115,7 @@ function buildShip(): THREE.Group {
 
   const hullMat = new THREE.MeshStandardMaterial({
     color: '#0f2233', metalness: 0.85, roughness: 0.3,
-    emissive: new THREE.Color('#0a3a52'), emissiveIntensity: 0.5,
+    emissive: new THREE.Color('#1a6a8a'), emissiveIntensity: 0.85,
   });
   const trimMat = new THREE.MeshStandardMaterial({
     color: CYAN, metalness: 0.6, roughness: 0.25,
@@ -448,7 +448,7 @@ function GameRunner({
     // lights so the standard-material ship reads well
     const key = new THREE.PointLight('#8fdcff', 2.4, 40);
     const rim = new THREE.PointLight('#ffb066', 1.6, 40);
-    const amb = new THREE.AmbientLight('#334455', 1.2);
+    const amb = new THREE.AmbientLight('#4a5f77', 1.8);
     ship.add(key); key.position.set(1.5, 2, -1.5);
     ship.add(rim); rim.position.set(-1.5, -1, 2);
     scene.add(amb);
