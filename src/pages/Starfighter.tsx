@@ -21,6 +21,7 @@ interface Hud {
   distance: number; // meters
   speed: number;    // 0..1
   best: number;     // best distance
+  danger: number;   // 0..1 proximity to the tunnel wall
 }
 
 /* ─────────────────────────  Tunnel curve  ───────────────────────── */
@@ -513,9 +514,9 @@ function GameRunner({
     setSpeed(speed01);
 
     s.hudAcc += dt;
-    if (s.hudAcc > 0.1) {
+    if (s.hudAcc > 0.06) {
       s.hudAcc = 0;
-      onHud({ shield: s.shield, distance: Math.round(s.dist), speed: speed01 });
+      onHud({ shield: s.shield, distance: Math.round(s.dist), speed: speed01, danger: rFrac });
     }
   });
 
@@ -567,7 +568,7 @@ export default function Starfighter() {
   const navigate = useNavigate();
   const [phase, setPhase] = useState<Phase>('briefing');
   const [muted, setMuted] = useState(false);
-  const [hud, setHud] = useState<Hud>({ shield: 1, distance: 0, speed: 0, best: 0 });
+  const [hud, setHud] = useState<Hud>({ shield: 1, distance: 0, speed: 0, best: 0, danger: 0 });
   const ctrlRef = useRef<Ctrl>({ x: 0, y: 0 });
   const musicRef = useRef<HTMLAudioElement | null>(null);
   const reticleRef = useRef<HTMLDivElement | null>(null);
@@ -637,6 +638,16 @@ export default function Starfighter() {
 
   useEffect(() => () => { stopAmbient(); }, []);
 
+  /* Centre the reticle when a run begins (transform is set imperatively). */
+  useEffect(() => {
+    if (phase !== 'playing') return;
+    const ret = reticleRef.current;
+    if (ret) {
+      ret.style.transform = `translate(${window.innerWidth / 2}px, ${window.innerHeight / 2}px) translate(-50%, -50%)`;
+    }
+  }, [phase]);
+
+
   /* input */
   useEffect(() => {
     const setFromClient = (cx: number, cy: number) => {
@@ -696,6 +707,27 @@ export default function Starfighter() {
 
       <div className="pointer-events-none absolute inset-0" style={{ boxShadow: 'inset 0 0 220px 40px rgba(0,0,0,0.85)' }} />
 
+      {/* Edge-proximity warning: the closer to the wall, the stronger the red glow */}
+      {phase === 'playing' && (
+        <div
+          className="pointer-events-none absolute inset-0 z-10 transition-opacity duration-100"
+          style={{
+            opacity: Math.max(0, (hud.danger - 0.5) / 0.5),
+            boxShadow: 'inset 0 0 160px 60px rgba(255,40,70,0.9)',
+          }}
+        />
+      )}
+
+      {/* Explicit "you're at the edge" banner */}
+      {phase === 'playing' && hud.danger > 0.82 && (
+        <div className="pointer-events-none absolute inset-x-0 top-24 z-20 flex justify-center">
+          <div className="animate-pulse rounded-full border border-red-400/60 bg-red-500/20 px-4 py-1.5 text-sm font-bold uppercase tracking-widest text-red-200 backdrop-blur-sm">
+            ⚠ Tunnelrand — zurück zur Mitte
+          </div>
+        </div>
+      )}
+
+
       {phase === 'playing' && (
         <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between p-4 md:p-6">
           <div className="rounded-lg bg-black/30 px-3 py-2 backdrop-blur-sm">
@@ -723,21 +755,29 @@ export default function Starfighter() {
         </div>
       )}
 
-      {/* Reticle — shows exactly where the ship is heading */}
+      {/* Reticle — the "steering handle": drag it, the ship flies there.
+          Turns red as you approach the wall. Positioned imperatively so HUD
+          re-renders never snap it back to the centre. */}
       {phase === 'playing' && (
         <div
           ref={reticleRef}
-          className="pointer-events-none absolute left-0 top-0 z-10 h-10 w-10"
-          style={{ transform: 'translate(50vw, 50vh) translate(-50%, -50%)' }}
+          className="pointer-events-none absolute left-0 top-0 z-10 h-12 w-12"
         >
-          <div className="absolute inset-0 rounded-full border-2 border-cyan-300/70" />
-          <div className="absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-200" />
-          <div className="absolute left-1/2 top-0 h-2 w-px -translate-x-1/2 bg-cyan-300/60" />
-          <div className="absolute left-1/2 bottom-0 h-2 w-px -translate-x-1/2 bg-cyan-300/60" />
-          <div className="absolute top-1/2 left-0 w-2 h-px -translate-y-1/2 bg-cyan-300/60" />
-          <div className="absolute top-1/2 right-0 w-2 h-px -translate-y-1/2 bg-cyan-300/60" />
+          <div
+            className="absolute inset-0 rounded-full border-2 transition-colors"
+            style={{ borderColor: hud.danger > 0.7 ? 'rgba(255,60,90,0.95)' : 'rgba(120,230,255,0.8)' }}
+          />
+          <div
+            className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full transition-colors"
+            style={{ background: hud.danger > 0.7 ? '#ff3b5c' : '#a8ecff' }}
+          />
+          <div className="absolute left-1/2 top-0 h-2.5 w-px -translate-x-1/2 bg-cyan-300/60" />
+          <div className="absolute left-1/2 bottom-0 h-2.5 w-px -translate-x-1/2 bg-cyan-300/60" />
+          <div className="absolute top-1/2 left-0 w-2.5 h-px -translate-y-1/2 bg-cyan-300/60" />
+          <div className="absolute top-1/2 right-0 w-2.5 h-px -translate-y-1/2 bg-cyan-300/60" />
         </div>
       )}
+
 
       <div className="absolute right-4 bottom-4 z-20 flex gap-2">
         <button
@@ -759,13 +799,15 @@ export default function Starfighter() {
           <div className="mx-4 max-w-md rounded-2xl border border-cyan-400/20 bg-[#050a16]/90 p-8 text-center shadow-2xl">
             <h1 className="mb-2 text-3xl font-bold tracking-tight text-cyan-200">TUNNEL&nbsp;FLYER</h1>
             <p className="mb-6 text-sm leading-relaxed text-cyan-100/70">
-              Dein Schiff folgt dem Cursor: Bewege Maus oder Finger dorthin, wo du hinfliegen willst.
-              Weiche den roten Hindernissen aus und bleib in der Röhre.
+              Bewege Maus oder Finger — dein Schiff fliegt genau dorthin.
+              Halte dich in der Mitte der Röhre. Kommst du dem Rand zu nahe,
+              färbt sich der Bildschirm <span className="font-bold text-red-300">rot</span> als Warnung.
             </p>
             <div className="mb-6 space-y-1 text-xs text-cyan-100/60">
-              <p><span className="text-cyan-300">Maus / Finger bewegen</span> — Schiff folgt</p>
-              <p><span className="text-cyan-300">WASD / Pfeile</span> — alternativ lenken</p>
+              <p><span className="text-cyan-300">Maus / Finger</span> — Schiff folgt der Position</p>
+              <p><span className="text-red-300">Roter Rand</span> — sofort zur Mitte zurück</p>
             </div>
+
             <button
               onClick={start}
               className="w-full rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 px-6 py-3 font-bold text-[#02040a] transition hover:brightness-110"
