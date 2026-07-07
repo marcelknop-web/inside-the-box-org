@@ -25,12 +25,12 @@ interface Hud {
 
 /* ─────────────────────────  Tunnel curve  ───────────────────────── */
 const SEGMENTS = 1600;
-const TUBE_R = 7;                 // world radius of the tube
+const TUBE_R = 12;                 // world radius of the tube
 const SAFE = TUBE_R * 0.74;       // player boundary (crash beyond this)
 const DIR = -1;                   // travel direction along the curve
 
 const OBST_COUNT = 46;
-const ORB_R = 1.25;
+const ORB_R = 1.7;
 const SHIP_R = 0.7;
 const HIT_WINDOW = 0.0032;        // u proximity for collision
 
@@ -469,7 +469,7 @@ function Scene({ phase, ctrlRef, onHud, onDead }: {
   return (
     <>
       <color attach="background" args={['#02040a']} />
-      <fog attach="fog" args={['#02040a', 18, 60]} />
+      <fog attach="fog" args={['#02040a', 34, 120]} />
       <Tunnel curve={curve} matRef={matRef} />
       <GameRunner curve={curve} phase={phase} matRef={matRef} ctrlRef={ctrlRef} onHud={onHud} onDead={onDead} />
     </>
@@ -603,7 +603,7 @@ export default function Starfighter() {
       </Helmet>
 
       <Canvas
-        camera={{ fov: 82, near: 0.1, far: 400, position: [0, 0, 0] }}
+        camera={{ fov: 66, near: 0.1, far: 500, position: [0, 0, 0] }}
         gl={{ antialias: true, powerPreference: 'high-performance' }}
         dpr={[1, 2]}
       >
