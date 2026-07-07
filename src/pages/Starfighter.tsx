@@ -596,7 +596,7 @@ export default function Starfighter() {
   const speedPct = Math.round(hud.speed * 100);
 
   return (
-    <div className="relative h-[100dvh] w-full overflow-hidden bg-[#02040a] font-mono text-cyan-100 select-none">
+    <div className={`relative h-[100dvh] w-full overflow-hidden bg-[#02040a] font-mono text-cyan-100 select-none${phase === 'playing' ? ' cursor-none' : ''}`}>
       <Helmet>
         <title>Tunnel Flyer — Inside the Box</title>
         <meta name="description" content="Fliege durch eine unendliche, sich windende Röhre. Weiche Hindernissen aus, bleib im Tunnel — ein immersives 3D-Erlebnis mit hochwertigem Sound." />
