@@ -63,7 +63,8 @@ function Tunnel({ curve, matRef }: { curve: THREE.CatmullRomCurve3; matRef: Reac
   const material = useMemo(() => {
     return new THREE.ShaderMaterial({
       side: THREE.BackSide,
-      transparent: false,
+      transparent: true,
+      depthWrite: false,
       uniforms: {
         uTime: { value: 0 },
         uColA: { value: new THREE.Color('#04121c') },
