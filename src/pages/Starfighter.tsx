@@ -36,13 +36,13 @@ const HIT_WINDOW = 0.0032;        // u proximity for collision
 
 function makeCurve(): THREE.CatmullRomCurve3 {
   const pts: THREE.Vector3[] = [];
-  const N = 14;
+  const N = 22;
   for (let i = 0; i < N; i++) {
     const a = (i / N) * Math.PI * 2;
-    // Big, gently sweeping loop so the tunnel bends softly relative to its
-    // radius — you always see down the gang, never straight into a wall.
-    const rad = 150 + Math.sin(i * 1.1) * 28;
-    const y = Math.sin(i * 0.8) * 55 + Math.cos(i * 1.3) * 20;
+    // Very large, gentle loop so the tube barely bends relative to its radius —
+    // you look straight down a seemingly kilometre-long shaft.
+    const rad = 340 + Math.sin(i * 1.1) * 24;
+    const y = Math.sin(i * 0.7) * 46 + Math.cos(i * 1.2) * 16;
     pts.push(new THREE.Vector3(
       Math.cos(a) * rad,
       y,
