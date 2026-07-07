@@ -131,21 +131,22 @@ export function setSpeed(speed01: number) {
 
 export function stopAmbient() {
   if (!amb || !ctx) return;
+  const a = amb;
+  amb = null;
   const t = ctx.currentTime;
   try {
-    amb.padGain.gain.setTargetAtTime(0.0001, t, 0.3);
-    amb.windGain.gain.setTargetAtTime(0.0001, t, 0.3);
-    amb.shimmerGain.gain.setTargetAtTime(0.0001, t, 0.3);
+    a.padGain.gain.setTargetAtTime(0.0001, t, 0.3);
+    a.windGain.gain.setTargetAtTime(0.0001, t, 0.3);
+    a.shimmerGain.gain.setTargetAtTime(0.0001, t, 0.3);
     const stopAll = () => {
-      amb!.oscs.forEach((o) => { try { o.stop(); } catch { /* */ } });
-      try { amb!.lfo.stop(); } catch { /* */ }
-      try { amb!.shimmer.stop(); } catch { /* */ }
-      try { amb!.shimmerTrem.stop(); } catch { /* */ }
-      try { amb!.windSrc.stop(); } catch { /* */ }
+      a.oscs.forEach((o) => { try { o.stop(); } catch { /* */ } });
+      try { a.lfo.stop(); } catch { /* */ }
+      try { a.shimmer.stop(); } catch { /* */ }
+      try { a.shimmerTrem.stop(); } catch { /* */ }
+      try { a.windSrc.stop(); } catch { /* */ }
     };
     setTimeout(stopAll, 500);
   } catch { /* */ }
-  amb = null;
 }
 
 export function crash() {

@@ -6,10 +6,12 @@ import { useNavigate } from 'react-router-dom';
 import {
   startAmbient, stopAmbient, setAudioEnabled, setSpeed, crash, ding, uiBeep,
 } from '@/game/tunnelAudio';
+import tunnelMusic from '@/assets/tunnel-music.mp3';
 
 /* ─────────────────────────  Palette  ───────────────────────── */
 const CYAN = '#4dd0ff';
 const GOLD = '#f5b800';
+const RED = '#ff3b5c';
 
 /* ─────────────────────────  Types  ───────────────────────── */
 type Phase = 'briefing' | 'playing' | 'dead';
@@ -25,6 +27,12 @@ interface Hud {
 const SEGMENTS = 1600;
 const TUBE_R = 7;                 // world radius of the tube
 const SAFE = TUBE_R * 0.74;       // player boundary (crash beyond this)
+const DIR = -1;                   // travel direction along the curve
+
+const OBST_COUNT = 46;
+const ORB_R = 1.25;
+const SHIP_R = 0.7;
+const HIT_WINDOW = 0.0032;        // u proximity for collision
 
 function makeCurve(): THREE.CatmullRomCurve3 {
   const pts: THREE.Vector3[] = [];
@@ -40,8 +48,7 @@ function makeCurve(): THREE.CatmullRomCurve3 {
       Math.sin(a) * rad - twist * 0.5,
     ));
   }
-  const c = new THREE.CatmullRomCurve3(pts, true, 'catmullrom', 0.5);
-  return c;
+  return new THREE.CatmullRomCurve3(pts, true, 'catmullrom', 0.5);
 }
 
 /* ─────────────────────────  Tunnel mesh (neon grid shader)  ───────────────────────── */
@@ -77,15 +84,12 @@ function Tunnel({ curve, matRef }: { curve: THREE.CatmullRomCurve3; matRef: Reac
         uniform vec3 uGlow;
         uniform float uDanger;
         void main() {
-          // longitudinal rings sliding toward the viewer
           float ringPhase = vUv.x * 260.0 - uTime * 6.0;
           float ring = abs(sin(ringPhase * 3.14159));
           float glowRing = smoothstep(0.86, 1.0, ring);
-          // circumferential ribs
           float rib = abs(sin(vUv.y * 3.14159 * 24.0));
           float glowRib = smoothstep(0.9, 1.0, rib);
           float g = max(glowRing, glowRib * 0.55);
-          // flowing base hue along the tube
           float mixv = 0.5 + 0.5 * sin(vUv.x * 8.0 - uTime * 0.4);
           vec3 base = mix(uColA, uColB, mixv);
           vec3 glow = mix(uGlow, vec3(1.0, 0.24, 0.36), uDanger);
@@ -104,49 +108,127 @@ function Tunnel({ curve, matRef }: { curve: THREE.CatmullRomCurve3; matRef: Reac
   return <mesh geometry={geo} material={material} frustumCulled={false} />;
 }
 
-/* ─────────────────────────  Player ship (wireframe)  ───────────────────────── */
+/* ─────────────────────────  Detailed player ship  ───────────────────────── */
+/** Nose points toward -Z (travel direction after lookAt). */
 function buildShip(): THREE.Group {
   const g = new THREE.Group();
-  const bodyGeo = new THREE.ConeGeometry(0.32, 1.2, 8);
-  bodyGeo.rotateX(Math.PI / 2);
-  const bodyMat = new THREE.MeshBasicMaterial({ color: CYAN, wireframe: true, transparent: true, opacity: 0.95 });
-  g.add(new THREE.Mesh(bodyGeo, bodyMat));
 
-  const glowGeo = new THREE.ConeGeometry(0.34, 1.25, 8);
-  glowGeo.rotateX(Math.PI / 2);
-  const glowMat = new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0.08 });
-  g.add(new THREE.Mesh(glowGeo, glowMat));
+  const hullMat = new THREE.MeshStandardMaterial({
+    color: '#0f2233', metalness: 0.85, roughness: 0.3,
+    emissive: new THREE.Color('#1a6a8a'), emissiveIntensity: 0.85,
+  });
+  const trimMat = new THREE.MeshStandardMaterial({
+    color: CYAN, metalness: 0.6, roughness: 0.25,
+    emissive: new THREE.Color(CYAN), emissiveIntensity: 0.9,
+  });
+  const goldMat = new THREE.MeshStandardMaterial({
+    color: GOLD, metalness: 0.8, roughness: 0.3,
+    emissive: new THREE.Color(GOLD), emissiveIntensity: 0.6,
+  });
 
-  const wingGeo = new THREE.BoxGeometry(1.5, 0.06, 0.45);
-  const wingMat = new THREE.MeshBasicMaterial({ color: GOLD, wireframe: true, transparent: true, opacity: 0.8 });
-  const wing = new THREE.Mesh(wingGeo, wingMat);
-  wing.position.z = 0.3;
-  g.add(wing);
+  // Fuselage — elongated nose cone pointing -Z
+  const fuse = new THREE.Mesh(new THREE.ConeGeometry(0.34, 1.5, 12), hullMat);
+  fuse.rotation.x = -Math.PI / 2;   // tip toward -Z
+  fuse.position.z = -0.1;
+  g.add(fuse);
 
-  // engine glow
-  const engGeo = new THREE.SphereGeometry(0.16, 8, 8);
-  const engMat = new THREE.MeshBasicMaterial({ color: '#ff8a3d', transparent: true, opacity: 0.9 });
-  const eng = new THREE.Mesh(engGeo, engMat);
-  eng.position.z = 0.6;
-  g.add(eng);
+  // Cockpit canopy
+  const canopy = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2), trimMat);
+  canopy.rotation.x = Math.PI / 2;
+  canopy.position.set(0, 0.12, -0.15);
+  canopy.scale.set(1, 1.4, 0.7);
+  g.add(canopy);
 
+  // Main swept wings
+  const wingShape = new THREE.Shape();
+  wingShape.moveTo(0, 0);
+  wingShape.lineTo(1.15, 0.55);
+  wingShape.lineTo(1.15, 0.75);
+  wingShape.lineTo(0, 0.35);
+  wingShape.lineTo(0, 0);
+  const wingGeo = new THREE.ExtrudeGeometry(wingShape, { depth: 0.05, bevelEnabled: false });
+  const wingL = new THREE.Mesh(wingGeo, hullMat);
+  wingL.position.set(0.05, -0.02, 0.35);
+  g.add(wingL);
+  const wingR = wingL.clone();
+  wingR.scale.x = -1;
+  wingR.position.x = -0.05;
+  g.add(wingR);
+
+  // Wing edge glow strips
+  const stripGeo = new THREE.BoxGeometry(1.15, 0.04, 0.06);
+  const stripL = new THREE.Mesh(stripGeo, trimMat);
+  stripL.position.set(0.62, 0.0, 0.62);
+  stripL.rotation.y = -0.45;
+  g.add(stripL);
+  const stripR = stripL.clone();
+  stripR.position.x = -0.62;
+  stripR.rotation.y = 0.45;
+  g.add(stripR);
+
+  // Tail fin
+  const fin = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.5, 4), goldMat);
+  fin.position.set(0, 0.28, 0.55);
+  fin.rotation.x = -0.2;
+  g.add(fin);
+
+  // Twin engines (index positions used for flicker)
+  const engGeo = new THREE.CylinderGeometry(0.13, 0.16, 0.4, 12);
+  const engL = new THREE.Mesh(engGeo, hullMat);
+  engL.rotation.x = Math.PI / 2;
+  engL.position.set(0.24, -0.05, 0.6);
+  g.add(engL);
+  const engR = engL.clone();
+  engR.position.x = -0.24;
+  g.add(engR);
+
+  // Engine glow orbs (children indices tracked for flicker)
+  const glowMat = new THREE.MeshBasicMaterial({ color: '#ff8a3d', transparent: true, opacity: 0.95 });
+  const gl1 = new THREE.Mesh(new THREE.SphereGeometry(0.14, 10, 10), glowMat.clone());
+  gl1.position.set(0.24, -0.05, 0.82);
+  g.add(gl1);
+  const gl2 = new THREE.Mesh(new THREE.SphereGeometry(0.14, 10, 10), glowMat.clone());
+  gl2.position.set(-0.24, -0.05, 0.82);
+  g.add(gl2);
+
+  g.userData.glows = [gl1, gl2];
+  g.scale.setScalar(0.85);
   return g;
 }
 
-/* ─────────────────────────  Game runner  ───────────────────────── */
-interface Ctrl {
-  x: number; // -1..1 target
-  y: number;
+/* ─────────────────────────  Obstacle orb  ───────────────────────── */
+function buildOrb(): THREE.Group {
+  const grp = new THREE.Group();
+  const core = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(ORB_R, 0),
+    new THREE.MeshBasicMaterial({ color: RED, wireframe: true, transparent: true, opacity: 0.9 }),
+  );
+  grp.add(core);
+  const glow = new THREE.Mesh(
+    new THREE.SphereGeometry(ORB_R * 0.7, 12, 12),
+    new THREE.MeshBasicMaterial({ color: '#ff6b7f', transparent: true, opacity: 0.28 }),
+  );
+  grp.add(glow);
+  grp.visible = false;
+  return grp;
 }
 
+interface Obst {
+  ou: number;    // position along curve
+  ang: number;   // base angle in cross-section
+  rad: number;   // radial offset magnitude
+  amp: number;   // drift amplitude
+  phase: number; // drift phase
+  grp: THREE.Group;
+  ox: number;    // current cross-section offset
+  oy: number;
+}
+
+/* ─────────────────────────  Game runner  ───────────────────────── */
+interface Ctrl { x: number; y: number; }
+
 function GameRunner({
-  curve,
-  phase,
-  matRef,
-  ctrlRef,
-  onHud,
-  onDead,
-  best,
+  curve, phase, matRef, ctrlRef, onHud, onDead,
 }: {
   curve: THREE.CatmullRomCurve3;
   phase: Phase;
@@ -154,49 +236,56 @@ function GameRunner({
   ctrlRef: React.MutableRefObject<Ctrl>;
   onHud: (h: Partial<Hud>) => void;
   onDead: (dist: number) => void;
-  best: number;
 }) {
-  const { camera } = useThree();
+  const { camera, scene } = useThree();
   const frames = useMemo(() => curve.computeFrenetFrames(SEGMENTS, true), [curve]);
   const length = useMemo(() => curve.getLength(), [curve]);
   const ship = useMemo(buildShip, []);
 
-  // mutable state
+  const obstacles = useMemo<Obst[]>(() => {
+    const arr: Obst[] = [];
+    for (let i = 0; i < OBST_COUNT; i++) {
+      const rnd = (n: number) => {
+        const x = Math.sin(i * 12.9898 + n * 78.233) * 43758.5453;
+        return x - Math.floor(x);
+      };
+      arr.push({
+        ou: (i + 0.5) / OBST_COUNT,
+        ang: rnd(1) * Math.PI * 2,
+        rad: SAFE * (0.35 + rnd(2) * 0.4),
+        amp: SAFE * (0.1 + rnd(3) * 0.25),
+        phase: rnd(4) * Math.PI * 2,
+        grp: buildOrb(),
+        ox: 0, oy: 0,
+      });
+    }
+    return arr;
+  }, []);
+
   const st = useRef({
-    u: 0,
-    speed: 0.055,       // fraction of curve per second
+    u: 0, speed: 0.055,
     off: new THREE.Vector2(0, 0),
     offVel: new THREE.Vector2(0, 0),
-    shield: 1,
-    dist: 0,
-    dead: false,
-    danger: 0,
-    invuln: 0,
-    hudAcc: 0,
-    started: false,
+    shield: 1, dist: 0, dead: false, danger: 0, invuln: 0, hudAcc: 0,
+    time: 0, hitCd: 0,
   });
 
-  // scratch
   const tmp = useRef({
-    pos: new THREE.Vector3(),
-    posShip: new THREE.Vector3(),
-    look: new THREE.Vector3(),
-    n: new THREE.Vector3(),
-    b: new THREE.Vector3(),
-    t0: new THREE.Vector3(),
-    t1: new THREE.Vector3(),
-    v: new THREE.Vector3(),
+    pos: new THREE.Vector3(), posShip: new THREE.Vector3(), look: new THREE.Vector3(),
+    n: new THREE.Vector3(), b: new THREE.Vector3(),
+    t0: new THREE.Vector3(), t1: new THREE.Vector3(), v: new THREE.Vector3(),
   }).current;
 
-  // reset when entering "playing"
   useEffect(() => {
     if (phase === 'playing') {
       const s = st.current;
       s.u = 0; s.speed = 0.055; s.off.set(0, 0); s.offVel.set(0, 0);
-      s.shield = 1; s.dist = 0; s.dead = false; s.danger = 0; s.invuln = 1.2; s.started = true;
+      s.shield = 1; s.dist = 0; s.dead = false; s.danger = 0; s.invuln = 1.4;
+      s.time = 0; s.hitCd = 0;
+      obstacles.forEach((o) => { o.grp.visible = false; });
       onHud({ shield: 1, distance: 0, speed: 0 });
     }
-  }, [phase, onHud]);
+  }, [phase, onHud, obstacles]);
 
   const sampleFrame = useCallback((u: number) => {
     const i = Math.min(SEGMENTS - 1, Math.max(0, Math.floor(u * SEGMENTS)));
@@ -208,8 +297,9 @@ function GameRunner({
   }, [frames, tmp]);
 
   const placeAt = useCallback((u: number, offX: number, offY: number, target: THREE.Vector3) => {
-    curve.getPointAt(((u % 1) + 1) % 1, target);
-    sampleFrame(((u % 1) + 1) % 1);
+    const uu = ((u % 1) + 1) % 1;
+    curve.getPointAt(uu, target);
+    sampleFrame(uu);
     target.addScaledVector(tmp.n, offX);
     target.addScaledVector(tmp.b, offY);
   }, [curve, sampleFrame, tmp]);
@@ -217,90 +307,123 @@ function GameRunner({
   useFrame((_, rawDt) => {
     const s = st.current;
     if (phase !== 'playing' || s.dead) {
-      if (matRef.current) matRef.current.uniforms.uTime.value += rawDt * 0.6; // gentle drift on menus
+      if (matRef.current) matRef.current.uniforms.uTime.value += rawDt * 0.6;
       return;
     }
     const dt = Math.min(rawDt, 0.05);
+    s.time += dt;
 
-    // difficulty ramp (adaptive & beginner-friendly): slow build-up
     s.speed = Math.min(0.13, s.speed + dt * 0.0016);
-    s.u += s.speed * dt;
+    s.u += DIR * s.speed * dt;
     s.dist += s.speed * dt * length;
 
-    // curvature push (rollercoaster centrifugal feel)
     const u = ((s.u % 1) + 1) % 1;
     sampleFrame(u);
+
+    // curvature push (rollercoaster feel)
     tmp.v.subVectors(tmp.t1, tmp.t0);
     const curveN = tmp.v.dot(tmp.n);
     const curveB = tmp.v.dot(tmp.b);
-    // ramps up with distance for adaptive challenge
     const centro = 34 + Math.min(40, s.dist * 0.006);
     s.offVel.x += (-curveN) * centro * dt;
     s.offVel.y += (-curveB) * centro * dt;
 
-    // steering input (easy, responsive)
+    // steering
     const ctrl = ctrlRef.current;
     const accel = 42;
     s.offVel.x += ctrl.x * accel * dt;
     s.offVel.y += -ctrl.y * accel * dt;
 
-    // damping + integrate
     s.offVel.multiplyScalar(Math.pow(0.02, dt));
     s.off.addScaledVector(s.offVel, dt);
 
-    // radial distance vs wall
     const r = s.off.length();
     const rFrac = r / SAFE;
 
-    // danger glow rises near wall
     const targetDanger = THREE.MathUtils.clamp((rFrac - 0.55) / 0.45, 0, 1);
     s.danger += (targetDanger - s.danger) * Math.min(1, dt * 8);
 
     if (s.invuln > 0) s.invuln -= dt;
+    if (s.hitCd > 0) s.hitCd -= dt;
 
-    // collision
-    if (rFrac >= 1 && s.invuln <= 0) {
-      s.shield -= 0.34;
+    const applyHit = (amount: number) => {
+      s.shield -= amount;
       crash();
       s.invuln = 0.9;
-      // bounce back toward centre
-      s.off.multiplyScalar(0.55);
-      s.offVel.multiplyScalar(-0.3);
+      s.hitCd = 0.5;
       if (s.shield <= 0) {
-        s.shield = 0;
-        s.dead = true;
+        s.shield = 0; s.dead = true;
         onHud({ shield: 0 });
         onDead(Math.round(s.dist));
         stopAmbient();
-        return;
+        return true;
+      }
+      return false;
+    };
+
+    // wall collision
+    if (rFrac >= 1 && s.invuln <= 0) {
+      s.off.multiplyScalar(0.55);
+      s.offVel.multiplyScalar(-0.3);
+      if (applyHit(0.34)) return;
+    }
+    if (r > SAFE * 1.02) s.off.setLength(SAFE * 1.02);
+
+    // ── obstacles ──
+    const numActive = Math.min(OBST_COUNT, Math.max(0, Math.floor((s.dist - 140) / 55)));
+    for (let i = 0; i < obstacles.length; i++) {
+      const o = obstacles[i];
+      const active = i < numActive;
+      // distance in u (wrapped) between player and obstacle
+      let du = o.ou - u;
+      du = du - Math.round(du); // shortest wrap in [-0.5,0.5]
+      const near = Math.abs(du) < 0.06;
+      if (!active || !near) { if (o.grp.visible) o.grp.visible = false; continue; }
+
+      // current drifting cross-section offset
+      const drift = Math.sin(s.time * 0.8 + o.phase) * o.amp;
+      o.ox = Math.cos(o.ang) * o.rad + Math.cos(o.ang + Math.PI / 2) * drift;
+      o.oy = Math.sin(o.ang) * o.rad + Math.sin(o.ang + Math.PI / 2) * drift;
+
+      // place mesh
+      placeAt(o.ou, o.ox, o.oy, tmp.pos);
+      o.grp.position.copy(tmp.pos);
+      o.grp.visible = true;
+      const pulse = 1 + Math.sin(s.time * 4 + o.phase) * 0.12;
+      o.grp.scale.setScalar(pulse);
+      o.grp.rotation.x += dt * 1.2;
+      o.grp.rotation.y += dt * 0.9;
+
+      // collision when passing
+      if (Math.abs(du) < HIT_WINDOW && s.hitCd <= 0) {
+        const dx = s.off.x - o.ox;
+        const dy = s.off.y - o.oy;
+        if (Math.hypot(dx, dy) < ORB_R + SHIP_R) {
+          if (applyHit(0.25)) return;
+        }
       }
     }
 
-    // clamp so ship can't leave geometry entirely
-    if (r > SAFE * 1.02) s.off.setLength(SAFE * 1.02);
-
     // ── camera (chase) ──
     placeAt(u, s.off.x, s.off.y, tmp.pos);
-    // camera up follows tube normal for banking immersion
     sampleFrame(u);
-    camera.up.copy(tmp.n).multiplyScalar(-1).lerp(new THREE.Vector3(0, 1, 0), 0); // keep tube-relative up
     camera.up.copy(tmp.n);
     camera.position.copy(tmp.pos);
-    placeAt(u + 0.018, s.off.x * 0.6, s.off.y * 0.6, tmp.look);
+    placeAt(u + DIR * 0.018, s.off.x * 0.6, s.off.y * 0.6, tmp.look);
     camera.lookAt(tmp.look);
-    // subtle roll from steering
     camera.rotateZ(-ctrl.x * 0.28);
 
-    // ── ship (ahead of camera) ──
-    placeAt(u + 0.006, s.off.x * 0.85, s.off.y * 0.85, tmp.posShip);
+    // ── ship (ahead in travel direction) ──
+    placeAt(u + DIR * 0.006, s.off.x * 0.85, s.off.y * 0.85, tmp.posShip);
     ship.position.copy(tmp.posShip);
-    placeAt(u + 0.02, s.off.x * 0.6, s.off.y * 0.6, tmp.look);
+    placeAt(u + DIR * 0.02, s.off.x * 0.6, s.off.y * 0.6, tmp.look);
     ship.up.copy(tmp.n);
     ship.lookAt(tmp.look);
     ship.rotation.z += (-ctrl.x * 0.5 - ship.rotation.z) * Math.min(1, dt * 6);
-    // engine flicker
-    const eng = ship.children[3] as THREE.Mesh;
-    (eng.material as THREE.MeshBasicMaterial).opacity = 0.6 + Math.random() * 0.4;
+    const glows = ship.userData.glows as THREE.Mesh[];
+    glows.forEach((m) => { (m.material as THREE.MeshBasicMaterial).opacity = 0.6 + Math.random() * 0.4; });
+    // flicker ship during invuln
+    ship.visible = s.invuln <= 0 || Math.floor(s.time * 20) % 2 === 0;
 
     // ── shader ──
     if (matRef.current) {
@@ -312,7 +435,6 @@ function GameRunner({
     const speed01 = (s.speed - 0.055) / (0.13 - 0.055);
     setSpeed(speed01);
 
-    // ── HUD (throttled) ──
     s.hudAcc += dt;
     if (s.hudAcc > 0.1) {
       s.hudAcc = 0;
@@ -320,25 +442,32 @@ function GameRunner({
     }
   });
 
-  // add/remove ship from scene
-  const { scene } = useThree();
   useEffect(() => {
     scene.add(ship);
-    return () => { scene.remove(ship); };
-  }, [scene, ship]);
+    obstacles.forEach((o) => scene.add(o.grp));
+    // lights so the standard-material ship reads well
+    const key = new THREE.PointLight('#8fdcff', 2.4, 40);
+    const rim = new THREE.PointLight('#ffb066', 1.6, 40);
+    const amb = new THREE.AmbientLight('#4a5f77', 1.8);
+    ship.add(key); key.position.set(1.5, 2, -1.5);
+    ship.add(rim); rim.position.set(-1.5, -1, 2);
+    scene.add(amb);
+    return () => {
+      scene.remove(ship);
+      scene.remove(amb);
+      obstacles.forEach((o) => scene.remove(o.grp));
+    };
+  }, [scene, ship, obstacles]);
 
   return null;
 }
 
-/* ─────────────────────────  Scene wrapper  ───────────────────────── */
-function Scene({
-  phase, ctrlRef, onHud, onDead, best,
-}: {
+/* ─────────────────────────  Scene  ───────────────────────── */
+function Scene({ phase, ctrlRef, onHud, onDead }: {
   phase: Phase;
   ctrlRef: React.MutableRefObject<Ctrl>;
   onHud: (h: Partial<Hud>) => void;
   onDead: (dist: number) => void;
-  best: number;
 }) {
   const curve = useMemo(makeCurve, []);
   const matRef = useRef<THREE.ShaderMaterial | null>(null);
@@ -347,15 +476,7 @@ function Scene({
       <color attach="background" args={['#02040a']} />
       <fog attach="fog" args={['#02040a', 18, 60]} />
       <Tunnel curve={curve} matRef={matRef} />
-      <GameRunner
-        curve={curve}
-        phase={phase}
-        matRef={matRef}
-        ctrlRef={ctrlRef}
-        onHud={onHud}
-        onDead={onDead}
-        best={best}
-      />
+      <GameRunner curve={curve} phase={phase} matRef={matRef} ctrlRef={ctrlRef} onHud={onHud} onDead={onDead} />
     </>
   );
 }
@@ -369,16 +490,33 @@ export default function Starfighter() {
   const [muted, setMuted] = useState(false);
   const [hud, setHud] = useState<Hud>({ shield: 1, distance: 0, speed: 0, best: 0 });
   const ctrlRef = useRef<Ctrl>({ x: 0, y: 0 });
-  const lastDist = useRef(0);
+  const musicRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     const b = Number(localStorage.getItem(BEST_KEY) || 0);
     setHud((h) => ({ ...h, best: b }));
+    const a = new Audio(tunnelMusic);
+    a.loop = true;
+    a.volume = 0.0;
+    musicRef.current = a;
+    return () => { a.pause(); };
+  }, []);
+
+  const fadeMusic = useCallback((to: number) => {
+    const a = musicRef.current;
+    if (!a) return;
+    const step = () => {
+      if (!musicRef.current) return;
+      const d = to - a.volume;
+      if (Math.abs(d) < 0.02) { a.volume = to; if (to === 0) a.pause(); return; }
+      a.volume = Math.max(0, Math.min(1, a.volume + Math.sign(d) * 0.04));
+      requestAnimationFrame(step);
+    };
+    step();
   }, []);
 
   const onHud = useCallback((h: Partial<Hud>) => {
     setHud((prev) => ({ ...prev, ...h }));
-    if (h.distance != null) lastDist.current = h.distance;
   }, []);
 
   const onDead = useCallback((dist: number) => {
@@ -388,29 +526,38 @@ export default function Starfighter() {
       return { ...prev, best, distance: dist };
     });
     setPhase('dead');
-  }, []);
+    fadeMusic(0);
+  }, [fadeMusic]);
 
   const start = useCallback(() => {
     setAudioEnabled(!muted);
-    if (!muted) startAmbient();
+    if (!muted) {
+      startAmbient();
+      const a = musicRef.current;
+      if (a) { a.currentTime = 0; a.volume = 0; a.play().catch(() => {}); fadeMusic(0.55); }
+    }
     uiBeep(880);
     ctrlRef.current.x = 0; ctrlRef.current.y = 0;
     setPhase('playing');
-  }, [muted]);
+  }, [muted, fadeMusic]);
 
   const toggleMute = useCallback(() => {
     setMuted((m) => {
       const next = !m;
       setAudioEnabled(!next);
-      if (next) stopAmbient();
-      else if (phase === 'playing') startAmbient();
+      if (next) { stopAmbient(); fadeMusic(0); }
+      else if (phase === 'playing') {
+        startAmbient();
+        const a = musicRef.current;
+        if (a) { a.play().catch(() => {}); fadeMusic(0.55); }
+      }
       return next;
     });
-  }, [phase]);
+  }, [phase, fadeMusic]);
 
   useEffect(() => () => { stopAmbient(); }, []);
 
-  /* ── input: pointer + touch + keyboard ── */
+  /* input */
   useEffect(() => {
     const setFromClient = (cx: number, cy: number) => {
       const nx = (cx / window.innerWidth) * 2 - 1;
@@ -454,7 +601,7 @@ export default function Starfighter() {
     <div className="relative h-[100dvh] w-full overflow-hidden bg-[#02040a] font-mono text-cyan-100 select-none">
       <Helmet>
         <title>Tunnel Flyer — Inside the Box</title>
-        <meta name="description" content="Fliege durch eine unendliche, sich windende Röhre. Bleib im Tunnel, halte die Geschwindigkeit — ein immersives 3D-Erlebnis." />
+        <meta name="description" content="Fliege durch eine unendliche, sich windende Röhre. Weiche Hindernissen aus, bleib im Tunnel — ein immersives 3D-Erlebnis mit hochwertigem Sound." />
       </Helmet>
 
       <Canvas
@@ -462,13 +609,11 @@ export default function Starfighter() {
         gl={{ antialias: true, powerPreference: 'high-performance' }}
         dpr={[1, 2]}
       >
-        <Scene phase={phase} ctrlRef={ctrlRef} onHud={onHud} onDead={onDead} best={hud.best} />
+        <Scene phase={phase} ctrlRef={ctrlRef} onHud={onHud} onDead={onDead} />
       </Canvas>
 
-      {/* vignette */}
       <div className="pointer-events-none absolute inset-0" style={{ boxShadow: 'inset 0 0 220px 40px rgba(0,0,0,0.85)' }} />
 
-      {/* ── Top HUD ── */}
       {phase === 'playing' && (
         <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between p-4 md:p-6">
           <div className="rounded-lg bg-black/30 px-3 py-2 backdrop-blur-sm">
@@ -496,7 +641,6 @@ export default function Starfighter() {
         </div>
       )}
 
-      {/* mute + exit */}
       <div className="absolute right-4 bottom-4 z-20 flex gap-2">
         <button
           onClick={toggleMute}
@@ -506,20 +650,19 @@ export default function Starfighter() {
         </button>
       </div>
       <button
-        onClick={() => { stopAmbient(); navigate('/'); }}
+        onClick={() => { stopAmbient(); fadeMusic(0); navigate('/'); }}
         className="absolute left-4 bottom-4 z-20 rounded-lg border border-cyan-400/30 bg-black/40 px-3 py-2 text-xs backdrop-blur-sm transition hover:bg-black/60"
       >
         ← Zurück
       </button>
 
-      {/* ── Briefing ── */}
       {phase === 'briefing' && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="mx-4 max-w-md rounded-2xl border border-cyan-400/20 bg-[#050a16]/90 p-8 text-center shadow-2xl">
             <h1 className="mb-2 text-3xl font-bold tracking-tight text-cyan-200">TUNNEL&nbsp;FLYER</h1>
             <p className="mb-6 text-sm leading-relaxed text-cyan-100/70">
-              Fliege durch eine unendliche, sich windende Röhre. Steuere sanft, folge den Kurven
-              und bleib im Tunnel. Auf Kurven zieht es dich nach außen — gegenlenken!
+              Fliege durch eine unendliche, sich windende Röhre. Steuere sanft, folge den Kurven,
+              weiche den roten Hindernissen aus und bleib im Tunnel. Auf Kurven zieht es dich nach außen — gegenlenken!
             </p>
             <div className="mb-6 space-y-1 text-xs text-cyan-100/60">
               <p><span className="text-cyan-300">Maus / Finger</span> — lenken</p>
@@ -538,7 +681,6 @@ export default function Starfighter() {
         </div>
       )}
 
-      {/* ── Dead ── */}
       {phase === 'dead' && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="mx-4 max-w-md rounded-2xl border border-red-400/20 bg-[#160509]/90 p-8 text-center shadow-2xl">
