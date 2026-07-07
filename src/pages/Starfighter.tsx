@@ -686,7 +686,7 @@ export default function Starfighter() {
       </Helmet>
 
       <Canvas
-        camera={{ fov: 66, near: 0.1, far: 500, position: [0, 0, 0] }}
+        camera={{ fov: 66, near: 0.1, far: 1000, position: [0, 0, 0] }}
         gl={{ antialias: true, powerPreference: 'high-performance' }}
         dpr={[1, 2]}
       >
