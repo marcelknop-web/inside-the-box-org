@@ -24,7 +24,7 @@ interface Hud {
 }
 
 /* ─────────────────────────  Tunnel curve  ───────────────────────── */
-const SEGMENTS = 1600;
+const SEGMENTS = 2600;
 const TUBE_R = 12;                 // world radius of the tube
 const SAFE = TUBE_R * 0.74;       // player boundary (crash beyond this)
 const DIR = -1;                   // travel direction along the curve
