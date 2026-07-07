@@ -486,8 +486,9 @@ function Scene({ phase, ctrlRef, onHud, onDead }: {
   const matRef = useRef<THREE.ShaderMaterial | null>(null);
   return (
     <>
-      <color attach="background" args={['#02040a']} />
-      <fog attach="fog" args={['#02040a', 34, 120]} />
+      <color attach="background" args={['#010206']} />
+      <fog attach="fog" args={['#010206', 46, 175]} />
+      <Starfield />
       <Tunnel curve={curve} matRef={matRef} />
       <GameRunner curve={curve} phase={phase} matRef={matRef} ctrlRef={ctrlRef} onHud={onHud} onDead={onDead} />
     </>
