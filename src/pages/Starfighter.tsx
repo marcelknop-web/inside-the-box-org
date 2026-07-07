@@ -675,12 +675,12 @@ export default function Starfighter() {
           <div className="mx-4 max-w-md rounded-2xl border border-cyan-400/20 bg-[#050a16]/90 p-8 text-center shadow-2xl">
             <h1 className="mb-2 text-3xl font-bold tracking-tight text-cyan-200">TUNNEL&nbsp;FLYER</h1>
             <p className="mb-6 text-sm leading-relaxed text-cyan-100/70">
-              Fliege durch eine unendliche, sich windende Röhre. Steuere sanft, folge den Kurven,
-              weiche den roten Hindernissen aus und bleib im Tunnel. Auf Kurven zieht es dich nach außen — gegenlenken!
+              Dein Schiff folgt dem Cursor: Bewege Maus oder Finger dorthin, wo du hinfliegen willst.
+              Weiche den roten Hindernissen aus und bleib in der Röhre.
             </p>
             <div className="mb-6 space-y-1 text-xs text-cyan-100/60">
-              <p><span className="text-cyan-300">Maus / Finger</span> — lenken</p>
-              <p><span className="text-cyan-300">WASD / Pfeile</span> — lenken</p>
+              <p><span className="text-cyan-300">Maus / Finger bewegen</span> — Schiff folgt</p>
+              <p><span className="text-cyan-300">WASD / Pfeile</span> — alternativ lenken</p>
             </div>
             <button
               onClick={start}
