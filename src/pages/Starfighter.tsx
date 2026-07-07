@@ -89,7 +89,7 @@ function Tunnel({ curve, matRef }: { curve: THREE.CatmullRomCurve3; matRef: Reac
         float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
         void main() {
           // Receding neon rings give the sense of depth / forward motion.
-          float ringPhase = vUv.x * 260.0 - uTime * 6.0;
+          float ringPhase = vUv.x * 560.0 - uTime * 6.0;
           float ring = abs(sin(ringPhase * 3.14159));
           float glowRing = smoothstep(0.86, 1.0, ring);
           float rib = abs(sin(vUv.y * 3.14159 * 24.0));
