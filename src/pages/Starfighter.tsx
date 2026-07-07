@@ -66,8 +66,8 @@ function Tunnel({ curve, matRef }: { curve: THREE.CatmullRomCurve3; matRef: Reac
       transparent: false,
       uniforms: {
         uTime: { value: 0 },
-        uColA: { value: new THREE.Color('#0a2a3a') },
-        uColB: { value: new THREE.Color('#3a1060') },
+        uColA: { value: new THREE.Color('#04121c') },
+        uColB: { value: new THREE.Color('#1a0838') },
         uGlow: { value: new THREE.Color('#4dd0ff') },
         uDanger: { value: 0 },
       },
