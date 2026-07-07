@@ -745,21 +745,29 @@ export default function Starfighter() {
         </div>
       )}
 
-      {/* Reticle — shows exactly where the ship is heading */}
+      {/* Reticle — the "steering handle": drag it, the ship flies there.
+          Turns red as you approach the wall. Positioned imperatively so HUD
+          re-renders never snap it back to the centre. */}
       {phase === 'playing' && (
         <div
           ref={reticleRef}
-          className="pointer-events-none absolute left-0 top-0 z-10 h-10 w-10"
-          style={{ transform: 'translate(50vw, 50vh) translate(-50%, -50%)' }}
+          className="pointer-events-none absolute left-0 top-0 z-10 h-12 w-12"
         >
-          <div className="absolute inset-0 rounded-full border-2 border-cyan-300/70" />
-          <div className="absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-200" />
-          <div className="absolute left-1/2 top-0 h-2 w-px -translate-x-1/2 bg-cyan-300/60" />
-          <div className="absolute left-1/2 bottom-0 h-2 w-px -translate-x-1/2 bg-cyan-300/60" />
-          <div className="absolute top-1/2 left-0 w-2 h-px -translate-y-1/2 bg-cyan-300/60" />
-          <div className="absolute top-1/2 right-0 w-2 h-px -translate-y-1/2 bg-cyan-300/60" />
+          <div
+            className="absolute inset-0 rounded-full border-2 transition-colors"
+            style={{ borderColor: hud.danger > 0.7 ? 'rgba(255,60,90,0.95)' : 'rgba(120,230,255,0.8)' }}
+          />
+          <div
+            className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full transition-colors"
+            style={{ background: hud.danger > 0.7 ? '#ff3b5c' : '#a8ecff' }}
+          />
+          <div className="absolute left-1/2 top-0 h-2.5 w-px -translate-x-1/2 bg-cyan-300/60" />
+          <div className="absolute left-1/2 bottom-0 h-2.5 w-px -translate-x-1/2 bg-cyan-300/60" />
+          <div className="absolute top-1/2 left-0 w-2.5 h-px -translate-y-1/2 bg-cyan-300/60" />
+          <div className="absolute top-1/2 right-0 w-2.5 h-px -translate-y-1/2 bg-cyan-300/60" />
         </div>
       )}
+
 
       <div className="absolute right-4 bottom-4 z-20 flex gap-2">
         <button
