@@ -66,8 +66,8 @@ function Tunnel({ curve, matRef }: { curve: THREE.CatmullRomCurve3; matRef: Reac
       transparent: false,
       uniforms: {
         uTime: { value: 0 },
-        uColA: { value: new THREE.Color('#0a2a3a') },
-        uColB: { value: new THREE.Color('#3a1060') },
+        uColA: { value: new THREE.Color('#04121c') },
+        uColB: { value: new THREE.Color('#1a0838') },
         uGlow: { value: new THREE.Color('#4dd0ff') },
         uDanger: { value: 0 },
       },
@@ -85,17 +85,31 @@ function Tunnel({ curve, matRef }: { curve: THREE.CatmullRomCurve3; matRef: Reac
         uniform vec3 uColB;
         uniform vec3 uGlow;
         uniform float uDanger;
+        float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
         void main() {
+          // Receding neon rings give the sense of depth / forward motion.
           float ringPhase = vUv.x * 260.0 - uTime * 6.0;
           float ring = abs(sin(ringPhase * 3.14159));
           float glowRing = smoothstep(0.86, 1.0, ring);
           float rib = abs(sin(vUv.y * 3.14159 * 24.0));
           float glowRib = smoothstep(0.9, 1.0, rib);
-          float g = max(glowRing, glowRib * 0.55);
+          float g = max(glowRing, glowRib * 0.5);
+
+          // Drifting star specks streaming down the tube for a deep-space feel.
+          vec2 sc = vec2(vUv.x * 90.0 - uTime * 2.0, vUv.y * 40.0);
+          vec2 cell = floor(sc);
+          float star = hash(cell);
+          float tw = 0.5 + 0.5 * sin(uTime * 3.0 + star * 40.0);
+          float speck = smoothstep(0.985, 1.0, star) * tw;
+
           float mixv = 0.5 + 0.5 * sin(vUv.x * 8.0 - uTime * 0.4);
           vec3 base = mix(uColA, uColB, mixv);
+          // Faint nebula shimmer over the base surface.
+          float neb = 0.5 + 0.5 * sin(vUv.y * 6.2831 + uTime * 0.3 + vUv.x * 12.0);
+          base += mix(vec3(0.02, 0.05, 0.10), vec3(0.08, 0.02, 0.10), neb) * 0.6;
           vec3 glow = mix(uGlow, vec3(1.0, 0.24, 0.36), uDanger);
-          vec3 col = base * 0.5 + glow * g * (1.3 + uDanger * 0.8);
+          vec3 col = base * 0.42 + glow * g * (1.3 + uDanger * 0.8);
+          col += vec3(0.7, 0.85, 1.0) * speck * 1.4;
           gl_FragColor = vec4(col, 1.0);
         }
       `,
@@ -472,8 +486,9 @@ function Scene({ phase, ctrlRef, onHud, onDead }: {
   const matRef = useRef<THREE.ShaderMaterial | null>(null);
   return (
     <>
-      <color attach="background" args={['#02040a']} />
-      <fog attach="fog" args={['#02040a', 34, 120]} />
+      <color attach="background" args={['#010206']} />
+      <fog attach="fog" args={['#010206', 46, 175]} />
+      
       <Tunnel curve={curve} matRef={matRef} />
       <GameRunner curve={curve} phase={phase} matRef={matRef} ctrlRef={ctrlRef} onHud={onHud} onDead={onDead} />
     </>
