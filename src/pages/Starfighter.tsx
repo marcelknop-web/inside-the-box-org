@@ -320,22 +320,17 @@ function GameRunner({
     const u = ((s.u % 1) + 1) % 1;
     sampleFrame(u);
 
-    // curvature push (rollercoaster feel)
-    tmp.v.subVectors(tmp.t1, tmp.t0);
-    const curveN = tmp.v.dot(tmp.n);
-    const curveB = tmp.v.dot(tmp.b);
-    const centro = 34 + Math.min(40, s.dist * 0.006);
-    s.offVel.x += (-curveN) * centro * dt;
-    s.offVel.y += (-curveB) * centro * dt;
-
-    // steering
+    // Direct, intuitive control: the ship goes exactly where you point.
+    // Cursor / finger position maps 1:1 to a target inside the tube; the
+    // ship eases toward it — snappy but smooth, no fighting the player.
     const ctrl = ctrlRef.current;
-    const accel = 42;
-    s.offVel.x += ctrl.x * accel * dt;
-    s.offVel.y += -ctrl.y * accel * dt;
+    const reach = SAFE * 0.92;
+    const desiredX = ctrl.x * reach;
+    const desiredY = -ctrl.y * reach;
+    const follow = 1 - Math.pow(0.0008, dt); // responsive easing
+    s.off.x += (desiredX - s.off.x) * follow;
+    s.off.y += (desiredY - s.off.y) * follow;
 
-    s.offVel.multiplyScalar(Math.pow(0.02, dt));
-    s.off.addScaledVector(s.offVel, dt);
 
     const r = s.off.length();
     const rFrac = r / SAFE;
@@ -361,13 +356,13 @@ function GameRunner({
       return false;
     };
 
-    // wall collision
+    // wall collision (only if you steer right into the wall)
     if (rFrac >= 1 && s.invuln <= 0) {
-      s.off.multiplyScalar(0.55);
-      s.offVel.multiplyScalar(-0.3);
-      if (applyHit(0.34)) return;
+      s.off.multiplyScalar(0.7);
+      if (applyHit(0.3)) return;
     }
     if (r > SAFE * 1.02) s.off.setLength(SAFE * 1.02);
+
 
     // ── obstacles ──
     const numActive = Math.min(OBST_COUNT, Math.max(0, Math.floor((s.dist - 140) / 55)));
@@ -491,6 +486,7 @@ export default function Starfighter() {
   const [hud, setHud] = useState<Hud>({ shield: 1, distance: 0, speed: 0, best: 0 });
   const ctrlRef = useRef<Ctrl>({ x: 0, y: 0 });
   const musicRef = useRef<HTMLAudioElement | null>(null);
+  const reticleRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const b = Number(localStorage.getItem(BEST_KEY) || 0);
@@ -564,6 +560,8 @@ export default function Starfighter() {
       const ny = (cy / window.innerHeight) * 2 - 1;
       ctrlRef.current.x = THREE.MathUtils.clamp(nx * 1.15, -1, 1);
       ctrlRef.current.y = THREE.MathUtils.clamp(-ny * 1.15, -1, 1);
+      const ret = reticleRef.current;
+      if (ret) ret.style.transform = `translate(${cx}px, ${cy}px) translate(-50%, -50%)`;
     };
     const onPointer = (e: PointerEvent) => setFromClient(e.clientX, e.clientY);
     const onTouch = (e: TouchEvent) => {
@@ -598,7 +596,7 @@ export default function Starfighter() {
   const speedPct = Math.round(hud.speed * 100);
 
   return (
-    <div className="relative h-[100dvh] w-full overflow-hidden bg-[#02040a] font-mono text-cyan-100 select-none">
+    <div className={`relative h-[100dvh] w-full overflow-hidden bg-[#02040a] font-mono text-cyan-100 select-none${phase === 'playing' ? ' cursor-none' : ''}`}>
       <Helmet>
         <title>Tunnel Flyer — Inside the Box</title>
         <meta name="description" content="Fliege durch eine unendliche, sich windende Röhre. Weiche Hindernissen aus, bleib im Tunnel — ein immersives 3D-Erlebnis mit hochwertigem Sound." />
@@ -641,6 +639,22 @@ export default function Starfighter() {
         </div>
       )}
 
+      {/* Reticle — shows exactly where the ship is heading */}
+      {phase === 'playing' && (
+        <div
+          ref={reticleRef}
+          className="pointer-events-none absolute left-0 top-0 z-10 h-10 w-10"
+          style={{ transform: 'translate(50vw, 50vh) translate(-50%, -50%)' }}
+        >
+          <div className="absolute inset-0 rounded-full border-2 border-cyan-300/70" />
+          <div className="absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-200" />
+          <div className="absolute left-1/2 top-0 h-2 w-px -translate-x-1/2 bg-cyan-300/60" />
+          <div className="absolute left-1/2 bottom-0 h-2 w-px -translate-x-1/2 bg-cyan-300/60" />
+          <div className="absolute top-1/2 left-0 w-2 h-px -translate-y-1/2 bg-cyan-300/60" />
+          <div className="absolute top-1/2 right-0 w-2 h-px -translate-y-1/2 bg-cyan-300/60" />
+        </div>
+      )}
+
       <div className="absolute right-4 bottom-4 z-20 flex gap-2">
         <button
           onClick={toggleMute}
@@ -661,12 +675,12 @@ export default function Starfighter() {
           <div className="mx-4 max-w-md rounded-2xl border border-cyan-400/20 bg-[#050a16]/90 p-8 text-center shadow-2xl">
             <h1 className="mb-2 text-3xl font-bold tracking-tight text-cyan-200">TUNNEL&nbsp;FLYER</h1>
             <p className="mb-6 text-sm leading-relaxed text-cyan-100/70">
-              Fliege durch eine unendliche, sich windende Röhre. Steuere sanft, folge den Kurven,
-              weiche den roten Hindernissen aus und bleib im Tunnel. Auf Kurven zieht es dich nach außen — gegenlenken!
+              Dein Schiff folgt dem Cursor: Bewege Maus oder Finger dorthin, wo du hinfliegen willst.
+              Weiche den roten Hindernissen aus und bleib in der Röhre.
             </p>
             <div className="mb-6 space-y-1 text-xs text-cyan-100/60">
-              <p><span className="text-cyan-300">Maus / Finger</span> — lenken</p>
-              <p><span className="text-cyan-300">WASD / Pfeile</span> — lenken</p>
+              <p><span className="text-cyan-300">Maus / Finger bewegen</span> — Schiff folgt</p>
+              <p><span className="text-cyan-300">WASD / Pfeile</span> — alternativ lenken</p>
             </div>
             <button
               onClick={start}
