@@ -568,7 +568,7 @@ export default function Starfighter() {
   const navigate = useNavigate();
   const [phase, setPhase] = useState<Phase>('briefing');
   const [muted, setMuted] = useState(false);
-  const [hud, setHud] = useState<Hud>({ shield: 1, distance: 0, speed: 0, best: 0 });
+  const [hud, setHud] = useState<Hud>({ shield: 1, distance: 0, speed: 0, best: 0, danger: 0 });
   const ctrlRef = useRef<Ctrl>({ x: 0, y: 0 });
   const musicRef = useRef<HTMLAudioElement | null>(null);
   const reticleRef = useRef<HTMLDivElement | null>(null);
