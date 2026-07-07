@@ -320,22 +320,17 @@ function GameRunner({
     const u = ((s.u % 1) + 1) % 1;
     sampleFrame(u);
 
-    // curvature push (rollercoaster feel)
-    tmp.v.subVectors(tmp.t1, tmp.t0);
-    const curveN = tmp.v.dot(tmp.n);
-    const curveB = tmp.v.dot(tmp.b);
-    const centro = 34 + Math.min(40, s.dist * 0.006);
-    s.offVel.x += (-curveN) * centro * dt;
-    s.offVel.y += (-curveB) * centro * dt;
-
-    // steering
+    // Direct, intuitive control: the ship goes exactly where you point.
+    // Cursor / finger position maps 1:1 to a target inside the tube; the
+    // ship eases toward it — snappy but smooth, no fighting the player.
     const ctrl = ctrlRef.current;
-    const accel = 42;
-    s.offVel.x += ctrl.x * accel * dt;
-    s.offVel.y += -ctrl.y * accel * dt;
+    const reach = SAFE * 0.92;
+    const desiredX = ctrl.x * reach;
+    const desiredY = -ctrl.y * reach;
+    const follow = 1 - Math.pow(0.0008, dt); // responsive easing
+    s.off.x += (desiredX - s.off.x) * follow;
+    s.off.y += (desiredY - s.off.y) * follow;
 
-    s.offVel.multiplyScalar(Math.pow(0.02, dt));
-    s.off.addScaledVector(s.offVel, dt);
 
     const r = s.off.length();
     const rFrac = r / SAFE;
