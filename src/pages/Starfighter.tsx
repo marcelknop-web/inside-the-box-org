@@ -63,7 +63,8 @@ function Tunnel({ curve, matRef }: { curve: THREE.CatmullRomCurve3; matRef: Reac
   const material = useMemo(() => {
     return new THREE.ShaderMaterial({
       side: THREE.BackSide,
-      transparent: false,
+      transparent: true,
+      depthWrite: false,
       uniforms: {
         uTime: { value: 0 },
         uColA: { value: new THREE.Color('#04121c') },
@@ -110,7 +111,10 @@ function Tunnel({ curve, matRef }: { curve: THREE.CatmullRomCurve3; matRef: Reac
           vec3 glow = mix(uGlow, vec3(1.0, 0.24, 0.36), uDanger);
           vec3 col = base * 0.42 + glow * g * (1.3 + uDanger * 0.8);
           col += vec3(0.7, 0.85, 1.0) * speck * 1.4;
-          gl_FragColor = vec4(col, 1.0);
+          // Walls stay solid where they glow, but thin out between ribs so the
+          // starfield behind shows through — deep, open space feel.
+          float alpha = clamp(0.52 + g * 0.9 + speck * 1.5, 0.0, 1.0);
+          gl_FragColor = vec4(col, alpha);
         }
       `,
     });
@@ -123,6 +127,66 @@ function Tunnel({ curve, matRef }: { curve: THREE.CatmullRomCurve3; matRef: Reac
 
   return <mesh geometry={geo} material={material} frustumCulled={false} />;
 }
+
+/* ─────────────────────────  Deep-space starfield  ───────────────────────── */
+/** Thousands of stars on a large shell that follows the camera, so the tube
+ *  always floats inside an endless star sphere. Fog is disabled so distant
+ *  stars stay crisp and the scene reads as truly deep. */
+function Starfield() {
+  const { camera } = useThree();
+  const ref = useRef<THREE.Points>(null);
+
+  const geo = useMemo(() => {
+    const N = 2600;
+    const pos = new Float32Array(N * 3);
+    const col = new Float32Array(N * 3);
+    const c = new THREE.Color();
+    for (let i = 0; i < N; i++) {
+      // Uniformly distributed on a spherical shell around the camera.
+      const u = Math.random(), v = Math.random();
+      const theta = 2 * Math.PI * u;
+      const phi = Math.acos(2 * v - 1);
+      const r = 220 + Math.random() * 520;
+      pos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+      pos[i * 3 + 2] = r * Math.cos(phi);
+      // Mostly white-blue with a few warm/cyan accents.
+      const t = Math.random();
+      if (t > 0.92) c.setHSL(0.55, 0.7, 0.75);
+      else if (t > 0.85) c.setHSL(0.08, 0.6, 0.75);
+      else c.setHSL(0.6, 0.15, 0.85 + Math.random() * 0.15);
+      col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    return g;
+  }, []);
+
+  const mat = useMemo(() => new THREE.PointsMaterial({
+    size: 1.6,
+    sizeAttenuation: true,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.95,
+    depthWrite: false,
+    fog: false,
+    blending: THREE.AdditiveBlending,
+  }), []);
+
+  useFrame(() => {
+    if (!ref.current) return;
+    // Keep the star shell centred on the camera and drift it slowly.
+    ref.current.position.copy(camera.position);
+    ref.current.rotation.y += 0.0002;
+    ref.current.rotation.x += 0.0001;
+  });
+
+  useEffect(() => () => { geo.dispose(); mat.dispose(); }, [geo, mat]);
+
+  return <points ref={ref} geometry={geo} material={mat} frustumCulled={false} renderOrder={-1} />;
+}
+
 
 /* ─────────────────────────  Detailed player ship  ───────────────────────── */
 /** Nose points toward -Z (travel direction after lookAt). */
@@ -487,8 +551,8 @@ function Scene({ phase, ctrlRef, onHud, onDead }: {
   return (
     <>
       <color attach="background" args={['#010206']} />
-      <fog attach="fog" args={['#010206', 46, 175]} />
-      
+      <fog attach="fog" args={['#010206', 70, 260]} />
+      <Starfield />
       <Tunnel curve={curve} matRef={matRef} />
       <GameRunner curve={curve} phase={phase} matRef={matRef} ctrlRef={ctrlRef} onHud={onHud} onDead={onDead} />
     </>
@@ -622,7 +686,7 @@ export default function Starfighter() {
       </Helmet>
 
       <Canvas
-        camera={{ fov: 66, near: 0.1, far: 500, position: [0, 0, 0] }}
+        camera={{ fov: 66, near: 0.1, far: 1000, position: [0, 0, 0] }}
         gl={{ antialias: true, powerPreference: 'high-performance' }}
         dpr={[1, 2]}
       >
