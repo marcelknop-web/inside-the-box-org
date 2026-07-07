@@ -559,6 +559,8 @@ export default function Starfighter() {
       const ny = (cy / window.innerHeight) * 2 - 1;
       ctrlRef.current.x = THREE.MathUtils.clamp(nx * 1.15, -1, 1);
       ctrlRef.current.y = THREE.MathUtils.clamp(-ny * 1.15, -1, 1);
+      const ret = reticleRef.current;
+      if (ret) ret.style.transform = `translate(${cx}px, ${cy}px) translate(-50%, -50%)`;
     };
     const onPointer = (e: PointerEvent) => setFromClient(e.clientX, e.clientY);
     const onTouch = (e: TouchEvent) => {
