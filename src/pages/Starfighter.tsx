@@ -514,9 +514,9 @@ function GameRunner({
     setSpeed(speed01);
 
     s.hudAcc += dt;
-    if (s.hudAcc > 0.1) {
+    if (s.hudAcc > 0.06) {
       s.hudAcc = 0;
-      onHud({ shield: s.shield, distance: Math.round(s.dist), speed: speed01 });
+      onHud({ shield: s.shield, distance: Math.round(s.dist), speed: speed01, danger: rFrac });
     }
   });
 
