@@ -356,13 +356,13 @@ function GameRunner({
       return false;
     };
 
-    // wall collision
+    // wall collision (only if you steer right into the wall)
     if (rFrac >= 1 && s.invuln <= 0) {
-      s.off.multiplyScalar(0.55);
-      s.offVel.multiplyScalar(-0.3);
-      if (applyHit(0.34)) return;
+      s.off.multiplyScalar(0.7);
+      if (applyHit(0.3)) return;
     }
     if (r > SAFE * 1.02) s.off.setLength(SAFE * 1.02);
+
 
     // ── obstacles ──
     const numActive = Math.min(OBST_COUNT, Math.max(0, Math.floor((s.dist - 140) / 55)));
