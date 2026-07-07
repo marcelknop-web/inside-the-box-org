@@ -799,13 +799,15 @@ export default function Starfighter() {
           <div className="mx-4 max-w-md rounded-2xl border border-cyan-400/20 bg-[#050a16]/90 p-8 text-center shadow-2xl">
             <h1 className="mb-2 text-3xl font-bold tracking-tight text-cyan-200">TUNNEL&nbsp;FLYER</h1>
             <p className="mb-6 text-sm leading-relaxed text-cyan-100/70">
-              Dein Schiff folgt dem Cursor: Bewege Maus oder Finger dorthin, wo du hinfliegen willst.
-              Weiche den roten Hindernissen aus und bleib in der Röhre.
+              Bewege Maus oder Finger — dein Schiff fliegt genau dorthin.
+              Halte dich in der Mitte der Röhre. Kommst du dem Rand zu nahe,
+              färbt sich der Bildschirm <span className="font-bold text-red-300">rot</span> als Warnung.
             </p>
             <div className="mb-6 space-y-1 text-xs text-cyan-100/60">
-              <p><span className="text-cyan-300">Maus / Finger bewegen</span> — Schiff folgt</p>
-              <p><span className="text-cyan-300">WASD / Pfeile</span> — alternativ lenken</p>
+              <p><span className="text-cyan-300">Maus / Finger</span> — Schiff folgt der Position</p>
+              <p><span className="text-red-300">Roter Rand</span> — sofort zur Mitte zurück</p>
             </div>
+
             <button
               onClick={start}
               className="w-full rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 px-6 py-3 font-bold text-[#02040a] transition hover:brightness-110"
