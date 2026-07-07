@@ -21,6 +21,7 @@ interface Hud {
   distance: number; // meters
   speed: number;    // 0..1
   best: number;     // best distance
+  danger: number;   // 0..1 proximity to the tunnel wall
 }
 
 /* ─────────────────────────  Tunnel curve  ───────────────────────── */
