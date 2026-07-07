@@ -24,7 +24,7 @@ interface Hud {
 }
 
 /* ─────────────────────────  Tunnel curve  ───────────────────────── */
-const SEGMENTS = 1600;
+const SEGMENTS = 2600;
 const TUBE_R = 12;                 // world radius of the tube
 const SAFE = TUBE_R * 0.74;       // player boundary (crash beyond this)
 const DIR = -1;                   // travel direction along the curve
@@ -36,13 +36,13 @@ const HIT_WINDOW = 0.0032;        // u proximity for collision
 
 function makeCurve(): THREE.CatmullRomCurve3 {
   const pts: THREE.Vector3[] = [];
-  const N = 14;
+  const N = 22;
   for (let i = 0; i < N; i++) {
     const a = (i / N) * Math.PI * 2;
-    // Big, gently sweeping loop so the tunnel bends softly relative to its
-    // radius — you always see down the gang, never straight into a wall.
-    const rad = 150 + Math.sin(i * 1.1) * 28;
-    const y = Math.sin(i * 0.8) * 55 + Math.cos(i * 1.3) * 20;
+    // Very large, gentle loop so the tube barely bends relative to its radius —
+    // you look straight down a seemingly kilometre-long shaft.
+    const rad = 340 + Math.sin(i * 1.1) * 24;
+    const y = Math.sin(i * 0.7) * 46 + Math.cos(i * 1.2) * 16;
     pts.push(new THREE.Vector3(
       Math.cos(a) * rad,
       y,
@@ -89,7 +89,7 @@ function Tunnel({ curve, matRef }: { curve: THREE.CatmullRomCurve3; matRef: Reac
         float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
         void main() {
           // Receding neon rings give the sense of depth / forward motion.
-          float ringPhase = vUv.x * 260.0 - uTime * 6.0;
+          float ringPhase = vUv.x * 560.0 - uTime * 6.0;
           float ring = abs(sin(ringPhase * 3.14159));
           float glowRing = smoothstep(0.86, 1.0, ring);
           float rib = abs(sin(vUv.y * 3.14159 * 24.0));
@@ -551,7 +551,8 @@ function Scene({ phase, ctrlRef, onHud, onDead }: {
   return (
     <>
       <color attach="background" args={['#010206']} />
-      <fog attach="fog" args={['#010206', 70, 260]} />
+      <fog attach="fog" args={['#010206', 90, 460]} />
+
       <Starfield />
       <Tunnel curve={curve} matRef={matRef} />
       <GameRunner curve={curve} phase={phase} matRef={matRef} ctrlRef={ctrlRef} onHud={onHud} onDead={onDead} />
