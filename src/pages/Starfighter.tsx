@@ -486,6 +486,7 @@ export default function Starfighter() {
   const [hud, setHud] = useState<Hud>({ shield: 1, distance: 0, speed: 0, best: 0 });
   const ctrlRef = useRef<Ctrl>({ x: 0, y: 0 });
   const musicRef = useRef<HTMLAudioElement | null>(null);
+  const reticleRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const b = Number(localStorage.getItem(BEST_KEY) || 0);
