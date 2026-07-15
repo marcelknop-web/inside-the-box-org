@@ -1042,6 +1042,17 @@ const useServiceContent = () => {
                 <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentYtDesc')}</p>
               </div>
             </button>
+            {/* — Premium Audio Lab — */}
+            <a href="https://auren-soundscape.lovable.app" target="_blank" rel="noopener noreferrer" className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <Headphones size={20} className="text-highlight mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-highlight font-semibold font-mono text-sm flex items-center gap-2 flex-wrap">
+                  Auren — Premium Audio
+                  {AI_TOOL_ADDED_AT['auren'] && <NewDateBadge addedAt={AI_TOOL_ADDED_AT['auren']} />}
+                </p>
+                <p className="text-foreground/80 text-xs">KI-kuratierte Klanglandschaften — minimalistisches High-End-Audio-Erlebnis.</p>
+              </div>
+            </a>
             {/* — Arcade: Strategie-Spiel — */}
             <button onClick={() => setActive('syndicate-game')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
               <Skull size={20} className="text-highlight mt-0.5 flex-shrink-0" />
