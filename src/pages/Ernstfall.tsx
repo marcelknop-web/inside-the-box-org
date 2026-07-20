@@ -30,7 +30,7 @@ const TOPICS = [
   "Physisches Ereignis (Brand, Stromausfall Hauptstelle)",
 ];
 
-type Weight = "Niedrig" | "Mittel" | "Hoch";
+type Weight = "Randthema" | "Kernthema" | "Leitthema";
 interface BankProfile {
   name: string;
   bilanzsumme: string;
@@ -562,10 +562,10 @@ export default function Ernstfall() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {([
                 ["Bankname", "name"],
-                ["Bilanzsumme", "bilanzsumme"],
-                ["Mitarbeiterzahl", "mitarbeiter"],
-                ["Anzahl Filialen", "filialen"],
-                ["IT-Dienstleister", "itDienstleister"],
+                ["Bilanzsumme (in Mio. EUR)", "bilanzsumme"],
+                ["Mitarbeiterzahl (VZÄ, gerundet)", "mitarbeiter"],
+                ["Anzahl Filialen (inkl. SB-Standorte)", "filialen"],
+                ["IT-Dienstleister (z. B. Atruvia, FI-TS)", "itDienstleister"],
               ] as [string, keyof BankProfile][]).map(([label, key]) => (
                 <label key={key} className="block">
                   <span className="text-xs text-neutral-600">{label}</span>
@@ -573,8 +573,8 @@ export default function Ernstfall() {
                 </label>
               ))}
               <label className="block md:col-span-2">
-                <span className="text-xs text-neutral-600">Besonderheiten</span>
-                <textarea value={bank.besonderheiten} onChange={(e) => setBank({ ...bank, besonderheiten: e.target.value })} rows={2} className="mt-1 w-full px-3 py-2 rounded border border-neutral-300 text-sm" />
+                <span className="text-xs text-neutral-600">Besonderheiten <span className="text-neutral-400">(optional – Regionalfokus, Kundenstruktur, laufende Projekte)</span></span>
+                <textarea value={bank.besonderheiten} onChange={(e) => setBank({ ...bank, besonderheiten: e.target.value })} rows={2} placeholder="z. B. starker Firmenkundenanteil, Migration Kernbanksystem 2027, Zweigstelle in Grenzregion …" className="mt-1 w-full px-3 py-2 rounded border border-neutral-300 text-sm" />
               </label>
             </div>
 
@@ -588,6 +588,10 @@ export default function Ernstfall() {
         {step === 2 && (
           <section className="space-y-6">
             <h2 className="text-xl font-semibold text-[#1F3864]">Themen</h2>
+            <p className="text-sm text-neutral-600">
+              Wählen Sie 1–4 Themen und legen Sie deren <strong>Rolle im Szenario</strong> fest:
+              <span className="ml-1"><em>Randthema</em> (taucht am Rand auf), <em>Kernthema</em> (mehrere Injects), <em>Leitthema</em> (roter Faden der Übung).</span>
+            </p>
             {selectedTopics.length > 4 && (
               <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2">
                 Mehr als 4 Themen verwässern den durchgehenden Fall.
@@ -600,19 +604,22 @@ export default function Ernstfall() {
                   <div key={t} className={`rounded-lg border p-4 transition ${selected ? "border-[#1F3864] bg-[#1F3864]/5" : "border-neutral-200"}`}>
                     <button onClick={() => {
                       const next = { ...topics };
-                      if (selected) delete next[t]; else next[t] = "Mittel";
+                      if (selected) delete next[t]; else next[t] = "Kernthema";
                       setTopics(next);
                     }} className="text-left w-full">
                       <p className="text-sm font-medium text-neutral-900">{t}</p>
                     </button>
                     {selected && (
-                      <div className="mt-3 flex gap-1">
-                        {(["Niedrig", "Mittel", "Hoch"] as Weight[]).map((w) => (
-                          <button key={w} onClick={() => setTopics({ ...topics, [t]: w })}
-                            className={`px-3 py-1 rounded text-xs border ${selected === w ? "bg-[#1F3864] text-white border-[#1F3864]" : "border-neutral-300 text-neutral-600"}`}>
-                            {w}
-                          </button>
-                        ))}
+                      <div className="mt-3">
+                        <p className="text-[11px] uppercase tracking-wide text-neutral-500 mb-1">Rolle im Szenario</p>
+                        <div className="flex gap-1 flex-wrap">
+                          {(["Randthema", "Kernthema", "Leitthema"] as Weight[]).map((w) => (
+                            <button key={w} onClick={() => setTopics({ ...topics, [t]: w })}
+                              className={`px-3 py-1 rounded text-xs border ${selected === w ? "bg-[#1F3864] text-white border-[#1F3864]" : "border-neutral-300 text-neutral-600"}`}>
+                              {w}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -630,35 +637,47 @@ export default function Ernstfall() {
         {step === 3 && (
           <section className="space-y-6">
             <h2 className="text-xl font-semibold text-[#1F3864]">Übungsparameter</h2>
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div>
-                <p className="text-sm font-medium mb-2">Dauer</p>
+                <p className="text-sm font-medium">Dauer der Übung</p>
+                <p className="text-xs text-neutral-500 mb-2">Reine Übungszeit ohne Briefing/Debriefing. Ein Inject = ein Ereignis, das der Trainer einspielt.</p>
                 <div className="flex gap-2 flex-wrap">
-                  {([["2h", "2 h · 8 Injects"], ["3h", "3 h · 11 Injects"], ["4h", "4 h · 14 Injects"]] as const).map(([v, l]) => (
+                  {([["2h", "Kurz – 2 h · 8 Injects"], ["3h", "Standard – 3 h · 11 Injects"], ["4h", "Ausführlich – 4 h · 14 Injects"]] as const).map(([v, l]) => (
                     <button key={v} onClick={() => setDauer(v)} className={`px-3 py-2 rounded border text-sm ${dauer === v ? "bg-[#1F3864] text-white border-[#1F3864]" : "border-neutral-300"}`}>{l}</button>
                   ))}
                 </div>
               </div>
               <div>
-                <p className="text-sm font-medium mb-2">Rollenumfang</p>
-                <div className="flex gap-2">
-                  {([["kompakt", "Kompakt (6 Rollen)"], ["voll", "Voll (8 Rollen)"]] as const).map(([v, l]) => (
+                <p className="text-sm font-medium">Rollenumfang</p>
+                <p className="text-xs text-neutral-500 mb-2">Anzahl der Rollenkarten für den Krisenstab. Kompakt = Kernstab; Voll = Kernstab + erweiterte Rollen (Recht, Kommunikation, Auslagerungsmanagement, Notfallbeauftragter).</p>
+                <div className="flex gap-2 flex-wrap">
+                  {([["kompakt", "Kompakt – 6 Rollen (Kernstab)"], ["voll", "Voll – 8 Rollen (mit erweitertem Stab)"]] as const).map(([v, l]) => (
                     <button key={v} onClick={() => setRollenumfang(v)} className={`px-3 py-2 rounded border text-sm ${rollenumfang === v ? "bg-[#1F3864] text-white border-[#1F3864]" : "border-neutral-300"}`}>{l}</button>
                   ))}
                 </div>
               </div>
               <div>
-                <p className="text-sm font-medium mb-2">Schwierigkeitsgrad</p>
+                <p className="text-sm font-medium">Schwierigkeitsgrad</p>
+                <p className="text-xs text-neutral-500 mb-2">Steuert Komplexität, Zeitdruck und Mehrdeutigkeit der Injects.</p>
                 <div className="flex gap-2 flex-wrap">
-                  {(["Einsteiger", "Fortgeschritten", "Experte"] as const).map((v) => (
-                    <button key={v} onClick={() => setDifficulty(v)} className={`px-3 py-2 rounded border text-sm ${difficulty === v ? "bg-[#1F3864] text-white border-[#1F3864]" : "border-neutral-300"}`}>{v}</button>
+                  {([
+                    ["Einsteiger", "Einsteiger – erste TTX-Erfahrung, klare Handlungsoptionen"],
+                    ["Fortgeschritten", "Fortgeschritten – geübter Stab, mehrdeutige Lagen"],
+                    ["Experte", "Experte – Zeitdruck, widersprüchliche Meldungen, Presseanfragen"],
+                  ] as const).map(([v, l]) => (
+                    <button key={v} onClick={() => setDifficulty(v)} className={`px-3 py-2 rounded border text-sm ${difficulty === v ? "bg-[#1F3864] text-white border-[#1F3864]" : "border-neutral-300"}`}>{l}</button>
                   ))}
                 </div>
               </div>
-              <label className="flex items-center gap-2 mt-4">
-                <input type="checkbox" checked={dora} onChange={(e) => setDora(e.target.checked)} />
-                <span className="text-sm">DORA-Meldepflichten einbeziehen</span>
-              </label>
+              <div className="rounded-lg border border-neutral-200 p-4">
+                <label className="flex items-start gap-3">
+                  <input type="checkbox" checked={dora} onChange={(e) => setDora(e.target.checked)} className="mt-1" />
+                  <span>
+                    <span className="text-sm font-medium">DORA-Meldepflichten einbeziehen</span>
+                    <span className="block text-xs text-neutral-500 mt-0.5">Ergänzt Injects und Rollen um die aufsichtsrechtlichen Fristen nach DORA (Erst-, Zwischen- und Abschlussmeldung an BaFin/Bundesbank). Für Genossenschaftsbanken empfohlen.</span>
+                  </span>
+                </label>
+              </div>
             </div>
             <div className="flex justify-between">
               <button onClick={() => setStep(2)} className="px-4 py-2 rounded border border-neutral-300 text-sm">← zurück</button>
