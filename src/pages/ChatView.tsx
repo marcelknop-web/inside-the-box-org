@@ -1051,7 +1051,7 @@ const useServiceContent = () => {
                   Auren — Premium Audio
                   {AI_TOOL_ADDED_AT['auren'] && <NewDateBadge addedAt={AI_TOOL_ADDED_AT['auren']} />}
                 </p>
-                <p className="text-foreground/80 text-xs">KI-kuratierte Klanglandschaften — minimalistisches High-End-Audio-Erlebnis.</p>
+                <p className="text-foreground/80 text-xs">DJ Robo never sleeps</p>
               </div>
             </a>
             {/* — ERNSTLFALL: TTX Generator — nur per Direktlink /ernstfall — */}
