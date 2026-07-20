@@ -637,35 +637,47 @@ export default function Ernstfall() {
         {step === 3 && (
           <section className="space-y-6">
             <h2 className="text-xl font-semibold text-[#1F3864]">Übungsparameter</h2>
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div>
-                <p className="text-sm font-medium mb-2">Dauer</p>
+                <p className="text-sm font-medium">Dauer der Übung</p>
+                <p className="text-xs text-neutral-500 mb-2">Reine Übungszeit ohne Briefing/Debriefing. Ein Inject = ein Ereignis, das der Trainer einspielt.</p>
                 <div className="flex gap-2 flex-wrap">
-                  {([["2h", "2 h · 8 Injects"], ["3h", "3 h · 11 Injects"], ["4h", "4 h · 14 Injects"]] as const).map(([v, l]) => (
+                  {([["2h", "Kurz – 2 h · 8 Injects"], ["3h", "Standard – 3 h · 11 Injects"], ["4h", "Ausführlich – 4 h · 14 Injects"]] as const).map(([v, l]) => (
                     <button key={v} onClick={() => setDauer(v)} className={`px-3 py-2 rounded border text-sm ${dauer === v ? "bg-[#1F3864] text-white border-[#1F3864]" : "border-neutral-300"}`}>{l}</button>
                   ))}
                 </div>
               </div>
               <div>
-                <p className="text-sm font-medium mb-2">Rollenumfang</p>
-                <div className="flex gap-2">
-                  {([["kompakt", "Kompakt (6 Rollen)"], ["voll", "Voll (8 Rollen)"]] as const).map(([v, l]) => (
+                <p className="text-sm font-medium">Rollenumfang</p>
+                <p className="text-xs text-neutral-500 mb-2">Anzahl der Rollenkarten für den Krisenstab. Kompakt = Kernstab; Voll = Kernstab + erweiterte Rollen (Recht, Kommunikation, Auslagerungsmanagement, Notfallbeauftragter).</p>
+                <div className="flex gap-2 flex-wrap">
+                  {([["kompakt", "Kompakt – 6 Rollen (Kernstab)"], ["voll", "Voll – 8 Rollen (mit erweitertem Stab)"]] as const).map(([v, l]) => (
                     <button key={v} onClick={() => setRollenumfang(v)} className={`px-3 py-2 rounded border text-sm ${rollenumfang === v ? "bg-[#1F3864] text-white border-[#1F3864]" : "border-neutral-300"}`}>{l}</button>
                   ))}
                 </div>
               </div>
               <div>
-                <p className="text-sm font-medium mb-2">Schwierigkeitsgrad</p>
+                <p className="text-sm font-medium">Schwierigkeitsgrad</p>
+                <p className="text-xs text-neutral-500 mb-2">Steuert Komplexität, Zeitdruck und Mehrdeutigkeit der Injects.</p>
                 <div className="flex gap-2 flex-wrap">
-                  {(["Einsteiger", "Fortgeschritten", "Experte"] as const).map((v) => (
-                    <button key={v} onClick={() => setDifficulty(v)} className={`px-3 py-2 rounded border text-sm ${difficulty === v ? "bg-[#1F3864] text-white border-[#1F3864]" : "border-neutral-300"}`}>{v}</button>
+                  {([
+                    ["Einsteiger", "Einsteiger – erste TTX-Erfahrung, klare Handlungsoptionen"],
+                    ["Fortgeschritten", "Fortgeschritten – geübter Stab, mehrdeutige Lagen"],
+                    ["Experte", "Experte – Zeitdruck, widersprüchliche Meldungen, Presseanfragen"],
+                  ] as const).map(([v, l]) => (
+                    <button key={v} onClick={() => setDifficulty(v)} className={`px-3 py-2 rounded border text-sm ${difficulty === v ? "bg-[#1F3864] text-white border-[#1F3864]" : "border-neutral-300"}`}>{l}</button>
                   ))}
                 </div>
               </div>
-              <label className="flex items-center gap-2 mt-4">
-                <input type="checkbox" checked={dora} onChange={(e) => setDora(e.target.checked)} />
-                <span className="text-sm">DORA-Meldepflichten einbeziehen</span>
-              </label>
+              <div className="rounded-lg border border-neutral-200 p-4">
+                <label className="flex items-start gap-3">
+                  <input type="checkbox" checked={dora} onChange={(e) => setDora(e.target.checked)} className="mt-1" />
+                  <span>
+                    <span className="text-sm font-medium">DORA-Meldepflichten einbeziehen</span>
+                    <span className="block text-xs text-neutral-500 mt-0.5">Ergänzt Injects und Rollen um die aufsichtsrechtlichen Fristen nach DORA (Erst-, Zwischen- und Abschlussmeldung an BaFin/Bundesbank). Für Genossenschaftsbanken empfohlen.</span>
+                  </span>
+                </label>
+              </div>
             </div>
             <div className="flex justify-between">
               <button onClick={() => setStep(2)} className="px-4 py-2 rounded border border-neutral-300 text-sm">← zurück</button>
