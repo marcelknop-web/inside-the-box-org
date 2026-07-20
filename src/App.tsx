@@ -38,6 +38,7 @@ const AssessmentTools = lazy(() => import("./pages/AssessmentTools"));
 const MetaAssessmentTool = lazy(() => import("./pages/MetaAssessmentTool"));
 const Syndicate = lazy(() => import("./pages/Syndicate"));
 const Starfighter = lazy(() => import("./pages/Starfighter"));
+const Ernstfall = lazy(() => import("./pages/Ernstfall"));
 
 const queryClient = new QueryClient();
 
@@ -76,6 +77,7 @@ const App = () => (
               <Route path="/meta-assessment" element={<Suspense fallback={<RouteSkeleton />}><MetaAssessmentTool /></Suspense>} />
               <Route path="/syndicate" element={<Suspense fallback={<RouteSkeleton />}><Syndicate /></Suspense>} />
               <Route path="/starfighter" element={<Suspense fallback={<RouteSkeleton />}><Starfighter /></Suspense>} />
+              <Route path="/ernstfall" element={<Suspense fallback={<RouteSkeleton />}><Ernstfall /></Suspense>} />
 
               {/* Catch-all: every Journey service id (nis2-dora, virtual-ciso, …) renders ChatView */}
               <Route path="/:serviceId" element={<ChatView />} />
