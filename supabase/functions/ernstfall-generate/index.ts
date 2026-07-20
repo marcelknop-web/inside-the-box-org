@@ -97,12 +97,17 @@ JSON-Schema (exakt diese Felder, keine weiteren):
 }`;
 
     const system = SYSTEM_BASE + (dora ? SYSTEM_DORA : "");
+    const MODEL = "google/gemini-2.5-flash";
+    // Preisannahme (USD pro 1M Tokens) für gemini-2.5-flash: Input 0.30, Output 2.50
+    const PRICE_IN_PER_M = 0.30;
+    const PRICE_OUT_PER_M = 2.50;
 
+    const t0 = Date.now();
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: MODEL,
         messages: [
           { role: "system", content: system },
           { role: "user", content: userPrompt },
@@ -110,11 +115,12 @@ JSON-Schema (exakt diese Felder, keine weiteren):
         response_format: { type: "json_object" },
       }),
     });
+    const durationMs = Date.now() - t0;
 
     if (!response.ok) {
       const status = response.status;
       const errText = await response.text().catch(() => "");
-      console.error("ernstfall AI error", status, errText);
+      console.error(JSON.stringify({ evt: "ernstfall_ai_error", status, durationMs, model: MODEL, injectCount, dora: !!dora, err: errText.slice(0, 500) }));
       if (status === 429) return new Response(JSON.stringify({ error: "Rate limit. Kurz warten." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       if (status === 402) return new Response(JSON.stringify({ error: "KI-Kontingent erschöpft. Bitte Workspace-Credits aufladen." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       if (status === 403) return new Response(JSON.stringify({ error: "KI-Kontingent des Workspaces erreicht. Bitte Limit anheben oder Credits aufladen." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -122,6 +128,26 @@ JSON-Schema (exakt diese Felder, keine weiteren):
     }
 
     const data = await response.json();
+    const usage = data?.usage ?? {};
+    const promptTokens = usage.prompt_tokens ?? 0;
+    const completionTokens = usage.completion_tokens ?? 0;
+    const totalTokens = usage.total_tokens ?? (promptTokens + completionTokens);
+    const costUsd = (promptTokens / 1_000_000) * PRICE_IN_PER_M + (completionTokens / 1_000_000) * PRICE_OUT_PER_M;
+    console.log(JSON.stringify({
+      evt: "ernstfall_ai_usage",
+      model: MODEL,
+      durationMs,
+      promptTokens,
+      completionTokens,
+      totalTokens,
+      costUsd: Number(costUsd.toFixed(6)),
+      injectCount,
+      topics: Array.isArray(topics) ? topics.length : 0,
+      dora: !!dora,
+      difficulty,
+      rollenumfang,
+      dauer,
+    }));
     const content = data.choices?.[0]?.message?.content || "{}";
     let parsed: any;
     try { parsed = JSON.parse(content); } catch {
