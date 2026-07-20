@@ -780,7 +780,32 @@ export default function Ernstfall() {
                 {loading ? "Generiere …" : "Übung generieren"}
               </button>
             )}
-            {loading && <p className="text-sm text-neutral-600">{progress}</p>}
+            {(loading || downloading) && (
+              <div className="rounded-lg border border-[#1F3864]/30 bg-[#1F3864]/5 p-4 space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-medium text-[#1F3864]">{progress || "Verarbeite …"}</span>
+                  <span className="font-mono text-xs text-neutral-600">{progressPct}%</span>
+                </div>
+                <div className="h-2 w-full bg-neutral-200 rounded overflow-hidden">
+                  <div
+                    className="h-full bg-[#1F3864] transition-all duration-500 ease-out"
+                    style={{ width: `${progressPct}%` }}
+                  />
+                </div>
+                {log.length > 0 && (
+                  <div className="rounded bg-neutral-900 text-neutral-100 font-mono text-[11px] leading-relaxed p-3 max-h-40 overflow-y-auto">
+                    {log.map((l, i) => (
+                      <div key={i}>
+                        <span className="text-neutral-500">[{l.t}]</span> {l.msg}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <p className="text-[11px] text-neutral-500">
+                  Bitte warten – je nach Umfang dauert die Generierung 30–90 Sekunden.
+                </p>
+              </div>
+            )}
             {error && <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded px-3 py-2">{error}</p>}
 
             {exercise && (
