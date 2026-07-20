@@ -2075,6 +2075,15 @@ const ChatView = () => {
     ? <InlineSystemCheck t={t} />
     : activeService && contentMap[activeService] ? contentMap[activeService]() : null;
 
+  // Unknown / delisted serviceId → back to start page.
+  useEffect(() => {
+    if (activeService && !serviceContent) {
+      navigate('/', { replace: true });
+    }
+  }, [activeService, serviceContent, navigate]);
+
+
+
   // Service sub-pages reachable from the new homepage use the shared SiteChrome
   // (top bar + footer + Team/Contact drawers) for a unified brand surface.
   if (activeService) {
