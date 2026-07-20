@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { RouteSkeleton } from "@/components/RouteSkeleton";
@@ -77,7 +77,8 @@ const App = () => (
               <Route path="/meta-assessment" element={<Suspense fallback={<RouteSkeleton />}><MetaAssessmentTool /></Suspense>} />
               <Route path="/syndicate" element={<Suspense fallback={<RouteSkeleton />}><Syndicate /></Suspense>} />
               <Route path="/starfighter" element={<Suspense fallback={<RouteSkeleton />}><Starfighter /></Suspense>} />
-              <Route path="/ernstfall" element={<Suspense fallback={<RouteSkeleton />}><Ernstfall /></Suspense>} />
+              <Route path="/ernstlfall" element={<Suspense fallback={<RouteSkeleton />}><Ernstfall /></Suspense>} />
+              <Route path="/ernstfall" element={<Navigate to="/ernstlfall" replace />} />
 
               {/* Catch-all: every Journey service id (nis2-dora, virtual-ciso, …) renders ChatView */}
               <Route path="/:serviceId" element={<ChatView />} />
