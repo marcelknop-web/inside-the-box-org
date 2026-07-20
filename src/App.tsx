@@ -20,6 +20,7 @@ import { lazy, Suspense } from "react";
 // adds a critical request to the network dependency chain (HTML → JS → chunk)
 // without any UX benefit.
 const TtxAdmin = lazy(() => import("./pages/TtxAdmin"));
+const AiUsage = lazy(() => import("./pages/AiUsage"));
 const ItsmTool = lazy(() => import("./pages/ItsmTool"));
 const ItsmDevTool = lazy(() => import("./pages/ItsmDevTool"));
 const TtxReadinessPage = lazy(() => import("./pages/TtxReadinessPage"));
