@@ -20,6 +20,7 @@ import { lazy, Suspense } from "react";
 // adds a critical request to the network dependency chain (HTML → JS → chunk)
 // without any UX benefit.
 const TtxAdmin = lazy(() => import("./pages/TtxAdmin"));
+const AiUsage = lazy(() => import("./pages/AiUsage"));
 const ItsmTool = lazy(() => import("./pages/ItsmTool"));
 const ItsmDevTool = lazy(() => import("./pages/ItsmDevTool"));
 const TtxReadinessPage = lazy(() => import("./pages/TtxReadinessPage"));
@@ -57,6 +58,7 @@ const App = () => (
 
               {/* Standalone tools (not part of the Journey, kept for direct/admin access) */}
               <Route path="/ttx-admin" element={<Suspense fallback={<RouteSkeleton />}><TtxAdmin /></Suspense>} />
+              <Route path="/ai-usage" element={<Suspense fallback={<RouteSkeleton />}><AiUsage /></Suspense>} />
               <Route path="/itsm" element={<Suspense fallback={<RouteSkeleton />}><ItsmTool /></Suspense>} />
               <Route path="/itsm-dev" element={<Suspense fallback={<RouteSkeleton />}><ItsmDevTool /></Suspense>} />
               <Route path="/ttx-readiness" element={<Suspense fallback={<RouteSkeleton />}><TtxReadinessPage /></Suspense>} />

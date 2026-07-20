@@ -1,4 +1,17 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+
+async function logAiUsage(row: Record<string, unknown>) {
+  try {
+    const url = Deno.env.get("SUPABASE_URL");
+    const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (!url || !key) return;
+    const supabase = createClient(url, key);
+    await supabase.from("ai_usage_logs").insert(row);
+  } catch (e) {
+    console.error("ai_usage_logs insert failed", e);
+  }
+}
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -121,6 +134,13 @@ JSON-Schema (exakt diese Felder, keine weiteren):
       const status = response.status;
       const errText = await response.text().catch(() => "");
       console.error(JSON.stringify({ evt: "ernstfall_ai_error", status, durationMs, model: MODEL, injectCount, dora: !!dora, err: errText.slice(0, 500) }));
+      await logAiUsage({
+        function_name: "ernstfall-generate",
+        model: MODEL,
+        status,
+        duration_ms: durationMs,
+        meta: { error: errText.slice(0, 500), injectCount, dora: !!dora, difficulty, rollenumfang, dauer, topics: Array.isArray(topics) ? topics.length : 0 },
+      });
       if (status === 429) return new Response(JSON.stringify({ error: "Rate limit. Kurz warten." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       if (status === 402) return new Response(JSON.stringify({ error: "KI-Kontingent erschöpft. Bitte Workspace-Credits aufladen." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       if (status === 403) return new Response(JSON.stringify({ error: "KI-Kontingent des Workspaces erreicht. Bitte Limit anheben oder Credits aufladen." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -148,6 +168,17 @@ JSON-Schema (exakt diese Felder, keine weiteren):
       rollenumfang,
       dauer,
     }));
+    await logAiUsage({
+      function_name: "ernstfall-generate",
+      model: MODEL,
+      status: 200,
+      prompt_tokens: promptTokens,
+      completion_tokens: completionTokens,
+      total_tokens: totalTokens,
+      cost_usd: Number(costUsd.toFixed(6)),
+      duration_ms: durationMs,
+      meta: { injectCount, dora: !!dora, difficulty, rollenumfang, dauer, topics: Array.isArray(topics) ? topics.length : 0 },
+    });
     const content = data.choices?.[0]?.message?.content || "{}";
     let parsed: any;
     try { parsed = JSON.parse(content); } catch {
