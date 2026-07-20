@@ -30,7 +30,9 @@ function rateCheck(ip: string) {
   return { allowed: true };
 }
 
-const SYSTEM = `Du bist ein erfahrener Übungsplaner für Krisenstabsübungen (Tabletop Exercises) in deutschen Genossenschaftsbanken. Du konstruierst aus den gewählten Themen EINEN durchgehenden, chronologisch schlüssigen Fall – keine Episodensammlung. Themen mit Gewichtung HOCH bilden den Haupthandlungsstrang (3–4 Injects), MITTEL Nebenstränge (1–2 Injects), NIEDRIG einzelne Seiteneffekte (1 Inject). Alle Stränge müssen kausal verknüpft sein (z. B. Phishing → Dienstleisterkompromittierung → Zahlungsverkehrsstörung). Der Fall muss für eine Genossenschaftsbank plausibel sein: Kernbankverfahren beim zentralen IT-Dienstleister, BaFin und Deutsche Bundesbank als Aufsicht, genossenschaftlicher Verbund, Filialgeschäft. Verwende ausschließlich fiktive Namen für Dienstleister, Angreifer und Personen – keine realen Firmen (nicht Atruvia, nicht real existierende Banken). Bei aktivierten DORA-Meldepflichten: Erstmeldung an die BaFin 4 Stunden nach Klassifizierung als schwerwiegender Vorfall, spätestens 24 Stunden nach Kenntnis; Zwischenbericht 72 Stunden; Abschlussbericht 1 Monat. Zusätzlich DSGVO Art. 33 (72 h) bei Personendatenbezug. Sprache: Deutsch, generisches Maskulinum, keine gegenderte Sprache. Antworte ausschließlich mit validem JSON gemäß Schema, ohne Markdown.`;
+const SYSTEM_BASE = `Du planst Krisenstabsübungen (TTX) für deutsche Genossenschaftsbanken. Erstelle EINEN durchgehenden, kausal verknüpften Fall (keine Episodensammlung). Leitthema = Haupthandlungsstrang (3–4 Injects), Kernthema = Nebenstrang (1–2), Randthema = Seiteneffekt (1). Kontext: Kernbank beim zentralen IT-Dienstleister, BaFin/Bundesbank als Aufsicht, genossenschaftlicher Verbund, Filialgeschäft. Nur fiktive Namen (keine realen Firmen/Banken). Sprache: Deutsch, generisches Maskulinum. Antworte ausschließlich mit validem JSON gemäß Schema, ohne Markdown.`;
+
+const SYSTEM_DORA = ` DORA-Meldepflichten aktiv: BaFin-Erstmeldung 4h nach Klassifizierung als schwerwiegender Vorfall (spätestens 24h nach Kenntnis), Zwischenbericht 72h, Abschluss 1 Monat. Zusätzlich DSGVO Art. 33 (72h) bei Personendaten.`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -59,42 +61,50 @@ serve(async (req) => {
       });
     }
 
-    const bankLine = `${bank.name || "Volksbank Musterregion eG"} · Bilanzsumme ${bank.bilanzsumme || "n/a"} · ${bank.mitarbeiter || "n/a"} Mitarbeiter · ${bank.filialen || "n/a"} Filialen · IT-Dienstleister: ${bank.itDienstleister || "genoDATA eG (fiktiv)"} · Besonderheiten: ${bank.besonderheiten || "keine"}`;
-    const topicLines = topics.map((t: any) => `- ${t.name} (Gewichtung: ${t.weight})`).join("\n");
+    // Kompakte Bankzeile – nur gesetzte Felder
+    const bankParts = [
+      bank.name || "Volksbank Musterregion eG",
+      bank.bilanzsumme && `Bilanz ${bank.bilanzsumme}`,
+      bank.mitarbeiter && `${bank.mitarbeiter} MA`,
+      bank.filialen && `${bank.filialen} Filialen`,
+      bank.itDienstleister && `IT: ${bank.itDienstleister}`,
+      bank.besonderheiten && `Bes.: ${bank.besonderheiten}`,
+    ].filter(Boolean).join(" · ");
+
+    const topicLines = topics.map((t: any) => `- ${t.name} [${t.weight}]`).join("\n");
     const rollen = rollenumfang === "kompakt"
-      ? "6 Rollen: Leiter Krisenstab, Vorstand, IT-Leiter, Informationssicherheitsbeauftragter, Kommunikation, Protokollführer"
-      : "8 Rollen: Leiter Krisenstab, Vorstand, IT-Leiter, Informationssicherheitsbeauftragter, Kommunikation, Datenschutzbeauftragter/Recht, Personal, Protokollführer";
+      ? "6 Rollen: Leiter Krisenstab, Vorstand, IT-Leiter, ISB, Kommunikation, Protokoll"
+      : "8 Rollen: Leiter Krisenstab, Vorstand, IT-Leiter, ISB, Kommunikation, DSB/Recht, Personal, Protokoll";
 
-    const userPrompt = `Erstelle EINE Krisenstabsübung.
-
-Bankprofil: ${bankLine}
-Themen mit Gewichtung:
+    const userPrompt = `Bank: ${bankParts}
+Themen (Gewichtung):
 ${topicLines}
-Dauer: ${dauer} (genau ${injectCount} Injects, IDs I-01 bis I-${String(injectCount).padStart(2,"0")}, chronologisch von T+00 bis Ende, realistische Uhrzeiten ab 08:15).
-Rollen: ${rollen}. Jede Rolle mit szenariospezifischem Profil und Spannungsfeld.
-Schwierigkeitsgrad: ${difficulty}.
-DORA-Meldepflichten: ${dora ? "AKTIVIERT – BaFin/Bundesbank Fristen 4h/24h/72h/1M einbeziehen" : "nicht relevant"}.
+Dauer: ${dauer}. Genau ${injectCount} Injects (I-01…I-${String(injectCount).padStart(2,"0")}), chronologisch T+00 bis Ende, Uhrzeiten ab 08:15.
+Rollen: ${rollen}. Jede Rolle mit szenariospezifischem Profil + Spannungsfeld.
+Schwierigkeit: ${difficulty}.${dora ? " DORA-Fristen einbeziehen." : ""}
 
-Antworte ausschließlich mit JSON in exakt diesem Schema:
+JSON-Schema (exakt diese Felder, keine weiteren):
 {
-  "uebungsname": "Übung <CODENAME>",
-  "kurzbeschreibung": "5 Sätze Storyline",
-  "groundTruth": { "bankProfil": "string", "angreiferOderUrsache": "string", "timeline": [{"zeitpunkt":"string","ereignis":"string"}], "erschwernisse": ["string"] },
-  "uebungsziele": ["6 Ziele"],
-  "ablaufplan": [{"zeit":"string","abschnitt":"string","inhalt":"string"}],
-  "injects": [{"id":"I-01","zeitpunkt":"T+00 (08:15 Uhr)","phase":"string","pflicht":true,"titel":"string","themaTag":"string","einspielkanal":"string","inhalt":"3-6 Sätze wörtlich ausspielbar","erwarteteReaktion":"string","regieanweisung":"string","diskussionsimpulse":["3-5 Impulse"],"rueckfragen":[{"frage":"string","antwort":"string"}],"beobachtungsfokus":"string"}],
-  "rollen": [{"name":"string","profil":"string","aufgaben":["4-6 Aufgaben"],"spannungsfeld":"string"}],
-  "meldepflichten": [{"adressat":"string","frist":"string"}],
-  "hotwashHinweise": ["6-8 erwartbare Lessons Learned"]
+ "uebungsname":"Übung <CODENAME>",
+ "kurzbeschreibung":"5 Sätze",
+ "groundTruth":{"bankProfil":"","angreiferOderUrsache":"","timeline":[{"zeitpunkt":"","ereignis":""}],"erschwernisse":[""]},
+ "uebungsziele":["6 Ziele"],
+ "ablaufplan":[{"zeit":"","abschnitt":"","inhalt":""}],
+ "injects":[{"id":"I-01","zeitpunkt":"","phase":"","pflicht":true,"titel":"","themaTag":"","einspielkanal":"","inhalt":"3-6 Sätze wörtlich","erwarteteReaktion":"","regieanweisung":"","diskussionsimpulse":["3-5"],"rueckfragen":[{"frage":"","antwort":""}],"beobachtungsfokus":""}],
+ "rollen":[{"name":"","profil":"","aufgaben":["4-6"],"spannungsfeld":""}],
+ "meldepflichten":[{"adressat":"","frist":""}],
+ "hotwashHinweise":["6-8 Lessons Learned"]
 }`;
+
+    const system = SYSTEM_BASE + (dora ? SYSTEM_DORA : "");
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
+        model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: SYSTEM },
+          { role: "system", content: system },
           { role: "user", content: userPrompt },
         ],
         response_format: { type: "json_object" },
@@ -106,7 +116,8 @@ Antworte ausschließlich mit JSON in exakt diesem Schema:
       const errText = await response.text().catch(() => "");
       console.error("ernstfall AI error", status, errText);
       if (status === 429) return new Response(JSON.stringify({ error: "Rate limit. Kurz warten." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      if (status === 402) return new Response(JSON.stringify({ error: "Credits aufgebraucht." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (status === 402) return new Response(JSON.stringify({ error: "KI-Kontingent erschöpft. Bitte Workspace-Credits aufladen." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (status === 403) return new Response(JSON.stringify({ error: "KI-Kontingent des Workspaces erreicht. Bitte Limit anheben oder Credits aufladen." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       return new Response(JSON.stringify({ error: "Generierung fehlgeschlagen" }), { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
