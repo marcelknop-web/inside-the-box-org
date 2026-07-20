@@ -624,11 +624,11 @@ export default function Ernstfall() {
             <h2 className="text-xl font-semibold text-[#1F3864]">Bankprofil</h2>
             <div className="rounded-lg border border-neutral-200 p-5 space-y-3">
               <p className="text-sm text-neutral-600">Optional: Excel mit Bankdaten hochladen. Verarbeitung ausschließlich lokal im Browser.</p>
-              <div className="flex gap-3 items-center">
+              <div className="flex gap-3 items-center flex-wrap">
                 <input ref={fileRef} type="file" accept=".xlsx,.xls" className="hidden" onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} />
                 <button onClick={() => fileRef.current?.click()} className="px-3 py-2 rounded border border-neutral-300 text-sm">Excel wählen …</button>
                 {sheetRows.length > 0 && (
-                  <select className="px-3 py-2 rounded border border-neutral-300 text-sm flex-1" value={selectedBankIdx ?? ""} onChange={(e) => applyBankRow(Number(e.target.value))}>
+                  <select className="px-3 py-2 rounded border border-neutral-300 text-sm w-full sm:flex-1 sm:w-auto" value={selectedBankIdx ?? ""} onChange={(e) => applyBankRow(Number(e.target.value))}>
                     <option value="">Bank aus Datei wählen …</option>
                     {sheetRows.map((r, i) => <option key={i} value={i}>{String(r[sheetHeaders[0]] ?? `Zeile ${i + 1}`)}</option>)}
                   </select>
