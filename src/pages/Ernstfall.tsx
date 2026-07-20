@@ -488,11 +488,32 @@ export default function Ernstfall() {
     setError(null);
     setLoading(true);
     setExercise(null);
-    setProgress("Szenario wird konstruiert …");
+    setLog([]);
+    setProgressPct(2);
+    setProgress("Anfrage wird vorbereitet …");
+    pushLog("Bankprofil und Themen an KI übergeben");
+
+    const stages = [
+      { pct: 12, msg: "Szenario-Grundgerüst wird entworfen …", log: "Kausale Ereigniskette wird konstruiert" },
+      { pct: 28, msg: "Injects werden ausformuliert …", log: `${injectCount} Injects werden generiert` },
+      { pct: 48, msg: "Rollenkarten werden erstellt …", log: `${rollenumfang === "voll" ? 8 : 6} Rollen für Krisenstab` },
+      { pct: 66, msg: "Regieanweisungen & Diskussionsimpulse …", log: "Trainer-Hinweise werden ergänzt" },
+      { pct: 82, msg: "Konsistenzprüfung der Zeitachse …", log: "Prüfe Kausalität und Zeitpunkte" },
+      { pct: 92, msg: "Feinschliff durch die KI …", log: "Finalisierung der Übung" },
+    ];
+    let idx = 0;
+    if (genTimerRef.current) window.clearInterval(genTimerRef.current);
+    genTimerRef.current = window.setInterval(() => {
+      if (idx >= stages.length) return;
+      const s = stages[idx++];
+      setProgressPct(s.pct);
+      setProgress(s.msg);
+      pushLog(s.log);
+    }, 4500) as unknown as number;
+
     try {
       const projectRef = import.meta.env.VITE_SUPABASE_PROJECT_ID;
       const anon = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-      setProgress("KI generiert Übung, Injects und Rollen …");
       const res = await fetch(`https://${projectRef}.supabase.co/functions/v1/ernstfall-generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${anon}`, apikey: anon },
@@ -505,10 +526,14 @@ export default function Ernstfall() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Generierung fehlgeschlagen");
       setExercise(data.exercise);
-      setProgress("");
+      setProgressPct(100);
+      setProgress("Übung erfolgreich generiert");
+      pushLog(`Übung "${data.exercise?.uebungsname ?? ""}" erhalten`);
     } catch (e: any) {
       setError(e.message || "Fehler bei der Generierung");
+      pushLog("Fehler: " + (e.message || "unbekannt"));
     } finally {
+      if (genTimerRef.current) { window.clearInterval(genTimerRef.current); genTimerRef.current = null; }
       setLoading(false);
     }
   }
@@ -516,11 +541,20 @@ export default function Ernstfall() {
   async function downloadZip() {
     if (!exercise) return;
     setDownloading(true);
+    setLog([]);
+    setProgressPct(0);
+    setProgress("Word-Paket wird erstellt …");
+    pushLog("Start Word-Paket-Erstellung");
     try {
-      await buildZip(exercise, bank);
-    } catch (e) {
+      await buildZip(exercise, bank, (done, total, label) => {
+        setProgressPct(Math.round((done / total) * 100));
+        setProgress(label);
+        pushLog(label);
+      });
+    } catch (e: any) {
       console.error(e);
       setError("Word-Paket konnte nicht erzeugt werden.");
+      pushLog("Fehler beim Erstellen des ZIP");
     } finally {
       setDownloading(false);
     }
