@@ -1,4 +1,17 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+
+async function logAiUsage(row: Record<string, unknown>) {
+  try {
+    const url = Deno.env.get("SUPABASE_URL");
+    const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (!url || !key) return;
+    const supabase = createClient(url, key);
+    await supabase.from("ai_usage_logs").insert(row);
+  } catch (e) {
+    console.error("ai_usage_logs insert failed", e);
+  }
+}
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
