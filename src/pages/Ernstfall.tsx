@@ -588,6 +588,10 @@ export default function Ernstfall() {
         {step === 2 && (
           <section className="space-y-6">
             <h2 className="text-xl font-semibold text-[#1F3864]">Themen</h2>
+            <p className="text-sm text-neutral-600">
+              Wählen Sie 1–4 Themen und legen Sie deren <strong>Rolle im Szenario</strong> fest:
+              <span className="ml-1"><em>Randthema</em> (taucht am Rand auf), <em>Kernthema</em> (mehrere Injects), <em>Leitthema</em> (roter Faden der Übung).</span>
+            </p>
             {selectedTopics.length > 4 && (
               <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2">
                 Mehr als 4 Themen verwässern den durchgehenden Fall.
@@ -600,19 +604,22 @@ export default function Ernstfall() {
                   <div key={t} className={`rounded-lg border p-4 transition ${selected ? "border-[#1F3864] bg-[#1F3864]/5" : "border-neutral-200"}`}>
                     <button onClick={() => {
                       const next = { ...topics };
-                      if (selected) delete next[t]; else next[t] = "Mittel";
+                      if (selected) delete next[t]; else next[t] = "Kernthema";
                       setTopics(next);
                     }} className="text-left w-full">
                       <p className="text-sm font-medium text-neutral-900">{t}</p>
                     </button>
                     {selected && (
-                      <div className="mt-3 flex gap-1">
-                        {(["Niedrig", "Mittel", "Hoch"] as Weight[]).map((w) => (
-                          <button key={w} onClick={() => setTopics({ ...topics, [t]: w })}
-                            className={`px-3 py-1 rounded text-xs border ${selected === w ? "bg-[#1F3864] text-white border-[#1F3864]" : "border-neutral-300 text-neutral-600"}`}>
-                            {w}
-                          </button>
-                        ))}
+                      <div className="mt-3">
+                        <p className="text-[11px] uppercase tracking-wide text-neutral-500 mb-1">Rolle im Szenario</p>
+                        <div className="flex gap-1 flex-wrap">
+                          {(["Randthema", "Kernthema", "Leitthema"] as Weight[]).map((w) => (
+                            <button key={w} onClick={() => setTopics({ ...topics, [t]: w })}
+                              className={`px-3 py-1 rounded text-xs border ${selected === w ? "bg-[#1F3864] text-white border-[#1F3864]" : "border-neutral-300 text-neutral-600"}`}>
+                              {w}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
