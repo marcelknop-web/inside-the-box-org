@@ -568,10 +568,10 @@ export default function Ernstfall() {
       </Helmet>
 
       <header className="border-b border-neutral-200">
-        <div className="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between gap-3 flex-wrap">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between gap-3 flex-wrap">
           <div>
-            <h1 className="text-2xl font-bold" style={{ color: "#1F3864" }}>ERNSTLFALL</h1>
-            <p className="text-xs text-neutral-500">by inside-the-box.org</p>
+            <h1 className="text-xl sm:text-2xl font-bold" style={{ color: "#1F3864" }}>ERNSTLFALL</h1>
+            <p className="text-[11px] sm:text-xs text-neutral-500">by inside-the-box.org</p>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -587,7 +587,7 @@ export default function Ernstfall() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-6 py-8">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <div className="mb-6">
           <p className="text-sm text-neutral-600 italic">Wir machen den Ernstfall.</p>
           <p className="text-xs text-neutral-500 mt-2">Alle Daten bleiben in dieser Browser-Sitzung und werden nicht gespeichert.</p>
