@@ -10,7 +10,7 @@ import {
   PageBreak,
 } from "docx";
 
-// ─── Design tokens (strict brand: only ERNSTFALL / inside-the-box.org) ───
+// ─── Design tokens (strict brand: only ERNSTLFALL / inside-the-box.org) ───
 const DARKBLUE = "1F3864";
 const HEADERGREY = "F2F2F2";
 const ALTROW = "F7F9FC";
@@ -151,7 +151,7 @@ function titleBlock(docTitle: string, uebungsname: string, classification: strin
   return [
     new Paragraph({ children: [new TextRun({ text: "inside-the-box.org · Krisenstabsübung", font, size: 18, color: "808080" })], spacing: { after: 60 } }),
     H1(docTitle),
-    new Paragraph({ children: [new TextRun({ text: `${uebungsname} · ERNSTFALL`, font, size: 22, bold: true, color: DARKBLUE })], spacing: { after: 120 } }),
+    new Paragraph({ children: [new TextRun({ text: `${uebungsname} · ERNSTLFALL`, font, size: 22, bold: true, color: DARKBLUE })], spacing: { after: 120 } }),
     new Paragraph({ children: [new TextRun({ text: classification, font, size: 22, bold: true, color: RED })], spacing: { after: 300 } }),
   ];
 }
@@ -224,7 +224,7 @@ function buildTrainerGuide(ex: Exercise, bank: BankProfile): Document {
   ];
 
   return new Document({
-    creator: "ERNSTFALL", title: `${ex.uebungsname} – Trainer Guide`,
+    creator: "ERNSTLFALL", title: `${ex.uebungsname} – Trainer Guide`,
     styles: { default: { document: { run: { font, size: 22 } } } },
     numbering: bulletsNumbering(),
     sections: [makeSection(ex.uebungsname, children)],
@@ -250,7 +250,7 @@ function buildInjectCards(ex: Exercise): Document {
     kids.push(P([T(inj.erwarteteReaktion)]));
   });
   return new Document({
-    creator: "ERNSTFALL", title: `${ex.uebungsname} – Inject-Karten`,
+    creator: "ERNSTLFALL", title: `${ex.uebungsname} – Inject-Karten`,
     styles: { default: { document: { run: { font, size: 22 } } } },
     numbering: bulletsNumbering(),
     sections: [makeSection(ex.uebungsname, kids)],
@@ -272,7 +272,7 @@ function buildRollenkarten(ex: Exercise): Document {
     kids.push(P([T(r.spannungsfeld, { italics: true })]));
   });
   return new Document({
-    creator: "ERNSTFALL", title: `${ex.uebungsname} – Rollenkarten`,
+    creator: "ERNSTLFALL", title: `${ex.uebungsname} – Rollenkarten`,
     styles: { default: { document: { run: { font, size: 22 } } } },
     numbering: bulletsNumbering(),
     sections: [makeSection(ex.uebungsname, kids)],
@@ -323,7 +323,7 @@ function buildWorksheet(ex: Exercise): Document {
     ].map((s) => bullet(s)),
   ];
   return new Document({
-    creator: "ERNSTFALL", title: `${ex.uebungsname} – Teilnehmer-Arbeitsbuch`,
+    creator: "ERNSTLFALL", title: `${ex.uebungsname} – Teilnehmer-Arbeitsbuch`,
     styles: { default: { document: { run: { font, size: 22 } } } },
     numbering: bulletsNumbering(),
     sections: [makeSection(ex.uebungsname, kids)],
@@ -371,7 +371,7 @@ function buildDrehbuch(ex: Exercise): Document {
     ].map((s) => bullet(s)));
   ex.hotwashHinweise.forEach((h) => kids.push(bullet(h)));
   return new Document({
-    creator: "ERNSTFALL", title: `${ex.uebungsname} – Trainer-Drehbuch`,
+    creator: "ERNSTLFALL", title: `${ex.uebungsname} – Trainer-Drehbuch`,
     styles: { default: { document: { run: { font, size: 22 } } } },
     numbering: bulletsNumbering(),
     sections: [makeSection(ex.uebungsname, kids)],
@@ -496,14 +496,14 @@ export default function Ernstfall() {
   return (
     <div className="min-h-screen bg-white text-neutral-900">
       <Helmet>
-        <title>ERNSTFALL – TTX Generator | inside-the-box.org</title>
-        <meta name="description" content="ERNSTFALL: KI-gestützter Generator für Krisenstabsübungen deutscher Genossenschaftsbanken. Vollständige Word-Pakete in wenigen Minuten." />
+        <title>ERNSTLFALL – TTX Generator | inside-the-box.org</title>
+        <meta name="description" content="ERNSTLFALL: KI-gestützter Generator für Krisenstabsübungen deutscher Genossenschaftsbanken. Vollständige Word-Pakete in wenigen Minuten." />
       </Helmet>
 
       <header className="border-b border-neutral-200">
         <div className="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold" style={{ color: "#1F3864" }}>ERNSTFALL</h1>
+            <h1 className="text-2xl font-bold" style={{ color: "#1F3864" }}>ERNSTLFALL</h1>
             <p className="text-xs text-neutral-500">by inside-the-box.org</p>
           </div>
           <Link to="/" className="text-sm text-[#1F3864] hover:underline">← zurück</Link>
