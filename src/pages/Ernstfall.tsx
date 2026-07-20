@@ -594,7 +594,7 @@ export default function Ernstfall() {
         </div>
 
         {/* Stepper */}
-        <ol className="flex gap-2 mb-8 flex-wrap">
+        <ol className="flex gap-1.5 sm:gap-2 mb-6 sm:mb-8 flex-wrap">
           {["Bankprofil", "Themen", "Parameter", "Generierung"].map((label, i) => {
             const n = i + 1;
             const active = step === n;
@@ -603,7 +603,7 @@ export default function Ernstfall() {
               <li key={label}>
                 <button
                   onClick={() => setStep(n)}
-                  className={`px-4 py-2 rounded-md text-sm font-medium border transition ${
+                  className={`px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium border transition ${
                     active
                       ? "bg-[#1F3864] text-white border-[#1F3864]"
                       : done
