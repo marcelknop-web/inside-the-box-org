@@ -168,6 +168,17 @@ JSON-Schema (exakt diese Felder, keine weiteren):
       rollenumfang,
       dauer,
     }));
+    await logAiUsage({
+      function_name: "ernstfall-generate",
+      model: MODEL,
+      status: 200,
+      prompt_tokens: promptTokens,
+      completion_tokens: completionTokens,
+      total_tokens: totalTokens,
+      cost_usd: Number(costUsd.toFixed(6)),
+      duration_ms: durationMs,
+      meta: { injectCount, dora: !!dora, difficulty, rollenumfang, dauer, topics: Array.isArray(topics) ? topics.length : 0 },
+    });
     const content = data.choices?.[0]?.message?.content || "{}";
     let parsed: any;
     try { parsed = JSON.parse(content); } catch {
