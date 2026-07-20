@@ -817,13 +817,13 @@ export default function Ernstfall() {
 
                 <div>
                   <h4 className="text-sm font-semibold text-[#1F3864] mb-2">Inject-Timeline</h4>
-                  <div className="rounded-lg border border-neutral-200 overflow-hidden">
-                    <table className="w-full text-sm">
+                  <div className="rounded-lg border border-neutral-200 overflow-x-auto">
+                    <table className="w-full text-sm min-w-[560px]">
                       <thead className="bg-neutral-100"><tr>
                         <th className="text-left px-3 py-2 w-20">ID</th>
-                        <th className="text-left px-3 py-2 w-44">Zeit</th>
+                        <th className="text-left px-3 py-2 w-32 sm:w-44">Zeit</th>
                         <th className="text-left px-3 py-2">Titel</th>
-                        <th className="text-left px-3 py-2 w-56">Thema</th>
+                        <th className="text-left px-3 py-2 w-40 sm:w-56">Thema</th>
                       </tr></thead>
                       <tbody>
                         {exercise.injects.map((i, idx) => (
