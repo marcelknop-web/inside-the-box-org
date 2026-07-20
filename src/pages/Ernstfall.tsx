@@ -422,10 +422,30 @@ export default function Ernstfall() {
   const [dora, setDora] = useState(true);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState("");
+  const [progressPct, setProgressPct] = useState(0);
+  const [log, setLog] = useState<{ t: string; msg: string }[]>([]);
   const [exercise, setExercise] = useState<Exercise | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const genTimerRef = useRef<number | null>(null);
+
+  function pushLog(msg: string) {
+    const now = new Date();
+    const t = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
+    setLog((l) => [...l, { t, msg }].slice(-20));
+  }
+
+  function resetAll() {
+    if (!confirm("Alle Eingaben verwerfen und von vorne beginnen?")) return;
+    setStep(1);
+    setBank(DEFAULT_BANK);
+    setSheetRows([]); setSheetHeaders([]); setSelectedBankIdx(null);
+    setTopics({});
+    setDauer("3h"); setRollenumfang("voll"); setDifficulty("Fortgeschritten"); setDora(true);
+    setExercise(null); setError(null);
+    setProgress(""); setProgressPct(0); setLog([]);
+  }
 
   const injectCount = dauer === "2h" ? 8 : dauer === "3h" ? 11 : 14;
   const selectedTopics = useMemo(() => Object.entries(topics), [topics]);
