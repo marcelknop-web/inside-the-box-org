@@ -562,10 +562,10 @@ export default function Ernstfall() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {([
                 ["Bankname", "name"],
-                ["Bilanzsumme", "bilanzsumme"],
-                ["Mitarbeiterzahl", "mitarbeiter"],
-                ["Anzahl Filialen", "filialen"],
-                ["IT-Dienstleister", "itDienstleister"],
+                ["Bilanzsumme (in Mio. EUR)", "bilanzsumme"],
+                ["Mitarbeiterzahl (VZÄ, gerundet)", "mitarbeiter"],
+                ["Anzahl Filialen (inkl. SB-Standorte)", "filialen"],
+                ["IT-Dienstleister (z. B. Atruvia, FI-TS)", "itDienstleister"],
               ] as [string, keyof BankProfile][]).map(([label, key]) => (
                 <label key={key} className="block">
                   <span className="text-xs text-neutral-600">{label}</span>
@@ -573,8 +573,8 @@ export default function Ernstfall() {
                 </label>
               ))}
               <label className="block md:col-span-2">
-                <span className="text-xs text-neutral-600">Besonderheiten</span>
-                <textarea value={bank.besonderheiten} onChange={(e) => setBank({ ...bank, besonderheiten: e.target.value })} rows={2} className="mt-1 w-full px-3 py-2 rounded border border-neutral-300 text-sm" />
+                <span className="text-xs text-neutral-600">Besonderheiten <span className="text-neutral-400">(optional – Regionalfokus, Kundenstruktur, laufende Projekte)</span></span>
+                <textarea value={bank.besonderheiten} onChange={(e) => setBank({ ...bank, besonderheiten: e.target.value })} rows={2} placeholder="z. B. starker Firmenkundenanteil, Migration Kernbanksystem 2027, Zweigstelle in Grenzregion …" className="mt-1 w-full px-3 py-2 rounded border border-neutral-300 text-sm" />
               </label>
             </div>
 
