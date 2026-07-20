@@ -568,10 +568,10 @@ export default function Ernstfall() {
       </Helmet>
 
       <header className="border-b border-neutral-200">
-        <div className="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between gap-3 flex-wrap">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between gap-3 flex-wrap">
           <div>
-            <h1 className="text-2xl font-bold" style={{ color: "#1F3864" }}>ERNSTLFALL</h1>
-            <p className="text-xs text-neutral-500">by inside-the-box.org</p>
+            <h1 className="text-xl sm:text-2xl font-bold" style={{ color: "#1F3864" }}>ERNSTLFALL</h1>
+            <p className="text-[11px] sm:text-xs text-neutral-500">by inside-the-box.org</p>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -587,14 +587,14 @@ export default function Ernstfall() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-6 py-8">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <div className="mb-6">
           <p className="text-sm text-neutral-600 italic">Wir machen den Ernstfall.</p>
           <p className="text-xs text-neutral-500 mt-2">Alle Daten bleiben in dieser Browser-Sitzung und werden nicht gespeichert.</p>
         </div>
 
         {/* Stepper */}
-        <ol className="flex gap-2 mb-8 flex-wrap">
+        <ol className="flex gap-1.5 sm:gap-2 mb-6 sm:mb-8 flex-wrap">
           {["Bankprofil", "Themen", "Parameter", "Generierung"].map((label, i) => {
             const n = i + 1;
             const active = step === n;
@@ -603,7 +603,7 @@ export default function Ernstfall() {
               <li key={label}>
                 <button
                   onClick={() => setStep(n)}
-                  className={`px-4 py-2 rounded-md text-sm font-medium border transition ${
+                  className={`px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium border transition ${
                     active
                       ? "bg-[#1F3864] text-white border-[#1F3864]"
                       : done
@@ -624,11 +624,11 @@ export default function Ernstfall() {
             <h2 className="text-xl font-semibold text-[#1F3864]">Bankprofil</h2>
             <div className="rounded-lg border border-neutral-200 p-5 space-y-3">
               <p className="text-sm text-neutral-600">Optional: Excel mit Bankdaten hochladen. Verarbeitung ausschließlich lokal im Browser.</p>
-              <div className="flex gap-3 items-center">
+              <div className="flex gap-3 items-center flex-wrap">
                 <input ref={fileRef} type="file" accept=".xlsx,.xls" className="hidden" onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} />
                 <button onClick={() => fileRef.current?.click()} className="px-3 py-2 rounded border border-neutral-300 text-sm">Excel wählen …</button>
                 {sheetRows.length > 0 && (
-                  <select className="px-3 py-2 rounded border border-neutral-300 text-sm flex-1" value={selectedBankIdx ?? ""} onChange={(e) => applyBankRow(Number(e.target.value))}>
+                  <select className="px-3 py-2 rounded border border-neutral-300 text-sm w-full sm:flex-1 sm:w-auto" value={selectedBankIdx ?? ""} onChange={(e) => applyBankRow(Number(e.target.value))}>
                     <option value="">Bank aus Datei wählen …</option>
                     {sheetRows.map((r, i) => <option key={i} value={i}>{String(r[sheetHeaders[0]] ?? `Zeile ${i + 1}`)}</option>)}
                   </select>
@@ -817,13 +817,13 @@ export default function Ernstfall() {
 
                 <div>
                   <h4 className="text-sm font-semibold text-[#1F3864] mb-2">Inject-Timeline</h4>
-                  <div className="rounded-lg border border-neutral-200 overflow-hidden">
-                    <table className="w-full text-sm">
+                  <div className="rounded-lg border border-neutral-200 overflow-x-auto">
+                    <table className="w-full text-sm min-w-[560px]">
                       <thead className="bg-neutral-100"><tr>
                         <th className="text-left px-3 py-2 w-20">ID</th>
-                        <th className="text-left px-3 py-2 w-44">Zeit</th>
+                        <th className="text-left px-3 py-2 w-32 sm:w-44">Zeit</th>
                         <th className="text-left px-3 py-2">Titel</th>
-                        <th className="text-left px-3 py-2 w-56">Thema</th>
+                        <th className="text-left px-3 py-2 w-40 sm:w-56">Thema</th>
                       </tr></thead>
                       <tbody>
                         {exercise.injects.map((i, idx) => (
@@ -846,16 +846,16 @@ export default function Ernstfall() {
                   </ul>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex gap-3 flex-wrap">
                   <button onClick={generate} disabled={loading} className="px-4 py-2 rounded border border-neutral-300 text-sm">Neu generieren</button>
-                  <button onClick={downloadZip} disabled={downloading} className="px-5 py-2 rounded bg-[#1F3864] text-white text-sm font-medium disabled:opacity-40">
+                  <button onClick={downloadZip} disabled={downloading} className="px-5 py-2 rounded bg-[#1F3864] text-white text-sm font-medium disabled:opacity-40 flex-1 sm:flex-none">
                     {downloading ? "Erzeuge Word-Paket …" : "Word-Paket herunterladen (ZIP)"}
                   </button>
                 </div>
               </div>
             )}
 
-            <div className="flex justify-between items-center pt-4 border-t border-neutral-200">
+            <div className="flex justify-between items-center gap-3 flex-wrap pt-4 border-t border-neutral-200">
               <button onClick={() => setStep(3)} disabled={loading || downloading} className="px-4 py-2 rounded border border-neutral-300 text-sm disabled:opacity-40">← zurück zu Parametern</button>
               <button onClick={resetAll} disabled={loading || downloading} className="px-4 py-2 rounded border border-neutral-300 text-sm text-neutral-600 disabled:opacity-40">↺ Neue Übung starten</button>
             </div>
