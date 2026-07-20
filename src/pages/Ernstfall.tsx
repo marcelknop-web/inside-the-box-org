@@ -846,9 +846,9 @@ export default function Ernstfall() {
                   </ul>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex gap-3 flex-wrap">
                   <button onClick={generate} disabled={loading} className="px-4 py-2 rounded border border-neutral-300 text-sm">Neu generieren</button>
-                  <button onClick={downloadZip} disabled={downloading} className="px-5 py-2 rounded bg-[#1F3864] text-white text-sm font-medium disabled:opacity-40">
+                  <button onClick={downloadZip} disabled={downloading} className="px-5 py-2 rounded bg-[#1F3864] text-white text-sm font-medium disabled:opacity-40 flex-1 sm:flex-none">
                     {downloading ? "Erzeuge Word-Paket …" : "Word-Paket herunterladen (ZIP)"}
                   </button>
                 </div>
