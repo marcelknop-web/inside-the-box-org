@@ -38,6 +38,7 @@ const AssessmentTools = lazy(() => import("./pages/AssessmentTools"));
 const MetaAssessmentTool = lazy(() => import("./pages/MetaAssessmentTool"));
 const Syndicate = lazy(() => import("./pages/Syndicate"));
 const Starfighter = lazy(() => import("./pages/Starfighter"));
+const Ernstfall = lazy(() => import("./pages/Ernstfall"));
 
 const queryClient = new QueryClient();
 
