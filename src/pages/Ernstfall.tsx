@@ -568,12 +568,22 @@ export default function Ernstfall() {
       </Helmet>
 
       <header className="border-b border-neutral-200">
-        <div className="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between gap-3 flex-wrap">
           <div>
             <h1 className="text-2xl font-bold" style={{ color: "#1F3864" }}>ERNSTLFALL</h1>
             <p className="text-xs text-neutral-500">by inside-the-box.org</p>
           </div>
-          <Link to="/" className="text-sm text-[#1F3864] hover:underline">← zurück</Link>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={resetAll}
+              disabled={loading || downloading}
+              className="text-xs px-3 py-1.5 rounded border border-neutral-300 text-neutral-700 hover:bg-neutral-50 disabled:opacity-40"
+              title="Alle Eingaben verwerfen und neu starten"
+            >
+              ↺ Neu starten
+            </button>
+            <Link to="/" className="text-sm text-[#1F3864] hover:underline">← zurück</Link>
+          </div>
         </div>
       </header>
 
