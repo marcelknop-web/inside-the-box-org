@@ -30,7 +30,7 @@ const TOPICS = [
   "Physisches Ereignis (Brand, Stromausfall Hauptstelle)",
 ];
 
-type Weight = "Niedrig" | "Mittel" | "Hoch";
+type Weight = "Randthema" | "Kernthema" | "Leitthema";
 interface BankProfile {
   name: string;
   bilanzsumme: string;
