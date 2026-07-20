@@ -378,20 +378,33 @@ function buildDrehbuch(ex: Exercise): Document {
   });
 }
 
-async function buildZip(ex: Exercise, bank: BankProfile) {
+async function buildZip(
+  ex: Exercise,
+  bank: BankProfile,
+  onProgress?: (done: number, total: number, label: string) => void,
+) {
   const zip = new JSZip();
-  const files: [string, Document][] = [
-    ["01_Trainer_Guide.docx", buildTrainerGuide(ex, bank)],
-    ["02_Inject_Cards.docx", buildInjectCards(ex)],
-    ["03_Rollenkarten.docx", buildRollenkarten(ex)],
-    ["04_Teilnehmer_Worksheet.docx", buildWorksheet(ex)],
-    ["05_Trainer_Drehbuch.docx", buildDrehbuch(ex)],
+  const files: [string, () => Document][] = [
+    ["01_Trainer_Guide.docx", () => buildTrainerGuide(ex, bank)],
+    ["02_Inject_Cards.docx", () => buildInjectCards(ex)],
+    ["03_Rollenkarten.docx", () => buildRollenkarten(ex)],
+    ["04_Teilnehmer_Worksheet.docx", () => buildWorksheet(ex)],
+    ["05_Trainer_Drehbuch.docx", () => buildDrehbuch(ex)],
   ];
-  for (const [name, doc] of files) {
-    const blob = await Packer.toBlob(doc);
+  const total = files.length + 1;
+  let done = 0;
+  for (const [name, factory] of files) {
+    onProgress?.(done, total, `Erzeuge ${name} …`);
+    const blob = await Packer.toBlob(factory());
     zip.file(name, blob);
+    done++;
+    onProgress?.(done, total, `${name} fertig`);
+    await new Promise((r) => setTimeout(r, 0));
   }
+  onProgress?.(done, total, "ZIP-Archiv wird gepackt …");
   const out = await zip.generateAsync({ type: "blob" });
+  done++;
+  onProgress?.(done, total, "Fertig – Download startet");
   saveAs(out, `TTX_${slug(bank.name)}_${slug(ex.uebungsname)}.zip`);
 }
 
