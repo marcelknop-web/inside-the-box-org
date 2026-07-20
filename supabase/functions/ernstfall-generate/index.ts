@@ -134,6 +134,13 @@ JSON-Schema (exakt diese Felder, keine weiteren):
       const status = response.status;
       const errText = await response.text().catch(() => "");
       console.error(JSON.stringify({ evt: "ernstfall_ai_error", status, durationMs, model: MODEL, injectCount, dora: !!dora, err: errText.slice(0, 500) }));
+      await logAiUsage({
+        function_name: "ernstfall-generate",
+        model: MODEL,
+        status,
+        duration_ms: durationMs,
+        meta: { error: errText.slice(0, 500), injectCount, dora: !!dora, difficulty, rollenumfang, dauer, topics: Array.isArray(topics) ? topics.length : 0 },
+      });
       if (status === 429) return new Response(JSON.stringify({ error: "Rate limit. Kurz warten." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       if (status === 402) return new Response(JSON.stringify({ error: "KI-Kontingent erschöpft. Bitte Workspace-Credits aufladen." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       if (status === 403) return new Response(JSON.stringify({ error: "KI-Kontingent des Workspaces erreicht. Bitte Limit anheben oder Credits aufladen." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
