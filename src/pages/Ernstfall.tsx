@@ -378,20 +378,33 @@ function buildDrehbuch(ex: Exercise): Document {
   });
 }
 
-async function buildZip(ex: Exercise, bank: BankProfile) {
+async function buildZip(
+  ex: Exercise,
+  bank: BankProfile,
+  onProgress?: (done: number, total: number, label: string) => void,
+) {
   const zip = new JSZip();
-  const files: [string, Document][] = [
-    ["01_Trainer_Guide.docx", buildTrainerGuide(ex, bank)],
-    ["02_Inject_Cards.docx", buildInjectCards(ex)],
-    ["03_Rollenkarten.docx", buildRollenkarten(ex)],
-    ["04_Teilnehmer_Worksheet.docx", buildWorksheet(ex)],
-    ["05_Trainer_Drehbuch.docx", buildDrehbuch(ex)],
+  const files: [string, () => Document][] = [
+    ["01_Trainer_Guide.docx", () => buildTrainerGuide(ex, bank)],
+    ["02_Inject_Cards.docx", () => buildInjectCards(ex)],
+    ["03_Rollenkarten.docx", () => buildRollenkarten(ex)],
+    ["04_Teilnehmer_Worksheet.docx", () => buildWorksheet(ex)],
+    ["05_Trainer_Drehbuch.docx", () => buildDrehbuch(ex)],
   ];
-  for (const [name, doc] of files) {
-    const blob = await Packer.toBlob(doc);
+  const total = files.length + 1;
+  let done = 0;
+  for (const [name, factory] of files) {
+    onProgress?.(done, total, `Erzeuge ${name} …`);
+    const blob = await Packer.toBlob(factory());
     zip.file(name, blob);
+    done++;
+    onProgress?.(done, total, `${name} fertig`);
+    await new Promise((r) => setTimeout(r, 0));
   }
+  onProgress?.(done, total, "ZIP-Archiv wird gepackt …");
   const out = await zip.generateAsync({ type: "blob" });
+  done++;
+  onProgress?.(done, total, "Fertig – Download startet");
   saveAs(out, `TTX_${slug(bank.name)}_${slug(ex.uebungsname)}.zip`);
 }
 
@@ -409,10 +422,30 @@ export default function Ernstfall() {
   const [dora, setDora] = useState(true);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState("");
+  const [progressPct, setProgressPct] = useState(0);
+  const [log, setLog] = useState<{ t: string; msg: string }[]>([]);
   const [exercise, setExercise] = useState<Exercise | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const genTimerRef = useRef<number | null>(null);
+
+  function pushLog(msg: string) {
+    const now = new Date();
+    const t = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
+    setLog((l) => [...l, { t, msg }].slice(-20));
+  }
+
+  function resetAll() {
+    if (!confirm("Alle Eingaben verwerfen und von vorne beginnen?")) return;
+    setStep(1);
+    setBank(DEFAULT_BANK);
+    setSheetRows([]); setSheetHeaders([]); setSelectedBankIdx(null);
+    setTopics({});
+    setDauer("3h"); setRollenumfang("voll"); setDifficulty("Fortgeschritten"); setDora(true);
+    setExercise(null); setError(null);
+    setProgress(""); setProgressPct(0); setLog([]);
+  }
 
   const injectCount = dauer === "2h" ? 8 : dauer === "3h" ? 11 : 14;
   const selectedTopics = useMemo(() => Object.entries(topics), [topics]);
@@ -455,11 +488,32 @@ export default function Ernstfall() {
     setError(null);
     setLoading(true);
     setExercise(null);
-    setProgress("Szenario wird konstruiert …");
+    setLog([]);
+    setProgressPct(2);
+    setProgress("Anfrage wird vorbereitet …");
+    pushLog("Bankprofil und Themen an KI übergeben");
+
+    const stages = [
+      { pct: 12, msg: "Szenario-Grundgerüst wird entworfen …", log: "Kausale Ereigniskette wird konstruiert" },
+      { pct: 28, msg: "Injects werden ausformuliert …", log: `${injectCount} Injects werden generiert` },
+      { pct: 48, msg: "Rollenkarten werden erstellt …", log: `${rollenumfang === "voll" ? 8 : 6} Rollen für Krisenstab` },
+      { pct: 66, msg: "Regieanweisungen & Diskussionsimpulse …", log: "Trainer-Hinweise werden ergänzt" },
+      { pct: 82, msg: "Konsistenzprüfung der Zeitachse …", log: "Prüfe Kausalität und Zeitpunkte" },
+      { pct: 92, msg: "Feinschliff durch die KI …", log: "Finalisierung der Übung" },
+    ];
+    let idx = 0;
+    if (genTimerRef.current) window.clearInterval(genTimerRef.current);
+    genTimerRef.current = window.setInterval(() => {
+      if (idx >= stages.length) return;
+      const s = stages[idx++];
+      setProgressPct(s.pct);
+      setProgress(s.msg);
+      pushLog(s.log);
+    }, 4500) as unknown as number;
+
     try {
       const projectRef = import.meta.env.VITE_SUPABASE_PROJECT_ID;
       const anon = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-      setProgress("KI generiert Übung, Injects und Rollen …");
       const res = await fetch(`https://${projectRef}.supabase.co/functions/v1/ernstfall-generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${anon}`, apikey: anon },
@@ -472,10 +526,14 @@ export default function Ernstfall() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Generierung fehlgeschlagen");
       setExercise(data.exercise);
-      setProgress("");
+      setProgressPct(100);
+      setProgress("Übung erfolgreich generiert");
+      pushLog(`Übung "${data.exercise?.uebungsname ?? ""}" erhalten`);
     } catch (e: any) {
       setError(e.message || "Fehler bei der Generierung");
+      pushLog("Fehler: " + (e.message || "unbekannt"));
     } finally {
+      if (genTimerRef.current) { window.clearInterval(genTimerRef.current); genTimerRef.current = null; }
       setLoading(false);
     }
   }
@@ -483,11 +541,20 @@ export default function Ernstfall() {
   async function downloadZip() {
     if (!exercise) return;
     setDownloading(true);
+    setLog([]);
+    setProgressPct(0);
+    setProgress("Word-Paket wird erstellt …");
+    pushLog("Start Word-Paket-Erstellung");
     try {
-      await buildZip(exercise, bank);
-    } catch (e) {
+      await buildZip(exercise, bank, (done, total, label) => {
+        setProgressPct(Math.round((done / total) * 100));
+        setProgress(label);
+        pushLog(label);
+      });
+    } catch (e: any) {
       console.error(e);
       setError("Word-Paket konnte nicht erzeugt werden.");
+      pushLog("Fehler beim Erstellen des ZIP");
     } finally {
       setDownloading(false);
     }
@@ -501,12 +568,22 @@ export default function Ernstfall() {
       </Helmet>
 
       <header className="border-b border-neutral-200">
-        <div className="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between gap-3 flex-wrap">
           <div>
             <h1 className="text-2xl font-bold" style={{ color: "#1F3864" }}>ERNSTLFALL</h1>
             <p className="text-xs text-neutral-500">by inside-the-box.org</p>
           </div>
-          <Link to="/" className="text-sm text-[#1F3864] hover:underline">← zurück</Link>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={resetAll}
+              disabled={loading || downloading}
+              className="text-xs px-3 py-1.5 rounded border border-neutral-300 text-neutral-700 hover:bg-neutral-50 disabled:opacity-40"
+              title="Alle Eingaben verwerfen und neu starten"
+            >
+              ↺ Neu starten
+            </button>
+            <Link to="/" className="text-sm text-[#1F3864] hover:underline">← zurück</Link>
+          </div>
         </div>
       </header>
 
@@ -703,7 +780,32 @@ export default function Ernstfall() {
                 {loading ? "Generiere …" : "Übung generieren"}
               </button>
             )}
-            {loading && <p className="text-sm text-neutral-600">{progress}</p>}
+            {(loading || downloading) && (
+              <div className="rounded-lg border border-[#1F3864]/30 bg-[#1F3864]/5 p-4 space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-medium text-[#1F3864]">{progress || "Verarbeite …"}</span>
+                  <span className="font-mono text-xs text-neutral-600">{progressPct}%</span>
+                </div>
+                <div className="h-2 w-full bg-neutral-200 rounded overflow-hidden">
+                  <div
+                    className="h-full bg-[#1F3864] transition-all duration-500 ease-out"
+                    style={{ width: `${progressPct}%` }}
+                  />
+                </div>
+                {log.length > 0 && (
+                  <div className="rounded bg-neutral-900 text-neutral-100 font-mono text-[11px] leading-relaxed p-3 max-h-40 overflow-y-auto">
+                    {log.map((l, i) => (
+                      <div key={i}>
+                        <span className="text-neutral-500">[{l.t}]</span> {l.msg}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <p className="text-[11px] text-neutral-500">
+                  Bitte warten – je nach Umfang dauert die Generierung 30–90 Sekunden.
+                </p>
+              </div>
+            )}
             {error && <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded px-3 py-2">{error}</p>}
 
             {exercise && (
@@ -753,8 +855,9 @@ export default function Ernstfall() {
               </div>
             )}
 
-            <div className="flex justify-between pt-4">
-              <button onClick={() => setStep(3)} className="px-4 py-2 rounded border border-neutral-300 text-sm">← zurück</button>
+            <div className="flex justify-between items-center pt-4 border-t border-neutral-200">
+              <button onClick={() => setStep(3)} disabled={loading || downloading} className="px-4 py-2 rounded border border-neutral-300 text-sm disabled:opacity-40">← zurück zu Parametern</button>
+              <button onClick={resetAll} disabled={loading || downloading} className="px-4 py-2 rounded border border-neutral-300 text-sm text-neutral-600 disabled:opacity-40">↺ Neue Übung starten</button>
             </div>
           </section>
         )}
