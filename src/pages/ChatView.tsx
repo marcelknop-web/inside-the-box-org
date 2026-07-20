@@ -56,6 +56,7 @@ const AI_TOOL_ADDED_AT: Record<string, string> = {
   'ot-soc-life': '2026-04-24',
   'syndicate-game': '2026-07-02',
   'auren': '2026-07-15',
+  'ernstfall': '2026-07-20',
 };
 
 interface NavLink { url: string; label: string; }
