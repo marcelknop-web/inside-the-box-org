@@ -855,7 +855,7 @@ export default function Ernstfall() {
               </div>
             )}
 
-            <div className="flex justify-between items-center pt-4 border-t border-neutral-200">
+            <div className="flex justify-between items-center gap-3 flex-wrap pt-4 border-t border-neutral-200">
               <button onClick={() => setStep(3)} disabled={loading || downloading} className="px-4 py-2 rounded border border-neutral-300 text-sm disabled:opacity-40">← zurück zu Parametern</button>
               <button onClick={resetAll} disabled={loading || downloading} className="px-4 py-2 rounded border border-neutral-300 text-sm text-neutral-600 disabled:opacity-40">↺ Neue Übung starten</button>
             </div>
