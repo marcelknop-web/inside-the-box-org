@@ -600,6 +600,8 @@ export default function Ernstfall() {
       pushLog(s.log);
     }, 4500) as unknown as number;
 
+    const ac = new AbortController();
+    abortRef.current = ac;
     try {
       const projectRef = import.meta.env.VITE_SUPABASE_PROJECT_ID;
       const anon = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -611,6 +613,7 @@ export default function Ernstfall() {
           topics: selectedTopics.map(([name, weight]) => ({ name, weight })),
           dauer, injectCount, rollenumfang, difficulty, dora,
         }),
+        signal: ac.signal,
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Generierung fehlgeschlagen");
@@ -619,10 +622,16 @@ export default function Ernstfall() {
       setProgress("Übung erfolgreich generiert");
       pushLog(`Übung "${data.exercise?.uebungsname ?? ""}" erhalten`);
     } catch (e: any) {
-      setError(e.message || "Fehler bei der Generierung");
-      pushLog("Fehler: " + (e.message || "unbekannt"));
+      if (e?.name === "AbortError") {
+        setError("Generierung abgebrochen");
+        setProgress("Abgebrochen");
+      } else {
+        setError(e.message || "Fehler bei der Generierung");
+        pushLog("Fehler: " + (e.message || "unbekannt"));
+      }
     } finally {
       if (genTimerRef.current) { window.clearInterval(genTimerRef.current); genTimerRef.current = null; }
+      abortRef.current = null;
       setLoading(false);
     }
   }
