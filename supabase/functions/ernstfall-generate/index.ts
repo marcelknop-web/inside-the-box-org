@@ -43,9 +43,53 @@ function rateCheck(ip: string) {
   return { allowed: true };
 }
 
-const SYSTEM_BASE = `Du planst Krisenstabsübungen (TTX) für deutsche Genossenschaftsbanken. Erstelle EINEN durchgehenden, kausal verknüpften Fall (keine Episodensammlung). Leitthema = Haupthandlungsstrang (3–4 Injects), Kernthema = Nebenstrang (1–2), Randthema = Seiteneffekt (1). Kontext: Kernbank beim zentralen IT-Dienstleister, BaFin/Bundesbank als Aufsicht, genossenschaftlicher Verbund, Filialgeschäft. Nur fiktive Namen (keine realen Firmen/Banken). Sprache: Deutsch, generisches Maskulinum. Antworte ausschließlich mit validem JSON gemäß Schema, ohne Markdown.`;
+const SYSTEM_BASE = `Du planst Krisenstabsübungen (TTX) für deutsche Genossenschaftsbanken. Erstelle EINEN durchgehenden, kausal verknüpften Fall (keine Episodensammlung).
 
-const SYSTEM_DORA = ` DORA-Meldepflichten aktiv: BaFin-Erstmeldung 4h nach Klassifizierung als schwerwiegender Vorfall (spätestens 24h nach Kenntnis), Zwischenbericht 72h, Abschluss 1 Monat. Zusätzlich DSGVO Art. 33 (72h) bei Personendaten.`;
+Regeln (strikt):
+- Kausalität: Jeder Inject (außer I-01) hat einen konkreten Vorgänger (Inject-ID oder Timeline-Ereignis) im Feld "abhaengigVon". Kein Inject ohne Ursache.
+- Rollenverteilung der Themen: Leitthema = Haupthandlungsstrang (3–4 Injects), Kernthema = Nebenstrang (1–2), Randthema = Seiteneffekt (1).
+- Ground Truth: "timeline" enthält mindestens (Injects + 2) Ereignisse; jede in Injects erwähnte Person, System oder Meldung MUSS in bankProfil oder timeline vorkommen. Keine Neu-Erfindungen im Inject-Text.
+- Klassifizierungszeitpunkt ("klassifizierungsZeitpunkt", Format HH:MM) markiert, wann der Vorfall als schwerwiegend klassifiziert wurde. Meldepflichten-Fristen beziehen sich auf diesen Zeitpunkt und werden als konkrete Uhrzeit ODER "T+<Stunden>h" angegeben, nicht generisch.
+- Rückfragen: Jede Antwort verweist auf ein Timeline-Fakt ODER lautet "Nicht bekannt – bitte als Annahme führen." Nichts erfinden.
+- Rollen-Spannungsfeld: IMMER als Konflikt zwischen zwei benannten Zielen (z. B. "schnelle Wiederaufnahme vs. forensische Beweissicherung"), nie Charakterbeschreibung.
+- Anti-Wiederholung: Diskussionsimpulse und Rückfragen dürfen inhaltlich zwischen Injects NICHT doppeln.
+- Einspielkanal-Diversität: Kanäle über die Injects streuen (Telefon, E-Mail, Ticket, Mitarbeiter-Meldung, Medienanfrage, Aufsichtsschreiben, Chat) – nie 3× hintereinander derselbe Kanal.
+- Kontext: Kernbank beim zentralen IT-Dienstleister, BaFin/Bundesbank als Aufsicht, genossenschaftlicher Verbund, Filialgeschäft.
+- Nur fiktive Namen (keine realen Firmen/Banken). Sprache: Deutsch, generisches Maskulinum.
+
+Antworte AUSSCHLIESSLICH mit validem JSON gemäß Schema. Kein Markdown, kein Prosa-Präfix.`;
+
+const SYSTEM_DORA = ` DORA-Meldepflichten aktiv: BaFin-Erstmeldung 4h nach Klassifizierung als schwerwiegender Vorfall (spätestens 24h nach Kenntnis), Zwischenbericht 72h, Abschluss 1 Monat. Zusätzlich DSGVO Art. 33 (72h) bei Personendaten. Berechne konkrete Uhrzeiten aus klassifizierungsZeitpunkt.`;
+
+const MODEL = "google/gemini-2.5-flash";
+const PRICE_IN_PER_M = 0.30;
+const PRICE_OUT_PER_M = 2.50;
+
+async function callGateway(system: string, userPrompt: string, key: string, signal?: AbortSignal, maxTokens = 5500, temperature?: number) {
+  const body: Record<string, unknown> = {
+    model: MODEL,
+    messages: [
+      { role: "system", content: system },
+      { role: "user", content: userPrompt },
+    ],
+    response_format: { type: "json_object" },
+    max_tokens: maxTokens,
+  };
+  if (typeof temperature === "number") body.temperature = temperature;
+  return await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    signal,
+  });
+}
+
+function tryParse(content: string): any | null {
+  try { return JSON.parse(content); } catch {}
+  const m = content.match(/\{[\s\S]*\}/);
+  if (m) { try { return JSON.parse(m[0]); } catch {} }
+  return null;
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -74,7 +118,6 @@ serve(async (req) => {
       });
     }
 
-    // Kompakte Bankzeile – nur gesetzte Felder
     const bankParts = [
       bank.name || "Volksbank Musterregion eG",
       bank.bilanzsumme && `Bilanz ${bank.bilanzsumme}`,
@@ -93,41 +136,38 @@ serve(async (req) => {
 Themen (Gewichtung):
 ${topicLines}
 Dauer: ${dauer}. Genau ${injectCount} Injects (I-01…I-${String(injectCount).padStart(2,"0")}), chronologisch T+00 bis Ende, Uhrzeiten ab 08:15.
-Rollen: ${rollen}. Jede Rolle mit szenariospezifischem Profil + Spannungsfeld.
-Schwierigkeit: ${difficulty}.${dora ? " DORA-Fristen einbeziehen." : ""}
+Rollen: ${rollen}. Jede Rolle mit szenariospezifischem Profil + Spannungsfeld (zwei konkurrierende Ziele).
+Schwierigkeit: ${difficulty}.${dora ? " DORA-Fristen einbeziehen (konkrete Uhrzeiten aus klassifizierungsZeitpunkt)." : ""}
 
-JSON-Schema (exakt diese Felder, keine weiteren):
+JSON-Schema (exakt diese Felder):
 {
  "uebungsname":"Übung <CODENAME>",
  "kurzbeschreibung":"5 Sätze",
- "groundTruth":{"bankProfil":"","angreiferOderUrsache":"","timeline":[{"zeitpunkt":"","ereignis":""}],"erschwernisse":[""]},
+ "groundTruth":{
+   "bankProfil":"",
+   "angreiferOderUrsache":"",
+   "klassifizierungsZeitpunkt":"HH:MM",
+   "timeline":[{"zeitpunkt":"","ereignis":""}],
+   "erschwernisse":[""]
+ },
  "uebungsziele":["6 Ziele"],
  "ablaufplan":[{"zeit":"","abschnitt":"","inhalt":""}],
- "injects":[{"id":"I-01","zeitpunkt":"","phase":"","pflicht":true,"titel":"","themaTag":"","einspielkanal":"","inhalt":"3-6 Sätze wörtlich","erwarteteReaktion":"","regieanweisung":"","diskussionsimpulse":["3-5"],"rueckfragen":[{"frage":"","antwort":""}],"beobachtungsfokus":""}],
- "rollen":[{"name":"","profil":"","aufgaben":["4-6"],"spannungsfeld":""}],
- "meldepflichten":[{"adressat":"","frist":""}],
+ "injects":[{"id":"I-01","zeitpunkt":"","phase":"","pflicht":true,"titel":"","themaTag":"","einspielkanal":"","abhaengigVon":"Timeline/I-XX oder leer bei I-01","inhalt":"3-6 Sätze wörtlich","erwarteteReaktion":"","regieanweisung":"","diskussionsimpulse":["3-5"],"rueckfragen":[{"frage":"","antwort":""}],"beobachtungsfokus":""}],
+ "rollen":[{"name":"","profil":"","aufgaben":["4-6"],"spannungsfeld":"Ziel A vs. Ziel B"}],
+ "meldepflichten":[{"adressat":"","frist":"T+4h / konkrete Uhrzeit"}],
  "hotwashHinweise":["6-8 Lessons Learned"]
 }`;
 
     const system = SYSTEM_BASE + (dora ? SYSTEM_DORA : "");
-    const MODEL = "google/gemini-2.5-flash";
-    // Preisannahme (USD pro 1M Tokens) für gemini-2.5-flash: Input 0.30, Output 2.50
-    const PRICE_IN_PER_M = 0.30;
-    const PRICE_OUT_PER_M = 2.50;
 
     const t0 = Date.now();
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: [
-          { role: "system", content: system },
-          { role: "user", content: userPrompt },
-        ],
-        response_format: { type: "json_object" },
-      }),
-    });
+    let response: Response;
+    try {
+      response = await callGateway(system, userPrompt, LOVABLE_API_KEY);
+    } catch (e) {
+      console.error("gateway fetch failed", e);
+      return new Response(JSON.stringify({ error: "KI-Gateway nicht erreichbar" }), { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
     const durationMs = Date.now() - t0;
 
     if (!response.ok) {
@@ -149,10 +189,35 @@ JSON-Schema (exakt diese Felder, keine weiteren):
 
     const data = await response.json();
     const usage = data?.usage ?? {};
-    const promptTokens = usage.prompt_tokens ?? 0;
-    const completionTokens = usage.completion_tokens ?? 0;
-    const totalTokens = usage.total_tokens ?? (promptTokens + completionTokens);
+    let promptTokens = usage.prompt_tokens ?? 0;
+    let completionTokens = usage.completion_tokens ?? 0;
+    let content: string = data.choices?.[0]?.message?.content || "{}";
+    let parsed = tryParse(content);
+    let retried = false;
+
+    // Parse-Retry bei kaputtem JSON
+    if (!parsed || !parsed.injects) {
+      retried = true;
+      console.warn("ernstfall_ai parse_failed, retrying once");
+      const retryPrompt = userPrompt + `\n\nDie vorherige Antwort war kein valides JSON. Antworte AUSSCHLIESSLICH mit einem JSON-Objekt, das mit "{" beginnt und mit "}" endet. Keine Codefences, kein Prosa-Präfix.`;
+      try {
+        const r2 = await callGateway(system, retryPrompt, LOVABLE_API_KEY, undefined, 5500, 0.2);
+        if (r2.ok) {
+          const d2 = await r2.json();
+          const u2 = d2?.usage ?? {};
+          promptTokens += u2.prompt_tokens ?? 0;
+          completionTokens += u2.completion_tokens ?? 0;
+          content = d2.choices?.[0]?.message?.content || "{}";
+          parsed = tryParse(content);
+        }
+      } catch (e) {
+        console.error("retry failed", e);
+      }
+    }
+
+    const totalTokens = promptTokens + completionTokens;
     const costUsd = (promptTokens / 1_000_000) * PRICE_IN_PER_M + (completionTokens / 1_000_000) * PRICE_OUT_PER_M;
+    const responseBytes = content.length;
     console.log(JSON.stringify({
       evt: "ernstfall_ai_usage",
       model: MODEL,
@@ -161,6 +226,8 @@ JSON-Schema (exakt diese Felder, keine weiteren):
       completionTokens,
       totalTokens,
       costUsd: Number(costUsd.toFixed(6)),
+      responseBytes,
+      retried,
       injectCount,
       topics: Array.isArray(topics) ? topics.length : 0,
       dora: !!dora,
@@ -177,14 +244,9 @@ JSON-Schema (exakt diese Felder, keine weiteren):
       total_tokens: totalTokens,
       cost_usd: Number(costUsd.toFixed(6)),
       duration_ms: durationMs,
-      meta: { injectCount, dora: !!dora, difficulty, rollenumfang, dauer, topics: Array.isArray(topics) ? topics.length : 0 },
+      meta: { injectCount, dora: !!dora, difficulty, rollenumfang, dauer, topics: Array.isArray(topics) ? topics.length : 0, responseBytes, retried },
     });
-    const content = data.choices?.[0]?.message?.content || "{}";
-    let parsed: any;
-    try { parsed = JSON.parse(content); } catch {
-      const m = content.match(/\{[\s\S]*\}/);
-      if (m) { try { parsed = JSON.parse(m[0]); } catch { parsed = null; } }
-    }
+
     if (!parsed || !parsed.injects) {
       return new Response(JSON.stringify({ error: "Antwort konnte nicht geparst werden. Bitte erneut versuchen." }), {
         status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },

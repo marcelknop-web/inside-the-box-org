@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import * as XLSX from "xlsx";
@@ -7,7 +7,7 @@ import { saveAs } from "file-saver";
 import {
   Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, Header, Footer,
   AlignmentType, PageNumber, HeadingLevel, LevelFormat, BorderStyle, WidthType, ShadingType,
-  PageBreak,
+  PageBreak, TableOfContents,
 } from "docx";
 
 // ─── Design tokens (strict brand: only ERNSTLFALL / inside-the-box.org) ───
@@ -44,12 +44,13 @@ interface Inject {
   themaTag: string; einspielkanal: string; inhalt: string; erwarteteReaktion: string;
   regieanweisung: string; diskussionsimpulse: string[]; rueckfragen: { frage: string; antwort: string }[];
   beobachtungsfokus: string;
+  abhaengigVon?: string;
 }
 interface Rolle { name: string; profil: string; aufgaben: string[]; spannungsfeld: string }
 interface Exercise {
   uebungsname: string;
   kurzbeschreibung: string;
-  groundTruth: { bankProfil: string; angreiferOderUrsache: string; timeline: {zeitpunkt:string;ereignis:string}[]; erschwernisse: string[] };
+  groundTruth: { bankProfil: string; angreiferOderUrsache: string; timeline: {zeitpunkt:string;ereignis:string}[]; erschwernisse: string[]; klassifizierungsZeitpunkt?: string };
   uebungsziele: string[];
   ablaufplan: { zeit: string; abschnitt: string; inhalt: string }[];
   injects: Inject[];
@@ -81,11 +82,45 @@ const P = (children: TextRun[], opt: Partial<{ heading: (typeof HeadingLevel)[ke
   new Paragraph({ children, heading: opt.heading, alignment: opt.align, spacing: { after: opt.spacing ?? 120 } });
 
 const H1 = (text: string) =>
-  new Paragraph({ children: [new TextRun({ text, font, bold: true, color: DARKBLUE, size: 40 })], spacing: { before: 240, after: 200 } });
+  new Paragraph({ heading: HeadingLevel.HEADING_1, children: [new TextRun({ text, font, bold: true, color: DARKBLUE, size: 40 })], spacing: { before: 240, after: 200 } });
 const H2 = (text: string) =>
-  new Paragraph({ children: [new TextRun({ text, font, bold: true, color: DARKBLUE, size: 30 })], spacing: { before: 280, after: 140 } });
+  new Paragraph({ heading: HeadingLevel.HEADING_2, children: [new TextRun({ text, font, bold: true, color: DARKBLUE, size: 30 })], spacing: { before: 280, after: 140 }, keepNext: true });
 const H3 = (text: string) =>
-  new Paragraph({ children: [new TextRun({ text, font, bold: true, color: DARKBLUE, size: 26 })], spacing: { before: 200, after: 100 } });
+  new Paragraph({ heading: HeadingLevel.HEADING_3, children: [new TextRun({ text, font, bold: true, color: DARKBLUE, size: 26 })], spacing: { before: 200, after: 100 }, keepNext: true });
+
+function computeMeldezeit(klass: string | undefined, frist: string): string {
+  if (!klass || !/^\d{1,2}:\d{2}$/.test(klass)) return "";
+  const [hh, mm] = klass.split(":").map((n) => parseInt(n, 10));
+  const base = new Date(2025, 0, 1, hh, mm);
+  const mHour = /T\s*\+\s*(\d+)\s*h/i.exec(frist);
+  if (mHour) {
+    const h = parseInt(mHour[1], 10);
+    const d = new Date(base.getTime() + h * 3600_000);
+    const day = h >= 24 ? ` (+${Math.floor(h / 24)}d)` : "";
+    return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}${day}`;
+  }
+  return "";
+}
+
+const styleDoc = {
+  default: { document: { run: { font, size: 22 } } },
+  paragraphStyles: [
+    { id: "Heading1", name: "Heading 1", basedOn: "Normal", next: "Normal", quickFormat: true,
+      run: { size: 40, bold: true, font, color: DARKBLUE },
+      paragraph: { spacing: { before: 240, after: 200 }, outlineLevel: 0 } },
+    { id: "Heading2", name: "Heading 2", basedOn: "Normal", next: "Normal", quickFormat: true,
+      run: { size: 30, bold: true, font, color: DARKBLUE },
+      paragraph: { spacing: { before: 280, after: 140 }, outlineLevel: 1 } },
+    { id: "Heading3", name: "Heading 3", basedOn: "Normal", next: "Normal", quickFormat: true,
+      run: { size: 26, bold: true, font, color: DARKBLUE },
+      paragraph: { spacing: { before: 200, after: 100 }, outlineLevel: 2 } },
+  ],
+};
+
+const nowLabel = () => {
+  const d = new Date();
+  return `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()}`;
+};
 
 const cellBorder = { style: BorderStyle.SINGLE, size: 4, color: "BFBFBF" };
 const cellBorders = { top: cellBorder, bottom: cellBorder, left: cellBorder, right: cellBorder };
@@ -167,7 +202,7 @@ function makeSection(uebungsname: string, children: any[]) {
         children: [new Paragraph({
           alignment: AlignmentType.CENTER,
           children: [
-            new TextRun({ text: `${uebungsname} · inside-the-box.org · Seite `, font, size: 18, color: "808080" }),
+            new TextRun({ text: `${uebungsname} · inside-the-box.org · erstellt ${nowLabel()} · Seite `, font, size: 18, color: "808080" }),
             new TextRun({ children: [PageNumber.CURRENT], font, size: 18, color: "808080" }),
           ],
         })],
@@ -179,8 +214,16 @@ function makeSection(uebungsname: string, children: any[]) {
 
 // ─── Document builders ───
 function buildTrainerGuide(ex: Exercise, bank: BankProfile): Document {
+  const klass = ex.groundTruth.klassifizierungsZeitpunkt;
+  const meldeRows = ex.meldepflichten.map((m) => {
+    const berechnet = computeMeldezeit(klass, m.frist);
+    return [m.adressat, m.frist, berechnet || "—"];
+  });
   const children: any[] = [
     ...titleBlock("Trainer Guide", ex.uebungsname, "NUR FÜR DIE ÜBUNGSLEITUNG"),
+    H2("Inhaltsverzeichnis"),
+    new TableOfContents("Inhaltsverzeichnis", { hyperlink: true, headingStyleRange: "1-3" }),
+    new Paragraph({ children: [new PageBreak()] }),
     H2("Übungsübersicht"),
     kvTable([
       ["Übungsname", ex.uebungsname],
@@ -188,6 +231,7 @@ function buildTrainerGuide(ex: Exercise, bank: BankProfile): Document {
       ["Storyline", ex.kurzbeschreibung],
       ["Anzahl Injects", String(ex.injects.length)],
       ["Rollen", String(ex.rollen.length)],
+      ["Klassifizierung als schwerwiegend", klass || "—"],
     ]),
     H2("Übungsziele"),
     ...ex.uebungsziele.map((z) => bullet(z, "numbers")),
@@ -201,6 +245,9 @@ function buildTrainerGuide(ex: Exercise, bank: BankProfile): Document {
     ...ex.groundTruth.erschwernisse.map((e) => bullet(e)),
     H2("Ablaufplan"),
     dataTable(["Zeit", "Abschnitt", "Inhalt"], ex.ablaufplan.map((a) => [a.zeit, a.abschnitt, a.inhalt]), [1600, 2400, 5360]),
+    H2("Meldepflichten & Fristen"),
+    P([T(klass ? `Bezugspunkt: Klassifizierung als schwerwiegender Vorfall um ${klass}.` : "Bezugspunkt Klassifizierungszeitpunkt nicht gesetzt – Uhrzeiten manuell rechnen.", { italics: true })]),
+    dataTable(["Adressat", "Frist (Vorgabe)", "Berechnete Uhrzeit"], meldeRows, [3200, 3200, 2960]),
     H2("Übungsregeln"),
     ...[
       "Zeit im Übungsraum entspricht der Simulationszeit; Übungsleitung steuert Sprünge.",
@@ -225,7 +272,8 @@ function buildTrainerGuide(ex: Exercise, bank: BankProfile): Document {
 
   return new Document({
     creator: "ERNSTLFALL", title: `${ex.uebungsname} – Trainer Guide`,
-    styles: { default: { document: { run: { font, size: 22 } } } },
+    features: { updateFields: true },
+    styles: styleDoc,
     numbering: bulletsNumbering(),
     sections: [makeSection(ex.uebungsname, children)],
   });
@@ -238,12 +286,14 @@ function buildInjectCards(ex: Exercise): Document {
   ex.injects.forEach((inj, idx) => {
     if (idx > 0) kids.push(new Paragraph({ children: [new PageBreak()] }));
     kids.push(H2(`${inj.id} – ${inj.titel}`));
-    kids.push(kvTable([
+    const rows: [string, string][] = [
       ["Zeitpunkt", inj.zeitpunkt],
       ["Phase", inj.pflicht ? `${inj.phase} · PFLICHT-INJECT` : inj.phase],
       ["Thema", inj.themaTag],
       ["Einspielkanal", inj.einspielkanal],
-    ], 2400, 6960));
+    ];
+    if (inj.abhaengigVon) rows.push(["Anschluss an", inj.abhaengigVon]);
+    kids.push(kvTable(rows, 2400, 6960));
     kids.push(H3("Inhalt (ausspielen)"));
     kids.push(P([T(inj.inhalt)]));
     kids.push(H3("Erwartete Reaktion"));
@@ -251,7 +301,7 @@ function buildInjectCards(ex: Exercise): Document {
   });
   return new Document({
     creator: "ERNSTLFALL", title: `${ex.uebungsname} – Inject-Karten`,
-    styles: { default: { document: { run: { font, size: 22 } } } },
+    styles: styleDoc,
     numbering: bulletsNumbering(),
     sections: [makeSection(ex.uebungsname, kids)],
   });
@@ -273,7 +323,7 @@ function buildRollenkarten(ex: Exercise): Document {
   });
   return new Document({
     creator: "ERNSTLFALL", title: `${ex.uebungsname} – Rollenkarten`,
-    styles: { default: { document: { run: { font, size: 22 } } } },
+    styles: styleDoc,
     numbering: bulletsNumbering(),
     sections: [makeSection(ex.uebungsname, kids)],
   });
@@ -324,7 +374,7 @@ function buildWorksheet(ex: Exercise): Document {
   ];
   return new Document({
     creator: "ERNSTLFALL", title: `${ex.uebungsname} – Teilnehmer-Arbeitsbuch`,
-    styles: { default: { document: { run: { font, size: 22 } } } },
+    styles: styleDoc,
     numbering: bulletsNumbering(),
     sections: [makeSection(ex.uebungsname, kids)],
   });
@@ -333,6 +383,9 @@ function buildWorksheet(ex: Exercise): Document {
 function buildDrehbuch(ex: Exercise): Document {
   const kids: any[] = [
     ...titleBlock("Trainer-Drehbuch", ex.uebungsname, "NUR FÜR DIE ÜBUNGSLEITUNG"),
+    H2("Inhaltsverzeichnis"),
+    new TableOfContents("Inhaltsverzeichnis", { hyperlink: true, headingStyleRange: "1-3" }),
+    new Paragraph({ children: [new PageBreak()] }),
     H2("Moderations-Grundhaltung"),
     ...[
       "Ruhe halten, Fragen zurückspiegeln, nicht Lösungen liefern.",
@@ -372,7 +425,8 @@ function buildDrehbuch(ex: Exercise): Document {
   ex.hotwashHinweise.forEach((h) => kids.push(bullet(h)));
   return new Document({
     creator: "ERNSTLFALL", title: `${ex.uebungsname} – Trainer-Drehbuch`,
-    styles: { default: { document: { run: { font, size: 22 } } } },
+    features: { updateFields: true },
+    styles: styleDoc,
     numbering: bulletsNumbering(),
     sections: [makeSection(ex.uebungsname, kids)],
   });
@@ -429,11 +483,45 @@ export default function Ernstfall() {
   const [downloading, setDownloading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const genTimerRef = useRef<number | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   function pushLog(msg: string) {
     const now = new Date();
     const t = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
     setLog((l) => [...l, { t, msg }].slice(-20));
+  }
+
+  // Draft-Autosave (Wizard-Eingaben)
+  const DRAFT_KEY = "ernstlfall.draft.v1";
+  const draftLoaded = useRef(false);
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (raw) {
+        const d = JSON.parse(raw);
+        if (d.bank) setBank(d.bank);
+        if (d.topics) setTopics(d.topics);
+        if (d.dauer) setDauer(d.dauer);
+        if (d.rollenumfang) setRollenumfang(d.rollenumfang);
+        if (d.difficulty) setDifficulty(d.difficulty);
+        if (typeof d.dora === "boolean") setDora(d.dora);
+      }
+    } catch { /* ignore */ }
+    draftLoaded.current = true;
+  }, []);
+  useEffect(() => {
+    if (!draftLoaded.current) return;
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ bank, topics, dauer, rollenumfang, difficulty, dora }));
+    } catch { /* ignore */ }
+  }, [bank, topics, dauer, rollenumfang, difficulty, dora]);
+
+  function cancelGeneration() {
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
+      pushLog("Generierung durch Nutzer abgebrochen");
+    }
   }
 
   function resetAll() {
@@ -445,6 +533,7 @@ export default function Ernstfall() {
     setDauer("3h"); setRollenumfang("voll"); setDifficulty("Fortgeschritten"); setDora(true);
     setExercise(null); setError(null);
     setProgress(""); setProgressPct(0); setLog([]);
+    try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
   }
 
   const injectCount = dauer === "2h" ? 8 : dauer === "3h" ? 11 : 14;
@@ -511,6 +600,8 @@ export default function Ernstfall() {
       pushLog(s.log);
     }, 4500) as unknown as number;
 
+    const ac = new AbortController();
+    abortRef.current = ac;
     try {
       const projectRef = import.meta.env.VITE_SUPABASE_PROJECT_ID;
       const anon = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -522,6 +613,7 @@ export default function Ernstfall() {
           topics: selectedTopics.map(([name, weight]) => ({ name, weight })),
           dauer, injectCount, rollenumfang, difficulty, dora,
         }),
+        signal: ac.signal,
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Generierung fehlgeschlagen");
@@ -530,10 +622,16 @@ export default function Ernstfall() {
       setProgress("Übung erfolgreich generiert");
       pushLog(`Übung "${data.exercise?.uebungsname ?? ""}" erhalten`);
     } catch (e: any) {
-      setError(e.message || "Fehler bei der Generierung");
-      pushLog("Fehler: " + (e.message || "unbekannt"));
+      if (e?.name === "AbortError") {
+        setError("Generierung abgebrochen");
+        setProgress("Abgebrochen");
+      } else {
+        setError(e.message || "Fehler bei der Generierung");
+        pushLog("Fehler: " + (e.message || "unbekannt"));
+      }
     } finally {
       if (genTimerRef.current) { window.clearInterval(genTimerRef.current); genTimerRef.current = null; }
+      abortRef.current = null;
       setLoading(false);
     }
   }
@@ -801,9 +899,19 @@ export default function Ernstfall() {
                     ))}
                   </div>
                 )}
-                <p className="text-[11px] text-neutral-500">
-                  Bitte warten – je nach Umfang dauert die Generierung 30–90 Sekunden.
-                </p>
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-[11px] text-neutral-500">
+                    Bitte warten – je nach Umfang dauert die Generierung 30–90 Sekunden.
+                  </p>
+                  {loading && (
+                    <button
+                      onClick={cancelGeneration}
+                      className="px-3 py-1.5 rounded border border-red-300 text-red-700 text-xs hover:bg-red-50"
+                    >
+                      ✕ Abbrechen
+                    </button>
+                  )}
+                </div>
               </div>
             )}
             {error && <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded px-3 py-2">{error}</p>}
