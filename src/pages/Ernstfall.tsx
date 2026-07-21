@@ -533,6 +533,7 @@ export default function Ernstfall() {
     setDauer("3h"); setRollenumfang("voll"); setDifficulty("Fortgeschritten"); setDora(true);
     setExercise(null); setError(null);
     setProgress(""); setProgressPct(0); setLog([]);
+    try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
   }
 
   const injectCount = dauer === "2h" ? 8 : dauer === "3h" ? 11 : 14;
