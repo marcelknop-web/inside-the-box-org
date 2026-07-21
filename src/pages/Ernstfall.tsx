@@ -202,7 +202,7 @@ function makeSection(uebungsname: string, children: any[]) {
         children: [new Paragraph({
           alignment: AlignmentType.CENTER,
           children: [
-            new TextRun({ text: `${uebungsname} · inside-the-box.org · Seite `, font, size: 18, color: "808080" }),
+            new TextRun({ text: `${uebungsname} · inside-the-box.org · erstellt ${nowLabel()} · Seite `, font, size: 18, color: "808080" }),
             new TextRun({ children: [PageNumber.CURRENT], font, size: 18, color: "808080" }),
           ],
         })],
