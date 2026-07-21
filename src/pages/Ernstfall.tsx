@@ -214,8 +214,16 @@ function makeSection(uebungsname: string, children: any[]) {
 
 // ─── Document builders ───
 function buildTrainerGuide(ex: Exercise, bank: BankProfile): Document {
+  const klass = ex.groundTruth.klassifizierungsZeitpunkt;
+  const meldeRows = ex.meldepflichten.map((m) => {
+    const berechnet = computeMeldezeit(klass, m.frist);
+    return [m.adressat, m.frist, berechnet || "—"];
+  });
   const children: any[] = [
     ...titleBlock("Trainer Guide", ex.uebungsname, "NUR FÜR DIE ÜBUNGSLEITUNG"),
+    H2("Inhaltsverzeichnis"),
+    new TableOfContents("Inhaltsverzeichnis", { hyperlink: true, headingStyleRange: "1-3" }),
+    new Paragraph({ children: [new PageBreak()] }),
     H2("Übungsübersicht"),
     kvTable([
       ["Übungsname", ex.uebungsname],
@@ -223,6 +231,7 @@ function buildTrainerGuide(ex: Exercise, bank: BankProfile): Document {
       ["Storyline", ex.kurzbeschreibung],
       ["Anzahl Injects", String(ex.injects.length)],
       ["Rollen", String(ex.rollen.length)],
+      ["Klassifizierung als schwerwiegend", klass || "—"],
     ]),
     H2("Übungsziele"),
     ...ex.uebungsziele.map((z) => bullet(z, "numbers")),
@@ -236,6 +245,9 @@ function buildTrainerGuide(ex: Exercise, bank: BankProfile): Document {
     ...ex.groundTruth.erschwernisse.map((e) => bullet(e)),
     H2("Ablaufplan"),
     dataTable(["Zeit", "Abschnitt", "Inhalt"], ex.ablaufplan.map((a) => [a.zeit, a.abschnitt, a.inhalt]), [1600, 2400, 5360]),
+    H2("Meldepflichten & Fristen"),
+    P([T(klass ? `Bezugspunkt: Klassifizierung als schwerwiegender Vorfall um ${klass}.` : "Bezugspunkt Klassifizierungszeitpunkt nicht gesetzt – Uhrzeiten manuell rechnen.", { italics: true })]),
+    dataTable(["Adressat", "Frist (Vorgabe)", "Berechnete Uhrzeit"], meldeRows, [3200, 3200, 2960]),
     H2("Übungsregeln"),
     ...[
       "Zeit im Übungsraum entspricht der Simulationszeit; Übungsleitung steuert Sprünge.",
@@ -260,7 +272,8 @@ function buildTrainerGuide(ex: Exercise, bank: BankProfile): Document {
 
   return new Document({
     creator: "ERNSTLFALL", title: `${ex.uebungsname} – Trainer Guide`,
-    styles: { default: { document: { run: { font, size: 22 } } } },
+    features: { updateFields: true },
+    styles: styleDoc,
     numbering: bulletsNumbering(),
     sections: [makeSection(ex.uebungsname, children)],
   });
