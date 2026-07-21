@@ -286,12 +286,14 @@ function buildInjectCards(ex: Exercise): Document {
   ex.injects.forEach((inj, idx) => {
     if (idx > 0) kids.push(new Paragraph({ children: [new PageBreak()] }));
     kids.push(H2(`${inj.id} – ${inj.titel}`));
-    kids.push(kvTable([
+    const rows: [string, string][] = [
       ["Zeitpunkt", inj.zeitpunkt],
       ["Phase", inj.pflicht ? `${inj.phase} · PFLICHT-INJECT` : inj.phase],
       ["Thema", inj.themaTag],
       ["Einspielkanal", inj.einspielkanal],
-    ], 2400, 6960));
+    ];
+    if (inj.abhaengigVon) rows.push(["Anschluss an", inj.abhaengigVon]);
+    kids.push(kvTable(rows, 2400, 6960));
     kids.push(H3("Inhalt (ausspielen)"));
     kids.push(P([T(inj.inhalt)]));
     kids.push(H3("Erwartete Reaktion"));
@@ -299,7 +301,7 @@ function buildInjectCards(ex: Exercise): Document {
   });
   return new Document({
     creator: "ERNSTLFALL", title: `${ex.uebungsname} – Inject-Karten`,
-    styles: { default: { document: { run: { font, size: 22 } } } },
+    styles: styleDoc,
     numbering: bulletsNumbering(),
     sections: [makeSection(ex.uebungsname, kids)],
   });
