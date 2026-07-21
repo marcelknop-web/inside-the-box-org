@@ -44,12 +44,13 @@ interface Inject {
   themaTag: string; einspielkanal: string; inhalt: string; erwarteteReaktion: string;
   regieanweisung: string; diskussionsimpulse: string[]; rueckfragen: { frage: string; antwort: string }[];
   beobachtungsfokus: string;
+  abhaengigVon?: string;
 }
 interface Rolle { name: string; profil: string; aufgaben: string[]; spannungsfeld: string }
 interface Exercise {
   uebungsname: string;
   kurzbeschreibung: string;
-  groundTruth: { bankProfil: string; angreiferOderUrsache: string; timeline: {zeitpunkt:string;ereignis:string}[]; erschwernisse: string[] };
+  groundTruth: { bankProfil: string; angreiferOderUrsache: string; timeline: {zeitpunkt:string;ereignis:string}[]; erschwernisse: string[]; klassifizierungsZeitpunkt?: string };
   uebungsziele: string[];
   ablaufplan: { zeit: string; abschnitt: string; inhalt: string }[];
   injects: Inject[];
