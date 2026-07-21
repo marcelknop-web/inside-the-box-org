@@ -82,11 +82,45 @@ const P = (children: TextRun[], opt: Partial<{ heading: (typeof HeadingLevel)[ke
   new Paragraph({ children, heading: opt.heading, alignment: opt.align, spacing: { after: opt.spacing ?? 120 } });
 
 const H1 = (text: string) =>
-  new Paragraph({ children: [new TextRun({ text, font, bold: true, color: DARKBLUE, size: 40 })], spacing: { before: 240, after: 200 } });
+  new Paragraph({ heading: HeadingLevel.HEADING_1, children: [new TextRun({ text, font, bold: true, color: DARKBLUE, size: 40 })], spacing: { before: 240, after: 200 } });
 const H2 = (text: string) =>
-  new Paragraph({ children: [new TextRun({ text, font, bold: true, color: DARKBLUE, size: 30 })], spacing: { before: 280, after: 140 } });
+  new Paragraph({ heading: HeadingLevel.HEADING_2, children: [new TextRun({ text, font, bold: true, color: DARKBLUE, size: 30 })], spacing: { before: 280, after: 140 }, keepNext: true });
 const H3 = (text: string) =>
-  new Paragraph({ children: [new TextRun({ text, font, bold: true, color: DARKBLUE, size: 26 })], spacing: { before: 200, after: 100 } });
+  new Paragraph({ heading: HeadingLevel.HEADING_3, children: [new TextRun({ text, font, bold: true, color: DARKBLUE, size: 26 })], spacing: { before: 200, after: 100 }, keepNext: true });
+
+function computeMeldezeit(klass: string | undefined, frist: string): string {
+  if (!klass || !/^\d{1,2}:\d{2}$/.test(klass)) return "";
+  const [hh, mm] = klass.split(":").map((n) => parseInt(n, 10));
+  const base = new Date(2025, 0, 1, hh, mm);
+  const mHour = /T\s*\+\s*(\d+)\s*h/i.exec(frist);
+  if (mHour) {
+    const h = parseInt(mHour[1], 10);
+    const d = new Date(base.getTime() + h * 3600_000);
+    const day = h >= 24 ? ` (+${Math.floor(h / 24)}d)` : "";
+    return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}${day}`;
+  }
+  return "";
+}
+
+const styleDoc = {
+  default: { document: { run: { font, size: 22 } } },
+  paragraphStyles: [
+    { id: "Heading1", name: "Heading 1", basedOn: "Normal", next: "Normal", quickFormat: true,
+      run: { size: 40, bold: true, font, color: DARKBLUE },
+      paragraph: { spacing: { before: 240, after: 200 }, outlineLevel: 0 } },
+    { id: "Heading2", name: "Heading 2", basedOn: "Normal", next: "Normal", quickFormat: true,
+      run: { size: 30, bold: true, font, color: DARKBLUE },
+      paragraph: { spacing: { before: 280, after: 140 }, outlineLevel: 1 } },
+    { id: "Heading3", name: "Heading 3", basedOn: "Normal", next: "Normal", quickFormat: true,
+      run: { size: 26, bold: true, font, color: DARKBLUE },
+      paragraph: { spacing: { before: 200, after: 100 }, outlineLevel: 2 } },
+  ],
+};
+
+const nowLabel = () => {
+  const d = new Date();
+  return `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()}`;
+};
 
 const cellBorder = { style: BorderStyle.SINGLE, size: 4, color: "BFBFBF" };
 const cellBorders = { top: cellBorder, bottom: cellBorder, left: cellBorder, right: cellBorder };
