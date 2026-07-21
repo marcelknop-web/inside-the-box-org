@@ -1103,6 +1103,7 @@ const useServiceContent = () => {
             </button>
           </div>
         </Block>
+        <VisitCounter />
       </TypedSection>
     ),
     'ai-workflows': () => (
