@@ -323,7 +323,7 @@ function buildRollenkarten(ex: Exercise): Document {
   });
   return new Document({
     creator: "ERNSTLFALL", title: `${ex.uebungsname} – Rollenkarten`,
-    styles: { default: { document: { run: { font, size: 22 } } } },
+    styles: styleDoc,
     numbering: bulletsNumbering(),
     sections: [makeSection(ex.uebungsname, kids)],
   });
@@ -374,7 +374,7 @@ function buildWorksheet(ex: Exercise): Document {
   ];
   return new Document({
     creator: "ERNSTLFALL", title: `${ex.uebungsname} – Teilnehmer-Arbeitsbuch`,
-    styles: { default: { document: { run: { font, size: 22 } } } },
+    styles: styleDoc,
     numbering: bulletsNumbering(),
     sections: [makeSection(ex.uebungsname, kids)],
   });
@@ -422,7 +422,7 @@ function buildDrehbuch(ex: Exercise): Document {
   ex.hotwashHinweise.forEach((h) => kids.push(bullet(h)));
   return new Document({
     creator: "ERNSTLFALL", title: `${ex.uebungsname} – Trainer-Drehbuch`,
-    styles: { default: { document: { run: { font, size: 22 } } } },
+    styles: styleDoc,
     numbering: bulletsNumbering(),
     sections: [makeSection(ex.uebungsname, kids)],
   });
