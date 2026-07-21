@@ -7,7 +7,7 @@ import { saveAs } from "file-saver";
 import {
   Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, Header, Footer,
   AlignmentType, PageNumber, HeadingLevel, LevelFormat, BorderStyle, WidthType, ShadingType,
-  PageBreak,
+  PageBreak, TableOfContents,
 } from "docx";
 
 // ─── Design tokens (strict brand: only ERNSTLFALL / inside-the-box.org) ───
