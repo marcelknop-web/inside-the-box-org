@@ -491,6 +491,39 @@ export default function Ernstfall() {
     setLog((l) => [...l, { t, msg }].slice(-20));
   }
 
+  // Draft-Autosave (Wizard-Eingaben)
+  const DRAFT_KEY = "ernstlfall.draft.v1";
+  const draftLoaded = useRef(false);
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (raw) {
+        const d = JSON.parse(raw);
+        if (d.bank) setBank(d.bank);
+        if (d.topics) setTopics(d.topics);
+        if (d.dauer) setDauer(d.dauer);
+        if (d.rollenumfang) setRollenumfang(d.rollenumfang);
+        if (d.difficulty) setDifficulty(d.difficulty);
+        if (typeof d.dora === "boolean") setDora(d.dora);
+      }
+    } catch { /* ignore */ }
+    draftLoaded.current = true;
+  }, []);
+  useEffect(() => {
+    if (!draftLoaded.current) return;
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ bank, topics, dauer, rollenumfang, difficulty, dora }));
+    } catch { /* ignore */ }
+  }, [bank, topics, dauer, rollenumfang, difficulty, dora]);
+
+  function cancelGeneration() {
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
+      pushLog("Generierung durch Nutzer abgebrochen");
+    }
+  }
+
   function resetAll() {
     if (!confirm("Alle Eingaben verwerfen und von vorne beginnen?")) return;
     setStep(1);
