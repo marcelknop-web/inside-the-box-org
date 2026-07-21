@@ -47,6 +47,7 @@ import { RelatedServices } from '@/components/RelatedServices';
 import { NewDateBadge } from '@/components/NewDateBadge';
 import { SiteChrome } from '@/components/SiteChrome';
 import { PasswordGate } from '@/components/PasswordGate';
+import { VisitCounter } from '@/components/VisitCounter';
 
 // AI Lab tool publication dates (ISO YYYY-MM-DD).
 // Tools listed here show a "Neu/New/Nouveau" badge for 30 days from this date.
@@ -1103,6 +1104,7 @@ const useServiceContent = () => {
             </button>
           </div>
         </Block>
+        <VisitCounter />
       </TypedSection>
     ),
     'ai-workflows': () => (

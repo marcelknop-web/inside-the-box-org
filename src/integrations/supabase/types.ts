@@ -83,6 +83,24 @@ export type Database = {
         }
         Relationships: []
       }
+      page_visits: {
+        Row: {
+          count: number
+          page: string
+          updated_at: string
+        }
+        Insert: {
+          count?: number
+          page: string
+          updated_at?: string
+        }
+        Update: {
+          count?: number
+          page?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ttx_registrations: {
         Row: {
           company: string | null
@@ -127,7 +145,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_page_visit: { Args: { p_page: string }; Returns: number }
     }
     Enums: {
       [_ in never]: never
