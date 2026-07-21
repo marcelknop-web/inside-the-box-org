@@ -483,6 +483,7 @@ export default function Ernstfall() {
   const [downloading, setDownloading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const genTimerRef = useRef<number | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   function pushLog(msg: string) {
     const now = new Date();
