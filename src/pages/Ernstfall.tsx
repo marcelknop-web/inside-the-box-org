@@ -899,9 +899,19 @@ export default function Ernstfall() {
                     ))}
                   </div>
                 )}
-                <p className="text-[11px] text-neutral-500">
-                  Bitte warten – je nach Umfang dauert die Generierung 30–90 Sekunden.
-                </p>
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-[11px] text-neutral-500">
+                    Bitte warten – je nach Umfang dauert die Generierung 30–90 Sekunden.
+                  </p>
+                  {loading && (
+                    <button
+                      onClick={cancelGeneration}
+                      className="px-3 py-1.5 rounded border border-red-300 text-red-700 text-xs hover:bg-red-50"
+                    >
+                      ✕ Abbrechen
+                    </button>
+                  )}
+                </div>
               </div>
             )}
             {error && <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded px-3 py-2">{error}</p>}
