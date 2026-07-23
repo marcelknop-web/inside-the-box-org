@@ -331,10 +331,10 @@ const Overview = () => {
     lang === 'de' ? '/ REFERENZEN' : lang === 'fr' ? '/ RÉFÉRENCES' : '/ REFERENCES';
   const referenceHeadline =
     lang === 'de'
-      ? 'Vertrauen aus 35 Jahren gemeinsamer Erfahrung, 400+ Projekten.'
+      ? 'Vertrauen aus 35 Jahren gemeinsamer Erfahrung, 400+ Projekten für 270+ Kunden.'
       : lang === 'fr'
-      ? 'Confiance bâtie sur 35 ans d\'expérience commune et 400+ projets.'
-      : 'Trust built on 35 years of shared experience and 400+ projects.';
+      ? 'Confiance bâtie sur 35 ans d\'expérience commune, 400+ projets pour 270+ clients.'
+      : 'Trust built on 35 years of shared experience, 400+ projects for 270+ clients.';
   const referenceSubline =
     lang === 'de'
       ? 'KI-Websites baut jeder. Belastbare Cybersecurity beweist sich am Mandat.'
@@ -853,10 +853,10 @@ const Overview = () => {
             style={{ animationDelay: '260ms', animationFillMode: 'forwards' }}
           >
             {lang === 'de'
-              ? '35 Jahre gemeinsame Erfahrung. 400+ Projekte in regulierten und kritischen Umgebungen.'
+              ? '35 Jahre gemeinsame Erfahrung. 400+ Projekte für 270+ Kunden in regulierten und kritischen Umgebungen.'
               : lang === 'fr'
-              ? '35 ans d\'expérience commune. 400+ projets dans des environnements régulés et critiques.'
-              : '35 years of shared experience. 400+ projects across regulated and critical environments.'}
+              ? '35 ans d\'expérience commune. 400+ projets pour 270+ clients dans des environnements régulés et critiques.'
+              : '35 years of shared experience. 400+ projects for 270+ clients across regulated and critical environments.'}
           </p>
 
           {/* Featured cases — visually dominant cards */}
