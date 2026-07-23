@@ -678,7 +678,7 @@ export const en = {
       focusLabel: 'Focus Areas',
       focus: 'ISMS · TISAX · NIS2 · PCI-DSS · Cyber Crisis Management · TIBER · BCM',
       certsLabel: 'Certifications',
-      certs: 'CISSP · CISA · ISO/IEC 27001 & 22301 Lead Auditor · BSI Baseline Protection Practitioner',
+      certs: 'CISSP · CISA · ISO/IEC 27001 & 22301 Lead Auditor · ISO/IEC 42001 Lead Auditor · BSI Baseline Protection Practitioner',
       eduLabel: 'Education',
       edu: 'Dipl.-Ing. Mechanical Engineering',
       langLabel: 'Languages',

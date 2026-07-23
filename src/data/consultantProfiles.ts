@@ -5,7 +5,6 @@ export const consultantProfiles = [
     name: 'Marcel Knop',
     role: 'Senior Cybersecurity Consultant',
     imageUrl: marcelPhoto.url,
-    imagePosition: 'center 20%',
     linkedinUrl: 'https://www.linkedin.com/in/inside-the-box',
     bio: 'I help organisations establish cybersecurity and resilience capabilities that remain effective in practice.',
     meta: [
