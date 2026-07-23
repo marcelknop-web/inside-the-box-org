@@ -1259,7 +1259,7 @@ const useServiceContent = () => {
             return (
               <Block key={key} className="bg-secondary/30">
                 <div className="flex items-start gap-4 mb-4">
-                  <img src={profile.imageUrl} alt={profile.name} className="w-20 h-20 rounded-full object-cover border-2 border-primary/40 shadow-lg" />
+                  <img src={profile.imageUrl} alt={profile.name} style={{ objectPosition: (profile as any).imagePosition ?? 'center' }} className="w-20 h-20 rounded-full object-cover border-2 border-primary/40 shadow-lg" />
                   <div>
                     <p className="text-primary font-bold text-base font-sans">{profile.name} · {profile.role}</p>
                     {profile.linkedinUrl && (
