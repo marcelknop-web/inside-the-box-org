@@ -163,6 +163,7 @@ export const SiteChrome = ({
                       src={p.imageUrl}
                       alt={p.name}
                       className="w-16 h-16 rounded-full object-cover border border-primary/30"
+                      style={{ objectPosition: (p as any).imagePosition ?? 'center' }}
                       loading="lazy"
                     />
                     <div className="flex-1 min-w-0">
