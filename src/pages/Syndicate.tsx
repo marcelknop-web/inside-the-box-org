@@ -1285,6 +1285,40 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     };
   }, []);
 
+  // Auto-start in fullscreen whenever the game is mounted.
+  // Browsers may require a user gesture; if the immediate request is denied,
+  // we retry once on the first user interaction with the game shell.
+  const autoFullscreenAttemptedRef = useRef(false);
+  useEffect(() => {
+    if (autoFullscreenAttemptedRef.current) return;
+    autoFullscreenAttemptedRef.current = true;
+
+    const requestFs = () => {
+      const el = shellRef.current;
+      if (!el) return;
+      const doc = document as Document & { webkitFullscreenElement?: Element };
+      if (document.fullscreenElement || doc.webkitFullscreenElement) return;
+      const anyEl = el as HTMLElement & { webkitRequestFullscreen?: () => Promise<void> };
+      (anyEl.requestFullscreen?.() ?? anyEl.webkitRequestFullscreen?.())?.catch(() => {
+        // Fallback for browsers without a native Fullscreen API (e.g. iOS Safari).
+        if (typeof anyEl.requestFullscreen !== "function" && typeof anyEl.webkitRequestFullscreen !== "function") {
+          setIsFullscreen(true);
+        }
+      });
+    };
+
+    // Try immediately on mount (works when launched via direct route or user click).
+    requestFs();
+
+    // Safety net: if the browser blocked the immediate request, retry on first interaction.
+    const retryOnInteraction = () => {
+      const doc = document as Document & { webkitFullscreenElement?: Element };
+      if (!document.fullscreenElement && !doc.webkitFullscreenElement) requestFs();
+    };
+    window.addEventListener("pointerdown", retryOnInteraction, { once: true });
+    return () => window.removeEventListener("pointerdown", retryOnInteraction);
+  }, []);
+
   // Progression + game modes
   const [gameMode, setGameMode] = useState<"normal" | "daily" | "seeded">("normal");
   const [seedInput, setSeedInput] = useState("");
