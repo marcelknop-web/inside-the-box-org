@@ -1492,7 +1492,47 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
     setPhase("round-intro");
   }, []);
 
-  /* ---- choose op + spin ---- */
+  /* ---- choose op → strike (fly-over) → spin ----
+     Flow rule: after picking an operation we jump straight into the cinematic
+     fly-over on the globe (no wheel preview), then reveal the wheel already
+     spinning. The wheel is never shown before the fly-over. */
+  const runSpinFor = useCallback(
+    (op: Operation) => {
+      if (!human) return;
+      snd.spinStart();
+      setPhase("spinning");
+      setSpinning(true);
+      const landing = rand() * 360;
+      const res = resolveSpin(op, round, event, human, landing);
+      setResult(res);
+      const base = rotationRef.current;
+      const currentMod = ((base % 360) + 360) % 360;
+      const target = base + (360 - currentMod) + (360 * 5) + (360 - landing);
+      rotationRef.current = target;
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setRotation(target));
+      });
+
+      let ticks = 0;
+      const tickInt = reduceMotion
+        ? null
+        : setInterval(() => {
+            snd.tick();
+            ticks++;
+            if (ticks > 26) clearInterval(tickInt as ReturnType<typeof setInterval>);
+          }, 130);
+
+      window.setTimeout(() => {
+        if (tickInt) clearInterval(tickInt);
+        setSpinning(false);
+        snd.land();
+        finishHumanSpin(op, res);
+      }, reduceMotion ? 500 : 4300);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [human, round, event, reduceMotion]
+  );
+
   const pickOp = useCallback(
     (op: Operation) => {
       if (!human) return;
@@ -1503,24 +1543,23 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       setSegments(segs);
       setRotation(0);
       rotationRef.current = 0;
-      setPhase("choose");
+      // Fly-over first — no wheel preview.
+      snd.reveal();
+      setPhase("strike");
+      if (strikeTimeoutRef.current) window.clearTimeout(strikeTimeoutRef.current);
+      strikeTimeoutRef.current = window.setTimeout(() => {
+        strikeTimeoutRef.current = null;
+        runSpinFor(op);
+      }, reduceMotion ? 400 : 5200);
     },
-    [human, round, event]
+    [human, round, event, reduceMotion, runSpinFor]
   );
 
-  // Launch: play the strike on the globe first (showing the victim company),
-  // then reveal the wheel and run the actual spin.
+  // Kept for legacy callers — routes through runSpinFor.
   const spin = useCallback(() => {
     if (!human || !selectedOp) return;
-    snd.reveal();
-    setPhase("strike");
-    if (strikeTimeoutRef.current) window.clearTimeout(strikeTimeoutRef.current);
-    strikeTimeoutRef.current = window.setTimeout(() => {
-      strikeTimeoutRef.current = null;
-      runSpin();
-    }, reduceMotion ? 400 : 5200);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [human, selectedOp, reduceMotion]);
+    runSpinFor(selectedOp);
+  }, [human, selectedOp, runSpinFor]);
 
   // Skip the strike cinematic and go straight to the wheel.
   const skipStrike = useCallback(() => {
@@ -1528,47 +1567,9 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
       window.clearTimeout(strikeTimeoutRef.current);
       strikeTimeoutRef.current = null;
     }
-    runSpin();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [human, selectedOp, round, event, reduceMotion]);
+    if (selectedOp) runSpinFor(selectedOp);
+  }, [selectedOp, runSpinFor]);
 
-  const runSpin = useCallback(() => {
-    if (!human || !selectedOp) return;
-    snd.spinStart();
-    setPhase("spinning");
-    setSpinning(true);
-    // predetermine landing
-    const landing = rand() * 360;
-    const res = resolveSpin(selectedOp, round, event, human, landing);
-    setResult(res);
-    // rotate so that `landing` sits under the top pointer
-    const base = rotationRef.current;
-    const currentMod = ((base % 360) + 360) % 360;
-    const target = base + (360 - currentMod) + (360 * 5) + (360 - landing);
-    rotationRef.current = target;
-    // Defer the rotation update so the newly-mounted spinning Wheel starts at
-    // its current angle and then animates to the target (transition triggers).
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => setRotation(target));
-    });
-
-    // ticking sound during spin (skipped when motion is reduced)
-    let ticks = 0;
-    const tickInt = reduceMotion
-      ? null
-      : setInterval(() => {
-          snd.tick();
-          ticks++;
-          if (ticks > 26) clearInterval(tickInt as ReturnType<typeof setInterval>);
-        }, 130);
-
-    window.setTimeout(() => {
-      if (tickInt) clearInterval(tickInt);
-      setSpinning(false);
-      snd.land();
-      finishHumanSpin(selectedOp, res);
-    }, reduceMotion ? 500 : 4300);
-  }, [human, selectedOp, round, event, reduceMotion]);
 
   const finishHumanSpin = useCallback(
     (op: Operation, res: SpinResult) => {
@@ -2089,6 +2090,23 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
           };
         })()
       : null;
+
+  // Precise target marker so the victim city reads exactly where the impact
+  // lands on the globe (same lat/lon math the fly-over camera & strike use).
+  const globePlayersWithTarget: GlobePlayer[] = globeAttack
+    ? [
+        ...globePlayers,
+        {
+          id: `target-${globeAttack.id}`,
+          color: "#ef4444",
+          lat: globeAttack.toLat,
+          lon: globeAttack.toLon,
+          active: true,
+          alive: true,
+        },
+      ]
+    : globePlayers;
+
 
   
 
@@ -2888,7 +2906,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               style={{ width: "92%", height: "92%" }}
             />
             <Globe
-              players={globePlayers}
+              players={globePlayersWithTarget}
               attack={globeAttack}
               attackFocus
               flyover
