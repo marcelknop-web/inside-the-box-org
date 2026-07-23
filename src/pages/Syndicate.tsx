@@ -2906,7 +2906,7 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
               style={{ width: "92%", height: "92%" }}
             />
             <Globe
-              players={globePlayers}
+              players={globePlayersWithTarget}
               attack={globeAttack}
               attackFocus
               flyover
