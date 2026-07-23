@@ -678,7 +678,7 @@ export const de = {
       focusLabel: 'Schwerpunkte',
       focus: 'ISMS · TISAX · NIS2 · PCI-DSS · Cyber-Krisenmanagement · TIBER · BCM',
       certsLabel: 'Zertifizierungen',
-      certs: 'ISO 27001 Lead Auditor · ISO 22301 Lead Auditor',
+      certs: 'CISSP · CISA · ISO 27001 Lead Auditor · ISO 22301 Lead Auditor · ISO/IEC 42001 Lead Auditor · BSI IT-Grundschutz-Praktiker',
       eduLabel: 'Ausbildung',
       edu: 'Dipl.-Ing. Maschinenbau',
       langLabel: 'Sprachen',

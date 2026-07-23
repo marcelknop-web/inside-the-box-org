@@ -678,7 +678,7 @@ export const fr = {
       focusLabel: 'Domaines clés',
       focus: 'SMSI · TISAX · NIS2 · PCI-DSS · Gestion de cyber-crise · TIBER · BCM',
       certsLabel: 'Certifications',
-      certs: 'ISO 27001 Lead Auditor · ISO 22301 Lead Auditor',
+      certs: 'CISSP · CISA · ISO 27001 Lead Auditor · ISO 22301 Lead Auditor · ISO/IEC 42001 Lead Auditor · BSI Baseline Protection Practitioner',
       eduLabel: 'Formation',
       edu: 'Dipl.-Ing. Génie mécanique',
       langLabel: 'Langues',
