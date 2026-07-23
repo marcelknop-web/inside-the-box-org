@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, ReactNode, useCallback, useMemo, lazy, Sus
 import { useParams, useNavigate } from 'react-router-dom';
 
 import { supabase } from '@/integrations/supabase/client';
-import { Send, Plus, MessageCircle, Shield, Target, BookOpen, AlertTriangle, Eye, Flame, Swords, Calendar, FileText, UserCheck, ChevronLeft, Menu, ShieldCheck, Search, Settings, Award, RotateCcw, Network, CreditCard, CheckCircle, FileCheck, Car, BarChart, RefreshCw, GraduationCap, ClipboardList, Zap, Crown, Users, Gamepad2, Monitor, Crosshair, CheckSquare, Mic, Radio, Video, Mail, Server, Bug, AlertCircle, MessageSquare, Building2, Plane, Landmark, Scale, Wifi, XCircle, HelpCircle, Loader2, X, Linkedin, Play, TrendingDown, Rocket, Fingerprint, Factory, Sparkles, Brain, Skull, Headphones } from 'lucide-react';
+import { Send, Plus, MessageCircle, Shield, Target, BookOpen, AlertTriangle, Eye, Flame, Swords, Calendar, FileText, UserCheck, ChevronLeft, Menu, ShieldCheck, Search, Settings, Award, RotateCcw, Network, CreditCard, CheckCircle, FileCheck, Car, BarChart, RefreshCw, GraduationCap, ClipboardList, Zap, Crown, Users, Gamepad2, Monitor, Crosshair, CheckSquare, Mic, Radio, Video, Mail, Server, Bug, AlertCircle, MessageSquare, Building2, Plane, Landmark, Scale, Wifi, XCircle, HelpCircle, Loader2, X, Linkedin, Play, TrendingDown, Rocket, Fingerprint, Factory, Sparkles, Brain, Skull } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PageMeta } from '@/components/PageMeta';
@@ -56,7 +56,6 @@ const AI_TOOL_ADDED_AT: Record<string, string> = {
   'soc-life': '2026-04-10',
   'ot-soc-life': '2026-04-24',
   'syndicate-game': '2026-07-02',
-  'auren': '2026-07-15',
   'ernstfall': '2026-07-20',
 };
 
@@ -1044,17 +1043,6 @@ const useServiceContent = () => {
                 <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentYtDesc')}</p>
               </div>
             </button>
-            {/* — Premium Audio Lab — */}
-            <a href="https://auren-soundscape.lovable.app" target="_blank" rel="noopener noreferrer" className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
-              <Headphones size={20} className="text-highlight mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-highlight font-semibold font-mono text-sm flex items-center gap-2 flex-wrap">
-                  Auren — Premium Audio
-                  {AI_TOOL_ADDED_AT['auren'] && <NewDateBadge addedAt={AI_TOOL_ADDED_AT['auren']} />}
-                </p>
-                <p className="text-foreground/80 text-xs">DJ Robo never sleeps</p>
-              </div>
-            </a>
             {/* — ERNSTLFALL: TTX Generator — nur per Direktlink /ernstfall — */}
             {/* — Arcade: Strategie-Spiel — */}
             <button onClick={() => setActive('syndicate-game')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
