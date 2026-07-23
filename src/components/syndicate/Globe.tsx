@@ -425,16 +425,94 @@ function EarthMesh({ players, attack, attackFocus = false, flyover = false }: { 
           metalness={0}
         />
       </mesh>
-      {/* atmosphere */}
-      <mesh scale={1.06}>
+      {/* inner atmosphere haze */}
+      <mesh scale={1.045}>
         <sphereGeometry args={[R, LOD.atmoSeg, LOD.atmoSeg]} />
-        <meshBasicMaterial color="#00bcd4" transparent opacity={0.06} side={THREE.BackSide} />
+        <meshBasicMaterial color="#00bcd4" transparent opacity={0.08} side={THREE.BackSide} />
+      </mesh>
+      {/* fresnel rim-light shell — soft cyan halo that reads as atmosphere */}
+      <mesh scale={1.14}>
+        <sphereGeometry args={[R, LOD.atmoSeg, LOD.atmoSeg]} />
+        <shaderMaterial
+          transparent
+          depthWrite={false}
+          side={THREE.BackSide}
+          blending={THREE.AdditiveBlending}
+          uniforms={{
+            uColor: { value: new THREE.Color("#00bcd4") },
+            uPower: { value: 2.4 },
+            uIntensity: { value: 0.9 },
+          }}
+          vertexShader={`
+            varying vec3 vNormal;
+            varying vec3 vViewDir;
+            void main() {
+              vec4 mv = modelViewMatrix * vec4(position, 1.0);
+              vNormal = normalize(normalMatrix * normal);
+              vViewDir = normalize(-mv.xyz);
+              gl_Position = projectionMatrix * mv;
+            }
+          `}
+          fragmentShader={`
+            varying vec3 vNormal;
+            varying vec3 vViewDir;
+            uniform vec3 uColor;
+            uniform float uPower;
+            uniform float uIntensity;
+            void main() {
+              float f = pow(1.0 - abs(dot(vNormal, vViewDir)), uPower);
+              gl_FragColor = vec4(uColor * f * uIntensity, f);
+            }
+          `}
+        />
       </mesh>
       {players.map((p) => (
         <Marker key={p.id} player={p} />
       ))}
       {attack && <Attack key={attack.id} attack={attack} />}
     </group>
+  );
+}
+
+// Deep-space starfield backdrop — additive dust of pinpoint stars so the
+// globe sits in a real void rather than a flat black canvas.
+function Starfield() {
+  const { positions, sizes } = useMemo(() => {
+    const count = IS_MOBILE ? 500 : 1400;
+    const pos = new Float32Array(count * 3);
+    const s = new Float32Array(count);
+    for (let i = 0; i < count; i++) {
+      // Uniform points on a large sphere so stars surround the globe.
+      const u = Math.random(), v = Math.random();
+      const theta = 2 * Math.PI * u;
+      const phi = Math.acos(2 * v - 1);
+      const r = 30 + Math.random() * 20;
+      pos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+      pos[i * 3 + 2] = r * Math.cos(phi);
+      s[i] = 0.6 + Math.random() * 1.8;
+    }
+    return { positions: pos, sizes: s };
+  }, []);
+  const ref = useRef<THREE.Points>(null);
+  useFrame((_, dt) => { if (ref.current) ref.current.rotation.y += dt * 0.005; });
+  return (
+    <points ref={ref}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+        <bufferAttribute attach="attributes-size" args={[sizes, 1]} />
+      </bufferGeometry>
+      <pointsMaterial
+        size={0.09}
+        sizeAttenuation
+        color="#cfe8ff"
+        transparent
+        opacity={0.85}
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+        toneMapped={false}
+      />
+    </points>
   );
 }
 
