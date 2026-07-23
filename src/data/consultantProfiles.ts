@@ -34,6 +34,7 @@ export const consultantProfiles = [
         items: [
           'CISSP · CISA',
           'ISO/IEC 27001 & 22301 Lead Auditor',
+          'ISO/IEC 42001 Lead Auditor',
           'BSI IT-Grundschutz-Praktiker',
         ],
       },
