@@ -13,20 +13,14 @@ export function VisitCounter() {
     (async () => {
       try {
         const already = sessionStorage.getItem("visit_counted_v1");
-        if (!already) {
-          const { data, error } = await supabase.rpc("increment_page_visit", { p_page: "site" });
-          if (!error && typeof data === "number") {
-            sessionStorage.setItem("visit_counted_v1", "1");
-            if (!cancelled) setCount(data);
-            return;
-          }
+        const increment = !already;
+        const { data, error } = await supabase.functions.invoke("visit-count", {
+          body: { page: "site", increment },
+        });
+        if (!error && data && typeof data.count === "number") {
+          if (increment) sessionStorage.setItem("visit_counted_v1", "1");
+          if (!cancelled) setCount(data.count);
         }
-        const { data } = await supabase
-          .from("page_visits")
-          .select("count")
-          .eq("page", "site")
-          .maybeSingle();
-        if (!cancelled && data) setCount(Number(data.count));
       } catch {
         /* silent */
       }
@@ -35,6 +29,7 @@ export function VisitCounter() {
       cancelled = true;
     };
   }, []);
+
 
   const digits = (count ?? 0).toString().padStart(8, "0").split("");
 
