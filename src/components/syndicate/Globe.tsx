@@ -542,6 +542,7 @@ export default function Globe({
         <directionalLight position={[5, 3, 5]} intensity={1.1} color="#cfeeff" />
         <pointLight position={[-4, -2, -3]} intensity={0.5} color="#f5b800" />
         <Suspense fallback={null}>
+          <Starfield />
           <EarthMesh players={players} attack={attack} attackFocus={attackFocus} flyover={flyover} />
           {flying && attack && <FlyoverCamera key={attack.id} attack={attack} />}
         </Suspense>
