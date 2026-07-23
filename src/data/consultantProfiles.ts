@@ -5,11 +5,12 @@ export const consultantProfiles = [
     name: 'Marcel Knop',
     role: 'Senior Cybersecurity Consultant',
     imageUrl: marcelPhoto.url,
+    imagePosition: 'center top',
     linkedinUrl: 'https://www.linkedin.com/in/inside-the-box',
     bio: 'I help organisations establish cybersecurity and resilience capabilities that remain effective in practice.',
     meta: [
       { label: 'Schwerpunkte', value: 'ISMS · TISAX · NIS2 · PCI-DSS · Cyber-Krisenmanagement · TIBER · BCM' },
-      { label: 'Zertifizierungen', value: 'CISSP · CISA · ISO/IEC 27001 & 22301 Lead Auditor · ISO/IEC 42001 Lead Auditor · BSI IT-Grundschutz-Praktiker' },
+      { label: 'Zertifizierungen', value: 'ISO 27001 Lead Auditor · ISO 22301 Lead Auditor' },
       { label: 'Ausbildung', value: 'Dipl.-Ing. Maschinenbau' },
       { label: 'Sprachen', value: 'Deutsch · Englisch' },
     ],
@@ -32,10 +33,8 @@ export const consultantProfiles = [
       {
         title: 'Zertifizierungen',
         items: [
-          'CISSP · CISA',
-          'ISO/IEC 27001 & 22301 Lead Auditor',
-          'ISO/IEC 42001 Lead Auditor',
-          'BSI IT-Grundschutz-Praktiker',
+          'ISO 27001 Lead Auditor',
+          'ISO 22301 Lead Auditor',
         ],
       },
       {
