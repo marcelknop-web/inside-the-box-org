@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PageMeta } from '@/components/PageMeta';
 import { useLanguage, nextLanguage } from '@/i18n/LanguageContext';
-import { consultantProfiles } from '@/data/consultantProfiles';
+
 import { GeometricSymbol } from '@/components/GeometricSymbol';
 import { ServiceSymbol, type ServiceTheme } from '@/components/ServiceSymbol';
 import { LucideIcon } from 'lucide-react';
@@ -960,21 +960,21 @@ const useServiceContent = () => {
             <button onClick={() => setActive('dora-check')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
               <Landmark size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-highlight font-semibold font-mono text-sm">DORA Incident Check</p>
+                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentDoraTitle')}</p>
                 <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentDoraDesc')}</p>
               </div>
             </button>
             <button onClick={() => setActive('tisax-check')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
               <Car size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-highlight font-semibold font-mono text-sm">TISAX Assessment Check</p>
+                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentTisaxTitle')}</p>
                 <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentTisaxDesc')}</p>
               </div>
             </button>
             <button onClick={() => setActive('pci-check')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
               <CreditCard size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-highlight font-semibold font-mono text-sm">PCI-DSS SAQ Navigator</p>
+                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentPciTitle')}</p>
                 <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentPciDesc')}</p>
               </div>
             </button>
@@ -990,14 +990,14 @@ const useServiceContent = () => {
             <button onClick={() => setActive('nis2-quiz')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
               <Scale size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-highlight font-semibold font-mono text-sm">NIS-2 Awareness Quiz</p>
+                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentNis2QuizTitle')}</p>
                 <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentNis2QuizDesc')}</p>
               </div>
             </button>
             <button onClick={() => setActive('ciso-sim')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
               <TrendingDown size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-highlight font-semibold font-mono text-sm">CISO Budget Simulator</p>
+                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentCisoTitle')}</p>
                 <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentCisoDesc')}</p>
               </div>
             </button>

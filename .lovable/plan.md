@@ -1,62 +1,46 @@
+# Content-Review — Findings & Fix-Plan
 
-# ERNSTLFALL Feinschliff
+Ergebnis eines Cross-Reads über `ChatView.tsx`, `Overview.tsx`, `i18n/{de,en,fr}.ts`, `consultantProfiles.ts` und `SiteChrome.tsx`. Die Site-Journey (Menü → Sections → AI Lab) ist strukturell stimmig, aber es gibt konkrete Inkonsistenzen — sichtbar vor allem für DE/FR-Besucher.
 
-Drei Bausteine — Inhaltsqualität, Word-Export, Robustheit/Kosten. Keine Änderungen an Wizard-Flow, Design-Tokens, i18n-Verhalten oder Passwort-Gate.
+## Must-fix (echte Brüche in der Nutzererfahrung)
 
-## 1) Inhaltliche Qualität (Edge Function)
+1. **Toter i18n-Block `byWhom`** — `src/i18n/de.ts:5,107-113`, `en.ts:5,107-113`, `fr.ts:5,107-113`. Die `/by-whom`-Seite wurde entfernt, aber `nav.byWhom` und der komplette `byWhom: {...}`-Content-Block existieren in allen drei Sprachdateien ohne einen einzigen Verweis im restlichen Code.
+   → **Fix:** Beide Blöcke in DE/EN/FR löschen.
 
-Datei: `supabase/functions/ernstfall-generate/index.ts`
+2. **AI-Lab-Kacheltitel sind hartkodiertes Englisch** — `ChatView.tsx:963,970,977,993,1000,1052,1055`. "DORA Incident Check", "TISAX Assessment Check", "PCI-DSS SAQ Navigator", "NIS-2 Awareness Quiz", "CISO Budget Simulator" sind Literals, während alle Nachbar-Kacheln (`agentTtxTitle`, `agentSocLifeTitle` …) durch `t()` gehen. DE/FR-Besucher sehen ein sprachlich gemischtes Grid.
+   → **Fix:** i18n-Keys ergänzen (`agentDoraTitle`, `agentTisaxTitle`, `agentPciTitle`, `agentNis2Title`, `agentCisoTitle`) und in `ChatView.tsx` einsetzen. Produktnamen "Auren" / "DJ Robo never sleeps" bleiben bewusst unübersetzt.
 
-- **System-Prompt schärfen** ohne aufzublähen:
-  - Kausalitätsregel: „Jeder Inject referenziert einen konkreten Vorgänger (Ursache→Wirkung); keine parallelen, unverbundenen Handlungsstränge."
-  - Ground-Truth-Regel: Timeline ≥ Injects+2, jede erwähnte Person/System muss in `bankProfil` oder Timeline vorkommen (keine Neu-Erfindung im Ablauf).
-  - Meldepflichten-Konsistenz: Fristen als absolute Uhrzeit relativ zur Klassifizierungs-Uhrzeit im Timeline (bei DORA T+4h, T+72h, T+1M explizit ausrechnen), nicht generisch „innerhalb 24h".
-  - Rückfragen-Regel: Antwort verweist auf Timeline-Fakt oder markiert explizit „nicht bekannt" (verhindert Halluzination durch Übungsleitung).
-  - Rollen-Spannungsfeld: Immer als Konflikt zwischen zwei konkreten Zielen (z. B. „schnelle Wiederaufnahme vs. forensische Beweissicherung"), nicht als Charakter-Beschreibung.
-  - Anti-Wiederholung: „Diskussionsimpulse und Rückfragen dürfen inhaltlich zwischen Injects nicht doppeln."
-  - Diversitäts-Klausel: Einspielkanäle über die Injects streuen (Telefon, E-Mail, Ticket, Mitarbeiter-Meldung, Medienanfrage, Aufsichtsschreiben — nicht 5× dieselbe Quelle).
-- **Schema minimal erweitern** (rückwärtskompatibel im UI, docx nutzt es falls vorhanden):
-  - `groundTruth.klassifizierungsZeitpunkt` (string) — Ankerpunkt für Fristenrechnung.
-  - `injects[].abhaengigVon` (string, optional) — Inject-ID des Vorgängers.
-- **Modell-Fallback**: Aktuell nur `gemini-2.5-flash`. Bei 502/Parse-Fehler einen einzigen Retry mit gestrafftem Prompt (kein zweites Modell — Kosten bleiben planbar).
+3. **`otSocLife`-Namespace verwaist** — `en.ts:1451+` hat vollen Content, `de.ts:1531` und `fr.ts:1449` sind `otSocLife: {} as never`. `OtSocLife.tsx` ruft diesen Namespace nirgends via `t()` auf (Content läuft dort englisch-fixiert über `useVariantT`).
+   → **Fix:** Kompletten `otSocLife`-Block aus allen drei Locales entfernen (dead code).
 
-## 2) Word-Export aufwerten
+4. **Fehlende Akzente im französischen DORA-Block** — `fr.ts:1061,1064,1067,1075,1078,1082`: "Conformite DORA", "Evaluation de conformite", "Priorite", "entites financieres". Der NIS-2-Block direkt daneben (`fr.ts:1140-1164`) schreibt korrekt "Conformité", "Évaluation", "Priorité".
+   → **Fix:** Akzente konsistent nachziehen.
 
-Datei: `src/pages/Ernstfall.tsx`
+## Polish (Feinschliff, kein Bruch)
 
-- **Deckblatt-Block je Dokument**: Klassifizierungsleiste am Kopf + Fußzeile mit „Übungsname · Version · Erzeugt am".
-- **Inhaltsverzeichnis** in Trainer Guide und Drehbuch (`TableOfContents`, `headingStyleRange: "1-3"`), Heading-Styles mit `outlineLevel` versehen.
-- **Inject-Karten**:
-  - Kopf-Streifen mit Zeitpunkt/Phase/PFLICHT als farbige Info-Zeile.
-  - `abhaengigVon` als „Anschluss an …" ausweisen.
-  - Seitenumbruch nur zwischen Karten, nicht innerhalb (Paragraph `keepNext`/`keepLines` auf Karten-Titel).
-- **Ablaufplan** als Zeitachsen-Tabelle mit Zebra-Streifen (bereits vorhanden) + Summenzeile Gesamtdauer.
-- **Meldepflichten-Tabelle** um Spalte „Berechnete Uhrzeit" (aus `klassifizierungsZeitpunkt` + Frist) im Trainer Guide.
-- **Teilnehmer-Arbeitsbuch**: Keine `groundTruth`, keine Regieanweisungen (aktuell schon so — Prüfung + Kommentar im Code, damit ein späterer Refactor das nicht bricht).
-- **Konsistente Typografie**: Bereits gesetzte Marken (DARKBLUE/RED/ALTROW/HEADERGREY) bleiben; keine neuen Farben.
-- **QA**: Nach Umbau lokale Erzeugung eines Beispiel-ZIPs (Beispiel-Exercise als Fixture in Tests-freiem Fall via manuellem Klick) — nicht Teil des Codes.
+5. **Consultant-Sektionslabels hartkodiert Deutsch** — `consultantProfiles.ts:12-15,19,26,33,43,58-61`: "Schwerpunkte / Erfahrung / Zertifizierungen / Sprachen" haben keine `{de,en,fr}`-Variante. Auf EN/FR-UI erscheinen die Überschriften weiterhin deutsch. Bios sind zusätzlich englisch-only.
+   → **Fix (klein):** Labels über i18n-Keys ziehen. Bios: entweder trilingual pflegen oder bewusst als EN-Signature-Line dokumentieren. Empfehlung: nur Labels lokalisieren, Bios bleiben EN (kürzer, konsistenter Feinschliff).
 
-## 3) Robustheit & Kosten
+6. **Dead import in `ChatView.tsx:10`** — `consultantProfiles` wird importiert, aber im 2484-Zeilen-File nie verwendet (Anzeige läuft über `SiteChrome.tsx:150-151`).
+   → **Fix:** Import entfernen.
 
-Datei: `src/pages/Ernstfall.tsx` + Function
+7. **Kontakt-Sektion zeigt nur Marcel** — `ChatView.tsx:1253-1266` listet Telefon/E-Mail nur für Marcel. Hero-Byline (`en.ts:724-725`) präsentiert aber "Marcel Knop and Andreas Funder" als Team.
+   → **Entscheidung nötig:** Absicht (single point of contact) oder Lücke (Andreas ergänzen)? Siehe Frage unten.
 
-- **Draft-Autosave**: Wizard-State (Bank, Themen, Parameter) und letztes generiertes `exercise` in `localStorage` (`ernstlfall:draft:v1`), Recovery-Banner in Step 1 „Entwurf fortsetzen / verwerfen".
-- **Progress ehrlicher**: Statt fake-linear jetzt echte Phasen — Request gesendet → warte auf KI (unbestimmt, Puls-Balken) → JSON empfangen → Word 1/5…5/5 → ZIP. Terminal-Log bleibt.
-- **Cancel-Button** während Generierung: `AbortController` an `fetch` weitergeben, im Log als „Abgebrochen" markieren.
-- **Retry-Button** bei Fehler statt Neustart, wenn Konfiguration unverändert.
-- **Function-seitig**:
-  - `max_tokens` explizit setzen (~4500 für 8 Injects), verhindert unnötig lange Antworten.
-  - Bei Parse-Fehler: ein einziger Retry mit `temperature: 0.2` + Hinweis „Nur JSON, kein Prosa-Präfix" — spart User einen kompletten Neustart bei sporadischem Format-Ausrutscher.
-  - Antwort-Größe (Bytes) in `ai_usage_logs.meta` mitloggen, damit sich Output-Blähungen früh sehen lassen.
+8. **Kennzahlen-Divergenz "270+ Kunden" vs. "400+ Projekte"** — `ChatView.tsx:1247` vs. `Overview.tsx:334,337,856,859`. Beide Zahlen können stimmen, aber ohne Cross-Reference wirkt es widersprüchlich.
+   → **Fix (Vorschlag):** Vereinheitlichen zu "270+ Kunden · 400+ Projekte" (oder umgekehrt) auf beiden Seiten.
 
-## Nicht enthalten
+## Reihenfolge der Umsetzung
 
-- Inline-Edit der Injects vor Export (war Option, nicht gewählt).
-- Streaming der KI-Antwort (aufwendig für JSON-Modus, geringer Nutzen).
-- Neue Modelle / Anbieter.
+1. i18n-Aufräumen: `byWhom` + `otSocLife`-Blöcke löschen (DE/EN/FR).
+2. Neue i18n-Keys für AI-Lab-Titel anlegen (DE/EN/FR) und in `ChatView.tsx` einsetzen.
+3. Französische DORA-Akzente korrigieren.
+4. `consultantProfiles`-Import in `ChatView.tsx` entfernen.
+5. Consultant-Sektionslabels über i18n ziehen.
+6. Kennzahlen vereinheitlichen ("270+ Kunden · 400+ Projekte").
+7. Nur nach Freigabe: Kontakt-Sektion um Andreas ergänzen.
 
-## Aufwand
+## Offene Frage vor Umsetzung
 
-- Function: ~1 Datei, ~40 Zeilen Delta.
-- Frontend: `Ernstfall.tsx`, ~120 Zeilen Delta über Autosave, Cancel, docx-Erweiterungen.
-- Kein DB-Migrationsbedarf.
+- **Kontakt-Sektion (Finding #7):** Andreas Funder als zweiter Kontakt sichtbar machen (Telefon/E-Mail), oder Marcel als Single-Point-of-Contact belassen und die Hero-Byline entsprechend abschwächen?
+- **Kennzahlen (Finding #8):** Welche Zahl ist die "führende" (270 Kunden oder 400 Projekte), oder beide kombiniert ausweisen?
