@@ -1250,42 +1250,6 @@ const useServiceContent = () => {
         </div>
       </TypedSection>
     ),
-    'by-whom': () => {
-      const profileKeys = ['marcel', 'andreas'] as const;
-      return (
-        <TypedSection title={t('byWhom.title')} mode="typewriter" intro={<p>{t('byWhom.intro')}</p>}>
-          {profileKeys.map(key => {
-            const profile = consultantProfiles.find(p => key === 'marcel' ? p.name === 'Marcel Knop' : p.name === 'Andreas Funder')!;
-            return (
-              <Block key={key} className="bg-secondary/30">
-                <div className="flex items-start gap-4 mb-4">
-                  <img src={profile.imageUrl} alt={profile.name} style={{ objectPosition: (profile as any).imagePosition ?? 'center' }} className="w-20 h-20 rounded-full object-cover border-2 border-primary/40 shadow-lg" />
-                  <div>
-                    <p className="text-primary font-bold text-base font-sans">{profile.name} · {profile.role}</p>
-                    {profile.linkedinUrl && (
-                      <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-highlight text-sm font-sans hover:underline">
-                        <Linkedin size={14} /> LinkedIn →
-                      </a>
-                    )}
-                  </div>
-                </div>
-                <div className="bg-background/40 border border-border/30 rounded-lg p-4 mb-4 space-y-3 max-w-prose">
-                  {t(`profiles.${key}.bio`).split('\n\n').map((para, i) => (
-                    <p key={i} className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{para}</p>
-                  ))}
-                </div>
-                <div className="bg-background/40 border border-border/30 rounded-lg p-4 space-y-1.5 text-sm font-sans">
-                  <p><span className="text-primary font-semibold">{t(`profiles.${key}.focusLabel`)}:</span> <span className="text-foreground/80">{t(`profiles.${key}.focus`)}</span></p>
-                  <p><span className="text-primary font-semibold">{t(`profiles.${key}.certsLabel`)}:</span> <span className="text-foreground/80">{t(`profiles.${key}.certs`)}</span></p>
-                  <p><span className="text-primary font-semibold">{t(`profiles.${key}.eduLabel`)}:</span> <span className="text-foreground/80">{t(`profiles.${key}.edu`)}</span></p>
-                  <p><span className="text-primary font-semibold">{t(`profiles.${key}.langLabel`)}:</span> <span className="text-foreground/80">{t(`profiles.${key}.lang`)}</span></p>
-                </div>
-              </Block>
-            );
-          })}
-        </TypedSection>
-      );
-    },
     contact: () => (
       <TypedSection title={t('contact.title')} mode="typewriter" charDelay={8} intro={<p>{t('contact.intro')}</p>}>
         <Block className="bg-secondary/30">
@@ -1453,7 +1417,7 @@ const useSidebarGroups = (): SidebarGroup[] => {
     {
       title: t('nav.groupAbout'),
       items: [
-        { id: 'by-whom', icon: Users, label: t('nav.profiles') },
+        
         { id: 'contact', icon: Mail, label: t('nav.contact') },
         { id: 'imprint', icon: Scale, label: t('nav.imprint') },
       ],

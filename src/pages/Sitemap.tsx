@@ -52,7 +52,7 @@ const sections: Section[] = [
   {
     title: 'About',
     entries: [
-      { label: 'Profiles / By Whom', path: '/by-whom', desc: 'Berater-Biografien und Kompetenzen.' },
+      
       { label: 'Contact', path: '/contact', desc: 'Kontaktaufnahme.' },
       { label: 'Imprint', path: '/imprint', desc: 'Impressum.' },
     ],
