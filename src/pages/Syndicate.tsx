@@ -2091,6 +2091,23 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
         })()
       : null;
 
+  // Precise target marker so the victim city reads exactly where the impact
+  // lands on the globe (same lat/lon math the fly-over camera & strike use).
+  const globePlayersWithTarget: GlobePlayer[] = globeAttack
+    ? [
+        ...globePlayers,
+        {
+          id: `target-${globeAttack.id}`,
+          color: "#ef4444",
+          lat: globeAttack.toLat,
+          lon: globeAttack.toLon,
+          active: true,
+          alive: true,
+        },
+      ]
+    : globePlayers;
+
+
   
 
   const shell = (children: React.ReactNode) => (
