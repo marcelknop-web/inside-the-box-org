@@ -34,3 +34,6 @@ verify_jwt = false
 verify_jwt = false
 [functions.intake-draft]
 verify_jwt = false
+
+[functions.visit-count]
+verify_jwt = false
