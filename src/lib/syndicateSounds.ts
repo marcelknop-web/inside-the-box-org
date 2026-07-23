@@ -363,20 +363,11 @@ export const syndicateSounds = {
       musicEl.volume = 0;
       musicSrcNode = routeBed(musicEl);
     }
-    if (!ambientEl) {
-      ambientEl = new Audio(ambientAsset.url);
-      ambientEl.loop = true;
-      ambientEl.preload = "auto";
-      ambientEl.crossOrigin = "anonymous";
-      ambientEl.volume = 0;
-      ambientSrcNode = routeBed(ambientEl);
-    }
     musicEl.muted = !enabled;
-    ambientEl.muted = !enabled;
     void musicEl.play().then(() => fadeElement(musicEl!, MUSIC_TARGET, 1400)).catch(() => {});
-    void ambientEl.play().then(() => fadeElement(ambientEl!, AMBIENT_TARGET, 1800)).catch(() => {});
     // Silence a "unused var" warning without changing runtime behavior.
-    void musicSrcNode; void ambientSrcNode;
+    void musicSrcNode; void ambientSrcNode; void ambientAsset; void ambientEl;
+
   },
   stopMusic() {
     if (musicEl) fadeElement(musicEl, 0, 700);
