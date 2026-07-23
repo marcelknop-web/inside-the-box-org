@@ -1,3 +1,5 @@
+import marcelPhoto from '@/assets/marcel-2026.png.asset.json';
+
 export const consultantProfiles = [
   {
     name: 'Marcel Knop',
