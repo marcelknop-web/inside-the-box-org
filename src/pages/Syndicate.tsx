@@ -1474,7 +1474,10 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
 
   /* ---- begin a round: maybe roll an event ---- */
   const beginRound = useCallback((r: number) => {
-    snd.transition();
+    // Cinematic braam only on the first round; subsequent rounds keep the
+    // lighter transition so we don't over-signal every routine round.
+    if (r === 1) snd.roundStart();
+    else snd.transition();
     // event every 2-3 rounds
     const hasEvent = r === 1 ? false : (r % 2 === 0 || rand() < 0.4);
     setEvent(
