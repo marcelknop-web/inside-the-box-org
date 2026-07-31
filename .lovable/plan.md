@@ -1,46 +1,55 @@
-# Content-Review — Findings & Fix-Plan
+## MarSec Studio — Maritime TTX Generator
 
-Ergebnis eines Cross-Reads über `ChatView.tsx`, `Overview.tsx`, `i18n/{de,en,fr}.ts`, `consultantProfiles.ts` und `SiteChrome.tsx`. Die Site-Journey (Menü → Sections → AI Lab) ist strukturell stimmig, aber es gibt konkrete Inkonsistenzen — sichtbar vor allem für DE/FR-Besucher.
+An English-language copy of ERNSTLFALL, adapted to the maritime sector (container shipping, port operators, cruise), with a DRYNET-inspired visual layout.
 
-## Must-fix (echte Brüche in der Nutzererfahrung)
+### Route & access
+- New route `/marsec` (title "MarSec Studio"), behind the same password gate pattern, not listed in the AI Lab grid — direct link only.
+- ERNSTLFALL stays untouched.
 
-1. **Toter i18n-Block `byWhom`** — `src/i18n/de.ts:5,107-113`, `en.ts:5,107-113`, `fr.ts:5,107-113`. Die `/by-whom`-Seite wurde entfernt, aber `nav.byWhom` und der komplette `byWhom: {...}`-Content-Block existieren in allen drei Sprachdateien ohne einen einzigen Verweis im restlichen Code.
-   → **Fix:** Beide Blöcke in DE/EN/FR löschen.
+### Wizard flow (5 steps, English UI)
+1. **Sector** — pick one: Container Shipping Line / Port & Terminal Operator / Cruise Line. The selection drives the topic catalog, the profile fields, the role set and the reporting obligations.
+2. **Organisation profile** — sector-specific fields:
+   - Container line: fleet size, TEU capacity, trade lanes, TOS/ERP provider, onboard OT vendors, flag states.
+   - Port/terminal: annual throughput (TEU/tonnes), berths/cranes, TOS vendor, PCS/customs interfaces, ISPS security level.
+   - Cruise: fleet size, passenger capacity, itineraries/regions, PMS/booking provider, bridge/ECDIS vendors.
+   - Optional Excel upload retained (parsed locally in browser).
+3. **Scenario topics** — sector-specific catalogs, each weighted as Side thread / Core thread / Lead thread (max 4 recommended). Examples:
+   - Container line: ransomware on shore-side booking/TOS, ECDIS/bridge system manipulation, GPS/AIS spoofing, cargo-data manipulation (BL fraud), OT compromise on engine/ballast systems, satcom outage, container-release fraud, third-party 3PL/agent breach.
+   - Port/terminal: TOS ransomware halting gate & yard, crane/PLC (OT) compromise, gate/access-control and ISPS breach, customs/PCS interface outage, VTS/AIS disruption, insider at terminal, hinterland rail/truck system outage, physical + cyber combined event.
+   - Cruise: PMS/guest-data breach (passport, payment), ransomware on shipboard network mid-voyage, navigation/ECDIS integrity loss, HVAC/power OT event, guest-facing app & Wi-Fi compromise, medical-record breach, port-turnaround system failure, media/social-media escalation.
+4. **Exercise parameters** — duration (2 h / 8 injects, 3 h / 11, 4 h / 14), role scope (compact 6 / full 8, maritime roles: Master/Bridge, Fleet Ops/Terminal Ops, CISO, IT/OT lead, DPO/Legal, Comms/PR, HSSE/Security Officer (CSO/PFSO), Scribe), difficulty (Beginner / Intermediate / Expert), and a reporting-obligations block (see below).
+5. **Generation & export** — same terminal-style progress log; ZIP with five DOCX files (Trainer Guide, Inject Cards, Role Cards, Participant Worksheet, Trainer Script), all English.
 
-2. **AI-Lab-Kacheltitel sind hartkodiertes Englisch** — `ChatView.tsx:963,970,977,993,1000,1052,1055`. "DORA Incident Check", "TISAX Assessment Check", "PCI-DSS SAQ Navigator", "NIS-2 Awareness Quiz", "CISO Budget Simulator" sind Literals, während alle Nachbar-Kacheln (`agentTtxTitle`, `agentSocLifeTitle` …) durch `t()` gehen. DE/FR-Besucher sehen ein sprachlich gemischtes Grid.
-   → **Fix:** i18n-Keys ergänzen (`agentDoraTitle`, `agentTisaxTitle`, `agentPciTitle`, `agentNis2Title`, `agentCisoTitle`) und in `ChatView.tsx` einsetzen. Produktnamen "Auren" / "DJ Robo never sleeps" bleiben bewusst unübersetzt.
+### Reporting obligations (replaces the DORA toggle)
+Multi-select checkboxes, each fed into the AI prompt with concrete deadlines computed from the classification timestamp:
+- NIS2 (EU): 24 h early warning / 72 h notification to the national authority
+- IMO MSC-FAL.1/Circ.3, ISPS Code, class society and flag state
+- GDPR Art. 33 (72 h) for passenger/crew personal data
+- Customers / charterers / cargo owners / terminals (contract & SLA-driven notification)
+- Port authority (impact on port operations, call or terminal)
+- Insurers (Cyber / P&I / Hull & Machinery) — very early notification
+- National or maritime CERT/CSIRT
+- Law enforcement (police, BKA, FBI, Europol) for extortion, sabotage or ransomware
+- Suppliers / OT vendors (ABB, Kongsberg, Wärtsilä, Siemens, Schneider Electric) for compromised OT
+Defaults preselected per sector (e.g. cruise → GDPR + port authority; port → port authority + NIS2).
 
-3. **`otSocLife`-Namespace verwaist** — `en.ts:1451+` hat vollen Content, `de.ts:1531` und `fr.ts:1449` sind `otSocLife: {} as never`. `OtSocLife.tsx` ruft diesen Namespace nirgends via `t()` auf (Content läuft dort englisch-fixiert über `useVariantT`).
-   → **Fix:** Kompletten `otSocLife`-Block aus allen drei Locales entfernen (dead code).
+### Backend
+New edge function `marsec-generate`, modelled on `ernstfall-generate`:
+- English system prompt with the same strict rules (causal chain, ground truth, no invented facts, channel diversity, anti-repetition) rewritten for maritime context: shipboard vs shore-side split, IT/OT separation, class/flag/port-state actors, charter parties, voyage schedule pressure.
+- Sector-specific context block injected per selection.
+- Reporting-obligation deadlines computed from `classificationTime`.
+- Same rate limiting, AI usage logging, JSON-parse retry, Gemini Flash model.
 
-4. **Fehlende Akzente im französischen DORA-Block** — `fr.ts:1061,1064,1067,1075,1078,1082`: "Conformite DORA", "Evaluation de conformite", "Priorite", "entites financieres". Der NIS-2-Block direkt daneben (`fr.ts:1140-1164`) schreibt korrekt "Conformité", "Évaluation", "Priorité".
-   → **Fix:** Akzente konsistent nachziehen.
+### Layout (DRYNET-inspired)
+- Full-bleed maritime hero: dark sea/sky photograph with a subtle network-node overlay, oversized geometric sans headline ("MarSec Studio" / tagline), light text on the image.
+- Palette: deep navy/slate neutrals with a single crimson accent (`#D6003C`-family) for primary buttons, active stepper state and highlights; generous whitespace; wide rounded cards; thin borders.
+- Sticky slim top bar with wordmark, back link and a crimson primary action button.
+- Stepper as a horizontal pill row in the accent colour; step cards on white over a light neutral background; sector cards with maritime iconography.
+- Word exports use a matching navy/crimson accent scheme.
+- Fully responsive, mobile-checked.
 
-## Polish (Feinschliff, kein Bruch)
-
-5. **Consultant-Sektionslabels hartkodiert Deutsch** — `consultantProfiles.ts:12-15,19,26,33,43,58-61`: "Schwerpunkte / Erfahrung / Zertifizierungen / Sprachen" haben keine `{de,en,fr}`-Variante. Auf EN/FR-UI erscheinen die Überschriften weiterhin deutsch. Bios sind zusätzlich englisch-only.
-   → **Fix (klein):** Labels über i18n-Keys ziehen. Bios: entweder trilingual pflegen oder bewusst als EN-Signature-Line dokumentieren. Empfehlung: nur Labels lokalisieren, Bios bleiben EN (kürzer, konsistenter Feinschliff).
-
-6. **Dead import in `ChatView.tsx:10`** — `consultantProfiles` wird importiert, aber im 2484-Zeilen-File nie verwendet (Anzeige läuft über `SiteChrome.tsx:150-151`).
-   → **Fix:** Import entfernen.
-
-7. **Kontakt-Sektion zeigt nur Marcel** — `ChatView.tsx:1253-1266` listet Telefon/E-Mail nur für Marcel. Hero-Byline (`en.ts:724-725`) präsentiert aber "Marcel Knop and Andreas Funder" als Team.
-   → **Entscheidung nötig:** Absicht (single point of contact) oder Lücke (Andreas ergänzen)? Siehe Frage unten.
-
-8. **Kennzahlen-Divergenz "270+ Kunden" vs. "400+ Projekte"** — `ChatView.tsx:1247` vs. `Overview.tsx:334,337,856,859`. Beide Zahlen können stimmen, aber ohne Cross-Reference wirkt es widersprüchlich.
-   → **Fix (Vorschlag):** Vereinheitlichen zu "270+ Kunden · 400+ Projekte" (oder umgekehrt) auf beiden Seiten.
-
-## Reihenfolge der Umsetzung
-
-1. i18n-Aufräumen: `byWhom` + `otSocLife`-Blöcke löschen (DE/EN/FR).
-2. Neue i18n-Keys für AI-Lab-Titel anlegen (DE/EN/FR) und in `ChatView.tsx` einsetzen.
-3. Französische DORA-Akzente korrigieren.
-4. `consultantProfiles`-Import in `ChatView.tsx` entfernen.
-5. Consultant-Sektionslabels über i18n ziehen.
-6. Kennzahlen vereinheitlichen ("270+ Kunden · 400+ Projekte").
-7. Nur nach Freigabe: Kontakt-Sektion um Andreas ergänzen.
-
-## Offene Frage vor Umsetzung
-
-- **Kontakt-Sektion (Finding #7):** Andreas Funder als zweiter Kontakt sichtbar machen (Telefon/E-Mail), oder Marcel als Single-Point-of-Contact belassen und die Hero-Byline entsprechend abschwächen?
-- **Kennzahlen (Finding #8):** Welche Zahl ist die "führende" (270 Kunden oder 400 Projekte), oder beide kombiniert ausweisen?
+### Technical notes
+- New files: `src/pages/MarSec.tsx`, sector data module (`src/data/marsecSectors.ts`) for topic catalogs, profile field definitions, roles and default reporting obligations, `supabase/functions/marsec-generate/index.ts`.
+- Route added in `src/App.tsx` with password gate; not added to the AI Lab grid or sitemap.
+- DOCX/ZIP builder logic reused from `Ernstfall.tsx`, translated and re-styled; drafts autosaved under a separate localStorage key.
+- Hero image generated as a project asset (no external hotlinking).
