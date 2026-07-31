@@ -193,7 +193,7 @@ export function runQualityCheck(ex: Exercise, ctx: CheckContext): Finding[] {
   }
 
   // ── Topic coverage & weighting ───────────────────────────
-  const tagText = injects.map((i) => norm(`${i.topicTag} ${i.title} ${i.content ?? ""}`));
+  const tagText = injects.map((i) => norm(`${i.topicTag} ${i.title}`));
   // topicTag must name a selected topic, not just its weight ("Lead thread" etc.).
   const weightLabels = new Set(["lead thread", "core thread", "side thread"]);
   const weightTagged = injects.filter((i) => weightLabels.has(norm(i.topicTag)));
