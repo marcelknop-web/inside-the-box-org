@@ -624,7 +624,7 @@ export default function MarSec() {
   const btnGhost = "px-5 py-2.5 rounded-full border border-[#0B2239]/20 text-[#0B2239] text-sm font-medium hover:bg-[#0B2239]/5 transition disabled:opacity-40";
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] text-[#0B2239]">
+    <div className={`min-h-screen flex flex-col text-[#0B2239] ${step === 0 ? "bg-[#0B2239]" : "bg-[#F5F7FA]"}`}>
       <Helmet>
         <title>MarSec Studio – Maritime TTX Generator | inside-the-box.org</title>
         <meta name="description" content="MarSec Studio generates full maritime cyber crisis tabletop exercises for container lines, port operators and cruise lines — facilitator guide, injects, role cards and worksheets as Word documents." />
@@ -652,10 +652,11 @@ export default function MarSec() {
 
       {/* Hero — landing only */}
       {step === 0 && (
-      <section className="relative">
+      <section className="relative flex-1 flex items-center">
         <img src={heroImg} alt="Container vessel at sea under an overcast dawn sky" width={1920} height={1088} {...{ fetchpriority: "high" }} className="absolute inset-0 h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#0B2239]/90 via-[#0B2239]/70 to-[#0B2239]/25" />
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
+        <div className="relative w-full max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
+
           <p className="text-[11px] uppercase tracking-[0.35em] text-[#D6003C] font-semibold mb-4">Maritime crisis exercises</p>
           <h1 className="text-white font-extrabold leading-[0.95] tracking-tight text-4xl sm:text-6xl md:text-7xl max-w-3xl">
             Rehearse the<br />worst day at sea.
@@ -672,7 +673,8 @@ export default function MarSec() {
       )}
 
       {step > 0 && (
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+
         {/* Stepper */}
         <ol className="flex gap-1.5 sm:gap-2 mb-8 flex-wrap">
           {STEPS.map((label, i) => {
@@ -1011,7 +1013,7 @@ export default function MarSec() {
       </main>
       )}
 
-      <footer className="bg-[#0B2239] text-white/60 mt-12">
+      <footer className="bg-[#0B2239] text-white/60 mt-auto">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 text-xs flex flex-wrap gap-2 justify-between">
           <span>© inside-the-box.org — Cybersecurity &amp; Resilience Consulting</span>
           <span>MarSec Studio · maritime tabletop exercise generator</span>
