@@ -152,8 +152,8 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor(...CRIMSON);
-    doc.text(clean(r.deadline).slice(0, 46), M + colW + 8, rightY + 3.4);
-    rightY += 8.4;
+    doc.text(clean(r.deadline).slice(0, 46), M + colW + 8, rightY + 1.2);
+    rightY += 7.4;
   });
 
   y = Math.max(leftY, rightY) + 4;
@@ -171,9 +171,9 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
     doc.setFillColor(...(inj.mandatory ? CRIMSON : NAVY));
     doc.circle(x, trackY, 1.5, "F");
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(5.6);
+    doc.setFontSize(5.2);
     doc.setTextColor(...MID);
-    doc.text(clean(inj.time).slice(0, 7), x, trackY + 5, { align: "center" });
+    doc.text(clean(inj.time).slice(0, 9), x, trackY + 5, { align: "center" });
   });
   y = trackY + 11;
 
@@ -191,9 +191,33 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   });
   y += 2;
 
+  // ── Delivery at a glance ────────────────────────────────
+  section("Delivery at a glance");
+  const channels = [...new Set(injects.map((i) => clean(i.channel)).filter(Boolean))];
+  const phases = [...new Set(injects.map((i) => clean(i.phase)).filter(Boolean))];
+  const stats: [string, string][] = [
+    ["Mandatory injects", `${injects.filter((i) => i.mandatory).length} of ${injects.length}`],
+    ["Delivery channels", String(channels.length)],
+    ["Exercise phases", phases.length ? phases.join(", ") : "-"],
+    ["Ground-truth events", String((ex.groundTruth?.timeline ?? []).length)],
+  ];
+  const sw = CW / 2;
+  stats.forEach(([k, v], i) => {
+    const x = M + (i % 2) * sw;
+    const sy = y + Math.floor(i / 2) * 7.5;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8.2);
+    doc.setTextColor(...MID);
+    doc.text(clean(k), x, sy);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(...NAVY);
+    doc.text(doc.splitTextToSize(clean(v), sw - 42).slice(0, 1), x + 40, sy);
+  });
+  y += 18;
+
   // ── Value block ─────────────────────────────────────────
-  const boxH = 24;
-  const boxY = Math.min(y, 258 - boxH);
+  const boxH = 26;
+  const boxY = Math.max(y, 244 - boxH);
   doc.setFillColor(...NAVY);
   doc.rect(M, boxY, CW, boxH, "F");
   doc.setFillColor(...CRIMSON);
