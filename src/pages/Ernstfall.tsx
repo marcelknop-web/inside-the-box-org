@@ -7,7 +7,7 @@ import { saveAs } from "file-saver";
 import {
   Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, Header, Footer,
   AlignmentType, PageNumber, HeadingLevel, LevelFormat, BorderStyle, WidthType, ShadingType,
-  PageBreak, TableOfContents,
+  PageBreak,
 } from "docx";
 
 // ─── Design tokens (strict brand: only ERNSTLFALL / inside-the-box.org) ───
@@ -221,9 +221,6 @@ function buildTrainerGuide(ex: Exercise, bank: BankProfile): Document {
   });
   const children: any[] = [
     ...titleBlock("Trainer Guide", ex.uebungsname, "NUR FÜR DIE ÜBUNGSLEITUNG"),
-    H2("Inhaltsverzeichnis"),
-    new TableOfContents("Inhaltsverzeichnis", { hyperlink: true, headingStyleRange: "1-3" }),
-    new Paragraph({ children: [new PageBreak()] }),
     H2("Übungsübersicht"),
     kvTable([
       ["Übungsname", ex.uebungsname],
@@ -383,9 +380,6 @@ function buildWorksheet(ex: Exercise): Document {
 function buildDrehbuch(ex: Exercise): Document {
   const kids: any[] = [
     ...titleBlock("Trainer-Drehbuch", ex.uebungsname, "NUR FÜR DIE ÜBUNGSLEITUNG"),
-    H2("Inhaltsverzeichnis"),
-    new TableOfContents("Inhaltsverzeichnis", { hyperlink: true, headingStyleRange: "1-3" }),
-    new Paragraph({ children: [new PageBreak()] }),
     H2("Moderations-Grundhaltung"),
     ...[
       "Ruhe halten, Fragen zurückspiegeln, nicht Lösungen liefern.",
