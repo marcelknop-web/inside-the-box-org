@@ -13,7 +13,6 @@ import heroImg from "@/assets/marsec-hero.jpg";
 import { SECTORS, OBLIGATIONS, getSector, type SectorId, type Weight } from "@/data/marsecSectors";
 import type { Exercise, Inject } from "@/data/marsecTypes";
 import { runQualityCheck, countBySeverity, parseInjectMinutes, type Finding } from "@/utils/marsecQualityCheck";
-import QualityPanel from "@/components/marsec/QualityPanel";
 import InjectDetail from "@/components/marsec/InjectDetail";
 import { buildOnePagerPdf } from "@/utils/marsecOnePagerPdf";
 
