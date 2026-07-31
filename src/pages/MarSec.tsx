@@ -7,7 +7,7 @@ import { saveAs } from "file-saver";
 import {
   Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, Footer,
   AlignmentType, PageNumber, HeadingLevel, LevelFormat, BorderStyle, WidthType, ShadingType,
-  PageBreak, TableOfContents,
+  PageBreak,
 } from "docx";
 import heroImg from "@/assets/marsec-hero.jpg";
 import { SECTORS, OBLIGATIONS, getSector, type SectorId, type Weight } from "@/data/marsecSectors";
@@ -184,9 +184,6 @@ function buildFacilitatorGuide(ex: Exercise, orgName: string): Document {
   const rows = (ex.reportingObligations ?? []).map((m) => [m.addressee, m.deadline, computeDeadlineClock(klass, m.deadline) || "—", m.basis || "—"]);
   const children: any[] = [
     ...titleBlock("Facilitator Guide", ex.exerciseName, "FACILITATOR EYES ONLY"),
-    H2("Table of contents"),
-    new TableOfContents("Table of contents", { hyperlink: true, headingStyleRange: "1-3" }),
-    new Paragraph({ children: [new PageBreak()] }),
     H2("Exercise overview"),
     kvTable([
       ["Exercise", ex.exerciseName],
@@ -338,9 +335,6 @@ function buildWorksheet(ex: Exercise): Document {
 function buildScript(ex: Exercise): Document {
   const kids: any[] = [
     ...titleBlock("Facilitator Script", ex.exerciseName, "FACILITATOR EYES ONLY"),
-    H2("Table of contents"),
-    new TableOfContents("Table of contents", { hyperlink: true, headingStyleRange: "1-3" }),
-    new Paragraph({ children: [new PageBreak()] }),
     H2("Facilitation stance"),
     ...[
       "Stay calm, mirror questions back, do not supply solutions.",
