@@ -11,35 +11,16 @@ import {
 } from "docx";
 import heroImg from "@/assets/marsec-hero.jpg";
 import { SECTORS, OBLIGATIONS, getSector, type SectorId, type Weight } from "@/data/marsecSectors";
+import type { Exercise, Inject } from "@/data/marsecTypes";
+import { runQualityCheck, countBySeverity, parseInjectMinutes, type Finding } from "@/utils/marsecQualityCheck";
+import QualityPanel from "@/components/marsec/QualityPanel";
+import InjectDetail from "@/components/marsec/InjectDetail";
 
 // ─── Brand tokens (MarSec Studio) ───
 const NAVY = "0B2239";
 const CRIMSON = "D6003C";
 const ALTROW = "F5F7FA";
 
-interface Inject {
-  id: string; time: string; phase: string; mandatory: boolean; title: string;
-  topicTag: string; channel: string; content: string; expectedResponse: string;
-  facilitatorNote: string; discussionPrompts: string[]; clarifications: { question: string; answer: string }[];
-  observationFocus: string;
-  dependsOn?: string;
-}
-interface Role { name: string; profile: string; tasks: string[]; tension: string }
-interface Exercise {
-  exerciseName: string;
-  summary: string;
-  groundTruth: {
-    organisationProfile: string; adversaryOrCause: string;
-    timeline: { time: string; event: string }[]; complications: string[];
-    classificationTime?: string;
-  };
-  objectives: string[];
-  schedule: { time: string; segment: string; content: string }[];
-  injects: Inject[];
-  roles: Role[];
-  reportingObligations: { addressee: string; deadline: string; basis?: string }[];
-  hotwashNotes: string[];
-}
 
 function slug(s: string) {
   return (s || "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "")
@@ -178,7 +159,17 @@ function makeSection(exerciseName: string, children: any[]) {
   };
 }
 
+/** Merges ground-truth timeline and injects into one chronological facilitator view. */
+function masterTimeline(ex: Exercise) {
+  const rows = [
+    ...(ex.groundTruth?.timeline ?? []).map((t) => ({ time: t.time, kind: "Ground truth", text: t.event, m: parseInjectMinutes(t.time) })),
+    ...(ex.injects ?? []).map((i) => ({ time: i.time, kind: i.id, text: i.title, m: parseInjectMinutes(i.time) })),
+  ];
+  return rows.sort((a, b) => (a.m ?? 1e9) - (b.m ?? 1e9));
+}
+
 // ─── Document builders ───
+
 function buildFacilitatorGuide(ex: Exercise, orgName: string): Document {
   const klass = ex.groundTruth?.classificationTime;
   const rows = (ex.reportingObligations ?? []).map((m) => [m.addressee, m.deadline, computeDeadlineClock(klass, m.deadline) || "—", m.basis || "—"]);
@@ -205,6 +196,21 @@ function buildFacilitatorGuide(ex: Exercise, orgName: string): Document {
     ...(ex.groundTruth?.complications ?? []).map((e) => bullet(e)),
     H2("Run of show"),
     dataTable(["Time", "Segment", "Content"], (ex.schedule ?? []).map((a) => [a.time, a.segment, a.content]), [1600, 2400, 5360]),
+    H2("Master timeline (ground truth + injects)"),
+    P([T("Facilitator view: ground-truth events and the injects derived from them, merged in chronological order.", { italics: true })]),
+    dataTable(
+      ["Time", "Type", "Event / inject"],
+      masterTimeline(ex).map((r) => [r.time, r.kind, r.text]),
+      [1600, 1500, 6260],
+    ),
+    H2("Dependency map"),
+    P([T("Every inject and the predecessor it builds on — use this to keep the causal chain intact if you re-time or drop an inject.", { italics: true })]),
+    dataTable(
+      ["Inject", "Title", "Follows on from"],
+      ex.injects.map((i) => [i.id, i.title, i.dependsOn || "— (entry point)"]),
+      [1200, 4200, 3960],
+    ),
+
     H2("Reporting obligations & deadlines"),
     P([T(klass ? `Anchor point: incident classified as major at ${klass}.` : "Classification time not set — calculate clock times manually.", { italics: true })]),
     dataTable(["Addressee", "Deadline", "Clock time", "Basis"], rows, [2600, 2200, 1800, 2760]),
@@ -249,10 +255,17 @@ function buildInjectCards(ex: Exercise): Document {
     ];
     if (inj.dependsOn) rows.push(["Follows on from", inj.dependsOn]);
     kids.push(kvTable(rows, 2400, 6960));
+    kids.push(H3("Delivery log (facilitator, tick when done)"));
+    kids.push(dataTable(
+      ["☐ Sent at", "☐ Channel used", "☐ Received by", "☐ Response given"],
+      [["", "", "", ""]],
+      [2340, 2340, 2340, 2340],
+    ));
     kids.push(H3("Content (deliver verbatim)"));
     kids.push(P([T(inj.content)]));
     kids.push(H3("Expected response"));
     kids.push(P([T(inj.expectedResponse)]));
+
   });
   return new Document({
     creator: "MarSec Studio", title: `${ex.exerciseName} – Inject Cards`,
@@ -377,6 +390,86 @@ function buildScript(ex: Exercise): Document {
   });
 }
 
+function buildEvaluationSheet(ex: Exercise): Document {
+  const empty = (n: number, cols: number) => Array.from({ length: n }, () => Array.from({ length: cols }, () => ""));
+  const kids: any[] = [
+    ...titleBlock("Evaluation & Hotwash Sheet", ex.exerciseName, "OBSERVER / FACILITATOR"),
+    H2("How to use this sheet"),
+    ...[
+      "One sheet per observer. Rate during the exercise, not afterwards.",
+      "Scale: 1 = not observed, 2 = weak, 3 = adequate, 4 = strong, 5 = exemplary. n/a if the situation did not arise.",
+      "Always note the evidence — the inject ID or the quoted decision — next to the rating.",
+    ].map((s) => bullet(s)),
+    H2("Objective-level assessment"),
+    dataTable(
+      ["Objective", "Rating (1–5)", "Evidence (inject ID, decision, quote)"],
+      (ex.objectives ?? []).map((o) => [o, "", ""]),
+      [4200, 1400, 3760],
+    ),
+    H2("Inject-level observation"),
+    dataTable(
+      ["Inject", "Expected response met?", "Time to first decision", "Observation"],
+      ex.injects.map((i) => [`${i.id} · ${i.title}`, "", "", ""]),
+      [3000, 1900, 1700, 2760],
+    ),
+    H2("Capability ratings"),
+    dataTable(
+      ["Capability", "Rating (1–5)", "Notes"],
+      [
+        "Situational picture — completeness, currency, fact/assumption separation",
+        "Decision quality — basis, alternatives, timing",
+        "Reporting obligations — deadlines recognised, documented, owned",
+        "Internal communication and battle rhythm",
+        "External communication — customers, authorities, media",
+        "Ship–shore coordination — Master's authority, satcom constraints",
+        "IT / OT separation and safety primacy",
+        "Role clarity, handovers and escalation",
+        "Task management — prioritised, assigned, tracked",
+      ].map((c) => [c, "", ""]),
+      [4600, 1400, 3360],
+    ),
+    H2("Strengths observed"),
+    dataTable(["#", "Strength", "Evidence"], empty(5, 3), [700, 4300, 4360]),
+    H2("Improvement actions"),
+    dataTable(["#", "Action", "Owner", "Due"], empty(8, 4), [700, 5000, 2000, 1660]),
+    H2("Hotwash prompts"),
+    ...(ex.hotwashNotes ?? []).map((h) => bullet(h)),
+  ];
+  return new Document({
+    creator: "MarSec Studio", title: `${ex.exerciseName} – Evaluation Sheet`, styles: styleDoc, numbering: bulletsNumbering(),
+    sections: [makeSection(ex.exerciseName, kids)],
+  });
+}
+
+function buildBriefing(ex: Exercise, orgName: string): Document {
+  const first = ex.injects[0];
+  const kids: any[] = [
+    ...titleBlock("Participant Briefing", ex.exerciseName, "FOR ALL PARTICIPANTS — NO SPOILERS"),
+    H2("What this is"),
+    P([T(`A facilitated tabletop exercise for ${orgName}. No real system is touched, no real notification is sent. You work only with the information handed to you.`)]),
+    H2("Starting situation"),
+    P([T(first?.content || "")]),
+    H2("Your roles"),
+    dataTable(["Role", "In one line"], (ex.roles ?? []).map((r) => [r.name, (r.profile || "").split(/(?<=\.)\s/)[0] ?? ""]), [2800, 6560]),
+    H2("Ground rules"),
+    ...[
+      "Room time equals simulation time. Only the facilitator moves the clock.",
+      "Decisions are documented, never executed.",
+      "Separate fact from assumption at all times.",
+      "Questions go to the facilitator, not to real contacts ashore or on board.",
+      "What happens in this room stays in this room.",
+    ].map((s) => bullet(s)),
+    H2("What we are looking at"),
+    ...(ex.objectives ?? []).map((o) => bullet(o, "numbers")),
+    H2("How the session runs"),
+    dataTable(["Time", "Segment"], (ex.schedule ?? []).map((s) => [s.time, s.segment]), [1800, 7560]),
+  ];
+  return new Document({
+    creator: "MarSec Studio", title: `${ex.exerciseName} – Participant Briefing`, styles: styleDoc, numbering: bulletsNumbering(),
+    sections: [makeSection(ex.exerciseName, kids)],
+  });
+}
+
 async function buildZip(ex: Exercise, orgName: string, onProgress?: (done: number, total: number, label: string) => void) {
   const zip = new JSZip();
   const files: [string, () => Document][] = [
@@ -385,7 +478,10 @@ async function buildZip(ex: Exercise, orgName: string, onProgress?: (done: numbe
     ["03_Role_Cards.docx", () => buildRoleCards(ex)],
     ["04_Participant_Workbook.docx", () => buildWorksheet(ex)],
     ["05_Facilitator_Script.docx", () => buildScript(ex)],
+    ["06_Evaluation_Sheet.docx", () => buildEvaluationSheet(ex)],
+    ["07_Participant_Briefing.docx", () => buildBriefing(ex, orgName)],
   ];
+
   const total = files.length + 1;
   let done = 0;
   for (const [name, factory] of files) {
@@ -406,6 +502,24 @@ async function buildZip(ex: Exercise, orgName: string, onProgress?: (done: numbe
 // ─── UI ───
 const STEPS = ["Sector", "Profile", "Scenario", "Parameters", "Generate"];
 const DRAFT_KEY = "marsec.draft.v1";
+const RECENT_KEY = "marsec.recent.v1";
+
+interface RecentEntry {
+  savedAt: string;
+  orgName: string;
+  sectorId: SectorId;
+  injectCount: number;
+  exercise: Exercise;
+}
+
+function loadRecent(): RecentEntry[] {
+  try {
+    const raw = localStorage.getItem(RECENT_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr.slice(0, 5) : [];
+  } catch { return []; }
+}
+
 
 export default function MarSec() {
   const [step, setStep] = useState(0);
@@ -429,11 +543,16 @@ export default function MarSec() {
   const [exercise, setExercise] = useState<Exercise | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
+  const [repairing, setRepairing] = useState(false);
+  const [regenId, setRegenId] = useState<string | null>(null);
+  const [recent, setRecent] = useState<RecentEntry[]>(() => loadRecent());
 
   const fileRef = useRef<HTMLInputElement>(null);
+  const jsonRef = useRef<HTMLInputElement>(null);
   const genTimerRef = useRef<number | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const draftLoaded = useRef(false);
+
 
   function pushLog(msg: string) {
     const now = new Date();
@@ -574,6 +693,7 @@ export default function MarSec() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Generation failed");
       setExercise(data.exercise);
+      rememberExercise(data.exercise);
       setProgressPct(100);
       setProgress("Exercise generated");
       pushLog(`Received "${data.exercise?.exerciseName ?? ""}"`);
@@ -591,6 +711,132 @@ export default function MarSec() {
       setLoading(false);
     }
   }
+
+  // ─── Quality assurance ───
+  const findings: Finding[] = useMemo(() => {
+    if (!exercise) return [];
+    return runQualityCheck(exercise, {
+      injectCount,
+      topics,
+      obligationLabels: OBLIGATIONS.filter((o) => obligations.includes(o.id)).map((o) => o.label),
+      roleCount: roleScope === "full" ? 8 : 6,
+    });
+  }, [exercise, injectCount, topics, obligations, roleScope]);
+
+  async function callFn(payload: Record<string, unknown>) {
+    const projectRef = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+    const anon = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+    const res = await fetch(`https://${projectRef}.supabase.co/functions/v1/marsec-generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${anon}`, apikey: anon },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Request failed");
+    return data;
+  }
+
+  async function repairExercise() {
+    if (!exercise || !findings.length) return;
+    setRepairing(true); setError(null); setLog([]);
+    pushLog(`Sending ${findings.length} quality finding(s) back for a targeted fix`);
+    try {
+      const data = await callFn({ mode: "repair", exercise, findings });
+      if (data.exercise) {
+        setExercise(data.exercise);
+        rememberExercise(data.exercise);
+        pushLog("Repaired exercise received — re-running quality check");
+      }
+    } catch (e: any) {
+      setError(e.message || "Repair failed");
+      pushLog("Repair error: " + (e.message || "unknown"));
+    } finally {
+      setRepairing(false);
+    }
+  }
+
+  async function regenerateInject(id: string) {
+    if (!exercise) return;
+    setRegenId(id); setError(null);
+    pushLog(`Regenerating inject ${id}`);
+    try {
+      const data = await callFn({ mode: "inject", exercise, injectId: id });
+      const fresh: Inject | undefined = data.inject;
+      if (fresh) {
+        const next = { ...exercise, injects: exercise.injects.map((i) => (i.id === id ? { ...fresh, id } : i)) };
+        setExercise(next);
+        rememberExercise(next);
+        pushLog(`${id} replaced`);
+      }
+    } catch (e: any) {
+      setError(e.message || "Regeneration failed");
+    } finally {
+      setRegenId(null);
+    }
+  }
+
+  function patchInject(id: string, patch: Partial<Inject>) {
+    setExercise((ex) => (ex ? { ...ex, injects: ex.injects.map((i) => (i.id === id ? { ...i, ...patch } : i)) } : ex));
+  }
+
+  function resortInjects() {
+    setExercise((ex) => {
+      if (!ex) return ex;
+      const sorted = [...ex.injects].sort((a, b) => (parseInjectMinutes(a.time) ?? 1e9) - (parseInjectMinutes(b.time) ?? 1e9));
+      return { ...ex, injects: sorted };
+    });
+  }
+
+  // ─── Save / reuse ───
+  function rememberExercise(ex: Exercise) {
+    if (!sectorId) return;
+    try {
+      const entry: RecentEntry = { savedAt: new Date().toISOString(), orgName, sectorId, injectCount, exercise: ex };
+      const next = [entry, ...loadRecent().filter((r) => r.exercise?.exerciseName !== ex.exerciseName)].slice(0, 5);
+      localStorage.setItem(RECENT_KEY, JSON.stringify(next));
+      setRecent(next);
+    } catch { /* quota — ignore */ }
+  }
+
+  function exportJson() {
+    if (!exercise) return;
+    const blob = new Blob([JSON.stringify({ meta: { orgName, sectorId, injectCount, duration, roleScope, difficulty, topics, obligations }, exercise }, null, 2)], { type: "application/json" });
+    saveAs(blob, `MarSec_TTX_${slug(orgName)}_${slug(exercise.exerciseName)}.json`);
+  }
+
+  function importJson(file: File) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(String(reader.result));
+        const ex: Exercise = parsed.exercise ?? parsed;
+        if (!ex?.injects?.length) throw new Error("no injects");
+        const meta = parsed.meta ?? {};
+        if (meta.sectorId) setSectorId(meta.sectorId);
+        if (meta.topics) setTopics(meta.topics);
+        if (meta.duration) setDuration(meta.duration);
+        if (meta.roleScope) setRoleScope(meta.roleScope);
+        if (meta.difficulty) setDifficulty(meta.difficulty);
+        if (Array.isArray(meta.obligations)) setObligations(meta.obligations);
+        if (meta.orgName) setProfile((p) => ({ ...p, name: meta.orgName }));
+        setExercise(ex);
+        setError(null);
+        setStep(5);
+      } catch {
+        setError("That file is not a MarSec exercise export.");
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function openRecent(entry: RecentEntry) {
+    setSectorId(entry.sectorId);
+    setProfile((p) => ({ ...getSector(entry.sectorId).defaults, ...p, name: entry.orgName }));
+    setExercise(entry.exercise);
+    setError(null);
+    setStep(5);
+  }
+
 
   async function downloadZip() {
     if (!exercise) return;
@@ -658,9 +904,31 @@ export default function MarSec() {
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <button onClick={() => setStep(1)} className="px-6 py-3 rounded-full bg-[#D6003C] text-white text-sm font-semibold hover:bg-[#b30032] transition">Start the wizard</button>
-            <span className="px-6 py-3 rounded-full border border-white/25 text-white/70 text-sm">All input stays in this browser session</span>
+            <button onClick={() => jsonRef.current?.click()} className="px-6 py-3 rounded-full border border-white/25 text-white/80 text-sm hover:bg-white/10 transition">Open a saved exercise (JSON)</button>
+            <input ref={jsonRef} type="file" accept="application/json,.json" className="hidden"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) importJson(f); e.currentTarget.value = ""; }} />
           </div>
+          {error && <p className="mt-4 text-sm text-[#D6003C] bg-white/90 rounded-lg px-3 py-2 inline-block">{error}</p>}
+          {recent.length > 0 && (
+            <div className="mt-10 max-w-2xl">
+              <p className="text-[11px] uppercase tracking-[0.28em] text-white/45 mb-3">Recent exercises on this device</p>
+              <ul className="space-y-2">
+                {recent.map((r, i) => (
+                  <li key={i}>
+                    <button onClick={() => openRecent(r)} className="w-full text-left rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition px-4 py-3">
+                      <span className="block text-sm text-white font-medium">{r.exercise?.exerciseName}</span>
+                      <span className="block text-xs text-white/50 mt-0.5">
+                        {r.orgName} · {r.injectCount} injects · {new Date(r.savedAt).toLocaleString()}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <p className="mt-8 text-xs text-white/40">All input stays in this browser session.</p>
         </div>
+
       </section>
       )}
 
@@ -935,29 +1203,31 @@ export default function MarSec() {
                   )}
                 </div>
 
+                <QualityPanel findings={findings} onRepair={repairExercise} repairing={repairing} />
+
                 <div>
-                  <h4 className="text-sm font-semibold mb-2 uppercase tracking-[0.18em] text-[#0B2239]/60">Inject timeline</h4>
-                  <div className="rounded-2xl border border-[#0B2239]/10 bg-white overflow-x-auto">
-                    <table className="w-full text-sm min-w-[560px]">
-                      <thead className="bg-[#0B2239] text-white"><tr>
-                        <th className="text-left px-3 py-2 w-20">ID</th>
-                        <th className="text-left px-3 py-2 w-28 sm:w-36">Time</th>
-                        <th className="text-left px-3 py-2">Title</th>
-                        <th className="text-left px-3 py-2 w-40 sm:w-56">Topic</th>
-                      </tr></thead>
-                      <tbody>
-                        {exercise.injects.map((i, idx) => (
-                          <tr key={i.id} className={idx % 2 ? "bg-[#F5F7FA]" : ""}>
-                            <td className="px-3 py-2 font-mono text-xs">{i.id}</td>
-                            <td className="px-3 py-2 text-xs">{i.time}</td>
-                            <td className="px-3 py-2">{i.title}</td>
-                            <td className="px-3 py-2 text-xs text-[#0B2239]/60">{i.topicTag}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                  <div className="flex items-end justify-between gap-3 flex-wrap mb-2">
+                    <h4 className="text-sm font-semibold uppercase tracking-[0.18em] text-[#0B2239]/60">Inject timeline · {exercise.injects.length} injects</h4>
+                    <div className="flex gap-2">
+                      <button onClick={resortInjects} className="text-xs px-3 py-1.5 rounded-full border border-[#0B2239]/20 hover:bg-[#0B2239]/5">Sort by time</button>
+                    </div>
+                  </div>
+                  <p className="text-xs text-[#0B2239]/55 mb-2">Open an inject to edit the wording, fix the timing or have it rewritten. Edits flow straight into the Word export.</p>
+                  <div className="rounded-2xl border border-[#0B2239]/10 bg-white overflow-hidden divide-y divide-[#0B2239]/10">
+                    {exercise.injects.map((i, idx) => (
+                      <InjectDetail
+                        key={i.id}
+                        inject={i}
+                        index={idx}
+                        alt={idx % 2 === 1}
+                        onChange={(patch) => patchInject(i.id, patch)}
+                        onRegenerate={() => regenerateInject(i.id)}
+                        regenerating={regenId === i.id}
+                      />
+                    ))}
                   </div>
                 </div>
+
 
                 <div>
                   <h4 className="text-sm font-semibold mb-2 uppercase tracking-[0.18em] text-[#0B2239]/60">Roles</h4>
@@ -998,7 +1268,9 @@ export default function MarSec() {
                 )}
 
                 <div className="flex gap-3 flex-wrap">
-                  <button onClick={generate} disabled={loading} className={btnGhost}>Regenerate</button>
+                  <button onClick={generate} disabled={loading} className={btnGhost}>Regenerate all</button>
+                  <button onClick={exportJson} className={btnGhost}>↓ Save as JSON</button>
+
                   <button onClick={downloadZip} disabled={downloading} className={`${btnPrimary} flex-1 sm:flex-none`}>
                     {downloading ? "Building Word package …" : "Download Word package (ZIP)"}
                   </button>

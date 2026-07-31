@@ -58,7 +58,17 @@ Rules (strict):
 - Realism: use maritime terminology correctly (TEU, berth, STS crane, TOS, ECDIS, AIS, VTS, ISPS, PFSO/CSO, charter party, port state control, class society).
 - Fictional names only (no real companies, vessels, ports or vendors). Language: ENGLISH throughout.
 
+Self-check before answering (silently, then fix your own draft):
+1. Inject count exactly as requested, IDs consecutive, times strictly ascending.
+2. Every inject except I-01 has a dependsOn naming an existing inject ID or a verbatim timeline event.
+3. Timeline has at least (injects + 2) events; nothing in an inject is absent from profile or timeline.
+4. No channel three times in a row; no duplicated discussion prompt or clarification question anywhere.
+5. Every requested topic is tagged: Lead thread 3-4 injects, Core thread 1-2, Side thread 1.
+6. classificationTime set as HH:MM; every reporting deadline numeric and anchored to it.
+7. Every role has 4-6 tasks and a tension in the form "goal A vs. goal B".
+
 Answer with valid JSON ONLY, matching the schema. No markdown, no prose prefix.`;
+
 
 const MODEL = "google/gemini-2.5-flash";
 const PRICE_IN_PER_M = 0.30;
@@ -147,6 +157,109 @@ serve(async (req) => {
   try {
     const body = await req.json();
     const { sector, sectorContext, profile, topics, duration, injectCount, roleScope, roles, difficulty, obligations } = body ?? {};
+    const mode = typeof body?.mode === "string" ? body.mode : "full";
+
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) {
+      return new Response(JSON.stringify({ error: "Service not configured" }), {
+        status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // ── Targeted modes: repair the whole exercise, or one inject ──
+    if (mode === "repair" || mode === "inject") {
+      const exercise = body?.exercise;
+      if (!exercise || typeof exercise !== "object" || !Array.isArray(exercise.injects)) {
+        return new Response(JSON.stringify({ error: "Invalid request" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const exJson = JSON.stringify(exercise).slice(0, 60000);
+
+      let prompt: string;
+      if (mode === "repair") {
+        const findings = Array.isArray(body?.findings) ? body.findings.slice(0, 30) : [];
+        if (!findings.length) {
+          return new Response(JSON.stringify({ error: "Invalid request" }), {
+            status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        const fixLines = findings
+          .map((f: any, i: number) => `${i + 1}. [${String(f?.severity ?? "warning")}] ${String(f?.rule ?? "").slice(0, 200)} — ${String(f?.detail ?? "").slice(0, 300)} → FIX: ${String(f?.fix ?? "").slice(0, 300)}`)
+          .join("\n");
+        prompt = `Repair the following maritime tabletop exercise. Fix ONLY the listed quality findings. Keep everything else — wording, IDs, names, storyline — byte-identical where it is not affected by a fix.
+
+Quality findings to fix:
+${fixLines}
+
+Return the COMPLETE repaired exercise as a single JSON object with exactly the same schema as the input. No markdown, no prose.
+
+Current exercise:
+${exJson}`;
+      } else {
+        const injectId = String(body?.injectId ?? "").slice(0, 12);
+        const instruction = String(body?.instruction ?? "").slice(0, 500);
+        if (!injectId) {
+          return new Response(JSON.stringify({ error: "Invalid request" }), {
+            status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        prompt = `Rewrite exactly ONE inject of the following maritime tabletop exercise: ${injectId}.
+
+Rules: keep the inject id, its position in the chronology and its dependsOn chain intact so predecessors and successors still make sense. Use only facts that already exist in groundTruth (organisationProfile, timeline) or in other injects. Do not duplicate discussion prompts or clarification questions used elsewhere. Choose a channel that differs from the neighbouring injects.${instruction ? `\nAdditional instruction: ${instruction}` : ""}
+
+Return a single JSON object: {"inject": { ...full inject object with all fields... }}. No markdown, no prose.
+
+Current exercise:
+${exJson}`;
+      }
+
+      const tR0 = Date.now();
+      let rr: Response;
+      try {
+        rr = await callGateway(SYSTEM_BASE, prompt, LOVABLE_API_KEY, mode === "repair" ? 20000 : 4000, 0.2);
+      } catch (e) {
+        console.error("gateway fetch failed", e);
+        return new Response(JSON.stringify({ error: "AI gateway unreachable" }), { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      const rDur = Date.now() - tR0;
+      if (!rr.ok) {
+        const st = rr.status;
+        const txt = await rr.text().catch(() => "");
+        console.error(JSON.stringify({ evt: "marsec_ai_error", mode, status: st, err: txt.slice(0, 400) }));
+        await logAiUsage({ function_name: "marsec-generate", model: MODEL, status: st, duration_ms: rDur, meta: { mode, error: txt.slice(0, 400) } });
+        if (st === 429) return new Response(JSON.stringify({ error: "Rate limit reached. Please wait a moment." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        if (st === 402 || st === 403) return new Response(JSON.stringify({ error: "AI quota exhausted. Please top up workspace credits." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        return new Response(JSON.stringify({ error: mode === "repair" ? "Repair failed" : "Regeneration failed" }), { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      const rData = await rr.json();
+      const rUsage = rData?.usage ?? {};
+      const rContent: string = rData.choices?.[0]?.message?.content || "{}";
+      const rParsed = tryParse(rContent);
+      await logAiUsage({
+        function_name: "marsec-generate",
+        model: MODEL,
+        status: 200,
+        prompt_tokens: rUsage.prompt_tokens ?? 0,
+        completion_tokens: rUsage.completion_tokens ?? 0,
+        total_tokens: (rUsage.prompt_tokens ?? 0) + (rUsage.completion_tokens ?? 0),
+        cost_usd: Number((((rUsage.prompt_tokens ?? 0) / 1_000_000) * PRICE_IN_PER_M + ((rUsage.completion_tokens ?? 0) / 1_000_000) * PRICE_OUT_PER_M).toFixed(6)),
+        duration_ms: rDur,
+        meta: { mode, responseBytes: rContent.length },
+      });
+
+      if (mode === "repair") {
+        if (!rParsed || !rParsed.injects) {
+          return new Response(JSON.stringify({ error: "Response could not be parsed. Please try again." }), { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        }
+        return new Response(JSON.stringify({ exercise: rParsed }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      const inj = rParsed?.inject ?? (rParsed?.id ? rParsed : null);
+      if (!inj || !inj.content) {
+        return new Response(JSON.stringify({ error: "Response could not be parsed. Please try again." }), { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      return new Response(JSON.stringify({ inject: inj }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
 
     if (
       typeof sector !== "string" || sector.length > 40 ||
@@ -159,12 +272,6 @@ serve(async (req) => {
       });
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      return new Response(JSON.stringify({ error: "Service not configured" }), {
-        status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
 
     const profileLines = Object.entries(profile as Record<string, unknown>)
       .filter(([, v]) => typeof v === "string" && v.trim())
