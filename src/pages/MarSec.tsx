@@ -724,18 +724,18 @@ export default function MarSec() {
     });
   }, [exercise, injectCount, topics, obligations, roleScope]);
 
-  // Auto QA: the check runs on every exercise change; blockers trigger up to two
-  // silent AI repair passes before the facilitator has to touch anything.
+  // Auto QA: fully automated. Blockers and warnings both trigger silent AI repair
+  // passes (max 3) — no facilitator interaction, no panel.
   const autoPassRef = useRef(0);
   const [autoQa, setAutoQa] = useState(false);
   useEffect(() => {
     if (!exercise || loading || repairing || regenId) return;
-    const blockers = findings.filter((f) => f.severity === "blocker").length;
-    if (!blockers) { setAutoQa(false); return; }
-    if (autoPassRef.current >= 2) { setAutoQa(false); return; }
+    const open = findings.filter((f) => f.severity === "blocker" || f.severity === "warning").length;
+    if (!open) { setAutoQa(false); return; }
+    if (autoPassRef.current >= 3) { setAutoQa(false); return; }
     autoPassRef.current += 1;
     setAutoQa(true);
-    pushLog(`Auto quality pass ${autoPassRef.current}/2 — ${blockers} blocker(s) found, repairing`);
+    pushLog(`Auto quality pass ${autoPassRef.current}/3 — ${open} finding(s), repairing`);
     repairExercise().finally(() => setAutoQa(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [findings, exercise, loading, repairing, regenId]);
