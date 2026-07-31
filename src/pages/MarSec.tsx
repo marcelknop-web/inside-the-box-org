@@ -673,7 +673,8 @@ export default function MarSec() {
       )}
 
       {step > 0 && (
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+
         {/* Stepper */}
         <ol className="flex gap-1.5 sm:gap-2 mb-8 flex-wrap">
           {STEPS.map((label, i) => {
