@@ -652,7 +652,7 @@ export default function MarSec() {
 
       {/* Hero */}
       <section className="relative">
-        <img src={heroImg} alt="Container vessel at sea under an overcast dawn sky" width={1920} height={1088} fetchPriority="high" className="absolute inset-0 h-full w-full object-cover" />
+        <img src={heroImg} alt="Container vessel at sea under an overcast dawn sky" width={1920} height={1088} {...{ fetchpriority: "high" }} className="absolute inset-0 h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#0B2239]/90 via-[#0B2239]/70 to-[#0B2239]/25" />
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
           <p className="text-[11px] uppercase tracking-[0.35em] text-[#D6003C] font-semibold mb-4">Maritime crisis exercises</p>
