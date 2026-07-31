@@ -231,8 +231,7 @@ function buildFacilitatorGuide(ex: Exercise, orgName: string): Document {
     ...(ex.hotwashNotes ?? []).map((h) => bullet(h)),
   ];
   return new Document({
-    creator: "MarSec Studio", title: `${ex.exerciseName} – Facilitator Guide`,
-    features: { updateFields: true }, styles: styleDoc, numbering: bulletsNumbering(),
+    creator: "MarSec Studio", title: `${ex.exerciseName} – Facilitator Guide`, styles: styleDoc, numbering: bulletsNumbering(),
     sections: [makeSection(ex.exerciseName, children)],
   });
 }
@@ -373,8 +372,7 @@ function buildScript(ex: Exercise): Document {
     ].map((s) => bullet(s)));
   (ex.hotwashNotes ?? []).forEach((h) => kids.push(bullet(h)));
   return new Document({
-    creator: "MarSec Studio", title: `${ex.exerciseName} – Facilitator Script`,
-    features: { updateFields: true }, styles: styleDoc, numbering: bulletsNumbering(),
+    creator: "MarSec Studio", title: `${ex.exerciseName} – Facilitator Script`, styles: styleDoc, numbering: bulletsNumbering(),
     sections: [makeSection(ex.exerciseName, kids)],
   });
 }

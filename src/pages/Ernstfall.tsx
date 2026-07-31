@@ -269,7 +269,6 @@ function buildTrainerGuide(ex: Exercise, bank: BankProfile): Document {
 
   return new Document({
     creator: "ERNSTLFALL", title: `${ex.uebungsname} – Trainer Guide`,
-    features: { updateFields: true },
     styles: styleDoc,
     numbering: bulletsNumbering(),
     sections: [makeSection(ex.uebungsname, children)],
@@ -419,7 +418,6 @@ function buildDrehbuch(ex: Exercise): Document {
   ex.hotwashHinweise.forEach((h) => kids.push(bullet(h)));
   return new Document({
     creator: "ERNSTLFALL", title: `${ex.uebungsname} – Trainer-Drehbuch`,
-    features: { updateFields: true },
     styles: styleDoc,
     numbering: bulletsNumbering(),
     sections: [makeSection(ex.uebungsname, kids)],
