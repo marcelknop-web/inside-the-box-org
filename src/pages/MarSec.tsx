@@ -492,7 +492,7 @@ export default function MarSec() {
 
   function resetAll() {
     if (!confirm("Discard all input and start over?")) return;
-    setStep(1); setSectorId(null); setProfile({});
+    setStep(0); setSectorId(null); setProfile({});
     setSheetRows([]); setSheetHeaders([]); setSelectedRowIdx(null);
     setTopics({}); setDuration("3h"); setRoleScope("full"); setDifficulty("Intermediate"); setObligations([]);
     setExercise(null); setError(null); setProgress(""); setProgressPct(0); setLog([]);
