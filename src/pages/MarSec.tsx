@@ -15,6 +15,7 @@ import type { Exercise, Inject } from "@/data/marsecTypes";
 import { runQualityCheck, countBySeverity, parseInjectMinutes, type Finding } from "@/utils/marsecQualityCheck";
 import QualityPanel from "@/components/marsec/QualityPanel";
 import InjectDetail from "@/components/marsec/InjectDetail";
+import { buildOnePagerPdf } from "@/utils/marsecOnePagerPdf";
 
 // ─── Brand tokens (MarSec Studio) ───
 const NAVY = "0B2239";
@@ -723,6 +724,36 @@ export default function MarSec() {
     });
   }, [exercise, injectCount, topics, obligations, roleScope]);
 
+  // Auto QA: the check runs on every exercise change; blockers trigger up to two
+  // silent AI repair passes before the facilitator has to touch anything.
+  const autoPassRef = useRef(0);
+  const [autoQa, setAutoQa] = useState(false);
+  useEffect(() => {
+    if (!exercise || loading || repairing || regenId) return;
+    const blockers = findings.filter((f) => f.severity === "blocker").length;
+    if (!blockers) { setAutoQa(false); return; }
+    if (autoPassRef.current >= 2) { setAutoQa(false); return; }
+    autoPassRef.current += 1;
+    setAutoQa(true);
+    pushLog(`Auto quality pass ${autoPassRef.current}/2 — ${blockers} blocker(s) found, repairing`);
+    repairExercise().finally(() => setAutoQa(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [findings, exercise, loading, repairing, regenId]);
+
+  function downloadOnePager() {
+    if (!exercise) return;
+    const doc = buildOnePagerPdf(exercise, {
+      orgName,
+      sectorLabel: sector?.name ?? "Maritime operator",
+      duration,
+      injectCount: exercise.injects?.length ?? injectCount,
+      roleCount: exercise.roles?.length ?? (roleScope === "full" ? 8 : 6),
+      difficulty,
+    });
+    doc.save(`MarSec_OnePager_${slug(orgName)}_${slug(exercise.exerciseName)}.pdf`);
+  }
+
+
   async function callFn(payload: Record<string, unknown>) {
     const projectRef = import.meta.env.VITE_SUPABASE_PROJECT_ID;
     const anon = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -1203,7 +1234,7 @@ export default function MarSec() {
                   )}
                 </div>
 
-                <QualityPanel findings={findings} onRepair={repairExercise} repairing={repairing} />
+                <QualityPanel findings={findings} onRepair={repairExercise} repairing={repairing || autoQa} auto={autoQa} />
 
                 <div>
                   <div className="flex items-end justify-between gap-3 flex-wrap mb-2">
@@ -1270,6 +1301,7 @@ export default function MarSec() {
                 <div className="flex gap-3 flex-wrap">
                   <button onClick={generate} disabled={loading} className={btnGhost}>Regenerate all</button>
                   <button onClick={exportJson} className={btnGhost}>↓ Save as JSON</button>
+                  <button onClick={downloadOnePager} className={btnGhost}>↓ One-pager (PDF)</button>
 
                   <button onClick={downloadZip} disabled={downloading} className={`${btnPrimary} flex-1 sm:flex-none`}>
                     {downloading ? "Building Word package …" : "Download Word package (ZIP)"}
