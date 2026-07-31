@@ -193,7 +193,20 @@ export function runQualityCheck(ex: Exercise, ctx: CheckContext): Finding[] {
   }
 
   // ── Topic coverage & weighting ───────────────────────────
-  const tagText = injects.map((i) => norm(`${i.topicTag} ${i.title}`));
+  const tagText = injects.map((i) => norm(`${i.topicTag} ${i.title} ${i.content ?? ""}`));
+  // topicTag must name a selected topic, not just its weight ("Lead thread" etc.).
+  const weightLabels = new Set(["lead thread", "core thread", "side thread"]);
+  const weightTagged = injects.filter((i) => weightLabels.has(norm(i.topicTag)));
+  if (weightTagged.length) {
+    f.push({
+      id: "topic-tag-weight",
+      severity: "warning",
+      rule: "topicTag names the scenario topic, not its weighting",
+      detail: `Tagged with a weighting instead of a topic: ${weightTagged.map((i) => i.id).join(", ")}.`,
+      fix: `Set topicTag to the verbatim selected topic, one of: ${Object.keys(ctx.topics).join(" | ")}.`,
+    });
+  }
+
   const narrativeText = norm(
     [
       ex.exerciseName ?? "",
