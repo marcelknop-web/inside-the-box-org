@@ -53,7 +53,6 @@ Rules (strict):
 - Ship vs shore: state explicitly whether an event happens shore-side (IT) or on board (IT/OT), and keep the separation consistent. Respect the Master's authority at sea and satcom bandwidth limits.
 - Classification time ("classificationTime", format HH:MM) marks when the incident was classified as major/significant. EVERY reporting deadline must contain a number: a clock time and/or "T+<hours>h" offset — never "immediate", "as soon as practicable" or similar (write e.g. "09:35 (T+0h05)").
 
-- Classification time ("classificationTime", format HH:MM) marks when the incident was classified as major/significant. All reporting deadlines are anchored to it and expressed as a concrete clock time OR "T+<hours>h" — never generic.
 - Clarification questions: every answer either cites a timeline fact or reads "Not known - carry as an assumption." Nothing invented.
 - Role tension: ALWAYS a conflict between two named goals (e.g. "fast resumption of quay operations vs. forensic evidence preservation"), never a character description.
 - Anti-repetition: discussion prompts and clarification questions must not duplicate content across injects.
@@ -63,12 +62,13 @@ Rules (strict):
 
 Self-check before answering (silently, then fix your own draft):
 1. Inject count exactly as requested, IDs consecutive, times strictly ascending.
-2. Every inject except I-01 has a dependsOn naming an existing inject ID or a verbatim timeline event.
-3. Timeline has at least (injects + 2) events; nothing in an inject is absent from profile or timeline.
+2. Every inject except I-01 has a dependsOn that is either an existing inject ID or "HH:MM <verbatim timeline event text>".
+3. Timeline has at least (injects + 2) events, includes one event per inject at the identical clock time; nothing in an inject is absent from profile or timeline.
 4. No channel three times in a row; no duplicated discussion prompt or clarification question anywhere.
-5. Every requested topic is tagged: Lead thread 3-4 injects, Core thread 1-2, Side thread 1.
-6. classificationTime set as HH:MM; every reporting deadline numeric and anchored to it.
+5. Every requested topic is tagged with its verbatim topic name: Lead thread 3-4 injects, Core thread 1-2, Side thread 1.
+6. classificationTime set as HH:MM; every reporting obligation deadline contains a digit (clock time and/or T+xh) — no "immediate" or "as soon as practicable".
 7. Every role has 4-6 tasks and a tension in the form "goal A vs. goal B".
+
 
 Answer with valid JSON ONLY, matching the schema. No markdown, no prose prefix.`;
 
