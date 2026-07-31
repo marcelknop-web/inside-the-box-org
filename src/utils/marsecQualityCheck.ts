@@ -188,8 +188,20 @@ export function runQualityCheck(ex: Exercise, ctx: CheckContext): Finding[] {
 
   // ── Topic coverage & weighting ───────────────────────────
   const tagText = injects.map((i) => norm(`${i.topicTag} ${i.title}`));
+  const narrativeText = norm(
+    [
+      ex.exerciseName ?? "",
+      ex.summary ?? "",
+      ...(ex.objectives ?? []),
+      ex.groundTruth?.organisationProfile ?? "",
+      ex.groundTruth?.adversaryOrCause ?? "",
+      ...(ex.groundTruth?.complications ?? []),
+      ...(ex.groundTruth?.timeline ?? []).map((t) => `${t.time} ${t.event}`),
+    ].join(" "),
+  );
+  const topicWords = (topic: string) => norm(topic).split(" ").filter((w) => w.length > 4);
   const countFor = (topic: string) => {
-    const words = norm(topic).split(" ").filter((w) => w.length > 4);
+    const words = topicWords(topic);
     return tagText.filter((t) => words.some((w) => t.includes(w))).length;
   };
   Object.entries(ctx.topics).forEach(([topic, weight]) => {
@@ -214,7 +226,19 @@ export function runQualityCheck(ex: Exercise, ctx: CheckContext): Finding[] {
         fix: `Re-balance "${topic}" to ${want[0]}–${want[1]} injects as a ${weight}.`,
       });
     }
+    // The narrative must carry the topic too, not only the inject tags.
+    const words = topicWords(topic);
+    if (words.length && !words.some((w) => narrativeText.includes(w))) {
+      f.push({
+        id: `topic-narrative-${norm(topic).slice(0, 20)}`,
+        severity: weight === "Lead thread" ? "blocker" : "warning",
+        rule: "Selected topics are woven into scenario narrative and ground truth",
+        detail: `"${topic}" (${weight}) is tagged on injects but never referenced in the summary, objectives or ground truth.`,
+        fix: `Weave "${topic}" explicitly into the scenario summary, at least one objective and the ground-truth timeline/root cause.`,
+      });
+    }
   });
+
 
   // ── Reporting obligations ────────────────────────────────
   const obs = ex.reportingObligations ?? [];
