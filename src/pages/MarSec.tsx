@@ -416,7 +416,7 @@ const STEPS = ["Sector", "Profile", "Scenario", "Parameters", "Generate"];
 const DRAFT_KEY = "marsec.draft.v1";
 
 export default function MarSec() {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
   const [sectorId, setSectorId] = useState<SectorId | null>(null);
   const sector = sectorId ? getSector(sectorId) : null;
 
