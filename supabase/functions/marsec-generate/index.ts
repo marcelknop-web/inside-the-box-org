@@ -64,7 +64,7 @@ const MODEL = "google/gemini-2.5-flash";
 const PRICE_IN_PER_M = 0.30;
 const PRICE_OUT_PER_M = 2.50;
 
-async function callGateway(system: string, userPrompt: string, key: string, maxTokens = 5500, temperature?: number) {
+async function callGateway(system: string, userPrompt: string, key: string, maxTokens = 16000, temperature?: number) {
   const body: Record<string, unknown> = {
     model: MODEL,
     messages: [
