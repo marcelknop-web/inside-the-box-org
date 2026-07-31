@@ -74,13 +74,19 @@ export function runQualityCheck(ex: Exercise, ctx: CheckContext): Finding[] {
       fix: `Add a concrete dependsOn (inject ID or timeline event) for ${missingDep.map((i) => i.id).join(", ")}.`,
     });
   }
+  const timelineTimes = new Set(
+    (ex.groundTruth?.timeline ?? []).map((t) => (t.time || "").trim()).filter(Boolean),
+  );
   const danglingDep = injects.filter((i) => {
     if (!i.dependsOn) return false;
-    const d = i.dependsOn;
+    // Tolerate wrappers like "timeline event: 09:20" or "see timeline 09:20 — ...".
+    const d = i.dependsOn.replace(/^\s*(?:see\s+)?timeline(?:\s+event)?\s*[:\-–]?\s*/i, "").trim();
     const idHit = [...ids].some((id) => id !== i.id && d.includes(id));
+    const timeHit = [...timelineTimes].some((t) => d.startsWith(t) || d === t);
     const tlHit = norm(timelineText).includes(norm(d).slice(0, 24)) && norm(d).length > 8;
-    return !idHit && !tlHit;
+    return !idHit && !timeHit && !tlHit;
   });
+
   if (danglingDep.length) {
     f.push({
       id: "depends-dangling",
