@@ -624,7 +624,7 @@ export default function MarSec() {
   const btnGhost = "px-5 py-2.5 rounded-full border border-[#0B2239]/20 text-[#0B2239] text-sm font-medium hover:bg-[#0B2239]/5 transition disabled:opacity-40";
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] text-[#0B2239]">
+    <div className={`min-h-screen flex flex-col text-[#0B2239] ${step === 0 ? "bg-[#0B2239]" : "bg-[#F5F7FA]"}`}>
       <Helmet>
         <title>MarSec Studio – Maritime TTX Generator | inside-the-box.org</title>
         <meta name="description" content="MarSec Studio generates full maritime cyber crisis tabletop exercises for container lines, port operators and cruise lines — facilitator guide, injects, role cards and worksheets as Word documents." />
