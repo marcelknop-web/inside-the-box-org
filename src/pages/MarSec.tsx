@@ -1009,6 +1009,7 @@ export default function MarSec() {
           </section>
         )}
       </main>
+      )}
 
       <footer className="bg-[#0B2239] text-white/60 mt-12">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 text-xs flex flex-wrap gap-2 justify-between">
