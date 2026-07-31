@@ -1301,6 +1301,7 @@ export default function MarSec() {
                 <div className="flex gap-3 flex-wrap">
                   <button onClick={generate} disabled={loading} className={btnGhost}>Regenerate all</button>
                   <button onClick={exportJson} className={btnGhost}>↓ Save as JSON</button>
+                  <button onClick={downloadOnePager} className={btnGhost}>↓ One-pager (PDF)</button>
 
                   <button onClick={downloadZip} disabled={downloading} className={`${btnPrimary} flex-1 sm:flex-none`}>
                     {downloading ? "Building Word package …" : "Download Word package (ZIP)"}
