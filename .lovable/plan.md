@@ -1,55 +1,51 @@
-## MarSec Studio — Maritime TTX Generator
+## MarSec Studio — improvement plan
 
-An English-language copy of ERNSTLFALL, adapted to the maritime sector (container shipping, port operators, cruise), with a DRYNET-inspired visual layout.
+Reviewed the wizard (`src/pages/MarSec.tsx`) and the generator (`supabase/functions/marsec-generate/index.ts`). The pipeline is solid: causal-chain prompt, ground truth, deadline anchoring, 5 DOCX files in a ZIP. The gaps are in **quality assurance, inject-level review, and facilitator usability** — the output is trusted blindly and can only be regenerated as a whole.
 
-### Route & access
-- New route `/marsec` (title "MarSec Studio"), behind the same password gate pattern, not listed in the AI Lab grid — direct link only.
-- ERNSTLFALL stays untouched.
+### 1. Automatic quality check on the generated exercise (highest value)
+A client-side validator that runs right after generation and shows a pass/fail panel before export, in the style of the existing compliance tools:
+- Every inject except the first has a `dependsOn` pointing at a real inject ID or timeline event.
+- Inject count matches the chosen duration; times are monotonic and inside the exercise window.
+- Timeline has at least injects + 2 events.
+- No channel repeated three times in a row; no duplicated discussion prompts or clarification questions.
+- Every selected topic actually appears as a `topicTag`; Lead thread has 3-4 injects, Core 1-2, Side 1.
+- Reporting obligations cover every selected obligation, each with a deadline that resolves to a clock time.
+- Roles complete for the chosen scope; every role tension contains an explicit "A vs. B" conflict.
 
-### Wizard flow (5 steps, English UI)
-1. **Sector** — pick one: Container Shipping Line / Port & Terminal Operator / Cruise Line. The selection drives the topic catalog, the profile fields, the role set and the reporting obligations.
-2. **Organisation profile** — sector-specific fields:
-   - Container line: fleet size, TEU capacity, trade lanes, TOS/ERP provider, onboard OT vendors, flag states.
-   - Port/terminal: annual throughput (TEU/tonnes), berths/cranes, TOS vendor, PCS/customs interfaces, ISPS security level.
-   - Cruise: fleet size, passenger capacity, itineraries/regions, PMS/booking provider, bridge/ECDIS vendors.
-   - Optional Excel upload retained (parsed locally in browser).
-3. **Scenario topics** — sector-specific catalogs, each weighted as Side thread / Core thread / Lead thread (max 4 recommended). Examples:
-   - Container line: ransomware on shore-side booking/TOS, ECDIS/bridge system manipulation, GPS/AIS spoofing, cargo-data manipulation (BL fraud), OT compromise on engine/ballast systems, satcom outage, container-release fraud, third-party 3PL/agent breach.
-   - Port/terminal: TOS ransomware halting gate & yard, crane/PLC (OT) compromise, gate/access-control and ISPS breach, customs/PCS interface outage, VTS/AIS disruption, insider at terminal, hinterland rail/truck system outage, physical + cyber combined event.
-   - Cruise: PMS/guest-data breach (passport, payment), ransomware on shipboard network mid-voyage, navigation/ECDIS integrity loss, HVAC/power OT event, guest-facing app & Wi-Fi compromise, medical-record breach, port-turnaround system failure, media/social-media escalation.
-4. **Exercise parameters** — duration (2 h / 8 injects, 3 h / 11, 4 h / 14), role scope (compact 6 / full 8, maritime roles: Master/Bridge, Fleet Ops/Terminal Ops, CISO, IT/OT lead, DPO/Legal, Comms/PR, HSSE/Security Officer (CSO/PFSO), Scribe), difficulty (Beginner / Intermediate / Expert), and a reporting-obligations block (see below).
-5. **Generation & export** — same terminal-style progress log; ZIP with five DOCX files (Trainer Guide, Inject Cards, Role Cards, Participant Worksheet, Trainer Script), all English.
+Findings are listed as blockers vs. warnings, with a "Repair with AI" button that sends only the failed checks back for a targeted fix instead of a full regeneration.
 
-### Reporting obligations (replaces the DORA toggle)
-Multi-select checkboxes, each fed into the AI prompt with concrete deadlines computed from the classification timestamp:
-- NIS2 (EU): 24 h early warning / 72 h notification to the national authority
-- IMO MSC-FAL.1/Circ.3, ISPS Code, class society and flag state
-- GDPR Art. 33 (72 h) for passenger/crew personal data
-- Customers / charterers / cargo owners / terminals (contract & SLA-driven notification)
-- Port authority (impact on port operations, call or terminal)
-- Insurers (Cyber / P&I / Hull & Machinery) — very early notification
-- National or maritime CERT/CSIRT
-- Law enforcement (police, BKA, FBI, Europol) for extortion, sabotage or ransomware
-- Suppliers / OT vendors (ABB, Kongsberg, Wärtsilä, Siemens, Schneider Electric) for compromised OT
-Defaults preselected per sector (e.g. cruise → GDPR + port authority; port → port authority + NIS2).
+### 2. Inject-level review and editing
+- Expandable inject rows showing content, expected response, facilitator note, prompts, clarifications and observation focus (today only ID/time/title/topic are visible).
+- Inline editing of title, time, content and expected response, so a facilitator can correct wording before export.
+- "Regenerate this inject" — one inject only, with the rest of the exercise as context, preserving the causal chain.
+- Drag-free reordering via time edit plus a re-sort action.
 
-### Backend
-New edge function `marsec-generate`, modelled on `ernstfall-generate`:
-- English system prompt with the same strict rules (causal chain, ground truth, no invented facts, channel diversity, anti-repetition) rewritten for maritime context: shipboard vs shore-side split, IT/OT separation, class/flag/port-state actors, charter parties, voyage schedule pressure.
-- Sector-specific context block injected per selection.
-- Reporting-obligation deadlines computed from `classificationTime`.
-- Same rate limiting, AI usage logging, JSON-parse retry, Gemini Flash model.
+### 3. Save, reload and reuse exercises
+- Export/import the exercise as JSON, so a finished exercise can be reopened later, edited and re-exported without a new AI call.
+- Keep the last 5 generated exercises in localStorage with a small "Recent exercises" list on the landing screen.
 
-### Layout (DRYNET-inspired)
-- Full-bleed maritime hero: dark sea/sky photograph with a subtle network-node overlay, oversized geometric sans headline ("MarSec Studio" / tagline), light text on the image.
-- Palette: deep navy/slate neutrals with a single crimson accent (`#D6003C`-family) for primary buttons, active stepper state and highlights; generous whitespace; wide rounded cards; thin borders.
-- Sticky slim top bar with wordmark, back link and a crimson primary action button.
-- Stepper as a horizontal pill row in the accent colour; step cards on white over a light neutral background; sector cards with maritime iconography.
-- Word exports use a matching navy/crimson accent scheme.
-- Fully responsive, mobile-checked.
+### 4. Facilitator-usability additions to the exports
+- Inject cards: add a check-box header block (time sent / channel used / who received / response given) for live use.
+- Facilitator guide: add a dependency map (inject → predecessor) and a "master timeline" combining ground truth and injects.
+- Add an evaluation/hotwash sheet with observation criteria per objective and a simple rating scale.
+- Optional: a one-page participant briefing (scenario, rules, roles, no spoilers).
+
+### 5. Generator robustness
+- Two-stage generation for 4 h / 14-inject exercises: first ground truth + schedule + roles, then injects in one follow-up call. This removes the token-limit truncation risk that currently needs the JSON repair fallback.
+- Feed the quality-check rules into the system prompt as an explicit self-check list before it answers.
+- Slightly raise the daily rate cap only if needed; keep the current limits otherwise.
+
+### 6. Smaller UX polish
+- Live "estimated exercise length vs. inject count" hint in Parameters.
+- Warning when more than 4 topics are weighted (prompt quality drops).
+- Deadline overview as a small timeline strip (T+0 → T+72 h) instead of a plain list.
+- Copy-to-clipboard for single injects (for chat-based delivery during the exercise).
 
 ### Technical notes
-- New files: `src/pages/MarSec.tsx`, sector data module (`src/data/marsecSectors.ts`) for topic catalogs, profile field definitions, roles and default reporting obligations, `supabase/functions/marsec-generate/index.ts`.
-- Route added in `src/App.tsx` with password gate; not added to the AI Lab grid or sitemap.
-- DOCX/ZIP builder logic reused from `Ernstfall.tsx`, translated and re-styled; drafts autosaved under a separate localStorage key.
-- Hero image generated as a project asset (no external hotlinking).
+- New: `src/utils/marsecQualityCheck.ts` (pure validation), `src/components/marsec/InjectDetail.tsx`, `src/components/marsec/QualityPanel.tsx`.
+- `MarSec.tsx` gets an editable `exercise` state (already local) plus JSON import/export; DOCX builders stay where they are but are extended for the new blocks.
+- Edge function gains a `mode` parameter: `full` (as today), `stage1`/`stage2` (split generation) and `repair` (targeted fix from quality findings). Same model, rate limiting and AI usage logging.
+- No schema or database changes.
+
+### Suggested order
+Start with 1 + 2 (quality check and inject review) — they change perceived output quality the most. Then 4, then 3, 5, 6.
