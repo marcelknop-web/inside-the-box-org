@@ -13,7 +13,6 @@ import heroImg from "@/assets/marsec-hero.jpg";
 import { SECTORS, OBLIGATIONS, getSector, type SectorId, type Weight } from "@/data/marsecSectors";
 import type { Exercise, Inject } from "@/data/marsecTypes";
 import { runQualityCheck, countBySeverity, parseInjectMinutes, type Finding } from "@/utils/marsecQualityCheck";
-import QualityPanel from "@/components/marsec/QualityPanel";
 import InjectDetail from "@/components/marsec/InjectDetail";
 import { buildOnePagerPdf } from "@/utils/marsecOnePagerPdf";
 
@@ -724,18 +723,18 @@ export default function MarSec() {
     });
   }, [exercise, injectCount, topics, obligations, roleScope]);
 
-  // Auto QA: the check runs on every exercise change; blockers trigger up to two
-  // silent AI repair passes before the facilitator has to touch anything.
+  // Auto QA: fully automated. Blockers and warnings both trigger silent AI repair
+  // passes (max 3) — no facilitator interaction, no panel.
   const autoPassRef = useRef(0);
   const [autoQa, setAutoQa] = useState(false);
   useEffect(() => {
     if (!exercise || loading || repairing || regenId) return;
-    const blockers = findings.filter((f) => f.severity === "blocker").length;
-    if (!blockers) { setAutoQa(false); return; }
-    if (autoPassRef.current >= 2) { setAutoQa(false); return; }
+    const open = findings.filter((f) => f.severity === "blocker" || f.severity === "warning").length;
+    if (!open) { setAutoQa(false); return; }
+    if (autoPassRef.current >= 3) { setAutoQa(false); return; }
     autoPassRef.current += 1;
     setAutoQa(true);
-    pushLog(`Auto quality pass ${autoPassRef.current}/2 — ${blockers} blocker(s) found, repairing`);
+    pushLog(`Auto quality pass ${autoPassRef.current}/3 — ${open} finding(s), repairing`);
     repairExercise().finally(() => setAutoQa(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [findings, exercise, loading, repairing, regenId]);
@@ -1234,7 +1233,11 @@ export default function MarSec() {
                   )}
                 </div>
 
-                <QualityPanel findings={findings} onRepair={repairExercise} repairing={repairing || autoQa} auto={autoQa} />
+                {(autoQa || repairing) && (
+                  <div className="rounded-2xl border border-[#0B2239]/10 bg-white px-6 py-3 text-xs uppercase tracking-[0.18em] text-[#0B2239]/55">
+                    Quality check running …
+                  </div>
+                )}
 
                 <div>
                   <div className="flex items-end justify-between gap-3 flex-wrap mb-2">
