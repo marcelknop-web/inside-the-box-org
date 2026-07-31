@@ -416,7 +416,7 @@ const STEPS = ["Sector", "Profile", "Scenario", "Parameters", "Generate"];
 const DRAFT_KEY = "marsec.draft.v1";
 
 export default function MarSec() {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
   const [sectorId, setSectorId] = useState<SectorId | null>(null);
   const sector = sectorId ? getSector(sectorId) : null;
 
@@ -492,7 +492,7 @@ export default function MarSec() {
 
   function resetAll() {
     if (!confirm("Discard all input and start over?")) return;
-    setStep(1); setSectorId(null); setProfile({});
+    setStep(0); setSectorId(null); setProfile({});
     setSheetRows([]); setSheetHeaders([]); setSelectedRowIdx(null);
     setTopics({}); setDuration("3h"); setRoleScope("full"); setDifficulty("Intermediate"); setObligations([]);
     setExercise(null); setError(null); setProgress(""); setProgressPct(0); setLog([]);
@@ -650,7 +650,8 @@ export default function MarSec() {
         </div>
       </header>
 
-      {/* Hero */}
+      {/* Hero — landing only */}
+      {step === 0 && (
       <section className="relative">
         <img src={heroImg} alt="Container vessel at sea under an overcast dawn sky" width={1920} height={1088} {...{ fetchpriority: "high" }} className="absolute inset-0 h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#0B2239]/90 via-[#0B2239]/70 to-[#0B2239]/25" />
@@ -668,7 +669,9 @@ export default function MarSec() {
           </div>
         </div>
       </section>
+      )}
 
+      {step > 0 && (
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         {/* Stepper */}
         <ol className="flex gap-1.5 sm:gap-2 mb-8 flex-wrap">
@@ -1006,6 +1009,7 @@ export default function MarSec() {
           </section>
         )}
       </main>
+      )}
 
       <footer className="bg-[#0B2239] text-white/60 mt-12">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 text-xs flex flex-wrap gap-2 justify-between">
