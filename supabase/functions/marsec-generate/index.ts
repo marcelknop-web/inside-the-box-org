@@ -46,10 +46,13 @@ function rateCheck(ip: string) {
 const SYSTEM_BASE = `You design cyber crisis tabletop exercises (TTX) for the maritime sector. Produce ONE continuous, causally linked case — never a collection of unrelated episodes.
 
 Rules (strict):
-- Causality: every inject except I-01 names a concrete predecessor (inject ID or timeline event) in "dependsOn". No inject without a cause.
-- Topic roles: Lead thread = main storyline (3-4 injects), Core thread = secondary strand (1-2), Side thread = side effect (1).
+- Causality: every inject except I-01 names a concrete predecessor in "dependsOn". Use either an existing inject ID ("I-03") or a timeline reference in the exact form "HH:MM <verbatim event text copied from the timeline>". Never write "timeline event: 09:20" without the event text. No inject without a cause.
+- Topic roles: Lead thread = main storyline (3-4 injects), Core thread = secondary strand (1-2), Side thread = side effect (1). "topicTag" MUST contain the verbatim topic name from the request — never the weighting label ("Lead thread" etc.).
+- Timeline alignment: every inject corresponds to a timeline event at the SAME clock time. Add that event to "timeline" with the identical "time" value as the inject.
 - Ground truth: "timeline" contains at least (number of injects + 2) events. Every person, vessel, system, terminal or report mentioned in an inject MUST already appear in "organisationProfile" or "timeline". Never invent new facts inside inject text.
 - Ship vs shore: state explicitly whether an event happens shore-side (IT) or on board (IT/OT), and keep the separation consistent. Respect the Master's authority at sea and satcom bandwidth limits.
+- Classification time ("classificationTime", format HH:MM) marks when the incident was classified as major/significant. EVERY reporting deadline must contain a number: a clock time and/or "T+<hours>h" offset — never "immediate", "as soon as practicable" or similar (write e.g. "09:35 (T+0h05)").
+
 - Classification time ("classificationTime", format HH:MM) marks when the incident was classified as major/significant. All reporting deadlines are anchored to it and expressed as a concrete clock time OR "T+<hours>h" — never generic.
 - Clarification questions: every answer either cites a timeline fact or reads "Not known - carry as an assumption." Nothing invented.
 - Role tension: ALWAYS a conflict between two named goals (e.g. "fast resumption of quay operations vs. forensic evidence preservation"), never a character description.
