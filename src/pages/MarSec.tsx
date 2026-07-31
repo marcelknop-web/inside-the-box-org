@@ -1013,7 +1013,7 @@ export default function MarSec() {
       </main>
       )}
 
-      <footer className="bg-[#0B2239] text-white/60 mt-12">
+      <footer className="bg-[#0B2239] text-white/60 mt-auto">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 text-xs flex flex-wrap gap-2 justify-between">
           <span>© inside-the-box.org — Cybersecurity &amp; Resilience Consulting</span>
           <span>MarSec Studio · maritime tabletop exercise generator</span>
