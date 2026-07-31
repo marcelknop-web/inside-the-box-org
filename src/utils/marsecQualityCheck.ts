@@ -193,8 +193,9 @@ export function runQualityCheck(ex: Exercise, ctx: CheckContext): Finding[] {
       ex.exerciseName ?? "",
       ex.summary ?? "",
       ...(ex.objectives ?? []),
-      ex.groundTruth?.rootCause ?? "",
-      ex.groundTruth?.attackerProfile ?? "",
+      ex.groundTruth?.organisationProfile ?? "",
+      ex.groundTruth?.adversaryOrCause ?? "",
+      ...(ex.groundTruth?.complications ?? []),
       ...(ex.groundTruth?.timeline ?? []).map((t) => `${t.time} ${t.event}`),
     ].join(" "),
   );
