@@ -82,11 +82,54 @@ async function callGateway(system: string, userPrompt: string, key: string, maxT
   });
 }
 
+// Repairs JSON that was cut off mid-stream (token limit) by closing open strings/brackets.
+function repairTruncated(raw: string): any | null {
+  const start = raw.indexOf("{");
+  if (start < 0) return null;
+  const s = raw.slice(start);
+  const stack: string[] = [];
+  let inStr = false, esc = false, lastSafe = -1;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (inStr) {
+      if (esc) esc = false;
+      else if (c === "\\") esc = true;
+      else if (c === '"') inStr = false;
+      continue;
+    }
+    if (c === '"') inStr = true;
+    else if (c === "{" || c === "[") stack.push(c === "{" ? "}" : "]");
+    else if (c === "}" || c === "]") stack.pop();
+    else if (c === "," && stack.length) lastSafe = i;
+  }
+  const candidates = [s, lastSafe > 0 ? s.slice(0, lastSafe) : ""];
+  for (const base of candidates) {
+    if (!base) continue;
+    // recompute closers for the truncated candidate
+    const st: string[] = [];
+    let str = false, e = false;
+    for (const c of base) {
+      if (str) { if (e) e = false; else if (c === "\\") e = true; else if (c === '"') str = false; continue; }
+      if (c === '"') str = true;
+      else if (c === "{") st.push("}");
+      else if (c === "[") st.push("]");
+      else if (c === "}" || c === "]") st.pop();
+    }
+    let attempt = base + (str ? '"' : "");
+    attempt += st.reverse().join("");
+    try {
+      const p = JSON.parse(attempt);
+      if (p && p.injects) return p;
+    } catch { /* next candidate */ }
+  }
+  return null;
+}
+
 function tryParse(content: string): any | null {
   try { return JSON.parse(content); } catch { /* fallthrough */ }
   const m = content.match(/\{[\s\S]*\}/);
   if (m) { try { return JSON.parse(m[0]); } catch { /* fallthrough */ } }
-  return null;
+  return repairTruncated(content);
 }
 
 serve(async (req) => {
