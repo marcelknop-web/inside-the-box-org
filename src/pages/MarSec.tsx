@@ -975,15 +975,26 @@ export default function MarSec() {
                   <div>
                     <h4 className="text-sm font-semibold mb-2 uppercase tracking-[0.18em] text-[#0B2239]/60">Reporting obligations</h4>
                     <ul className="text-sm space-y-1.5">
-                      {exercise.reportingObligations.map((m, i) => (
-                        <li key={i} className="rounded-xl bg-white border border-[#0B2239]/10 px-4 py-2.5">
-                          <strong>{m.addressee}</strong> — {m.deadline}
-                          {computeDeadlineClock(exercise.groundTruth?.classificationTime, m.deadline) && (
-                            <span className="text-[#D6003C]"> · due {computeDeadlineClock(exercise.groundTruth?.classificationTime, m.deadline)}</span>
-                          )}
-                        </li>
-                      ))}
+                      {exercise.reportingObligations.map((m, i) => {
+                        const clock = computeDeadlineClock(exercise.groundTruth?.classificationTime, m.deadline);
+                        return (
+                          <li key={i} className="rounded-xl bg-white border border-[#0B2239]/10 px-4 py-2.5">
+                            <div className="font-semibold">{m.addressee}</div>
+                            <div className="text-[#0B2239]/70 text-[13px] mt-0.5">
+                              <span className="uppercase tracking-[0.14em] text-[11px] text-[#0B2239]/45">Deadline</span>{" "}
+                              {m.deadline}
+                              {clock && <span className="text-[#D6003C] font-medium"> · report by {clock}</span>}
+                            </div>
+                            {m.basis && (
+                              <div className="text-[#0B2239]/55 text-[12px] mt-0.5">
+                                <span className="uppercase tracking-[0.14em] text-[11px] text-[#0B2239]/45">Basis</span> {m.basis}
+                              </div>
+                            )}
+                          </li>
+                        );
+                      })}
                     </ul>
+
                   </div>
                 )}
 
