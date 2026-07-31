@@ -219,10 +219,15 @@ export function runQualityCheck(ex: Exercise, ctx: CheckContext): Finding[] {
     ].join(" "),
   );
   const topicWords = (topic: string) => norm(topic).split(" ").filter((w) => w.length > 4);
+  const normTags = injects.map((i) => norm(i.topicTag));
   const countFor = (topic: string) => {
+    // Verbatim tags are authoritative; fall back to keyword matching only if none match.
+    const exact = normTags.filter((t) => t && t === norm(topic)).length;
+    if (exact) return exact;
     const words = topicWords(topic);
     return tagText.filter((t) => words.some((w) => t.includes(w))).length;
   };
+
   Object.entries(ctx.topics).forEach(([topic, weight]) => {
     const n = countFor(topic);
     if (n === 0) {
