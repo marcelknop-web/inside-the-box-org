@@ -74,13 +74,19 @@ export function runQualityCheck(ex: Exercise, ctx: CheckContext): Finding[] {
       fix: `Add a concrete dependsOn (inject ID or timeline event) for ${missingDep.map((i) => i.id).join(", ")}.`,
     });
   }
+  const timelineTimes = new Set(
+    (ex.groundTruth?.timeline ?? []).map((t) => (t.time || "").trim()).filter(Boolean),
+  );
   const danglingDep = injects.filter((i) => {
     if (!i.dependsOn) return false;
-    const d = i.dependsOn;
+    // Tolerate wrappers like "timeline event: 09:20" or "see timeline 09:20 — ...".
+    const d = i.dependsOn.replace(/^\s*(?:see\s+)?timeline(?:\s+event)?\s*[:\-–]?\s*/i, "").trim();
     const idHit = [...ids].some((id) => id !== i.id && d.includes(id));
+    const timeHit = [...timelineTimes].some((t) => d.startsWith(t) || d === t);
     const tlHit = norm(timelineText).includes(norm(d).slice(0, 24)) && norm(d).length > 8;
-    return !idHit && !tlHit;
+    return !idHit && !timeHit && !tlHit;
   });
+
   if (danglingDep.length) {
     f.push({
       id: "depends-dangling",
@@ -188,6 +194,19 @@ export function runQualityCheck(ex: Exercise, ctx: CheckContext): Finding[] {
 
   // ── Topic coverage & weighting ───────────────────────────
   const tagText = injects.map((i) => norm(`${i.topicTag} ${i.title}`));
+  // topicTag must name a selected topic, not just its weight ("Lead thread" etc.).
+  const weightLabels = new Set(["lead thread", "core thread", "side thread"]);
+  const weightTagged = injects.filter((i) => weightLabels.has(norm(i.topicTag)));
+  if (weightTagged.length) {
+    f.push({
+      id: "topic-tag-weight",
+      severity: "warning",
+      rule: "topicTag names the scenario topic, not its weighting",
+      detail: `Tagged with a weighting instead of a topic: ${weightTagged.map((i) => i.id).join(", ")}.`,
+      fix: `Set topicTag to the verbatim selected topic, one of: ${Object.keys(ctx.topics).join(" | ")}.`,
+    });
+  }
+
   const narrativeText = norm(
     [
       ex.exerciseName ?? "",
@@ -200,10 +219,15 @@ export function runQualityCheck(ex: Exercise, ctx: CheckContext): Finding[] {
     ].join(" "),
   );
   const topicWords = (topic: string) => norm(topic).split(" ").filter((w) => w.length > 4);
+  const normTags = injects.map((i) => norm(i.topicTag));
   const countFor = (topic: string) => {
+    // Verbatim tags are authoritative; fall back to keyword matching only if none match.
+    const exact = normTags.filter((t) => t && t === norm(topic)).length;
+    if (exact) return exact;
     const words = topicWords(topic);
     return tagText.filter((t) => words.some((w) => t.includes(w))).length;
   };
+
   Object.entries(ctx.topics).forEach(([topic, weight]) => {
     const n = countFor(topic);
     if (n === 0) {
