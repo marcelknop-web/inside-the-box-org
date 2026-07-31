@@ -704,8 +704,7 @@ export default function MarSec() {
                 return (
                   <button key={s.id} onClick={() => chooseSector(s.id)}
                     className={`text-left rounded-2xl border bg-white p-6 transition hover:-translate-y-0.5 hover:shadow-lg ${active ? "border-[#D6003C] ring-1 ring-[#D6003C]" : "border-[#0B2239]/10"}`}>
-                    <span className="text-[11px] uppercase tracking-[0.22em] text-[#D6003C] font-semibold">{s.tagline}</span>
-                    <h3 className="mt-3 text-lg font-bold leading-tight">{s.name}</h3>
+                    <h3 className="text-lg font-bold leading-tight">{s.name}</h3>
                     <p className="mt-2 text-sm text-[#0B2239]/65">{s.description}</p>
                     <span className="mt-5 inline-block text-sm font-semibold text-[#D6003C]">Select →</span>
                   </button>
