@@ -105,7 +105,7 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
     headerH - 7,
   );
 
-  let y = headerH + 12;
+  let y = headerH + 10;
 
   // ── Fact strip ──────────────────────────────────────────
   const facts: [string, string][] = [
@@ -133,7 +133,7 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
     set(11, "bold", NAVY);
     doc.text(wrap(value, bw - 8, 1), x, y + 13);
   });
-  y += stripH + 12;
+  y += stripH + 10;
 
   // ── Section heading helper ──────────────────────────────
   const heading = (label: string, x = M, width = CW) => {
@@ -150,7 +150,7 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   set(T.body, "normal", INK);
   const scenario = wrap(ex.summary || ex.groundTruth?.adversaryOrCause || "", CW, 5);
   doc.text(scenario, M, y, { lineHeightFactor: 1.35 });
-  y += scenario.length * LH.body + 10;
+  y += scenario.length * LH.body + 8;
 
   // ── Objectives | Reporting (two columns) ────────────────
   const colTop = heading("Exercise objectives", M, COL);
@@ -181,7 +181,7 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
     rightY += dl.length * LH.micro + 5;
   });
 
-  y = Math.max(leftY, rightY) + 6;
+  y = Math.max(leftY, rightY) + 4;
 
   // ── Inject flow ─────────────────────────────────────────
   const injects = ex.injects ?? [];
@@ -214,7 +214,7 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
     doc.text(wrap(`${inj.title} - ${inj.channel}`, CW - 20, 1), M + 18, y);
     y += 5.4;
   });
-  y += 5;
+  y += 3;
 
   // ── Delivery at a glance (single row of four metrics) ────
   const channels = [...new Set(injects.map((i) => clean(i.channel)).filter(Boolean))];
@@ -234,11 +234,11 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
     set(11, "bold", NAVY);
     doc.text(wrap(v, stw - 4, 1), x, y + 7.5);
   });
-  y += 14;
+  y += 12;
 
   // ── Value block (anchored above the footer) ─────────────
   const boxH = 28;
-  const boxY = Math.max(y, SAFE_BOTTOM - boxH);
+  const boxY = SAFE_BOTTOM - boxH;
 
   doc.setFillColor(...NAVY);
   doc.rect(M, boxY, CW, boxH, "F");
