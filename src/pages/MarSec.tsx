@@ -1234,7 +1234,11 @@ export default function MarSec() {
                   )}
                 </div>
 
-                <QualityPanel findings={findings} onRepair={repairExercise} repairing={repairing || autoQa} auto={autoQa} />
+                {(autoQa || repairing) && (
+                  <div className="rounded-2xl border border-[#0B2239]/10 bg-white px-6 py-3 text-xs uppercase tracking-[0.18em] text-[#0B2239]/55">
+                    Quality check running …
+                  </div>
+                )}
 
                 <div>
                   <div className="flex items-end justify-between gap-3 flex-wrap mb-2">
