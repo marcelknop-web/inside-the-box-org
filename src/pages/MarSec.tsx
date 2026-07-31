@@ -1234,7 +1234,7 @@ export default function MarSec() {
                   )}
                 </div>
 
-                <QualityPanel findings={findings} onRepair={repairExercise} repairing={repairing} />
+                <QualityPanel findings={findings} onRepair={repairExercise} repairing={repairing || autoQa} auto={autoQa} />
 
                 <div>
                   <div className="flex items-end justify-between gap-3 flex-wrap mb-2">
