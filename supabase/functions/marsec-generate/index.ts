@@ -214,7 +214,7 @@ JSON schema (exactly these fields):
       console.warn("marsec_ai parse_failed, retrying once");
       const retryPrompt = userPrompt + `\n\nThe previous answer was not valid JSON. Answer with a single JSON object ONLY, starting with "{" and ending with "}". No code fences, no prose.`;
       try {
-        const r2 = await callGateway(SYSTEM_BASE, retryPrompt, LOVABLE_API_KEY, 5500, 0.2);
+        const r2 = await callGateway(SYSTEM_BASE, retryPrompt, LOVABLE_API_KEY, 20000, 0.2);
         if (r2.ok) {
           const d2 = await r2.json();
           const u2 = d2?.usage ?? {};
