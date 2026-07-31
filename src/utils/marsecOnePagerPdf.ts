@@ -193,51 +193,53 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   const shown = injects.slice(0, 12);
   const n = Math.max(shown.length, 1);
   const labelEvery = n > 8 ? 2 : 1;
+  // compact clock token, e.g. "T+15 (08:15)" -> "T+15"
+  const tick = (t: string) => clean(t).split(/[\s(]/)[0].slice(0, 8);
   shown.forEach((inj, i) => {
     const x = M + CW * (n === 1 ? 0.5 : i / (n - 1));
     doc.setFillColor(...(inj.mandatory ? CRIMSON : NAVY));
     doc.circle(x, trackY, 1.5, "F");
     if (i % labelEvery === 0) {
-      set(T.micro - 1.2, "normal", MID);
-      const tx = Math.min(Math.max(x, M + 5), M + CW - 5);
-      doc.text(clean(inj.time).slice(0, 9), tx, trackY + 5.4, { align: "center" });
+      set(T.micro - 1, "normal", MID);
+      const tx = Math.min(Math.max(x, M + 6), M + CW - 6);
+      doc.text(tick(inj.time), tx, trackY + 5.4, { align: "center" });
     }
   });
   y = trackY + 12;
 
-  set(T.small, "normal", INK);
   injects.slice(0, 3).forEach((inj) => {
     set(T.small, "bold", NAVY);
-    doc.text(clean(inj.time).slice(0, 10), M, y);
+    doc.text(tick(inj.time), M, y);
     set(T.small, "normal", INK);
-    doc.text(wrap(`${inj.title} - ${inj.channel}`, CW - 24, 1), M + 22, y);
+    doc.text(wrap(`${inj.title} - ${inj.channel}`, CW - 20, 1), M + 18, y);
     y += 5.4;
   });
   y += 5;
 
-  // ── Delivery at a glance ────────────────────────────────
+  // ── Delivery at a glance (single row of four metrics) ────
   const channels = [...new Set(injects.map((i) => clean(i.channel)).filter(Boolean))];
   const phases = [...new Set(injects.map((i) => clean(i.phase)).filter(Boolean))];
   const stats: [string, string][] = [
-    ["Mandatory injects", `${injects.filter((i) => i.mandatory).length} of ${injects.length}`],
-    ["Delivery channels", String(channels.length)],
-    ["Exercise phases", phases.length ? phases.join(", ") : "-"],
-    ["Ground-truth events", String((ex.groundTruth?.timeline ?? []).length)],
+    ["MANDATORY INJECTS", `${injects.filter((i) => i.mandatory).length} of ${injects.length}`],
+    ["DELIVERY CHANNELS", String(channels.length)],
+    ["EXERCISE PHASES", phases.length ? String(phases.length) : "-"],
+    ["GROUND-TRUTH EVENTS", String((ex.groundTruth?.timeline ?? []).length)],
   ];
   y = heading("Delivery at a glance");
+  const stw = CW / stats.length;
   stats.forEach(([k, v], i) => {
-    const x = M + (i % 2) * (COL + GUT);
-    const sy = y + Math.floor(i / 2) * 7;
-    set(T.small, "normal", MID);
-    doc.text(clean(k), x, sy);
-    set(T.small, "bold", NAVY);
-    doc.text(wrap(v, COL - 40, 1), x + 38, sy);
+    const x = M + i * stw;
+    set(T.micro, "normal", MID);
+    doc.text(clean(k), x, y + 1);
+    set(11, "bold", NAVY);
+    doc.text(wrap(v, stw - 4, 1), x, y + 7.5);
   });
-  y += Math.ceil(stats.length / 2) * 7 + 6;
+  y += 14;
 
   // ── Value block (anchored above the footer) ─────────────
   const boxH = 28;
-  const boxY = Math.min(Math.max(y, SAFE_BOTTOM - boxH), SAFE_BOTTOM - boxH);
+  const boxY = Math.max(y, SAFE_BOTTOM - boxH);
+
   doc.setFillColor(...NAVY);
   doc.rect(M, boxY, CW, boxH, "F");
   doc.setFillColor(...CRIMSON);
