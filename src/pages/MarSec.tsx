@@ -931,7 +931,7 @@ export default function MarSec() {
             Rehearse the<br />worst day at sea.
           </h1>
           <p className="mt-6 text-white/75 text-base sm:text-lg max-w-xl">
-            A full tabletop exercise for container lines, port operators and cruise lines — scenario, injects, role cards and worksheets, generated in minutes.
+            A full tabletop exercise for container lines, port operators and cruise lines.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <button onClick={() => setStep(1)} className="px-6 py-3 rounded-full bg-[#D6003C] text-white text-sm font-semibold hover:bg-[#b30032] transition">Start the wizard</button>
