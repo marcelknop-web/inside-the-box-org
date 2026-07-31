@@ -650,7 +650,8 @@ export default function MarSec() {
         </div>
       </header>
 
-      {/* Hero */}
+      {/* Hero — landing only */}
+      {step === 0 && (
       <section className="relative">
         <img src={heroImg} alt="Container vessel at sea under an overcast dawn sky" width={1920} height={1088} {...{ fetchpriority: "high" }} className="absolute inset-0 h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#0B2239]/90 via-[#0B2239]/70 to-[#0B2239]/25" />
@@ -668,7 +669,9 @@ export default function MarSec() {
           </div>
         </div>
       </section>
+      )}
 
+      {step > 0 && (
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         {/* Stepper */}
         <ol className="flex gap-1.5 sm:gap-2 mb-8 flex-wrap">
