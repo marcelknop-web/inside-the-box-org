@@ -4,9 +4,11 @@ interface Props {
   findings: Finding[];
   onRepair: () => void;
   repairing: boolean;
+  /** True while an automatic repair pass is running. */
+  auto?: boolean;
 }
 
-export default function QualityPanel({ findings, onRepair, repairing }: Props) {
+export default function QualityPanel({ findings, onRepair, repairing, auto = false }: Props) {
   const { blockers, warnings } = countBySeverity(findings);
   const clean = findings.length === 0;
 
@@ -14,13 +16,18 @@ export default function QualityPanel({ findings, onRepair, repairing }: Props) {
     <div className={`rounded-2xl border bg-white p-5 ${clean ? "border-emerald-300" : blockers ? "border-[#D6003C]/40" : "border-amber-300"}`}>
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h4 className="text-sm font-semibold uppercase tracking-[0.18em] text-[#0B2239]/60">Quality check</h4>
+          <h4 className="text-sm font-semibold uppercase tracking-[0.18em] text-[#0B2239]/60">
+            Quality check <span className="normal-case tracking-normal text-[11px] text-[#0B2239]/40">· runs automatically</span>
+          </h4>
           <p className={`mt-1 text-sm font-semibold ${clean ? "text-emerald-700" : blockers ? "text-[#D6003C]" : "text-amber-700"}`}>
-            {clean
+            {auto
+              ? "Automatic repair pass running …"
+              : clean
               ? "All checks passed — exercise is internally consistent."
               : `${blockers} blocker${blockers === 1 ? "" : "s"} · ${warnings} warning${warnings === 1 ? "" : "s"}`}
           </p>
         </div>
+
         {!clean && (
           <button
             onClick={onRepair}
