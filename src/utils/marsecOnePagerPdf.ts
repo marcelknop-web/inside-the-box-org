@@ -188,7 +188,7 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   y += scenario.length * LH.body + 3;
   if (ex.groundTruth?.architectureAssumption) {
     set(T.small, "normal", INK);
-    const arch = wrap(`Technical premise: ${ex.groundTruth.architectureAssumption}`, CW, 2);
+    const arch = wrap(`Technical premise: ${ex.groundTruth.architectureAssumption}`, CW, 3);
     doc.text(arch, M, y, { lineHeightFactor: 1.3 });
     y += arch.length * LH.small + 5;
   } else {
