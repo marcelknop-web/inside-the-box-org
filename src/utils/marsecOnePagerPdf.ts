@@ -115,7 +115,7 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
     return "Crisis leadership exercise";
   })();
   const facts: [string, string][] = [
-    ["DURATION", meta.duration],
+    ["ROOM TIME", meta.duration],
     ["INJECTS", String(meta.injectCount)],
     ["ROLES", String(meta.roleCount)],
     ["FORMAT", levelLabel],
