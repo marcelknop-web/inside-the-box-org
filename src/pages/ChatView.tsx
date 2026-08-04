@@ -6,6 +6,7 @@ import { Send, Plus, MessageCircle, Shield, Target, BookOpen, AlertTriangle, Eye
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PageMeta } from '@/components/PageMeta';
+import { getServiceSeo } from './serviceSeo';
 import { useLanguage, nextLanguage } from '@/i18n/LanguageContext';
 
 import { GeometricSymbol } from '@/components/GeometricSymbol';
@@ -2040,6 +2041,12 @@ const ChatView = () => {
 
   // Service sub-pages reachable from the new homepage use the shared SiteChrome
   // (top bar + footer + Team/Contact drawers) for a unified brand surface.
+  // Per-route SEO metadata (short titles, 50-160 char descriptions).
+  const serviceSeo = getServiceSeo(
+    activeService,
+    sidebarGroups.flatMap(g => g.items).find(i => i.id === activeService)?.label,
+  );
+
   if (activeService) {
     // Resolve current service label for the sheet header (falls back to nav.contact label etc.)
     const activeServiceLabel =
@@ -2051,7 +2058,7 @@ const ChatView = () => {
 
     return (
       <SiteChrome>
-        <PageMeta title="inside-the-box" description="Cybersecurity Navigator" />
+        <PageMeta title={serviceSeo.title} description={serviceSeo.description} />
         <main className="flex-1 flex flex-col min-w-0 relative">
           <div ref={contentAreaRef} className="flex-1 overflow-y-auto" style={{ contain: 'layout style' }}>
             {/* Sheet-styled service surface — visually consistent with the
@@ -2196,7 +2203,7 @@ const ChatView = () => {
 
   return (
     <div className="h-screen flex overflow-hidden bg-transparent">
-      <PageMeta title="inside-the-box" description="Cybersecurity Navigator" />
+      <PageMeta title={serviceSeo.title} description={serviceSeo.description} />
 
       {/* Mobile sidebar overlay — hidden on service sub-pages (linked from new homepage) */}
       {isMobile && sidebarOpen && !activeService && (
