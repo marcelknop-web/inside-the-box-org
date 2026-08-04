@@ -240,7 +240,11 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
     if (/72\s*h/i.test(r.deadline)) return "NIS2 Art. 23: 72 h incident notification";
     if (/nis2|nis 2|art\.?\s*23/i.test(s)) return "NIS2 Art. 23: 24 h early warning at the latest";
     if (/imo|msc-fal/i.test(s)) return "IMO MSC-FAL.1/Circ.3 is guidance, not a reporting clock";
-    return clean(r.basis || "Exercise assumption, no statutory basis");
+    if (/class|flag state|charter|sla|customer|cargo/i.test(s))
+      return "Company, class or contractual commitment - no statutory clock";
+    if (r.basis) return clean(r.basis);
+    return "Internal target set by the organisation";
+
   };
   (ex.reportingObligations ?? []).slice(0, 4).forEach((r) => {
     set(T.small, "bold", NAVY);
