@@ -297,17 +297,22 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
       doc.text(tick(inj.time), tx, trackY + 5.4, { align: "center" });
     }
   });
-  y = trackY + 12;
+  y = trackY + 11;
 
-  // Inject list, two columns. Rows are capped to the space left above the
-  // deliverables box (incl. the closing note) so nothing is ever overprinted.
-  const ROW = 4.6;
-  const NOTE_H = 6;
-  const roomForRows = Math.max(0, boxY - 6 - NOTE_H - y);
-  const maxRows = Math.max(1, Math.floor(roomForRows / ROW));
-  const listed = injects.slice(0, Math.min(12, maxRows * 2));
-  const rows = Math.min(maxRows, Math.ceil(listed.length / 2));
+  // Inject list, two columns. Rows only exist if they fit fully above the
+  // deliverables box (incl. the closing note), otherwise the list is dropped
+  // and the timeline plus the note carry the section. Nothing is overprinted.
+  const ROW = 4.4;
+  const NOTE_H = 7;
+  const room = boxY - 8 - y;
+  const maxRows = Math.floor((room - NOTE_H) / ROW);
   const icw = (CW - GUT) / 2;
+  let rows = 0;
+  let listed: typeof injects = [];
+  if (maxRows >= 1) {
+    rows = Math.min(maxRows, Math.ceil(Math.min(12, injects.length) / 2));
+    listed = injects.slice(0, rows * 2);
+  }
   listed.forEach((inj, i) => {
     const col = i < rows ? 0 : 1;
     const row = i < rows ? i : i - rows;
@@ -318,16 +323,23 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
     set(T.micro, "normal", INK);
     doc.text(wrap(`${inj.title} - ${inj.channel}`, icw - 15, 1), ix + 14, iy);
   });
-  y += rows * ROW + 1;
-  set(T.micro - 0.6, "normal", MID);
   const mandatoryCount = injects.filter((i) => i.mandatory).length;
+  const counted = listed.length
+    ? listed.length === injects.length
+      ? `All ${injects.length} injects listed`
+      : `${listed.length} of ${injects.length} injects listed`
+    : `${injects.length} injects on the timeline above`;
+  set(T.micro - 0.6, "normal", MID);
   doc.text(
-    clean(
-      `${listed.length === injects.length ? `All ${injects.length} injects listed` : `${listed.length} of ${injects.length} injects listed`} - ${mandatoryCount} mandatory (red). Full content, expected responses and facilitator notes in the facilitator guide.`,
+    wrap(
+      `${counted} - ${mandatoryCount} mandatory (red). Full inject content, expected responses and facilitator notes are in the facilitator guide.`,
+      CW,
+      1,
     ),
     M,
-    Math.min(y, boxY - 4),
+    Math.min(y + rows * ROW + 3, boxY - 5),
   );
+
 
 
 
