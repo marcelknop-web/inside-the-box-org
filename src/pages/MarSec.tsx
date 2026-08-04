@@ -828,7 +828,7 @@ export default function MarSec() {
       durationMinutes: sessionMinutes,
     });
   }, [exercise, injectCount, topics, obligations, roleScope, sessionMinutes]);
-  }, [exercise, injectCount, topics, obligations, roleScope]);
+  
 
   // Auto QA: fully automated. Blockers and warnings both trigger silent AI repair
   // passes (max 3) — no facilitator interaction, no panel.
