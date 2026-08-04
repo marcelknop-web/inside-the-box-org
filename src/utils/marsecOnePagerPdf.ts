@@ -1,13 +1,17 @@
 /**
- * MarSec Studio — sales-grade one-pager (A4, single page).
+ * MarSec Studio — tailored exercise brief (A4, single page, sales-grade).
  * Pure jsPDF, core fonts only (Helvetica) so it renders identically everywhere.
  *
+ * Editorial intent
+ *  - reads as a description of ONE exercise designed for ONE organisation,
+ *    not as a list of disconnected statements
+ *  - every section is introduced by a short narrative line, then evidence
+ *  - blocks are measured before they are drawn, so nothing ever collides
+ *
  * Layout system
- *  - 12-column grid, 18 mm margins, 4 mm gutter
- *  - Type scale: 20 / 11 / 9.6 / 8.6 / 7 pt, min body size 9.6 pt so the page
- *    stays readable when it is pinch-zoomed on a phone
- *  - Vertical rhythm in multiples of 2 mm, every block measured before it is
- *    drawn so nothing ever collides with the footer
+ *  - 17 mm margins, two-column body (104 / 64 mm) with an 8 mm gutter
+ *  - type scale 22 / 10.6 / 9.6 / 8.5 / 7.2 pt, body never below 8.5 pt
+ *  - vertical rhythm in multiples of 2 mm
  */
 import jsPDF from "jspdf";
 import type { Exercise } from "@/data/marsecTypes";
@@ -22,23 +26,24 @@ const INK: [number, number, number] = [38, 52, 68];
 // Page geometry (mm)
 const W = 210;
 const H = 297;
-const M = 18;
-const CW = W - M * 2; // 174
-const GUT = 6;
-const COL = (CW - GUT) / 2; // 84
-const FOOT_RULE = H - 16; // 281
+const M = 17;
+const CW = W - M * 2; // 176
+const GUT = 8;
+const LCOL = 104;
+const RCOL = CW - LCOL - GUT; // 64
+const FOOT_RULE = H - 15;
 const SAFE_BOTTOM = FOOT_RULE - 6;
 
 // Type scale (pt) & line heights (mm)
 const T = {
-  title: 20,
-  lead: 10.4,
+  title: 22,
+  lead: 10.6,
   h: 7.4,
   body: 9.6,
-  small: 8.6,
-  micro: 7,
+  small: 8.5,
+  micro: 7.2,
 };
-const LH = { body: 4.6, small: 4.1, micro: 3.3 };
+const LH = { lead: 5.1, body: 4.6, small: 4.05, micro: 3.35 };
 
 export interface OnePagerMeta {
   orgName: string;
@@ -63,12 +68,22 @@ const clean = (s: string) =>
     .replace(/\s+/g, " ")
     .trim();
 
+/** First sentence(s) of a text, up to `maxChars`, always ending cleanly. */
+const firstSentences = (s: string, maxChars: number) => {
+  const src = clean(s);
+  if (src.length <= maxChars) return src;
+  const cut = src.slice(0, maxChars);
+  const stop = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf("; "));
+  if (stop > maxChars * 0.5) return cut.slice(0, stop + 1);
+  return `${cut.replace(/[\s.,;:\-/]+\S*$/, "")} ...`;
+};
+
 export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
 
   const set = (
     size: number,
-    style: "normal" | "bold" = "normal",
+    style: "normal" | "bold" | "italic" = "normal",
     color: [number, number, number] = INK,
   ) => {
     doc.setFont("helvetica", style);
@@ -79,7 +94,7 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   /**
    * Wrap text into at most `max` lines. If it does not fit, whole words are
    * dropped and a visible "..." is appended, so a sentence is never cut off
-   * mid-word or mid-clause without the reader noticing.
+   * mid-word without the reader noticing.
    */
   const wrap = (text: string, width: number, max = 99): string[] => {
     const src = clean(text);
@@ -101,7 +116,7 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
     set(T.title, "bold");
     return wrap(ex.exerciseName || "Maritime tabletop exercise", CW, 2);
   })();
-  const headerH = titleLines.length > 1 ? 48 : 41;
+  const headerH = titleLines.length > 1 ? 50 : 43;
 
   doc.setFillColor(...NAVY);
   doc.rect(0, 0, W, headerH, "F");
@@ -109,109 +124,121 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   doc.rect(0, headerH, W, 1.4, "F");
 
   set(T.micro, "bold", [255, 255, 255]);
-  doc.text("MARSEC STUDIO", M, 12);
-  const kickerW = doc.getTextWidth("MARSEC STUDIO");
+  doc.text("MARSEC STUDIO", M, 12, { charSpace: 0.5 });
+  const kickerW = doc.getTextWidth("MARSEC STUDIO") + 0.5 * "MARSEC STUDIO".length;
   set(T.micro, "normal", [255, 122, 152]);
-  doc.text("MARITIME CRISIS EXERCISE   ·   EXERCISE BRIEF", M + kickerW + 6, 12);
+  doc.text("TAILORED MARITIME CRISIS EXERCISE", M + kickerW + 6, 12, { charSpace: 0.5 });
 
   set(T.title, "bold", [255, 255, 255]);
-  doc.text(titleLines, M, 24);
+  doc.text(titleLines, M, titleLines.length > 1 ? 25 : 26);
 
   set(T.lead, "normal", [176, 195, 214]);
-  doc.text(
-    clean(`${meta.orgName}   ·   ${meta.sectorLabel}`),
-    M,
-    headerH - 7,
-  );
+  doc.text(clean(`Designed for ${meta.orgName}   ·   ${meta.sectorLabel}`), M, headerH - 8);
 
-  let y = headerH + 10;
+  let y = headerH + 11;
 
-  // ── Fact strip ──────────────────────────────────────────
+  // ── Lead paragraph: the tailored promise ────────────────
   const levelLabel = (() => {
     const d = clean(meta.difficulty).toLowerCase();
     if (/beginner|foundation|basic/.test(d)) return "Foundation tabletop";
     if (/expert|advanced/.test(d)) return "Advanced crisis exercise";
     return "Crisis leadership exercise";
   })();
+  const lead =
+    `A discussion-based crisis exercise written around ${clean(meta.orgName)}'s own operating reality. ` +
+    `In ${clean(meta.duration)} of facilitated room time, ${meta.roleCount} leadership roles work through ` +
+    `${meta.injectCount} timed injects - from first detection to the decision to resume normal operations.`;
+  set(T.lead, "normal", INK);
+  const leadLines = wrap(lead, CW, 3);
+  doc.text(leadLines, M, y, { lineHeightFactor: 1.35 });
+  y += leadLines.length * LH.lead + 7;
+
+  // ── Fact strip ──────────────────────────────────────────
   const facts: [string, string][] = [
     ["ROOM TIME", meta.duration],
     ["INJECTS", String(meta.injectCount)],
-    ["ROLES", String(meta.roleCount)],
+    ["ROLES AT THE TABLE", String(meta.roleCount)],
     ["FORMAT", levelLabel],
-    [
-      "CLASSIFIED AS MAJOR",
-      ex.groundTruth?.classificationTime
-        ? `${clean(ex.groundTruth.classificationTime)} sim clock`
-        : "not reached",
-    ],
   ];
-  const stripH = 21;
+  const stripH = 20;
   const bw = CW / facts.length;
   doc.setFillColor(...LIGHT);
   doc.rect(M, y, CW, stripH, "F");
   doc.setFillColor(...CRIMSON);
   doc.rect(M, y, 1.4, stripH, "F");
   facts.forEach(([label, value], i) => {
-    const x = M + i * bw + 5;
+    const x = M + i * bw + 6;
     if (i > 0) {
       doc.setDrawColor(...RULE);
       doc.setLineWidth(0.3);
       doc.line(M + i * bw, y + 3.5, M + i * bw, y + stripH - 3.5);
     }
-    set(T.micro - 0.6, "normal", MID);
-    const lab = wrap(label, bw - 7, 2);
-    doc.text(lab, x, y + 5.6, { lineHeightFactor: 1.15 });
+    set(T.micro - 0.8, "normal", MID);
+    doc.text(wrap(label, bw - 9, 1), x, y + 6, { charSpace: 0.3 });
     const long = clean(value).length > 12;
-    set(long ? 8.4 : 11, "bold", NAVY);
-    doc.text(wrap(value, bw - 7, 2), x, y + (lab.length > 1 ? 14.4 : 12.6), {
-      lineHeightFactor: 1.2,
-    });
+    set(long ? 9 : 12, "bold", NAVY);
+    doc.text(wrap(value, bw - 9, 2), x, y + 13.4, { lineHeightFactor: 1.15 });
   });
-  y += stripH + 10;
-
+  y += stripH + 11;
 
   // ── Section heading helper ──────────────────────────────
   const heading = (label: string, x = M, width = CW) => {
     set(T.h, "bold", CRIMSON);
-    doc.text(clean(label).toUpperCase(), x, y);
+    doc.text(clean(label).toUpperCase(), x, y, { charSpace: 0.6 });
     doc.setDrawColor(...RULE);
     doc.setLineWidth(0.3);
-    doc.line(x, y + 2, x + width, y + 2);
+    doc.line(x, y + 2.2, x + width, y + 2.2);
     return y + 8;
   };
 
-  // ── Scenario ────────────────────────────────────────────
-  y = heading("The scenario");
+  // ── The situation ───────────────────────────────────────
+  y = heading("The situation the team walks into");
   set(T.body, "normal", INK);
-  const scenario = wrap(ex.summary || ex.groundTruth?.adversaryOrCause || "", CW, 5);
-  doc.text(scenario, M, y, { lineHeightFactor: 1.35 });
-  y += scenario.length * LH.body + 3;
+  const scenario = wrap(
+    firstSentences(ex.summary || ex.groundTruth?.adversaryOrCause || "", 560),
+    CW,
+    4,
+  );
+  doc.text(scenario, M, y, { lineHeightFactor: 1.36 });
+  y += scenario.length * LH.body + 2.6;
   if (ex.groundTruth?.architectureAssumption) {
-    set(T.small, "normal", INK);
-    const arch = wrap(`Technical premise: ${ex.groundTruth.architectureAssumption}`, CW, 3);
-    doc.text(arch, M, y, { lineHeightFactor: 1.3 });
-    y += arch.length * LH.small + 5;
+    set(T.small, "italic", MID);
+    const arch = wrap(
+      `Technical premise held by the facilitator: ${firstSentences(ex.groundTruth.architectureAssumption, 230)}`,
+      CW,
+      2,
+    );
+    doc.text(arch, M, y + 1, { lineHeightFactor: 1.3 });
+    y += arch.length * LH.small + 8;
   } else {
-    y += 5;
+    y += 6;
   }
 
-  // ── Objectives | Reporting (two columns) ────────────────
-  const colTop = heading("Exercise objectives", M, COL);
+  // ── Two columns: decisions | notification clocks ────────
+  const colTop = heading("What the room has to decide", M, LCOL);
   y = colTop - 8;
-  heading("Notification clocks under test", M + COL + GUT, COL);
+  heading("Notification clocks under test", M + LCOL + GUT, RCOL);
   y = colTop;
 
   let leftY = y;
-  (ex.objectives ?? []).slice(0, 5).forEach((o) => {
+  set(T.small, "normal", MID);
+  const objIntro = wrap(
+    "The exercise is scored against decisions, not knowledge. Participants are expected to reach and record:",
+    LCOL,
+    2,
+  );
+  doc.text(objIntro, M, leftY, { lineHeightFactor: 1.3 });
+  leftY += objIntro.length * LH.small + 3.4;
+  (ex.objectives ?? []).slice(0, 4).forEach((o) => {
     set(T.small, "normal", INK);
-    const lines = wrap(o, COL - 6, 3);
+    const lines = wrap(firstSentences(o, 150), LCOL - 6, 3);
     doc.setFillColor(...CRIMSON);
     doc.circle(M + 1.3, leftY - 1.2, 0.9, "F");
-    doc.text(lines, M + 5, leftY, { lineHeightFactor: 1.3 });
-    leftY += lines.length * LH.small + 2.6;
+    doc.text(lines, M + 5, leftY, { lineHeightFactor: 1.32 });
+    leftY += lines.length * LH.small + 2.8;
   });
 
-  const rx = M + COL + GUT;
+  const rx = M + LCOL + GUT;
   let rightY = y;
   type Obligation = { kind?: string; addressee: string; basis?: string; deadline: string };
   /** Hour offsets below the statutory window cannot be a regulatory deadline. */
@@ -225,7 +252,9 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
     const off = offsetHours(r.deadline);
     // NIS2 early warning is 24 h, GDPR 72 h: anything faster is an internal ambition.
     if (statutory && off !== null && off < 24) return "Internal escalation target";
-    if (/imo|msc-fal|class|flag state|charter|sla|customer|cargo/i.test(s))
+    if (/flag state|solas|isps|designated authority|coast guard|port state|33 cfr|mtsa/i.test(s))
+      return "Statutory duty, no fixed clock";
+    if (/imo|msc-fal|class|charter|sla|customer|cargo/i.test(s))
       return "Company / contract / class target";
     if (r.kind) return clean(r.kind);
     if (statutory) return "Regulatory deadline";
@@ -234,62 +263,66 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   /** Show the legal window next to the clock so the offset cannot be read as the law. */
   const basisNote = (r: Obligation) => {
     const s = `${r.addressee} ${r.basis ?? ""}`;
-    if (/gdpr|art\.?\s*33/i.test(s)) return "GDPR Art. 33: 72 h statutory window";
+    if (/gdpr|art\.?\s*33/i.test(s)) return "GDPR Art. 33: 72 h";
     if (/final report|1 month|one month/i.test(`${r.deadline} ${s}`))
       return "NIS2 Art. 23: 1 month final report";
-    if (/72\s*h/i.test(r.deadline)) return "NIS2 Art. 23: 72 h incident notification";
-    if (/nis2|nis 2|art\.?\s*23/i.test(s)) return "NIS2 Art. 23: 24 h early warning at the latest";
-    if (/imo|msc-fal|msc\.428/i.test(s)) return "IMO guidance / SMS duty, not a reporting clock";
+    if (/72\s*h/i.test(r.deadline)) return "NIS2 Art. 23: 72 h notification";
+    if (/nis2|nis 2|art\.?\s*23/i.test(s)) return "NIS2 Art. 23: 24 h early warning";
+    if (/imo|msc-fal|msc\.428/i.test(s)) return "IMO guidance / SMS duty";
     if (/flag state|flag administration|solas|isps|designated authority/i.test(s))
-      return "ISPS / SOLAS XI-2: report without delay, no hour clock";
+      return "ISPS / SOLAS XI-2: without delay";
     if (/coast guard|national response center|33 cfr|mtsa|port state/i.test(s))
-      return "33 CFR 101.305 (MTSA): report without delay";
+      return "33 CFR 101.305: without delay";
     if (/mar art\.?\s*17|8-k|inside information|ad-hoc/i.test(s))
-      return "MAR Art. 17 without delay / SEC 8-K Item 1.05: 4 business days";
-    if (/class|charter|sla|customer|cargo/i.test(s)) return "No statutory clock";
-    if (r.basis) return clean(r.basis);
-    return "Not set by law";
-
-
+      return "MAR Art. 17 / SEC 8-K Item 1.05";
+    if (/class|charter|sla|customer|cargo/i.test(s)) return "Contractual, not statutory";
+    if (r.basis) return firstSentences(r.basis, 60);
+    return "Internal target";
   };
-  (ex.reportingObligations ?? []).slice(0, 4).forEach((r) => {
-    set(T.small, "bold", NAVY);
-    const addr = wrap(r.addressee, COL, 2);
-    doc.text(addr, rx, rightY, { lineHeightFactor: 1.3 });
-    rightY += addr.length * LH.small;
-    set(T.micro, "normal", CRIMSON);
-    const dl = wrap(r.deadline, COL, 2);
-    doc.text(dl, rx, rightY + 1.2, { lineHeightFactor: 1.3 });
-    rightY += dl.length * LH.micro + 1.2;
-    set(T.micro - 0.6, "normal", MID);
-    const kd = wrap(`${kindOf(r)} - ${basisNote(r)}`, COL, 2);
-    doc.text(kd, rx, rightY + 1.2, { lineHeightFactor: 1.2 });
-    rightY += kd.length * LH.micro + 3.4;
-  });
-  set(T.micro - 0.6, "normal", MID);
-  const disclaimer = wrap(
-    "Statutory clocks are fixed by law. Hour-level targets, IMO guidance, class, charter and customer commitments are exercise targets, not regulatory deadlines.",
-    COL,
+  /** Keep the clock column readable: one clear statement, never a compound trace. */
+  const compactDeadline = (d: string) => {
+    const src = clean(d);
+    const head = src.split(/\s*(?:->|,|;)\s*/)[0];
+    return firstSentences(head || src, 54);
+  };
+
+  set(T.small, "normal", MID);
+  const clockIntro = wrap(
+    "Three notification paths are exercised live, with the statutory window shown next to the target.",
+    RCOL,
     3,
   );
-  doc.text(disclaimer, rx, rightY + 0.5, { lineHeightFactor: 1.25 });
-  rightY += disclaimer.length * LH.micro + 2;
+  doc.text(clockIntro, rx, rightY, { lineHeightFactor: 1.3 });
+  rightY += clockIntro.length * LH.small + 3.4;
 
+  (ex.reportingObligations ?? []).slice(0, 3).forEach((r) => {
+    set(T.small, "bold", NAVY);
+    const addr = wrap(firstSentences(r.addressee, 70), RCOL, 2);
+    doc.text(addr, rx, rightY, { lineHeightFactor: 1.28 });
+    rightY += addr.length * LH.small;
+    set(T.micro, "normal", CRIMSON);
+    const dl = wrap(compactDeadline(r.deadline), RCOL, 2);
+    doc.text(dl, rx, rightY + 1.4, { lineHeightFactor: 1.28 });
+    rightY += dl.length * LH.micro + 1.4;
+    set(T.micro - 0.8, "normal", MID);
+    const kd = wrap(`${kindOf(r)} - ${basisNote(r)}`, RCOL, 2);
+    doc.text(kd, rx, rightY + 1.4, { lineHeightFactor: 1.2 });
+    rightY += kd.length * LH.micro + 3.6;
+  });
 
   // ── Value block geometry (anchored above the footer) ─────
-  const boxH = 32;
+  const boxH = 30;
   const boxY = SAFE_BOTTOM - boxH;
 
-  // The inject-flow section needs 26 mm (heading, track, tick labels, caption).
-  // Clamping here guarantees it always sits fully above the deliverables box,
-  // no matter how long the objectives or notification entries turn out.
-  y = Math.min(Math.max(leftY, rightY) + 4, boxY - 26);
+  // The run-of-play band needs 24 mm (heading, track, tick labels, caption).
+  // Clamping guarantees it always sits fully above the deliverables box, no
+  // matter how long the objectives or notification entries turn out.
+  y = Math.min(Math.max(leftY, rightY) + 5, boxY - 24);
 
-
-  // ── Inject flow ─────────────────────────────────────────
+  // ── Run of play ─────────────────────────────────────────
   const injects = ex.injects ?? [];
-  y = heading("Inject flow");
-  const trackY = y + 3;
+  y = heading("How the exercise unfolds");
+  const trackY = y + 3.4;
   doc.setDrawColor(...NAVY);
   doc.setLineWidth(0.4);
   doc.line(M, trackY, M + CW, trackY);
@@ -303,62 +336,54 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
     doc.setFillColor(...(inj.mandatory ? CRIMSON : NAVY));
     doc.circle(x, trackY, 1.5, "F");
     if (i % labelEvery === 0) {
-      set(T.micro - 1, "normal", MID);
-      const tx = Math.min(Math.max(x, M + 6), M + CW - 6);
-      doc.text(tick(inj.time), tx, trackY + 5.4, { align: "center" });
+      set(T.micro - 1.2, "normal", MID);
+      const tx = Math.min(Math.max(x, M + 7), M + CW - 7);
+      doc.text(tick(inj.time), tx, trackY + 5.2, { align: "center" });
     }
   });
-  // One explanatory line under the timeline. The detailed inject list lives in
-  // the facilitator guide — on the sales sheet the timeline plus this caption is
-  // the complete, self-explanatory statement, and it can never collide with the
-  // deliverables box below.
-  const mandatoryCount = injects.filter((i) => i.mandatory).length;
-  set(T.micro - 0.6, "normal", MID);
+  const phases = ["Detection", "Containment", "Operational impact", "Communication", "Recovery"];
+  set(T.micro - 0.4, "normal", MID);
   doc.text(
     wrap(
-      `${injects.length} injects across the exercise, ${mandatoryCount} of them mandatory (red). Each inject carries content, expected response, discussion prompts and facilitator notes in the facilitator guide.`,
+      `The scenario runs through ${phases.join(" - ").toLowerCase()}. Every inject arrives with its content, the expected response, discussion prompts and facilitator notes in the accompanying facilitator guide.`,
       CW,
-      1,
+      2,
     ),
     M,
-    Math.min(trackY + 11, boxY - 5),
+    Math.min(trackY + 11, boxY - 7),
+    { lineHeightFactor: 1.25 },
   );
 
-
-
-
-
-
+  // ── Deliverables ────────────────────────────────────────
   doc.setFillColor(...NAVY);
   doc.rect(M, boxY, CW, boxH, "F");
   doc.setFillColor(...CRIMSON);
   doc.rect(M, boxY, 1.4, boxH, "F");
   set(T.small, "bold", [255, 255, 255]);
-  doc.text("DELIVERABLES AFTER THE EXERCISE", M + 7, boxY + 7.5);
+  doc.text("WHAT YOU KEEP AFTER THE EXERCISE", M + 7, boxY + 7, { charSpace: 0.4 });
   const deliverables = [
     "After-action report with observed decisions and timings",
     "Prioritised remediation actions with owners and due dates",
     "Documented role, deputy and contact gaps",
-    "Evidence of the notification paths tested (statutory, contractual, internal)",
+    "Evidence of every notification path that was tested",
   ];
   const dcw = (CW - 20) / 2;
   deliverables.forEach((d, i) => {
     const col = i % 2;
     const row = Math.floor(i / 2);
     const dx = M + 7 + col * (dcw + 6);
-    const dy = boxY + 14 + row * 8.4;
+    const dy = boxY + 14.5 + row * 7.6;
     doc.setFillColor(...CRIMSON);
     doc.circle(dx + 1, dy - 1.2, 0.9, "F");
     set(T.micro, "normal", [201, 216, 230]);
-    doc.text(wrap(d, dcw - 6, 2), dx + 4.5, dy, { lineHeightFactor: 1.25 });
+    doc.text(wrap(d, dcw - 6, 1), dx + 4.5, dy);
   });
-
 
   // ── Footer ──────────────────────────────────────────────
   doc.setDrawColor(...RULE);
   doc.setLineWidth(0.3);
   doc.line(M, FOOT_RULE, M + CW, FOOT_RULE);
-  set(T.micro, "normal", MID);
+  set(T.micro - 0.4, "normal", MID);
   doc.text(
     "MarSec Studio  ·  inside-the-box.org - Cybersecurity & Resilience Consulting",
     M,
