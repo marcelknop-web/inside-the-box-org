@@ -252,6 +252,10 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
 
   y = Math.max(leftY, rightY) + 4;
 
+  // ── Value block geometry (anchored above the footer) ─────
+  const boxH = 32;
+  const boxY = SAFE_BOTTOM - boxH;
+
   // ── Inject flow ─────────────────────────────────────────
   const injects = ex.injects ?? [];
   y = heading("Inject flow");
@@ -276,59 +280,36 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   });
   y = trackY + 12;
 
-  // Every inject is named — two columns so the whole sequence fits on the page.
-  const listed = injects.slice(0, 12);
-  const rows = Math.ceil(listed.length / 2);
+  // Inject list, two columns. Rows are capped to the space left above the
+  // deliverables box (incl. the closing note) so nothing is ever overprinted.
+  const ROW = 4.6;
+  const NOTE_H = 6;
+  const roomForRows = Math.max(0, boxY - 6 - NOTE_H - y);
+  const maxRows = Math.max(1, Math.floor(roomForRows / ROW));
+  const listed = injects.slice(0, Math.min(12, maxRows * 2));
+  const rows = Math.min(maxRows, Math.ceil(listed.length / 2));
   const icw = (CW - GUT) / 2;
   listed.forEach((inj, i) => {
     const col = i < rows ? 0 : 1;
     const row = i < rows ? i : i - rows;
     const ix = M + col * (icw + GUT);
-    const iy = y + row * 4.6;
+    const iy = y + row * ROW;
     set(T.micro, "bold", inj.mandatory ? CRIMSON : NAVY);
     doc.text(tick(inj.time), ix, iy);
     set(T.micro, "normal", INK);
     doc.text(wrap(`${inj.title} - ${inj.channel}`, icw - 15, 1), ix + 14, iy);
   });
-  y += rows * 4.6 + 1;
+  y += rows * ROW + 1;
   set(T.micro - 0.6, "normal", MID);
+  const mandatoryCount = injects.filter((i) => i.mandatory).length;
   doc.text(
     clean(
-      injects.length > listed.length
-        ? `${injects.length} injects in total - red markers are mandatory. Full content, expected responses and facilitator notes in the facilitator guide.`
-        : `All ${injects.length} injects listed - red markers are mandatory. Full content, expected responses and facilitator notes in the facilitator guide.`,
+      `${listed.length === injects.length ? `All ${injects.length} injects listed` : `${listed.length} of ${injects.length} injects listed`} - ${mandatoryCount} mandatory (red). Full content, expected responses and facilitator notes in the facilitator guide.`,
     ),
     M,
-    y,
+    Math.min(y, boxY - 4),
   );
-  y += 6;
 
-
-  // ── Value block geometry (anchored above the footer) ─────
-  const boxH = 32;
-  const boxY = SAFE_BOTTOM - boxH;
-
-  // ── Delivery at a glance (only when it fits above the box) ─
-  const channels = [...new Set(injects.map((i) => clean(i.channel)).filter(Boolean))];
-  const phases = [...new Set(injects.map((i) => clean(i.phase)).filter(Boolean))];
-  const stats: [string, string][] = [
-    ["MANDATORY INJECTS", `${injects.filter((i) => i.mandatory).length} of ${injects.length}`],
-    ["DELIVERY CHANNELS", String(channels.length)],
-    ["EXERCISE PHASES", phases.length ? String(phases.length) : "-"],
-    ["GROUND-TRUTH EVENTS", String((ex.groundTruth?.timeline ?? []).length)],
-  ];
-  if (y + 20 <= boxY - 6) {
-    y = heading("Delivery at a glance");
-    const stw = CW / stats.length;
-    stats.forEach(([k, v], i) => {
-      const x = M + i * stw;
-      set(T.micro, "normal", MID);
-      doc.text(clean(k), x, y + 1);
-      set(11, "bold", NAVY);
-      doc.text(wrap(v, stw - 4, 1), x, y + 7.5);
-    });
-    y += 12;
-  }
 
 
 
