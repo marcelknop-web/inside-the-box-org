@@ -43,6 +43,10 @@ const H3 = (text: string) =>
   new Paragraph({ heading: HeadingLevel.HEADING_3, children: [new TextRun({ text, font, bold: true, color: CRIMSON, size: 26 })], spacing: { before: 200, after: 100 }, keepNext: true });
 
 function computeDeadlineClock(classification: string | undefined, deadline: string): string {
+  // An explicit clock time written into the deadline always wins — the printed
+  // target and the calculated "due" value must never contradict each other.
+  const explicit = /\b([01]?\d|2[0-3]):([0-5]\d)\b/.exec(deadline || "");
+  if (explicit) return `${explicit[1].padStart(2, "0")}:${explicit[2]}`;
   if (!classification || !/^\d{1,2}:\d{2}$/.test(classification)) return "";
   const [hh, mm] = classification.split(":").map((n) => parseInt(n, 10));
   const base = new Date(2025, 0, 1, hh, mm);
@@ -51,14 +55,57 @@ function computeDeadlineClock(classification: string | undefined, deadline: stri
     const day = h >= 24 ? ` (+${Math.floor(h / 24)}d)` : "";
     return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}${day}`;
   };
-  const mHour = /T\s*\+\s*(\d+)\s*h/i.exec(deadline);
-  if (mHour) return fmt(parseInt(mHour[1], 10));
+  const mHour = /T\s*\+\s*(\d+(?:[.,]\d+)?)\s*h/i.exec(deadline);
+  if (mHour) return fmt(parseFloat(mHour[1].replace(",", ".")));
   // Statutory windows written as "24 h", "72 h" or "1 month".
   const mWindow = /(\d{1,3})\s*h\b/i.exec(deadline);
   if (mWindow) return fmt(parseInt(mWindow[1], 10));
   if (/1\s*month|one month/i.test(deadline)) return "+1 month";
   return "";
 }
+
+/**
+ * Obligation categories must survive the generator. Law enforcement, insurers,
+ * suppliers and customers are never a blanket statutory reporting clock.
+ */
+function obligationKind(m: { addressee: string; kind?: string; basis?: string; deadline?: string }): string {
+  const s = `${m.addressee} ${m.basis ?? ""}`;
+  if (/police|law enforcement|prosecut|criminal|bka|lka|ncsc hotline/i.test(s))
+    return "Legal / operational escalation target";
+  if (/insur|p&i|underwrit/i.test(s)) return "Contractual notification (insurance)";
+  if (/supplier|vendor|service provider|third part/i.test(s)) return "Contractual / supplier escalation target";
+  const statutory = /nis2|nis 2|art\.?\s*23|gdpr|art\.?\s*33|supervisory authority|data protection authority|csirt|competent authority/i.test(s);
+  const off = /t\s*\+\s*(\d+(?:[.,]\d+)?)\s*h/i.exec(m.deadline || "");
+  const hours = off ? parseFloat(off[1].replace(",", ".")) : null;
+  if (statutory && hours !== null && hours < 24) return "Internal escalation target";
+  if (statutory) return "Regulatory deadline";
+  if (/imo|msc-fal|class|flag state|charter|sla|customer|cargo|port authority/i.test(s))
+    return "Company / contract / class target";
+  const given = (m.kind || "").trim();
+  if (given && !/regulatory/i.test(given)) return given;
+  return "Internal escalation target";
+}
+
+/** Strip generator placeholders and de-duplicate repeated list entries. */
+const cleanText = (s: string | undefined) =>
+  (s || "")
+    .replace(/\b(?:x{3,}|y{3,}|z{3,}|TBD|TODO|N\/A placeholder|lorem ipsum)\b/gi, "")
+    .replace(/\s{2,}/g, " ")
+    .replace(/\s+([.,;:])/g, "$1")
+    .trim();
+
+const dedupeList = (items: string[] | undefined) => {
+  const seen = new Set<string>();
+  return (items ?? [])
+    .map((i) => cleanText(i))
+    .filter((i) => {
+      const key = i.toLowerCase().replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ").trim();
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+};
+
 
 
 const styleDoc = {
@@ -206,7 +253,8 @@ function buildFacilitatorGuide(ex: Exercise, orgName: string, sessionMinutes = 1
   const klass = ex.groundTruth?.classificationTime;
   const rows = (ex.reportingObligations ?? []).map((m) => [
     m.addressee,
-    m.kind || "—",
+    obligationKind(m),
+
     m.deadline,
     computeDeadlineClock(klass, m.deadline) || "—",
     m.basis || "—",
@@ -367,15 +415,16 @@ function buildRoleCards(ex: Exercise): Document {
     if (idx > 0) kids.push(new Paragraph({ children: [new PageBreak()] }));
     kids.push(H2(r.name));
     kids.push(H3("Your role"));
-    kids.push(P([T(r.profile)]));
+    kids.push(P([T(cleanText(r.profile))]));
     kids.push(H3("Your tasks"));
-    (r.tasks ?? []).forEach((a) => kids.push(bullet(a)));
+    dedupeList(r.tasks).forEach((a) => kids.push(bullet(a)));
     kids.push(H3("Your decision rights"));
-    kids.push(P([T(r.decisionRights || "Decides alone: measures within your own remit. Escalates: anything affecting operations, safety on board or external notification — safety and navigational decisions on board rest with the Master.")]));
+    kids.push(P([T(cleanText(r.decisionRights) || "Decides alone: measures within your own remit. Escalates: anything affecting operations, safety on board or external notification — safety and navigational decisions on board rest with the Master.")]));
     kids.push(H3("Who you can reach"));
     kids.push(P([T("Legal / data protection (DPA), fleet operations and the Master are on call and answered by the facilitation team. Ask for them by name.")]));
     kids.push(H3("Your tension field (confidential — do not share)"));
-    kids.push(P([T(r.tension, { italics: true })]));
+    kids.push(P([T(cleanText(r.tension), { italics: true })]));
+
 
   });
   return new Document({
@@ -421,7 +470,15 @@ function buildWorksheet(ex: Exercise): Document {
     P([T("Regulatory deadlines are statutory and are never shortened. Internal and company/contract/class entries are targets.", { italics: true })]),
     dataTable(
       ["Addressee", "Type", "Deadline", "Due at", "Owner", "Status"],
-      (ex.reportingObligations ?? []).map((m) => [m.addressee, m.kind || "—", m.deadline, "", "", ""]),
+      (ex.reportingObligations ?? []).map((m) => [
+        m.addressee,
+        obligationKind(m),
+        m.deadline,
+        computeDeadlineClock(ex.groundTruth?.classificationTime, m.deadline) || "",
+        "",
+        "",
+      ]),
+
       [2300, 1700, 1800, 1400, 1200, 960],
     ),
 
