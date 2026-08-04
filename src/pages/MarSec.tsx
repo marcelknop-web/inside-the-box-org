@@ -487,49 +487,49 @@ function buildScript(ex: Exercise): Document {
   });
 }
 
-function buildEvaluationSheet(ex: Exercise): Document {
+function buildEvaluationSheet(ex: Exercise, sessionMinutes = 180): Document {
   const empty = (n: number, cols: number) => Array.from({ length: n }, () => Array.from({ length: cols }, () => ""));
+  const short = sessionMinutes <= 150;
   const kids: any[] = [
     ...titleBlock("Evaluation & Hotwash Sheet", ex.exerciseName, "OBSERVER / FACILITATOR"),
     H2("How to use this sheet"),
     ...[
       "One sheet per observer. Rate during the exercise, not afterwards.",
-      "Scale: 1 = not observed, 2 = weak, 3 = adequate, 4 = strong, 5 = exemplary. n/a if the situation did not arise.",
+      "Scale: 1 = not achieved, 2 = weak, 3 = adequate, 4 = strong, 5 = exemplary.",
+      'Tick "n/a — not observed" when the situation did not arise or you could not observe it. Not observed is not the same as weak.',
       "Always note the evidence — the inject ID or the quoted decision — next to the rating.",
+      short
+        ? "Short session: rate the exercise objectives plus the three core capabilities only. Use two observers if the inject-level table is to be completed as well."
+        : "With one observer, prioritise objectives and core capabilities; the inject-level table is optional support.",
     ].map((s) => bullet(s)),
     H2("Objective-level assessment"),
     dataTable(
-      ["Objective", "Rating (1–5)", "Evidence (inject ID, decision, quote)"],
-      (ex.objectives ?? []).map((o) => [o, "", ""]),
-      [4200, 1400, 3760],
+      ["Objective", "Rating (1–5)", "n/a — not observed", "Evidence (inject ID, decision, quote)"],
+      (ex.objectives ?? []).map((o) => [o, "", "☐", ""]),
+      [3600, 1200, 1400, 3160],
     ),
-    H2("Inject-level observation"),
+    H2("Core capabilities"),
+    dataTable(
+      ["Capability", "Rating (1–5)", "n/a — not observed", "Notes"],
+      [
+        "Situational picture — completeness, currency, fact/assumption separation",
+        "Decision quality and decision ownership — basis, alternatives, timing, who decided",
+        "Notification and communication — clocks recognised, owners named, messages coordinated",
+      ].map((c) => [c, "", "☐", ""]),
+      [3900, 1200, 1400, 2860],
+    ),
+    H2("Supporting observation (optional, second observer)"),
     dataTable(
       ["Inject", "Expected response met?", "Time to first decision", "Observation"],
       ex.injects.map((i) => [`${i.id} · ${i.title}`, "", "", ""]),
       [3000, 1900, 1700, 2760],
-    ),
-    H2("Capability ratings"),
-    dataTable(
-      ["Capability", "Rating (1–5)", "Notes"],
-      [
-        "Situational picture — completeness, currency, fact/assumption separation",
-        "Decision quality — basis, alternatives, timing",
-        "Reporting obligations — deadlines recognised, documented, owned",
-        "Internal communication and battle rhythm",
-        "External communication — customers, authorities, media",
-        "Ship–shore coordination — Master's authority, satcom constraints",
-        "IT / OT separation and safety primacy",
-        "Role clarity, handovers and escalation",
-        "Task management — prioritised, assigned, tracked",
-      ].map((c) => [c, "", ""]),
-      [4600, 1400, 3360],
     ),
     H2("Strengths observed"),
     dataTable(["#", "Strength", "Evidence"], empty(5, 3), [700, 4300, 4360]),
     H2("Improvement actions"),
     dataTable(["#", "Action", "Owner", "Due"], empty(8, 4), [700, 5000, 2000, 1660]),
     H2("Hotwash prompts"),
+    P([T("Ask these in the hotwash and capture the answers for the after-action report.", { italics: true })]),
     ...(ex.hotwashNotes ?? []).map((h) => bullet(h)),
   ];
   return new Document({
@@ -538,19 +538,20 @@ function buildEvaluationSheet(ex: Exercise): Document {
   });
 }
 
-function buildBriefing(ex: Exercise, orgName: string): Document {
+function buildBriefing(ex: Exercise, orgName: string, sessionMinutes = 180): Document {
   const first = ex.injects[0];
   const kids: any[] = [
     ...titleBlock("Participant Briefing", ex.exerciseName, "FOR ALL PARTICIPANTS — NO SPOILERS"),
-    H2("What this is"),
     P([T(`A facilitated tabletop exercise for ${orgName}. No real system is touched, no real notification is sent. You work only with the information handed to you.`)]),
     H2("Starting situation"),
     P([T(first?.content || "")]),
     H2("Your roles"),
     dataTable(["Role", "In one line"], (ex.roles ?? []).map((r) => [r.name, (r.profile || "").split(/(?<=\.)\s/)[0] ?? ""]), [2800, 6560]),
+    H2("On call during the exercise"),
+    P([T("Legal / data protection (DPA), fleet operations and the Master are reachable via the facilitation team. Ask for them whenever a decision is theirs — safety and navigational decisions on board rest with the Master.")]),
     H2("Ground rules"),
     ...[
-      "Room time equals simulation time. Only the facilitator moves the clock.",
+      "The facilitator advances the simulation clock — scenario times are compressed, room time is the agenda below.",
       "Decisions are documented, never executed.",
       "Separate fact from assumption at all times.",
       "Questions go to the facilitator, not to real contacts ashore or on board.",
@@ -558,14 +559,19 @@ function buildBriefing(ex: Exercise, orgName: string): Document {
     ].map((s) => bullet(s)),
     H2("What we are looking at"),
     ...(ex.objectives ?? []).map((o) => bullet(o, "numbers")),
-    H2("How the session runs"),
-    dataTable(["Time", "Segment"], (ex.schedule ?? []).map((s) => [s.time, s.segment]), [1800, 7560]),
+    H2("How the session runs (real room time)"),
+    dataTable(
+      ["Room time", "Activity"],
+      roomPlan(ex, sessionMinutes).map((b) => [b.block, b.activity]),
+      [1800, 7560],
+    ),
   ];
   return new Document({
     creator: "MarSec Studio", title: `${ex.exerciseName} – Participant Briefing`, styles: styleDoc, numbering: bulletsNumbering(),
     sections: [makeSection(ex.exerciseName, kids)],
   });
 }
+
 
 async function buildZip(ex: Exercise, orgName: string, onProgress?: (done: number, total: number, label: string) => void) {
   const zip = new JSZip();
