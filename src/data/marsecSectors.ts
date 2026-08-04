@@ -37,7 +37,7 @@ export const OBLIGATIONS: { id: string; label: string; detail: string; prompt: s
     id: "imo",
     label: "IMO / ISPS, class & flag state",
     detail: "IMO MSC-FAL.1/Circ.3, ISPS Code, class society and flag state administration.",
-    prompt: "IMO MSC-FAL.1/Circ.3 and ISPS Code: notify the Company Security Officer, flag state administration and class society; document any change of ISPS security level.",
+    prompt: "IMO MSC-FAL.1/Circ.3 and ISPS Code: notify the Company Security Officer, Ship Security Officer, flag state administration and class society; document the protective measures applied under the Ship Security Plan. Note: ISPS security levels are set by the responsible SOLAS contracting state — the company and the Master may only recommend escalation, never set the level themselves.",
   },
   {
     id: "gdpr",
