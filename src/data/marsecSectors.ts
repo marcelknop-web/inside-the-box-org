@@ -176,7 +176,7 @@ export const SECTORS: SectorDef[] = [
         "Communications & Customer Notification",
       ],
     },
-    defaultObligations: ["nis2", "imo", "customers", "insurers"],
+    defaultObligations: ["nis2", "flagstate", "imo", "customers", "insurers"],
   },
   {
     id: "port",
@@ -230,7 +230,7 @@ export const SECTORS: SectorDef[] = [
         "Communications & Customer Notification",
       ],
     },
-    defaultObligations: ["nis2", "portauthority", "customers", "otvendors"],
+    defaultObligations: ["nis2", "designatedauthority", "portauthority", "customers", "otvendors"],
   },
   {
     id: "cruise",
@@ -284,7 +284,7 @@ export const SECTORS: SectorDef[] = [
         "Communications, Media & Guest Relations",
       ],
     },
-    defaultObligations: ["gdpr", "portauthority", "imo", "police"],
+    defaultObligations: ["nis2", "gdpr", "flagstate", "portauthority", "police"],
   },
 ];
 
