@@ -270,11 +270,15 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   rightY += disclaimer.length * LH.micro + 2;
 
 
-  y = Math.max(leftY, rightY) + 4;
-
   // ── Value block geometry (anchored above the footer) ─────
   const boxH = 32;
   const boxY = SAFE_BOTTOM - boxH;
+
+  // The inject-flow section needs 26 mm (heading, track, tick labels, caption).
+  // Clamping here guarantees it always sits fully above the deliverables box,
+  // no matter how long the objectives or notification entries turn out.
+  y = Math.min(Math.max(leftY, rightY) + 4, boxY - 26);
+
 
   // ── Inject flow ─────────────────────────────────────────
   const injects = ex.injects ?? [];
