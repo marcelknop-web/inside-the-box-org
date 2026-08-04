@@ -715,6 +715,7 @@ export default function MarSec() {
   }
 
   const injectCount = duration === "2h" ? 8 : duration === "3h" ? 11 : 14;
+  const sessionMinutes = duration === "2h" ? 120 : duration === "3h" ? 180 : 240;
   const selectedTopics = useMemo(() => Object.entries(topics), [topics]);
   const orgName = profile.name || sector?.defaults.name || "Organisation";
   const canGenerate = !!sector && selectedTopics.length >= 1 && !!profile.name;
