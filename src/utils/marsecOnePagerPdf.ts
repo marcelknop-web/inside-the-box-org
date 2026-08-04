@@ -239,8 +239,14 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
       return "NIS2 Art. 23: 1 month final report";
     if (/72\s*h/i.test(r.deadline)) return "NIS2 Art. 23: 72 h incident notification";
     if (/nis2|nis 2|art\.?\s*23/i.test(s)) return "NIS2 Art. 23: 24 h early warning at the latest";
-    if (/imo|msc-fal/i.test(s)) return "IMO MSC-FAL.1/Circ.3 is guidance, not a reporting clock";
-    if (/class|flag state|charter|sla|customer|cargo/i.test(s)) return "No statutory clock";
+    if (/imo|msc-fal|msc\.428/i.test(s)) return "IMO guidance / SMS duty, not a reporting clock";
+    if (/flag state|flag administration|solas|isps|designated authority/i.test(s))
+      return "ISPS / SOLAS XI-2: report without delay, no hour clock";
+    if (/coast guard|national response center|33 cfr|mtsa|port state/i.test(s))
+      return "33 CFR 101.305 (MTSA): report without delay";
+    if (/mar art\.?\s*17|8-k|inside information|ad-hoc/i.test(s))
+      return "MAR Art. 17 without delay / SEC 8-K Item 1.05: 4 business days";
+    if (/class|charter|sla|customer|cargo/i.test(s)) return "No statutory clock";
     if (r.basis) return clean(r.basis);
     return "Not set by law";
 
