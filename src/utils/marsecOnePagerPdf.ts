@@ -119,7 +119,12 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
     ["INJECTS", String(meta.injectCount)],
     ["ROLES", String(meta.roleCount)],
     ["FORMAT", levelLabel],
-    ["INITIAL CLASSIFICATION", ex.groundTruth?.classificationTime || "n/a"],
+    [
+      "CLASSIFIED AS MAJOR (SIM CLOCK)",
+      ex.groundTruth?.classificationTime
+        ? `${clean(ex.groundTruth.classificationTime)} - notification clocks start here`
+        : "not classified in this run",
+    ],
   ];
   const stripH = 19;
   const bw = CW / facts.length;
