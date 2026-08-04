@@ -190,6 +190,16 @@ function buildFacilitatorGuide(ex: Exercise, orgName: string): Document {
     P([T(ex.groundTruth?.organisationProfile || "")]),
     H3("Adversary / cause"),
     P([T(ex.groundTruth?.adversaryOrCause || "")]),
+    ...(ex.groundTruth?.architectureAssumption
+      ? [H3("Architecture assumption (technical causal chain)"), P([T(ex.groundTruth.architectureAssumption)])]
+      : []),
+    ...((ex.groundTruth?.facts ?? []).length
+      ? [
+          H3("Internal fact sheet (never handed to participants)"),
+          P([T("The resolved truth behind the scenario. Use it to answer clarification questions consistently and to judge decision quality in the debrief.", { italics: true })]),
+          dataTable(["Question", "Fact"], (ex.groundTruth?.facts ?? []).map((c) => [c.question, c.answer]), [3400, 5960]),
+        ]
+      : []),
     H3("Timeline (facilitator only)"),
     dataTable(["Time", "Event"], (ex.groundTruth?.timeline ?? []).map((t) => [t.time, t.event]), [2200, 7160]),
     H3("Complications"),
