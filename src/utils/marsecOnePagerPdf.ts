@@ -120,13 +120,13 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
     ["ROLES", String(meta.roleCount)],
     ["FORMAT", levelLabel],
     [
-      "CLASSIFIED AS MAJOR (SIM CLOCK)",
+      "CLASSIFIED AS MAJOR",
       ex.groundTruth?.classificationTime
-        ? `${clean(ex.groundTruth.classificationTime)} - notification clocks start here`
-        : "not classified in this run",
+        ? `${clean(ex.groundTruth.classificationTime)} sim clock`
+        : "not reached",
     ],
   ];
-  const stripH = 19;
+  const stripH = 21;
   const bw = CW / facts.length;
   doc.setFillColor(...LIGHT);
   doc.rect(M, y, CW, stripH, "F");
@@ -140,10 +140,13 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
       doc.line(M + i * bw, y + 3.5, M + i * bw, y + stripH - 3.5);
     }
     set(T.micro - 0.6, "normal", MID);
-    doc.text(wrap(label, bw - 7, 1), x, y + 6.2);
+    const lab = wrap(label, bw - 7, 2);
+    doc.text(lab, x, y + 5.6, { lineHeightFactor: 1.15 });
     const long = clean(value).length > 12;
-    set(long ? 8.6 : 11, "bold", NAVY);
-    doc.text(wrap(value, bw - 7, 2), x, y + (long ? 11.4 : 13), { lineHeightFactor: 1.2 });
+    set(long ? 8.4 : 11, "bold", NAVY);
+    doc.text(wrap(value, bw - 7, 2), x, y + (lab.length > 1 ? 14.4 : 12.6), {
+      lineHeightFactor: 1.2,
+    });
   });
   y += stripH + 10;
 
