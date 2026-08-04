@@ -266,7 +266,11 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   y += 3;
 
 
-  // ── Delivery at a glance (single row of four metrics) ────
+  // ── Value block geometry (anchored above the footer) ─────
+  const boxH = 32;
+  const boxY = SAFE_BOTTOM - boxH;
+
+  // ── Delivery at a glance (only when it fits above the box) ─
   const channels = [...new Set(injects.map((i) => clean(i.channel)).filter(Boolean))];
   const phases = [...new Set(injects.map((i) => clean(i.phase)).filter(Boolean))];
   const stats: [string, string][] = [
@@ -275,20 +279,20 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
     ["EXERCISE PHASES", phases.length ? String(phases.length) : "-"],
     ["GROUND-TRUTH EVENTS", String((ex.groundTruth?.timeline ?? []).length)],
   ];
-  y = heading("Delivery at a glance");
-  const stw = CW / stats.length;
-  stats.forEach(([k, v], i) => {
-    const x = M + i * stw;
-    set(T.micro, "normal", MID);
-    doc.text(clean(k), x, y + 1);
-    set(11, "bold", NAVY);
-    doc.text(wrap(v, stw - 4, 1), x, y + 7.5);
-  });
-  y += 12;
+  if (y + 20 <= boxY - 6) {
+    y = heading("Delivery at a glance");
+    const stw = CW / stats.length;
+    stats.forEach(([k, v], i) => {
+      const x = M + i * stw;
+      set(T.micro, "normal", MID);
+      doc.text(clean(k), x, y + 1);
+      set(11, "bold", NAVY);
+      doc.text(wrap(v, stw - 4, 1), x, y + 7.5);
+    });
+    y += 12;
+  }
 
-  // ── Value block (anchored above the footer) ─────────────
-  const boxH = 32;
-  const boxY = SAFE_BOTTOM - boxH;
+
 
   doc.setFillColor(...NAVY);
   doc.rect(M, boxY, CW, boxH, "F");
