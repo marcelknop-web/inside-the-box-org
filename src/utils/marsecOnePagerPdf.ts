@@ -194,12 +194,34 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
 
   const rx = M + COL + GUT;
   let rightY = y;
-  const kindOf = (r: { kind?: string; addressee: string; basis?: string }) => {
-    if (r.kind) return clean(r.kind);
+  type Obligation = { kind?: string; addressee: string; basis?: string; deadline: string };
+  /** Hour offsets below the statutory window cannot be a regulatory deadline. */
+  const offsetHours = (d: string) => {
+    const m = /t\s*\+\s*(\d+(?:[.,]\d+)?)\s*h/i.exec(d || "");
+    return m ? parseFloat(m[1].replace(",", ".")) : null;
+  };
+  const kindOf = (r: Obligation) => {
     const s = `${r.addressee} ${r.basis ?? ""}`;
-    if (/nis2|nis 2|art\.?\s*23|gdpr|art\.?\s*33/i.test(s)) return "Regulatory deadline";
-    if (/imo|msc-fal|class|flag state|charter|sla|customer|cargo/i.test(s)) return "Company / contract / class target";
+    const statutory = /nis2|nis 2|art\.?\s*23|gdpr|art\.?\s*33/i.test(s);
+    const off = offsetHours(r.deadline);
+    // NIS2 early warning is 24 h, GDPR 72 h: anything faster is an internal ambition.
+    if (statutory && off !== null && off < 24) return "Internal escalation target";
+    if (/imo|msc-fal|class|flag state|charter|sla|customer|cargo/i.test(s))
+      return "Company / contract / class target";
+    if (r.kind) return clean(r.kind);
+    if (statutory) return "Regulatory deadline";
     return "Internal escalation target";
+  };
+  /** Show the legal window next to the clock so the offset cannot be read as the law. */
+  const basisNote = (r: Obligation) => {
+    const s = `${r.addressee} ${r.basis ?? ""}`;
+    if (/gdpr|art\.?\s*33/i.test(s)) return "GDPR Art. 33: 72 h statutory window";
+    if (/final report|1 month|one month/i.test(`${r.deadline} ${s}`))
+      return "NIS2 Art. 23: 1 month final report";
+    if (/72\s*h/i.test(r.deadline)) return "NIS2 Art. 23: 72 h incident notification";
+    if (/nis2|nis 2|art\.?\s*23/i.test(s)) return "NIS2 Art. 23: 24 h early warning at the latest";
+    if (/imo|msc-fal/i.test(s)) return "IMO MSC-FAL.1/Circ.3 is guidance, not a reporting clock";
+    return clean(r.basis || "Exercise assumption, no statutory basis");
   };
   (ex.reportingObligations ?? []).slice(0, 4).forEach((r) => {
     set(T.small, "bold", NAVY);
@@ -211,22 +233,22 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
     doc.text(dl, rx, rightY + 1.2, { lineHeightFactor: 1.3 });
     rightY += dl.length * LH.micro + 1.2;
     set(T.micro - 0.6, "normal", MID);
-    const kd = wrap(kindOf(r), COL, 1);
+    const kd = wrap(`${kindOf(r)} - ${basisNote(r)}`, COL, 2);
     doc.text(kd, rx, rightY + 1.2, { lineHeightFactor: 1.2 });
-    rightY += LH.micro + 4;
+    rightY += kd.length * LH.micro + 3.4;
   });
   set(T.micro - 0.6, "normal", MID);
   doc.text(
     wrap(
-      "Statutory clocks as written in law (NIS2 Art. 23: 24 h / 72 h / 1 month; GDPR Art. 33: 72 h). Company, contract and class targets are exercise assumptions, not regulatory deadlines.",
+      "Statutory clocks are fixed by law (NIS2 Art. 23: 24 h / 72 h / 1 month; GDPR Art. 33: 72 h). Faster hour-level targets, IMO guidance, class, charter and customer commitments are exercise targets, not regulatory deadlines.",
       COL,
-      3,
+      4,
     ),
     rx,
     rightY + 0.5,
     { lineHeightFactor: 1.25 },
   );
-  rightY += 3 * LH.micro + 2;
+  rightY += 4 * LH.micro + 2;
 
   y = Math.max(leftY, rightY) + 4;
 
