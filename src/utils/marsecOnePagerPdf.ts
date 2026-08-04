@@ -195,16 +195,16 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   y = heading("The situation the team walks into");
   set(T.body, "normal", INK);
   const scenario = wrap(
-    firstSentences(ex.summary || ex.groundTruth?.adversaryOrCause || "", 560),
+    firstSentences(ex.summary || ex.groundTruth?.adversaryOrCause || "", 660),
     CW,
-    4,
+    5,
   );
   doc.text(scenario, M, y, { lineHeightFactor: 1.36 });
   y += scenario.length * LH.body + 2.6;
   if (ex.groundTruth?.architectureAssumption) {
     set(T.small, "italic", MID);
     const arch = wrap(
-      `Technical premise held by the facilitator: ${firstSentences(ex.groundTruth.architectureAssumption, 185)}`,
+      `Technical premise held by the facilitator: ${firstSentences(ex.groundTruth.architectureAssumption, 175)}`,
       CW,
       2,
     );
@@ -231,7 +231,7 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   leftY += objIntro.length * LH.small + 3.4;
   (ex.objectives ?? []).slice(0, 3).forEach((o) => {
     set(T.small, "normal", INK);
-    const lines = wrap(firstSentences(o, 165), LCOL - 6, 3);
+    const lines = wrap(firstSentences(o, 175), LCOL - 6, 4);
     doc.setFillColor(...CRIMSON);
     doc.circle(M + 1.3, leftY - 1.2, 0.9, "F");
     doc.text(lines, M + 5, leftY, { lineHeightFactor: 1.32 });
@@ -317,7 +317,7 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   // The run-of-play band needs 24 mm (heading, track, tick labels, caption).
   // Clamping guarantees it always sits fully above the deliverables box, no
   // matter how long the objectives or notification entries turn out.
-  y = Math.min(Math.max(leftY, rightY) + 6, boxY - 29);
+  y = Math.min(Math.max(leftY, rightY) + 6, boxY - 27);
 
   // ── Run of play ─────────────────────────────────────────
   const injects = ex.injects ?? [];
