@@ -415,15 +415,16 @@ function buildRoleCards(ex: Exercise): Document {
     if (idx > 0) kids.push(new Paragraph({ children: [new PageBreak()] }));
     kids.push(H2(r.name));
     kids.push(H3("Your role"));
-    kids.push(P([T(r.profile)]));
+    kids.push(P([T(cleanText(r.profile))]));
     kids.push(H3("Your tasks"));
     dedupeList(r.tasks).forEach((a) => kids.push(bullet(a)));
     kids.push(H3("Your decision rights"));
-    kids.push(P([T(r.decisionRights || "Decides alone: measures within your own remit. Escalates: anything affecting operations, safety on board or external notification — safety and navigational decisions on board rest with the Master.")]));
+    kids.push(P([T(cleanText(r.decisionRights) || "Decides alone: measures within your own remit. Escalates: anything affecting operations, safety on board or external notification — safety and navigational decisions on board rest with the Master.")]));
     kids.push(H3("Who you can reach"));
     kids.push(P([T("Legal / data protection (DPA), fleet operations and the Master are on call and answered by the facilitation team. Ask for them by name.")]));
     kids.push(H3("Your tension field (confidential — do not share)"));
-    kids.push(P([T(r.tension, { italics: true })]));
+    kids.push(P([T(cleanText(r.tension), { italics: true })]));
+
 
   });
   return new Document({
