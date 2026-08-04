@@ -222,7 +222,7 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
 
   // Hard bottom limit for both columns: the run-of-play band (27 mm) and the
   // deliverables box own the page from here down, so nothing may cross it.
-  const COL_LIMIT = SAFE_BOTTOM - 28 - 25 - 2;
+  const COL_LIMIT = SAFE_BOTTOM - 28 - 26 - 2;
 
   let leftY = y;
   set(T.small, "normal", MID);
@@ -329,7 +329,7 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   // The run-of-play band needs 24 mm (heading, track, tick labels, caption).
   // Clamping guarantees it always sits fully above the deliverables box, no
   // matter how long the objectives or notification entries turn out.
-  y = Math.min(Math.max(leftY, rightY) + 6, boxY - 25);
+  y = Math.min(Math.max(leftY, rightY) + 6, boxY - 26);
 
   // ── Run of play ─────────────────────────────────────────
   const injects = ex.injects ?? [];
@@ -353,17 +353,15 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
       doc.text(tick(inj.time), tx, trackY + 5.2, { align: "center" });
     }
   });
-  const phases = ["Detection", "Containment", "Operational impact", "Communication", "Recovery"];
   set(T.micro - 0.4, "normal", MID);
   doc.text(
     wrap(
-      `The scenario runs through ${phases.join(" - ").toLowerCase()}. Every inject arrives with its content, the expected response, discussion prompts and facilitator notes in the accompanying facilitator guide.`,
+      "Detection - containment - operational impact - communication - recovery. Every inject ships with content, expected response and facilitator notes.",
       CW,
-      2,
+      1,
     ),
     M,
-    Math.min(trackY + 11.5, boxY - 8),
-    { lineHeightFactor: 1.25 },
+    trackY + 9.6,
   );
 
   // ── Deliverables ────────────────────────────────────────
