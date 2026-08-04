@@ -978,7 +978,7 @@ export default function MarSec() {
     setProgress("Building the Word package …");
     pushLog("Starting Word package build");
     try {
-      await buildZip(exercise, orgName, (done, total, label) => {
+      await buildZip(exercise, orgName, sessionMinutes, (done, total, label) => {
         setProgressPct(Math.round((done / total) * 100));
         setProgress(label);
         pushLog(label);
