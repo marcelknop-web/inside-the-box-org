@@ -253,7 +253,8 @@ function buildFacilitatorGuide(ex: Exercise, orgName: string, sessionMinutes = 1
   const klass = ex.groundTruth?.classificationTime;
   const rows = (ex.reportingObligations ?? []).map((m) => [
     m.addressee,
-    m.kind || "—",
+    obligationKind(m),
+
     m.deadline,
     computeDeadlineClock(klass, m.deadline) || "—",
     m.basis || "—",
@@ -416,7 +417,7 @@ function buildRoleCards(ex: Exercise): Document {
     kids.push(H3("Your role"));
     kids.push(P([T(r.profile)]));
     kids.push(H3("Your tasks"));
-    (r.tasks ?? []).forEach((a) => kids.push(bullet(a)));
+    dedupeList(r.tasks).forEach((a) => kids.push(bullet(a)));
     kids.push(H3("Your decision rights"));
     kids.push(P([T(r.decisionRights || "Decides alone: measures within your own remit. Escalates: anything affecting operations, safety on board or external notification — safety and navigational decisions on board rest with the Master.")]));
     kids.push(H3("Who you can reach"));
@@ -468,7 +469,15 @@ function buildWorksheet(ex: Exercise): Document {
     P([T("Regulatory deadlines are statutory and are never shortened. Internal and company/contract/class entries are targets.", { italics: true })]),
     dataTable(
       ["Addressee", "Type", "Deadline", "Due at", "Owner", "Status"],
-      (ex.reportingObligations ?? []).map((m) => [m.addressee, m.kind || "—", m.deadline, "", "", ""]),
+      (ex.reportingObligations ?? []).map((m) => [
+        m.addressee,
+        obligationKind(m),
+        m.deadline,
+        computeDeadlineClock(ex.groundTruth?.classificationTime, m.deadline) || "",
+        "",
+        "",
+      ]),
+
       [2300, 1700, 1800, 1400, 1200, 960],
     ),
 
