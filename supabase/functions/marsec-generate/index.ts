@@ -53,7 +53,15 @@ Rules (strict):
 - Ship vs shore: state explicitly whether an event happens shore-side (IT) or on board (IT/OT), and keep the separation consistent. Respect the Master's authority at sea and satcom bandwidth limits.
 - Classification time ("classificationTime", format HH:MM) marks when the incident was classified as major/significant. EVERY reporting deadline must contain a number: a clock time and/or "T+<hours>h" offset — never "immediate", "as soon as practicable" or similar (write e.g. "09:35 (T+0h05)").
 
-- Clarification questions: every answer either cites a timeline fact or reads "Not known - carry as an assumption." Nothing invented.
+- Objectives: 3-5 objectives only, each a testable capability with an observable behaviour or decision ("activate the crisis team and confirm quorum within 20 minutes", "steer the first data-protection assessment to a documented decision"). Never knowledge statements ("understand ..."). Every Lead-thread topic is named in at least one objective.
+- Architecture assumption ("groundTruth.architectureAssumption"): one explicit paragraph naming the concrete technical bridge that makes the escalation possible (e.g. the managed service provider's authentication API that links the guest network to the core booking/PMS platform), plus the boundary between shore IT and on-board IT/OT. No inject may assert a compromise that skips this bridge; a compromised access point never implies an application compromise on its own.
+- Internal fact sheet ("groundTruth.facts"): at least (number of injects) resolved question/answer pairs giving the facilitator the real truth — which data is actually affected, whether specific artefacts exist, which trust relationships exist between third-party provider, guest network and core systems, what the adversary actually did. These are facts, never "not known".
+- Clarifications may answer "Not known - carry as an assumption" only for details that are genuinely open; anything material must be resolved in "groundTruth.facts". At most one third of all clarification answers may be "not known".
+- ISPS wording: NEVER ask whether the ISPS security level should be changed, raised or set — security levels are set by the responsible SOLAS contracting state, not by the Master or the company. Ask instead which immediate protective measures under the Ship Security Plan are appropriate, whom the Master informs (CSO, SSO, flag state, port facility security officer) and under which conditions escalation to authorities is recommended. Keep cyber risk management separate from a formal ISPS level change.
+- Regulation as a decision path: never ask "which reporting duties are triggered?" or any bare enumeration of legal norms. Ask who is controller, which jurisdictions are in scope, which facts are still missing for a deadline assessment, and who tasks legal/privacy. Every entry in "reportingObligations" additionally names the decision owner and the facts required before the clock can be assessed (put them in "basis").
+- Recovery: the exercise does not end at the escalation peak. Phase vocabulary is Detection -> Containment -> Operational impact -> Communication -> Recovery. The FINAL inject carries phase "Recovery" and forces a decision on safe restoration, manual fallback processes, revoking and re-granting provider access, evidence preservation and the resumption/departure decision.
+
+- Clarification questions: every answer either cites a timeline fact, a fact-sheet fact, or reads "Not known - carry as an assumption." Nothing invented.
 - Role tension: ALWAYS a conflict between two named goals (e.g. "fast resumption of quay operations vs. forensic evidence preservation"), never a character description.
 - Anti-repetition: discussion prompts and clarification questions must not duplicate content across injects.
 - Channel diversity: spread the injection channels across injects (phone, e-mail, ticket, crew report via satcom, VHF, media enquiry, authority letter, chat, terminal operations radio) - never the same channel three times in a row.
@@ -68,7 +76,10 @@ Self-check before answering (silently, then fix your own draft):
 5. Every requested topic is tagged with its verbatim topic name: Lead thread 3-4 injects, Core thread 1-2, Side thread 1.
 6. classificationTime set as HH:MM; every reporting obligation deadline contains a digit (clock time and/or T+xh) — no "immediate" or "as soon as practicable".
 7. Every role has 4-6 tasks and a tension in the form "goal A vs. goal B".
-
+8. 3-5 objectives, each testable and observable; every Lead-thread topic named in one.
+9. architectureAssumption filled and consistent with every technical inject; facts list at least as long as the inject list; no more than a third of clarifications answered "not known".
+10. No inject, prompt or clarification asks to set, raise or change an ISPS security level; no bare "which reporting duties apply" question.
+11. The last inject has phase "Recovery" and demands a restoration/resumption decision.
 
 Answer with valid JSON ONLY, matching the schema. No markdown, no prose prefix.`;
 
@@ -316,15 +327,17 @@ JSON schema (exactly these fields):
  "groundTruth":{
    "organisationProfile":"",
    "adversaryOrCause":"",
+   "architectureAssumption":"explicit technical bridge enabling the escalation + shore IT vs on-board IT/OT boundary",
    "classificationTime":"HH:MM",
    "timeline":[{"time":"","event":""}],
+   "facts":[{"question":"what participants will ask","answer":"the resolved internal truth — never \"not known\""}],
    "complications":[""]
  },
- "objectives":["6 objectives"],
+ "objectives":["3-5 testable objectives, each with an observable behaviour or decision"],
  "schedule":[{"time":"","segment":"","content":""}],
- "injects":[{"id":"I-01","time":"","phase":"","mandatory":true,"title":"","topicTag":"verbatim topic name from the list above","channel":"","dependsOn":"I-XX or \"HH:MM <verbatim timeline event>\", empty for I-01","content":"3-6 sentences, verbatim for delivery","expectedResponse":"","facilitatorNote":"","discussionPrompts":["3-5"],"clarifications":[{"question":"","answer":""}],"observationFocus":""}],
+ "injects":[{"id":"I-01","time":"","phase":"Detection | Containment | Operational impact | Communication | Recovery (last inject = Recovery)","mandatory":true,"title":"","topicTag":"verbatim topic name from the list above","channel":"","dependsOn":"I-XX or \"HH:MM <verbatim timeline event>\", empty for I-01","content":"3-6 sentences, verbatim for delivery","expectedResponse":"","facilitatorNote":"","discussionPrompts":["3-5, decision-oriented, never legal-norm enumeration, never ISPS level changes"],"clarifications":[{"question":"","answer":""}],"observationFocus":""}],
  "roles":[{"name":"","profile":"","tasks":["4-6"],"tension":"Goal A vs. Goal B"}],
- "reportingObligations":[{"addressee":"","deadline":"must contain a digit, e.g. \"11:30 (T+2h)\"","basis":""}],
+ "reportingObligations":[{"addressee":"","deadline":"must contain a digit, e.g. \"11:30 (T+2h)\"","basis":"legal basis + decision owner + facts still required for the deadline assessment"}],
 
  "hotwashNotes":["6-8 lessons-learned prompts"]
 }`;

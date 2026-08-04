@@ -33,6 +33,10 @@ export interface Exercise {
     timeline: { time: string; event: string }[];
     complications: string[];
     classificationTime?: string;
+    /** Explicit technical bridge that makes the escalation plausible (shore IT vs on-board IT/OT). */
+    architectureAssumption?: string;
+    /** Internal fact sheet: resolved answers the facilitator holds while participants speculate. */
+    facts?: { question: string; answer: string }[];
   };
   objectives: string[];
   schedule: { time: string; segment: string; content: string }[];
