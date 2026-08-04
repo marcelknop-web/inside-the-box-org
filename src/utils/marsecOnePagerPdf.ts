@@ -151,7 +151,7 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   set(T.lead, "normal", INK);
   const leadLines = wrap(lead, CW, 3);
   doc.text(leadLines, M, y, { lineHeightFactor: 1.35 });
-  y += leadLines.length * LH.lead + 7;
+  y += leadLines.length * LH.lead + 5;
 
   // ── Fact strip ──────────────────────────────────────────
   const facts: [string, string][] = [
@@ -204,12 +204,12 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   if (ex.groundTruth?.architectureAssumption) {
     set(T.small, "italic", MID);
     const arch = wrap(
-      `Technical premise held by the facilitator: ${firstSentences(ex.groundTruth.architectureAssumption, 230)}`,
+      `Technical premise held by the facilitator: ${firstSentences(ex.groundTruth.architectureAssumption, 185)}`,
       CW,
       2,
     );
     doc.text(arch, M, y + 1, { lineHeightFactor: 1.3 });
-    y += arch.length * LH.small + 8;
+    y += arch.length * LH.small + 7;
   } else {
     y += 6;
   }
@@ -229,9 +229,9 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   );
   doc.text(objIntro, M, leftY, { lineHeightFactor: 1.3 });
   leftY += objIntro.length * LH.small + 3.4;
-  (ex.objectives ?? []).slice(0, 4).forEach((o) => {
+  (ex.objectives ?? []).slice(0, 3).forEach((o) => {
     set(T.small, "normal", INK);
-    const lines = wrap(firstSentences(o, 150), LCOL - 6, 3);
+    const lines = wrap(firstSentences(o, 165), LCOL - 6, 3);
     doc.setFillColor(...CRIMSON);
     doc.circle(M + 1.3, leftY - 1.2, 0.9, "F");
     doc.text(lines, M + 5, leftY, { lineHeightFactor: 1.32 });
@@ -317,7 +317,7 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   // The run-of-play band needs 24 mm (heading, track, tick labels, caption).
   // Clamping guarantees it always sits fully above the deliverables box, no
   // matter how long the objectives or notification entries turn out.
-  y = Math.min(Math.max(leftY, rightY) + 5, boxY - 24);
+  y = Math.min(Math.max(leftY, rightY) + 6, boxY - 29);
 
   // ── Run of play ─────────────────────────────────────────
   const injects = ex.injects ?? [];
@@ -350,7 +350,7 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
       2,
     ),
     M,
-    Math.min(trackY + 11, boxY - 7),
+    Math.min(trackY + 11.5, boxY - 8),
     { lineHeightFactor: 1.25 },
   );
 
