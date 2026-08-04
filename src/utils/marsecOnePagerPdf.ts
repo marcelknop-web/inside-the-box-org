@@ -220,6 +220,10 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   heading("Notification clocks under test", M + LCOL + GUT, RCOL);
   y = colTop;
 
+  // Hard bottom limit for both columns: the run-of-play band (27 mm) and the
+  // deliverables box own the page from here down, so nothing may cross it.
+  const COL_LIMIT = SAFE_BOTTOM - 30 - 27 - 4;
+
   let leftY = y;
   set(T.small, "normal", MID);
   const objIntro = wrap(
@@ -232,6 +236,7 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   (ex.objectives ?? []).slice(0, 3).forEach((o) => {
     set(T.small, "normal", INK);
     const lines = wrap(firstSentences(o, 175), LCOL - 6, 4);
+    if (leftY + lines.length * LH.small > COL_LIMIT) return;
     doc.setFillColor(...CRIMSON);
     doc.circle(M + 1.3, leftY - 1.2, 0.9, "F");
     doc.text(lines, M + 5, leftY, { lineHeightFactor: 1.32 });
@@ -298,6 +303,8 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   (ex.reportingObligations ?? []).slice(0, 3).forEach((r) => {
     set(T.small, "bold", NAVY);
     const addr = wrap(firstSentences(r.addressee, 70), RCOL, 2);
+    // 3 measured bands (name, clock, basis) must still fit above the limit
+    if (rightY + addr.length * LH.small + 4 * LH.micro + 5 > COL_LIMIT) return;
     doc.text(addr, rx, rightY, { lineHeightFactor: 1.28 });
     rightY += addr.length * LH.small;
     set(T.micro, "normal", CRIMSON);
