@@ -61,6 +61,11 @@ Rules (strict):
 - Reporting truth: every entry in "reportingObligations" carries a "kind" that is exactly one of "Regulatory deadline", "Internal escalation target" or "Company / contract / class target". Statutory clocks are reproduced as written in law (NIS2 Art. 23: 24 h early warning, 72 h incident notification, 1 month final report; GDPR Art. 33: 72 h) — NEVER shorten a statutory clock to an hour-level target. Faster internal ambitions are separate entries with kind "Internal escalation target". IMO MSC-FAL.1/Circ.3 is cyber-risk-management guidance and sets no reporting deadline: CSO/SSO, flag state and class notifications are "Company / contract / class target", as are charterer, cargo-owner and terminal SLAs. State the clock as the regulatory window plus the resulting time, e.g. "24 h from 09:30 -> by 09:30 next day (T+24h)".
 - Regulation as a decision path: never ask "which reporting duties are triggered?" or any bare enumeration of legal norms. Ask who is controller, which jurisdictions are in scope, which facts are still missing for a deadline assessment, and who tasks legal/privacy. Every entry in "reportingObligations" additionally names the decision owner and the facts required before the clock can be assessed (put them in "basis").
 - Recovery: the exercise does not end at the escalation peak. Phase vocabulary is Detection -> Containment -> Operational impact -> Communication -> Recovery. The FINAL inject carries phase "Recovery" and forces a decision on safe restoration, manual fallback processes, revoking and re-granting provider access, evidence preservation and the resumption/departure decision.
+- Two clocks, never equated: "schedule" and all inject times are SIMULATION time (in-scenario clock). "roomAgenda" is the REAL room agenda in wall-clock minutes and its "minutes" values sum to the booked session length. The facilitator advances the simulation clock; simulation time is compressed and NEVER equal to room time. Never write "room time equals simulation time". Every roomAgenda block names the injects or segment it covers and, where applicable, the simulation time reached ("simTime").
+- Internal time consistency: any time or date written inside inject content (e-mail headers, log entries, "sent at", "received at") MUST equal that inject's own "time". No inject may reference a delivery time later than its own clock time.
+- Closed role model: the role set (plus "supportCells") must cover legal/data protection (DPA or equivalent), fleet/vessel operations and the Master's authority on board. Roles not played live appear in "supportCells" with availability ("Legal/DPA on call, reachable within 10 minutes, played by facilitator") and the decisions they own. Every role carries "decisionRights": what it decides alone and what it must escalate — including, for shipboard matters, that safety and navigational decisions on board rest with the Master.
+- Abbreviations: in the maritime sector "SMS" means Safety Management System ONLY. Never label an IT/OT system "Shipboard Management System (SMS)"; use plain names such as "on-board vessel network", "cargo planning system" or "shore IT domain".
+
 
 - Clarification questions: every answer either cites a timeline fact, a fact-sheet fact, or reads "Not known - carry as an assumption." Nothing invented.
 - Role tension: ALWAYS a conflict between two named goals (e.g. "fast resumption of quay operations vs. forensic evidence preservation"), never a character description.
@@ -81,6 +86,11 @@ Self-check before answering (silently, then fix your own draft):
 9. architectureAssumption filled and consistent with every technical inject; facts list at least as long as the inject list; no more than a third of clarifications answered "not known".
 10. No inject, prompt or clarification asks to set, raise or change an ISPS security level; no bare "which reporting duties apply" question.
 11. The last inject has phase "Recovery" and demands a restoration/resumption decision.
+12. roomAgenda present, its minutes sum to the booked session length, and no text anywhere claims room time equals simulation time.
+13. Every time stated inside inject content matches that inject's own time.
+14. Roles plus supportCells cover legal/data protection, fleet/vessel operations and the Master; every role has decisionRights.
+15. "SMS" is used only for Safety Management System; no IT system is called "Shipboard Management System".
+
 
 Answer with valid JSON ONLY, matching the schema. No markdown, no prose prefix.`;
 
@@ -314,8 +324,9 @@ ${profileLines || "- not specified"}
 Scenario topics (weighting):
 ${topicLines}
 
-Duration: ${String(duration ?? "3h")}. Exactly ${injectCount} injects (I-01 … I-${String(injectCount).padStart(2, "0")}), chronological from T+00, clock times starting 08:15.
-Roles: ${roleLine}. Each role with a scenario-specific profile plus a tension field (two competing goals).
+Booked session length (real room time): ${String(duration ?? "3h")}. Exactly ${injectCount} injects (I-01 … I-${String(injectCount).padStart(2, "0")}), chronological, SIMULATION clock times starting 08:15. Simulation time is compressed: build "roomAgenda" so its minutes sum to the booked session length.
+Roles: ${roleLine}. Each role with a scenario-specific profile, a tension field (two competing goals) and decisionRights. Add supportCells for legal/DPA, fleet operations and the Master where they are not played live.
+
 Difficulty: ${String(difficulty ?? "Intermediate")}.
 
 Reporting obligations in scope (compute concrete clock times from classificationTime):
@@ -335,9 +346,12 @@ JSON schema (exactly these fields):
    "complications":[""]
  },
  "objectives":["3-5 testable objectives, each with an observable behaviour or decision"],
- "schedule":[{"time":"","segment":"","content":""}],
- "injects":[{"id":"I-01","time":"","phase":"Detection | Containment | Operational impact | Communication | Recovery (last inject = Recovery)","mandatory":true,"title":"","topicTag":"verbatim topic name from the list above","channel":"","dependsOn":"I-XX or \"HH:MM <verbatim timeline event>\", empty for I-01","content":"3-6 sentences, verbatim for delivery","expectedResponse":"","facilitatorNote":"","discussionPrompts":["3-5, decision-oriented, never legal-norm enumeration, never ISPS level changes"],"clarifications":[{"question":"","answer":""}],"observationFocus":""}],
- "roles":[{"name":"","profile":"","tasks":["4-6"],"tension":"Goal A vs. Goal B"}],
+ "schedule":[{"time":"simulation clock HH:MM","segment":"","content":""}],
+ "roomAgenda":[{"block":"real room time, e.g. \"0:00-0:15\"","minutes":15,"activity":"what happens in the room (welcome, injects I-01/I-02, hotwash …)","simTime":"simulation clock reached, e.g. \"08:15-09:00\""}],
+ "injects":[{"id":"I-01","time":"","phase":"Detection | Containment | Operational impact | Communication | Recovery (last inject = Recovery)","mandatory":true,"title":"","topicTag":"verbatim topic name from the list above","channel":"","dependsOn":"I-XX or \"HH:MM <verbatim timeline event>\", empty for I-01","content":"3-6 sentences, verbatim for delivery; any time stated inside equals this inject's time","expectedResponse":"","facilitatorNote":"","discussionPrompts":["3-5, decision-oriented, never legal-norm enumeration, never ISPS level changes"],"clarifications":[{"question":"","answer":""}],"observationFocus":""}],
+ "roles":[{"name":"","profile":"","tasks":["4-6"],"tension":"Goal A vs. Goal B","decisionRights":"decides alone: … | escalates: …"}],
+ "supportCells":[{"name":"Legal / Data protection (on call)","availability":"reachable within 10 minutes, played by the facilitator","ownsDecisions":"which decisions this function owns"}],
+
  "reportingObligations":[{"addressee":"","kind":"Regulatory deadline | Internal escalation target | Company / contract / class target","deadline":"must contain a digit; statutory windows verbatim, e.g. \"24 h from 09:30 -> by 09:30+1d (T+24h)\"","basis":"legal basis (or contract/company basis) + decision owner + facts still required for the deadline assessment"}],
 
  "hotwashNotes":["6-8 lessons-learned prompts"]

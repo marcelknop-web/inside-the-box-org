@@ -21,7 +21,10 @@ export interface CheckContext {
   /** Labels of the reporting obligations selected in the wizard. */
   obligationLabels: string[];
   roleCount: number;
+  /** Booked session length in real room minutes (e.g. 120 for "2h"). */
+  durationMinutes?: number;
 }
+
 
 /** Parses "T+45 min", "T+1h", "T+1:15", "09:30" into minutes since exercise start. */
 export function parseInjectMinutes(raw: string | undefined): number | null {
@@ -514,7 +517,114 @@ export function runQualityCheck(ex: Exercise, ctx: CheckContext): Finding[] {
     });
   }
 
+  // ── Time model: room time vs simulation time ─────────────
+  const agenda = ex.roomAgenda ?? [];
+  const agendaMinutes = agenda.reduce((s, b) => s + (Number(b.minutes) || 0), 0);
+  const booked = ctx.durationMinutes ?? 0;
+  if (!agenda.length) {
+    f.push({
+      id: "room-agenda-missing",
+      severity: "blocker",
+      rule: "Room time and simulation time are separated",
+      detail: "No roomAgenda: the simulation clock spans hours while the session is booked for a fixed slot.",
+      fix: `Add a "roomAgenda" of real wall-clock blocks (minutes per inject/segment) summing to ${booked ? `${booked} minutes` : "the booked session length"}, and keep inject times as simulation time only.`,
+    });
+  } else if (booked && (agendaMinutes < booked * 0.8 || agendaMinutes > booked * 1.15)) {
+    f.push({
+      id: "room-agenda-length",
+      severity: "warning",
+      rule: "The room agenda fits the booked session length",
+      detail: `roomAgenda totals ${agendaMinutes} minutes for a ${booked}-minute session.`,
+      fix: `Re-balance the roomAgenda blocks so the minutes sum to about ${booked} minutes.`,
+    });
+  }
+  const equatesClocks = /room time (?:equals|is|=)\s*(?:the\s*)?simulation time|simulation time equals room time/i;
+  const equateHits = [
+    ...(ex.schedule ?? []).map((s) => `${s.segment} ${s.content}`),
+    ...(ex.roomAgenda ?? []).map((s) => s.activity || ""),
+    ex.summary || "",
+  ].filter((t) => equatesClocks.test(t));
+  if (equateHits.length) {
+    f.push({
+      id: "clock-equation",
+      severity: "blocker",
+      rule: "Room time is never equated with simulation time",
+      detail: "The material claims room time equals simulation time although the simulation clock is compressed.",
+      fix: 'Replace with "The facilitator advances the simulation clock" and keep the real minute plan in roomAgenda.',
+    });
+  }
+  // Times stated inside an inject must match that inject's own clock time.
+  const stampPattern = /\b(?:sent|received|logged|timestamp(?:ed)?|dated|raised)\b[^.;\n]{0,30}?(\d{1,2}:\d{2})/gi;
+  const stampMismatch = injects.filter((i) => {
+    const own = (i.time || "").match(/\d{1,2}:\d{2}/)?.[0];
+    if (!own) return false;
+    const text = `${i.content} ${i.expectedResponse}`;
+    let m: RegExpExecArray | null;
+    stampPattern.lastIndex = 0;
+    while ((m = stampPattern.exec(text))) if (m[1] !== own) return true;
+    return false;
+  });
+  if (stampMismatch.length) {
+    f.push({
+      id: "inject-time-mismatch",
+      severity: "warning",
+      rule: "Times inside an inject match the inject's own clock time",
+      detail: `Conflicting delivery times in: ${stampMismatch.map((i) => i.id).join(", ")}.`,
+      fix: "Align every time written inside the inject text (e-mail headers, log entries, 'sent at') with that inject's own time.",
+    });
+  }
+
+  // ── Closed role model: legal/DPA, fleet ops, Master ──────
+  const supportCells = ex.supportCells ?? [];
+  const roleUniverse = norm(
+    [...roles.map((r) => `${r.name} ${r.profile} ${r.decisionRights ?? ""}`), ...supportCells.map((s) => `${s.name} ${s.availability} ${s.ownsDecisions}`)].join(" | "),
+  );
+  const requiredFunctions: [string, RegExp, Severity][] = [
+    ["Legal / data protection (DPA)", /legal|counsel|data protection|privacy|dpo|dpa/, "blocker"],
+    ["Fleet / vessel operations", /fleet|vessel operation|marine operation|ship operation|nautical/, "warning"],
+    ["Master's authority on board", /master|captain|shipboard command/, "blocker"],
+  ];
+  requiredFunctions.forEach(([label, re, sev]) => {
+    if (!re.test(roleUniverse)) {
+      f.push({
+        id: `role-gap-${norm(label).slice(0, 18)}`,
+        severity: sev,
+        rule: "The role model has no open decision owners",
+        detail: `${label} is decision-relevant but appears neither as a role nor as a support cell.`,
+        fix: `Add ${label} either as a played role or as a supportCells entry (e.g. "Legal/DPA on call, played by the facilitator") with the decisions it owns.`,
+      });
+    }
+  });
+  const noRights = roles.filter((r) => !(r.decisionRights || "").trim());
+  if (noRights.length) {
+    f.push({
+      id: "role-decision-rights",
+      severity: "warning",
+      rule: "Every role states what it decides and what it escalates",
+      detail: `No decisionRights: ${noRights.map((r) => r.name).join(", ")}.`,
+      fix: 'Give every role a decisionRights line ("decides alone: … | escalates: …"); for shipboard matters name the Master as the decision holder.',
+    });
+  }
+
+  // ── Terminology: SMS is the Safety Management System ─────
+  const smsText = [
+    ex.summary,
+    ex.groundTruth?.organisationProfile,
+    ex.groundTruth?.architectureAssumption,
+    ...injects.map((i) => `${i.title} ${i.content} ${i.expectedResponse}`),
+  ].join(" | ");
+  if (/shipboard management system|\bSMS\b(?![^.]{0,20}safety)/.test(smsText) && !/safety management system\s*\(sms\)/i.test(smsText)) {
+    f.push({
+      id: "sms-abbreviation",
+      severity: "warning",
+      rule: "SMS is reserved for the Safety Management System",
+      detail: 'The material uses "SMS" (or "Shipboard Management System") for an IT system — in the maritime sector SMS means Safety Management System.',
+      fix: 'Rename the system to a plain descriptive name ("on-board vessel network", "cargo planning system") and use "SMS" only for the Safety Management System.',
+    });
+  }
+
   return f;
+
 }
 
 export const countBySeverity = (findings: Finding[]) => ({

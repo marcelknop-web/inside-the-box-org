@@ -46,15 +46,20 @@ function computeDeadlineClock(classification: string | undefined, deadline: stri
   if (!classification || !/^\d{1,2}:\d{2}$/.test(classification)) return "";
   const [hh, mm] = classification.split(":").map((n) => parseInt(n, 10));
   const base = new Date(2025, 0, 1, hh, mm);
-  const mHour = /T\s*\+\s*(\d+)\s*h/i.exec(deadline);
-  if (mHour) {
-    const h = parseInt(mHour[1], 10);
+  const fmt = (h: number) => {
     const d = new Date(base.getTime() + h * 3600_000);
     const day = h >= 24 ? ` (+${Math.floor(h / 24)}d)` : "";
     return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}${day}`;
-  }
+  };
+  const mHour = /T\s*\+\s*(\d+)\s*h/i.exec(deadline);
+  if (mHour) return fmt(parseInt(mHour[1], 10));
+  // Statutory windows written as "24 h", "72 h" or "1 month".
+  const mWindow = /(\d{1,3})\s*h\b/i.exec(deadline);
+  if (mWindow) return fmt(parseInt(mWindow[1], 10));
+  if (/1\s*month|one month/i.test(deadline)) return "+1 month";
   return "";
 }
+
 
 const styleDoc = {
   default: { document: { run: { font, size: 22 } } },
@@ -98,6 +103,7 @@ function kvTable(rows: [string, string][], colA = 3000, colB = 6360) {
     width: { size: colA + colB, type: WidthType.DXA },
     columnWidths: [colA, colB],
     rows: rows.map(([k, v], i) => new TableRow({
+      cantSplit: true,
       children: [cell(k, { width: colA, bold: true, alt: i % 2 === 1 }), cell(v, { width: colB, alt: i % 2 === 1 })],
     })),
   });
@@ -108,11 +114,12 @@ function dataTable(headers: string[], rows: string[][], widths: number[]) {
     width: { size: widths.reduce((a, b) => a + b, 0), type: WidthType.DXA },
     columnWidths: widths,
     rows: [
-      new TableRow({ tableHeader: true, children: headers.map((h, i) => cell(h, { width: widths[i], header: true })) }),
-      ...rows.map((r, ri) => new TableRow({ children: r.map((v, i) => cell(v, { width: widths[i], alt: ri % 2 === 1 })) })),
+      new TableRow({ tableHeader: true, cantSplit: true, children: headers.map((h, i) => cell(h, { width: widths[i], header: true })) }),
+      ...rows.map((r, ri) => new TableRow({ cantSplit: true, children: r.map((v, i) => cell(v, { width: widths[i], alt: ri % 2 === 1 })) })),
     ],
   });
 }
+
 
 function bulletsNumbering() {
   return {
@@ -168,11 +175,43 @@ function masterTimeline(ex: Exercise) {
   return rows.sort((a, b) => (a.m ?? 1e9) - (b.m ?? 1e9));
 }
 
+/**
+ * Real room agenda. Uses the generated roomAgenda when present, otherwise derives a
+ * wall-clock plan: briefing, inject blocks, hotwash — summing to the booked session length.
+ */
+function roomPlan(ex: Exercise, sessionMinutes = 180) {
+  if ((ex.roomAgenda ?? []).length) return ex.roomAgenda!;
+  const injects = ex.injects ?? [];
+  const brief = 15;
+  const hotwash = Math.max(20, Math.round(sessionMinutes * 0.15));
+  const play = Math.max(30, sessionMinutes - brief - hotwash);
+  const per = Math.max(5, Math.floor(play / Math.max(1, injects.length)));
+  const label = (from: number, len: number) =>
+    `${Math.floor(from / 60)}:${String(from % 60).padStart(2, "0")}–${Math.floor((from + len) / 60)}:${String((from + len) % 60).padStart(2, "0")}`;
+  let cursor = 0;
+  const out: { block: string; minutes: number; activity: string; simTime?: string }[] = [];
+  out.push({ block: label(0, brief), minutes: brief, activity: "Welcome, ground rules, role handout, worksheets", simTime: "before 08:15" });
+  cursor = brief;
+  injects.forEach((i) => {
+    out.push({ block: label(cursor, per), minutes: per, activity: `${i.id} – ${i.title} (delivery + team discussion)`, simTime: i.time });
+    cursor += per;
+  });
+  out.push({ block: label(cursor, hotwash), minutes: hotwash, activity: "Hotwash: what happened, what worked, three measures with owners" });
+  return out;
+}
+
 // ─── Document builders ───
 
-function buildFacilitatorGuide(ex: Exercise, orgName: string): Document {
+function buildFacilitatorGuide(ex: Exercise, orgName: string, sessionMinutes = 180): Document {
   const klass = ex.groundTruth?.classificationTime;
-  const rows = (ex.reportingObligations ?? []).map((m) => [m.addressee, m.deadline, computeDeadlineClock(klass, m.deadline) || "—", m.basis || "—"]);
+  const rows = (ex.reportingObligations ?? []).map((m) => [
+    m.addressee,
+    m.kind || "—",
+    m.deadline,
+    computeDeadlineClock(klass, m.deadline) || "—",
+    m.basis || "—",
+  ]);
+
   const children: any[] = [
     ...titleBlock("Facilitator Guide", ex.exerciseName, "FACILITATOR EYES ONLY"),
     H2("Exercise overview"),
@@ -204,12 +243,19 @@ function buildFacilitatorGuide(ex: Exercise, orgName: string): Document {
     dataTable(["Time", "Event"], (ex.groundTruth?.timeline ?? []).map((t) => [t.time, t.event]), [2200, 7160]),
     H3("Complications"),
     ...(ex.groundTruth?.complications ?? []).map((e) => bullet(e)),
-    H2("Run of show"),
-    dataTable(["Time", "Segment", "Content"], (ex.schedule ?? []).map((a) => [a.time, a.segment, a.content]), [1600, 2400, 5360]),
-    H2("Master timeline (ground truth + injects)"),
-    P([T("Facilitator view: ground-truth events and the injects derived from them, merged in chronological order.", { italics: true })]),
+    H2("Run of show — real room time"),
+    P([T("Wall-clock plan for the session. The facilitator advances the simulation clock; simulation time is compressed and is not the same as room time.", { italics: true })]),
     dataTable(
-      ["Time", "Type", "Event / inject"],
+      ["Room time", "Min", "Activity", "Simulation clock reached"],
+      roomPlan(ex, sessionMinutes).map((b) => [b.block, String(b.minutes), b.activity, b.simTime || "—"]),
+      [1700, 800, 4700, 2160],
+    ),
+    H2("Simulation timeline (in-scenario clock)"),
+    dataTable(["Sim time", "Segment", "Content"], (ex.schedule ?? []).map((a) => [a.time, a.segment, a.content]), [1600, 2400, 5360]),
+    H2("Master timeline (ground truth + injects)"),
+    P([T("Facilitator view: ground-truth events and the injects derived from them, merged in chronological order (simulation clock).", { italics: true })]),
+    dataTable(
+      ["Sim time", "Type", "Event / inject"],
       masterTimeline(ex).map((r) => [r.time, r.kind, r.text]),
       [1600, 1500, 6260],
     ),
@@ -220,18 +266,49 @@ function buildFacilitatorGuide(ex: Exercise, orgName: string): Document {
       ex.injects.map((i) => [i.id, i.title, i.dependsOn || "— (entry point)"]),
       [1200, 4200, 3960],
     ),
+    H2("Decision rights & support cells"),
+    P([T("Every decision has an owner. Functions that are not played live are on call and answered by the facilitation team.", { italics: true })]),
+    dataTable(
+      ["Role", "Decides alone / escalates"],
+      (ex.roles ?? []).map((r) => [r.name, r.decisionRights || "— to be agreed in the briefing"]),
+      [3000, 6360],
+    ),
+    ...((ex.supportCells ?? []).length
+      ? [
+          H3("On call (played by the facilitation team)"),
+          dataTable(
+            ["Function", "Availability", "Owns these decisions"],
+            (ex.supportCells ?? []).map((s) => [s.name, s.availability, s.ownsDecisions]),
+            [2600, 2800, 3960],
+          ),
+        ]
+      : [
+          H3("On call (played by the facilitation team)"),
+          dataTable(
+            ["Function", "Availability", "Owns these decisions"],
+            [
+              ["Legal / data protection (DPA)", "On call, answered within 10 min by the facilitator", "Personal-data assessment, controller question, regulatory notification decision"],
+              ["Fleet operations", "On call", "Voyage, berth and schedule changes ashore"],
+              ["Master (on board)", "Reachable via satcom, answered by the facilitator", "Safety and navigational decisions on board, protective measures under the Ship Security Plan"],
+            ],
+            [2600, 2800, 3960],
+          ),
+        ]),
 
     H2("Reporting obligations & deadlines"),
-    P([T(klass ? `Anchor point: incident classified as major at ${klass}.` : "Classification time not set — calculate clock times manually.", { italics: true })]),
-    dataTable(["Addressee", "Deadline", "Clock time", "Basis"], rows, [2600, 2200, 1800, 2760]),
+    P([T(klass ? `Anchor point: incident classified as major at ${klass} (simulation clock).` : "Classification time not set — calculate clock times manually.", { italics: true })]),
+    dataTable(["Addressee", "Type", "Deadline", "Due (sim clock)", "Basis / owner"], rows, [2200, 1700, 1700, 1400, 2360]),
+    P([T("Regulatory deadlines are reproduced as written in law and are never shortened. Internal escalation targets and company/contract/class targets are ambitions, not statutory clocks.", { italics: true })]),
     H2("Exercise rules"),
     ...[
-      "Room time equals simulation time; the facilitator controls any time jumps.",
+      "The facilitator advances the simulation clock — room time is compressed and never equal to simulation time.",
       "No real system is touched — all actions are logged, never executed.",
       "Assumptions are marked as assumptions and kept apart from facts in the common operating picture.",
       "Facilitator notes are for the facilitation team only. Participants receive inject content only.",
       "Reporting obligations are documented on the worksheet; no real notification is sent.",
+      "Legal/DPA, fleet operations and the Master are on call and are played by the facilitation team.",
     ].map((r) => bullet(r)),
+
     H2("Assessment criteria"),
     ...[
       "Situational picture — completeness, currency, fact/assumption separation",
