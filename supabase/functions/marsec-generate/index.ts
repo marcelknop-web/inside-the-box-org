@@ -327,15 +327,17 @@ JSON schema (exactly these fields):
  "groundTruth":{
    "organisationProfile":"",
    "adversaryOrCause":"",
+   "architectureAssumption":"explicit technical bridge enabling the escalation + shore IT vs on-board IT/OT boundary",
    "classificationTime":"HH:MM",
    "timeline":[{"time":"","event":""}],
+   "facts":[{"question":"what participants will ask","answer":"the resolved internal truth — never \"not known\""}],
    "complications":[""]
  },
- "objectives":["6 objectives"],
+ "objectives":["3-5 testable objectives, each with an observable behaviour or decision"],
  "schedule":[{"time":"","segment":"","content":""}],
- "injects":[{"id":"I-01","time":"","phase":"","mandatory":true,"title":"","topicTag":"verbatim topic name from the list above","channel":"","dependsOn":"I-XX or \"HH:MM <verbatim timeline event>\", empty for I-01","content":"3-6 sentences, verbatim for delivery","expectedResponse":"","facilitatorNote":"","discussionPrompts":["3-5"],"clarifications":[{"question":"","answer":""}],"observationFocus":""}],
+ "injects":[{"id":"I-01","time":"","phase":"Detection | Containment | Operational impact | Communication | Recovery (last inject = Recovery)","mandatory":true,"title":"","topicTag":"verbatim topic name from the list above","channel":"","dependsOn":"I-XX or \"HH:MM <verbatim timeline event>\", empty for I-01","content":"3-6 sentences, verbatim for delivery","expectedResponse":"","facilitatorNote":"","discussionPrompts":["3-5, decision-oriented, never legal-norm enumeration, never ISPS level changes"],"clarifications":[{"question":"","answer":""}],"observationFocus":""}],
  "roles":[{"name":"","profile":"","tasks":["4-6"],"tension":"Goal A vs. Goal B"}],
- "reportingObligations":[{"addressee":"","deadline":"must contain a digit, e.g. \"11:30 (T+2h)\"","basis":""}],
+ "reportingObligations":[{"addressee":"","deadline":"must contain a digit, e.g. \"11:30 (T+2h)\"","basis":"legal basis + decision owner + facts still required for the deadline assessment"}],
 
  "hotwashNotes":["6-8 lessons-learned prompts"]
 }`;
