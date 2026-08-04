@@ -58,6 +58,8 @@ const clean = (s: string) =>
     .replace(/[\u2022]/g, "-")
     .replace(/\u00a0/g, " ")
     .replace(/[^\x20-\xFF]/g, "")
+    // never leak internal field names into a customer-facing document
+    .replace(/classificationTime/gi, "classification")
     .replace(/\s+/g, " ")
     .trim();
 
@@ -74,8 +76,25 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
     doc.setTextColor(...color);
   };
 
-  const wrap = (text: string, width: number, max = 99) =>
-    doc.splitTextToSize(clean(text), width).slice(0, max) as string[];
+  /**
+   * Wrap text into at most `max` lines. If it does not fit, whole words are
+   * dropped and a visible "..." is appended, so a sentence is never cut off
+   * mid-word or mid-clause without the reader noticing.
+   */
+  const wrap = (text: string, width: number, max = 99): string[] => {
+    const src = clean(text);
+    if (!src) return [];
+    const lines = doc.splitTextToSize(src, width) as string[];
+    if (lines.length <= max) return lines;
+    const words = src.split(" ");
+    while (words.length > 1) {
+      words.pop();
+      const cand = `${words.join(" ").replace(/[\s.,;:\-/]+$/, "")} ...`;
+      const test = doc.splitTextToSize(cand, width) as string[];
+      if (test.length <= max) return test;
+    }
+    return lines.slice(0, max);
+  };
 
   // ── Header band ─────────────────────────────────────────
   const titleLines = (() => {
@@ -169,7 +188,7 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   y += scenario.length * LH.body + 3;
   if (ex.groundTruth?.architectureAssumption) {
     set(T.small, "normal", INK);
-    const arch = wrap(`Technical premise: ${ex.groundTruth.architectureAssumption}`, CW, 2);
+    const arch = wrap(`Technical premise: ${ex.groundTruth.architectureAssumption}`, CW, 3);
     doc.text(arch, M, y, { lineHeightFactor: 1.3 });
     y += arch.length * LH.small + 5;
   } else {

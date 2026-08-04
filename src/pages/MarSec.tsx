@@ -90,6 +90,7 @@ function obligationKind(m: { addressee: string; kind?: string; basis?: string; d
 const cleanText = (s: string | undefined) =>
   (s || "")
     .replace(/\b(?:x{3,}|y{3,}|z{3,}|TBD|TODO|N\/A placeholder|lorem ipsum)\b/gi, "")
+    .replace(/classificationTime/gi, "classification")
     .replace(/\s{2,}/g, " ")
     .replace(/\s+([.,;:])/g, "$1")
     .trim();
