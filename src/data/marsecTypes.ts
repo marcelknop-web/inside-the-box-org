@@ -22,7 +22,17 @@ export interface ExerciseRole {
   profile: string;
   tasks: string[];
   tension: string;
+  /** What this role may decide alone, and what it must escalate. Closes the "who decides?" gap. */
+  decisionRights?: string;
 }
+
+/** Functions that are not played as full roles but must be reachable during the exercise. */
+export interface SupportCell {
+  name: string;
+  availability: string;
+  ownsDecisions: string;
+}
+
 
 export interface Exercise {
   exerciseName: string;
@@ -39,9 +49,15 @@ export interface Exercise {
     facts?: { question: string; answer: string }[];
   };
   objectives: string[];
+  /** Simulation timeline (in-scenario clock), not the real room agenda. */
   schedule: { time: string; segment: string; content: string }[];
+  /** Real room agenda: wall-clock minutes per block. Sums to the booked session length. */
+  roomAgenda?: { block: string; minutes: number; activity: string; simTime?: string }[];
   injects: Inject[];
   roles: ExerciseRole[];
+  /** Legal/DPA, fleet ops, Master etc. — reachable on call, with explicit decision ownership. */
+  supportCells?: SupportCell[];
+
   reportingObligations: {
     addressee: string;
     deadline: string;
