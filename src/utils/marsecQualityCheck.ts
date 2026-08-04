@@ -317,20 +317,37 @@ export function runQualityCheck(ex: Exercise, ctx: CheckContext): Finding[] {
       });
     }
   });
-  // IMO guidance is not a deadline source.
+  // IMO guidance and class/charter notifications are not deadline sources.
   obs
-    .filter((o) => /imo|msc-fal|circ\.?\s*3|class society|flag state|ship security officer|company security officer/i.test(`${o.addressee} ${o.basis ?? ""}`))
+    .filter((o) => /imo|msc-fal|circ\.?\s*3|msc\.428|class society|ship security officer|company security officer/i.test(`${o.addressee} ${o.basis ?? ""}`))
     .forEach((o) => {
       if (norm(o.kind || "") === "regulatory deadline") {
         f.push({
           id: `imo-not-regulatory-${norm(o.addressee).slice(0, 16)}`,
           severity: "blocker",
-          rule: "IMO/ISPS notifications are not statutory deadlines",
-          detail: `"${o.addressee}" is labelled as a regulatory deadline, but IMO MSC-FAL.1/Circ.3 is cyber-risk-management guidance and sets no reporting clock.`,
-          fix: 'Label CSO/SSO, flag state and class notifications as "Company / contract / class target".',
+          rule: "IMO/class notifications are not statutory deadlines",
+          detail: `"${o.addressee}" is labelled as a regulatory deadline, but IMO MSC-FAL.1/Circ.3 and Res. MSC.428(98) are cyber-risk-management guidance and set no reporting clock.`,
+          fix: 'Label CSO/SSO and class notifications as "Company / contract / class target".',
         });
       }
     });
+  // Statutory maritime security duties (flag state, port state / coast guard,
+  // ISPS designated authority) are real obligations phrased "without delay" —
+  // they must not carry an invented numeric hour clock.
+  obs
+    .filter((o) => /flag state|flag administration|coast guard|national response center|33 cfr|mtsa|port state control|designated authority/i.test(`${o.addressee} ${o.basis ?? ""}`))
+    .forEach((o) => {
+      if (/\b\d{1,3}\s*h\b|t\s*\+\s*\d/i.test(o.deadline || "")) {
+        f.push({
+          id: `maritime-no-clock-${norm(o.addressee).slice(0, 16)}`,
+          severity: "warning",
+          rule: "ISPS/SOLAS and MTSA duties have no numeric clock",
+          detail: `"${o.addressee}" carries the clock "${o.deadline}", but ISPS/SOLAS XI-2 and 33 CFR 101.305 require reporting "without delay" without an hour figure.`,
+          fix: 'State "without delay" and move any internal hour target into a separate entry with kind "Internal escalation target".',
+        });
+      }
+    });
+
 
 
   // ── Roles ────────────────────────────────────────────────

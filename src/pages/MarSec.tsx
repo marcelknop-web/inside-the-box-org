@@ -70,16 +70,23 @@ function computeDeadlineClock(classification: string | undefined, deadline: stri
  */
 function obligationKind(m: { addressee: string; kind?: string; basis?: string; deadline?: string }): string {
   const s = `${m.addressee} ${m.basis ?? ""}`;
-  if (/police|law enforcement|prosecut|criminal|bka|lka|ncsc hotline/i.test(s))
+  if (/police|law enforcement|prosecut|criminal|bka|lka|europol|interpol|ncsc hotline/i.test(s))
     return "Legal / operational escalation target";
   if (/insur|p&i|underwrit/i.test(s)) return "Contractual notification (insurance)";
   if (/supplier|vendor|service provider|third part/i.test(s)) return "Contractual / supplier escalation target";
+  if (/crew|works council|union|itf|payroll/i.test(s)) return "Internal escalation target";
+  // Statutory duties phrased "without delay" in maritime security law — real
+  // obligations, but no numeric hour clock.
+  if (/flag state|flag administration|coast guard|national response center|33 cfr|mtsa|port state control|designated authority|isps|solas|marsec level/i.test(s))
+    return "Statutory duty, no fixed clock";
+  if (/mar art\.?\s*17|market abuse|ad-hoc|8-k|sec filing|inside information/i.test(s))
+    return "Regulatory disclosure duty";
   const statutory = /nis2|nis 2|art\.?\s*23|gdpr|art\.?\s*33|supervisory authority|data protection authority|csirt|competent authority/i.test(s);
   const off = /t\s*\+\s*(\d+(?:[.,]\d+)?)\s*h/i.exec(m.deadline || "");
   const hours = off ? parseFloat(off[1].replace(",", ".")) : null;
   if (statutory && hours !== null && hours < 24) return "Internal escalation target";
   if (statutory) return "Regulatory deadline";
-  if (/imo|msc-fal|class|flag state|charter|sla|customer|cargo|port authority/i.test(s))
+  if (/imo|msc-fal|msc\.428|sms|class|charter|sla|customer|cargo|port authority|harbour master|vts/i.test(s))
     return "Company / contract / class target";
   const given = (m.kind || "").trim();
   if (given && !/regulatory/i.test(given)) return given;
