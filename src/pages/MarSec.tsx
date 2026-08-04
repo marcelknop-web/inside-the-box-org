@@ -573,17 +573,18 @@ function buildBriefing(ex: Exercise, orgName: string, sessionMinutes = 180): Doc
 }
 
 
-async function buildZip(ex: Exercise, orgName: string, onProgress?: (done: number, total: number, label: string) => void) {
+async function buildZip(ex: Exercise, orgName: string, sessionMinutes = 180, onProgress?: (done: number, total: number, label: string) => void) {
   const zip = new JSZip();
   const files: [string, () => Document][] = [
-    ["01_Facilitator_Guide.docx", () => buildFacilitatorGuide(ex, orgName)],
+    ["01_Facilitator_Guide.docx", () => buildFacilitatorGuide(ex, orgName, sessionMinutes)],
     ["02_Inject_Cards.docx", () => buildInjectCards(ex)],
     ["03_Role_Cards.docx", () => buildRoleCards(ex)],
     ["04_Participant_Workbook.docx", () => buildWorksheet(ex)],
     ["05_Facilitator_Script.docx", () => buildScript(ex)],
-    ["06_Evaluation_Sheet.docx", () => buildEvaluationSheet(ex)],
-    ["07_Participant_Briefing.docx", () => buildBriefing(ex, orgName)],
+    ["06_Evaluation_Sheet.docx", () => buildEvaluationSheet(ex, sessionMinutes)],
+    ["07_Participant_Briefing.docx", () => buildBriefing(ex, orgName, sessionMinutes)],
   ];
+
 
   const total = files.length + 1;
   let done = 0;
