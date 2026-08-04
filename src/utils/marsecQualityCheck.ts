@@ -337,13 +337,140 @@ export function runQualityCheck(ex: Exercise, ctx: CheckContext): Finding[] {
     });
   }
 
-  if (!(ex.objectives ?? []).length) {
+  // ── Objectives: testable and decision-oriented ───────────
+  const objectives = ex.objectives ?? [];
+  if (objectives.length < 3) {
     f.push({
       id: "objectives",
       severity: "warning",
-      rule: "Exercise objectives are stated",
-      detail: "No objectives generated.",
-      fix: "Add three to five measurable exercise objectives.",
+      rule: "Three to five testable exercise objectives are stated",
+      detail: objectives.length ? `Only ${objectives.length} objective(s).` : "No objectives generated.",
+      fix: "State three to five objectives, each naming an observable behaviour or decision that can be assessed during the exercise.",
+    });
+  }
+  const vagueObjective = /^(understand|know|be aware|learn|appreciate|get to know|sensitis|sensitiz)/;
+  const weakObjectives = objectives.filter((o) => vagueObjective.test(norm(o)));
+  if (weakObjectives.length) {
+    f.push({
+      id: "objectives-vague",
+      severity: "warning",
+      rule: "Objectives are testable capabilities, not knowledge statements",
+      detail: `Not observable: ${weakObjectives.slice(0, 3).map((o) => `"${o.slice(0, 60)}"`).join("; ")}.`,
+      fix: 'Rewrite these objectives as testable capabilities with an observable decision or action (e.g. "activate the crisis team and confirm quorum within 20 minutes").',
+    });
+  }
+  const objectivesText = norm(objectives.join(" "));
+  Object.entries(ctx.topics)
+    .filter(([, w]) => w === "Lead thread")
+    .forEach(([topic]) => {
+      const words = norm(topic).split(" ").filter((w) => w.length > 4);
+      if (words.length && !words.some((w) => objectivesText.includes(w))) {
+        f.push({
+          id: `objective-topic-${norm(topic).slice(0, 20)}`,
+          severity: "warning",
+          rule: "Lead-thread topics are covered by an objective",
+          detail: `No objective refers to "${topic}".`,
+          fix: `Add or reword an objective so it tests the handling of "${topic}".`,
+        });
+      }
+    });
+
+  // ── Architecture assumption (plausible causal chain) ─────
+  const arch = ex.groundTruth?.architectureAssumption ?? "";
+  if (arch.trim().length < 80) {
+    f.push({
+      id: "architecture-assumption",
+      severity: "blocker",
+      rule: "The technical causal chain rests on an explicit architecture assumption",
+      detail: arch.trim() ? "Architecture assumption too thin to carry the escalation." : "No architectureAssumption set.",
+      fix: "State in groundTruth.architectureAssumption the concrete technical bridge that makes the escalation possible (e.g. a provider authentication API linking guest network and core platform) plus the shore-IT vs on-board IT/OT boundary, and align every technical inject with it.",
+    });
+  }
+
+  // ── Internal fact sheet ─────────────────────────────────
+  const facts = ex.groundTruth?.facts ?? [];
+  if (facts.length < Math.max(4, injects.length)) {
+    f.push({
+      id: "fact-sheet",
+      severity: facts.length ? "warning" : "blocker",
+      rule: "Facilitators hold an internal fact sheet",
+      detail: `${facts.length} resolved fact(s) for ${injects.length} injects.`,
+      fix: `Provide at least ${Math.max(4, injects.length)} groundTruth.facts entries resolving what participants will ask: which data is actually affected, which artefacts exist, which trust relationships link provider, guest network and core systems, what the adversary actually did.`,
+    });
+  }
+  const unknownFacts = facts.filter((c) => /not\s+known|unknown/i.test(c.answer || ""));
+  if (unknownFacts.length) {
+    f.push({
+      id: "fact-sheet-unknown",
+      severity: "warning",
+      rule: "Fact-sheet answers are resolved truths",
+      detail: `${unknownFacts.length} fact-sheet answer(s) left open.`,
+      fix: "Replace every open fact-sheet answer with the resolved internal truth — the fact sheet is the facilitator's ground truth, not a list of unknowns.",
+    });
+  }
+  const allClar = injects.flatMap((i) => i.clarifications ?? []);
+  const unknownClar = allClar.filter((c) => /not\s+known|unknown|nicht bekannt/i.test(c.answer || ""));
+  if (allClar.length >= 6 && unknownClar.length > allClar.length / 3) {
+    f.push({
+      id: "clarifications-unknown",
+      severity: "warning",
+      rule: "Most clarification answers are resolved from ground truth",
+      detail: `${unknownClar.length} of ${allClar.length} clarification answers are "not known".`,
+      fix: "Resolve the material clarification answers from the ground-truth timeline or the fact sheet; keep 'Not known - carry as an assumption' for genuinely open details only.",
+    });
+  }
+
+  // ── ISPS wording ────────────────────────────────────────
+  const ispsPattern = /isps[^.?]{0,60}(security\s+)?level|security\s+level\s*(1|2|3|one|two|three)[^.?]{0,40}(change|raise|set|declare)|(change|raise|set|declare|increase)[^.?]{0,40}(isps|security)\s+level/i;
+  const ispsHits = injects.filter((i) =>
+    [i.content, i.expectedResponse, ...(i.discussionPrompts ?? []), ...(i.clarifications ?? []).map((c) => c.question)]
+      .some((t) => ispsPattern.test(t || "")),
+  );
+  if (ispsHits.length) {
+    f.push({
+      id: "isps-level-wording",
+      severity: "warning",
+      rule: "ISPS security levels are not set by company or Master",
+      detail: `Asks about setting or changing an ISPS security level: ${ispsHits.map((i) => i.id).join(", ")}.`,
+      fix: "Reword to: which immediate protective measures under the Ship Security Plan are appropriate, whom the Master informs (CSO, SSO, flag state, port facility security officer), and under which conditions escalation to authorities is recommended — a security level is set by the responsible SOLAS contracting state.",
+    });
+  }
+
+  // ── Regulation as decision path, not knowledge quiz ─────
+  const quizPattern = /which (?:reporting|notification|legal|regulatory)?\s*(?:obligations|duties|requirements|deadlines|regulations|laws)\s*(?:are|is|apply|applies|get|are being)?\s*(?:triggered|applicable|relevant)?\s*\??$|list (?:the )?(?:applicable )?(?:legal|regulatory) (?:norms|requirements)/i;
+  const quizHits = injects.filter((i) => (i.discussionPrompts ?? []).some((p) => quizPattern.test((p || "").trim())));
+  if (quizHits.length) {
+    f.push({
+      id: "regulation-quiz",
+      severity: "warning",
+      rule: "Regulatory prompts test a decision path, not recall",
+      detail: `Enumeration-style regulatory prompt in: ${quizHits.map((i) => i.id).join(", ")}.`,
+      fix: "Replace enumeration questions with decision questions: who is controller, which jurisdictions are in scope, which facts are still missing for the deadline assessment, and who tasks legal/privacy.",
+    });
+  }
+  const thinBasis = obs.filter((o) => (o.basis || "").trim().length < 30);
+  if (obs.length && thinBasis.length) {
+    f.push({
+      id: "obligation-owner",
+      severity: "warning",
+      rule: "Obligations name a decision owner and the facts needed",
+      detail: `Basis too thin: ${thinBasis.map((o) => o.addressee).join(", ")}.`,
+      fix: "Extend each obligation basis with the legal basis, the decision owner and the facts still required before the deadline can be assessed.",
+    });
+  }
+
+  // ── Recovery phase ──────────────────────────────────────
+  const recoveryWords = /(recovery|restor|resum|rebuild|failback|fallback|departure|return to (?:normal|service))/i;
+  const hasRecoveryPhase = injects.some((i) => /recover|restor|resum/i.test(i.phase || ""));
+  const lastInject = injects[injects.length - 1];
+  const lastIsRecovery = !!lastInject && recoveryWords.test(`${lastInject.phase} ${lastInject.title} ${lastInject.content} ${lastInject.expectedResponse}`);
+  if (injects.length && !hasRecoveryPhase && !lastIsRecovery) {
+    f.push({
+      id: "recovery-phase",
+      severity: "blocker",
+      rule: "The exercise closes with a recovery decision",
+      detail: "No inject carries a recovery phase or a restoration/resumption decision — the script stops at the escalation peak.",
+      fix: 'Make the final inject phase "Recovery" and force a decision on safe restoration, manual fallback processes, revoking and re-granting provider access, evidence preservation and the resumption/departure decision.',
     });
   }
 
