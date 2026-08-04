@@ -258,7 +258,7 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
     // NIS2 early warning is 24 h, GDPR 72 h: anything faster is an internal ambition.
     if (statutory && off !== null && off < 24) return "Internal escalation target";
     if (/flag state|solas|isps|designated authority|coast guard|port state|33 cfr|mtsa/i.test(s))
-      return "Statutory duty, no fixed clock";
+      return "Statutory duty, no clock";
     if (/imo|msc-fal|class|charter|sla|customer|cargo/i.test(s))
       return "Company / contract / class target";
     if (r.kind) return clean(r.kind);
@@ -275,9 +275,9 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
     if (/nis2|nis 2|art\.?\s*23/i.test(s)) return "NIS2 Art. 23: 24 h early warning";
     if (/imo|msc-fal|msc\.428/i.test(s)) return "IMO guidance / SMS duty";
     if (/flag state|flag administration|solas|isps|designated authority/i.test(s))
-      return "ISPS / SOLAS XI-2: without delay";
+      return "ISPS / SOLAS XI-2, without delay";
     if (/coast guard|national response center|33 cfr|mtsa|port state/i.test(s))
-      return "33 CFR 101.305: without delay";
+      return "33 CFR 101.305, without delay";
     if (/mar art\.?\s*17|8-k|inside information|ad-hoc/i.test(s))
       return "MAR Art. 17 / SEC 8-K Item 1.05";
     if (/class|charter|sla|customer|cargo/i.test(s)) return "Contractual, not statutory";
@@ -309,7 +309,7 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
       .trim();
     const addr = wrap(firstSentences(name || r.addressee, 70), RCOL, 2);
     // 3 measured bands (name, clock, basis) must still fit above the limit
-    if (rightY + addr.length * LH.small + 4 * LH.micro + 4 > COL_LIMIT) return;
+    if (rightY + addr.length * LH.small + 3 * LH.micro + 4 > COL_LIMIT) return;
     doc.text(addr, rx, rightY, { lineHeightFactor: 1.28 });
     rightY += addr.length * LH.small;
     set(T.micro, "normal", CRIMSON);
