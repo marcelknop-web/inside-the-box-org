@@ -240,7 +240,11 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
     if (/72\s*h/i.test(r.deadline)) return "NIS2 Art. 23: 72 h incident notification";
     if (/nis2|nis 2|art\.?\s*23/i.test(s)) return "NIS2 Art. 23: 24 h early warning at the latest";
     if (/imo|msc-fal/i.test(s)) return "IMO MSC-FAL.1/Circ.3 is guidance, not a reporting clock";
-    return clean(r.basis || "Exercise assumption, no statutory basis");
+    if (/class|flag state|charter|sla|customer|cargo/i.test(s)) return "No statutory clock";
+    if (r.basis) return clean(r.basis);
+    return "Not set by law";
+
+
   };
   (ex.reportingObligations ?? []).slice(0, 4).forEach((r) => {
     set(T.small, "bold", NAVY);
@@ -257,23 +261,24 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
     rightY += kd.length * LH.micro + 3.4;
   });
   set(T.micro - 0.6, "normal", MID);
-  doc.text(
-    wrap(
-      "Statutory clocks are fixed by law (NIS2 Art. 23: 24 h / 72 h / 1 month; GDPR Art. 33: 72 h). Faster hour-level targets, IMO guidance, class, charter and customer commitments are exercise targets, not regulatory deadlines.",
-      COL,
-      4,
-    ),
-    rx,
-    rightY + 0.5,
-    { lineHeightFactor: 1.25 },
+  const disclaimer = wrap(
+    "Statutory clocks are fixed by law. Hour-level targets, IMO guidance, class, charter and customer commitments are exercise targets, not regulatory deadlines.",
+    COL,
+    3,
   );
-  rightY += 4 * LH.micro + 2;
+  doc.text(disclaimer, rx, rightY + 0.5, { lineHeightFactor: 1.25 });
+  rightY += disclaimer.length * LH.micro + 2;
 
-  y = Math.max(leftY, rightY) + 4;
 
   // ── Value block geometry (anchored above the footer) ─────
   const boxH = 32;
   const boxY = SAFE_BOTTOM - boxH;
+
+  // The inject-flow section needs 26 mm (heading, track, tick labels, caption).
+  // Clamping here guarantees it always sits fully above the deliverables box,
+  // no matter how long the objectives or notification entries turn out.
+  y = Math.min(Math.max(leftY, rightY) + 4, boxY - 26);
+
 
   // ── Inject flow ─────────────────────────────────────────
   const injects = ex.injects ?? [];
@@ -297,37 +302,23 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
       doc.text(tick(inj.time), tx, trackY + 5.4, { align: "center" });
     }
   });
-  y = trackY + 12;
-
-  // Inject list, two columns. Rows are capped to the space left above the
-  // deliverables box (incl. the closing note) so nothing is ever overprinted.
-  const ROW = 4.6;
-  const NOTE_H = 6;
-  const roomForRows = Math.max(0, boxY - 6 - NOTE_H - y);
-  const maxRows = Math.max(1, Math.floor(roomForRows / ROW));
-  const listed = injects.slice(0, Math.min(12, maxRows * 2));
-  const rows = Math.min(maxRows, Math.ceil(listed.length / 2));
-  const icw = (CW - GUT) / 2;
-  listed.forEach((inj, i) => {
-    const col = i < rows ? 0 : 1;
-    const row = i < rows ? i : i - rows;
-    const ix = M + col * (icw + GUT);
-    const iy = y + row * ROW;
-    set(T.micro, "bold", inj.mandatory ? CRIMSON : NAVY);
-    doc.text(tick(inj.time), ix, iy);
-    set(T.micro, "normal", INK);
-    doc.text(wrap(`${inj.title} - ${inj.channel}`, icw - 15, 1), ix + 14, iy);
-  });
-  y += rows * ROW + 1;
-  set(T.micro - 0.6, "normal", MID);
+  // One explanatory line under the timeline. The detailed inject list lives in
+  // the facilitator guide — on the sales sheet the timeline plus this caption is
+  // the complete, self-explanatory statement, and it can never collide with the
+  // deliverables box below.
   const mandatoryCount = injects.filter((i) => i.mandatory).length;
+  set(T.micro - 0.6, "normal", MID);
   doc.text(
-    clean(
-      `${listed.length === injects.length ? `All ${injects.length} injects listed` : `${listed.length} of ${injects.length} injects listed`} - ${mandatoryCount} mandatory (red). Full content, expected responses and facilitator notes in the facilitator guide.`,
+    wrap(
+      `${injects.length} injects across the exercise, ${mandatoryCount} of them mandatory (red). Each inject carries content, expected response, discussion prompts and facilitator notes in the facilitator guide.`,
+      CW,
+      1,
     ),
     M,
-    Math.min(y, boxY - 4),
+    Math.min(trackY + 11, boxY - 5),
   );
+
+
 
 
 
