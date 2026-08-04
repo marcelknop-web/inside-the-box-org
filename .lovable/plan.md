@@ -1,51 +1,45 @@
-## MarSec Studio — improvement plan
+# MarSec: exercise-script feedback (six sharpenings)
 
-Reviewed the wizard (`src/pages/MarSec.tsx`) and the generator (`supabase/functions/marsec-generate/index.ts`). The pipeline is solid: causal-chain prompt, ground truth, deadline anchoring, 5 DOCX files in a ZIP. The gaps are in **quality assurance, inject-level review, and facilitator usability** — the output is trusted blindly and can only be regenerated as a whole.
+Goal: make generated exercises decision-oriented instead of knowledge-quiz style, give facilitators an internal truth sheet, and close the loop with a recovery decision.
 
-### 1. Automatic quality check on the generated exercise (highest value)
-A client-side validator that runs right after generation and shows a pass/fail panel before export, in the style of the existing compliance tools:
-- Every inject except the first has a `dependsOn` pointing at a real inject ID or timeline event.
-- Inject count matches the chosen duration; times are monotonic and inside the exercise window.
-- Timeline has at least injects + 2 events.
-- No channel repeated three times in a row; no duplicated discussion prompts or clarification questions.
-- Every selected topic actually appears as a `topicTag`; Lead thread has 3-4 injects, Core 1-2, Side 1.
-- Reporting obligations cover every selected obligation, each with a deadline that resolves to a clock time.
-- Roles complete for the chosen scope; every role tension contains an explicit "A vs. B" conflict.
+## 1. Explicit, testable exercise objectives
+- Generator must produce 3–5 objectives, each phrased as a testable capability ("activate the crisis team within X", "steer the first data-protection assessment", "keep the embarkation process workable"), each tied to a selected topic and to at least one inject.
+- Objectives move to the top of the facilitator handbook, the participant briefing and the one-pager PDF (already partly there — order and labelling get aligned).
+- Quality check: warning if fewer than 3 objectives, if an objective names no observable behaviour/decision, or if a Lead-thread topic has no objective.
 
-Findings are listed as blockers vs. warnings, with a "Repair with AI" button that sends only the failed checks back for a targeted fix instead of a full regeneration.
+## 2. Internal ground-truth fact sheet
+- New ground-truth block "facts": resolved answers to the questions participants will ask — which data is actually affected, whether specific artefacts (e.g. cabin footage) exist, which trust relationships exist between guest network, external provider and the core application, what the adversary actually did.
+- Clarification answers may only say "Not known — carry as an assumption" when the fact sheet also marks it unknown; anything material must be resolved in the fact sheet so the debrief can judge decision quality.
+- Quality check: blocker if the fact sheet is missing or thinner than the number of injects; warning if more than a third of all clarification answers are "not known".
+- Fact sheet is rendered in the facilitator handbook only (never in the participant briefing).
 
-### 2. Inject-level review and editing
-- Expandable inject rows showing content, expected response, facilitator note, prompts, clarifications and observation focus (today only ID/time/title/topic are visible).
-- Inline editing of title, time, content and expected response, so a facilitator can correct wording before export.
-- "Regenerate this inject" — one inject only, with the rest of the exercise as context, preserving the causal chain.
-- Drag-free reordering via time edit plus a re-sort action.
+## 3. Plausible technical causal chain
+- New ground-truth field "architectureAssumption": one explicit paragraph stating the technical bridge that makes the escalation possible (e.g. the managed service provider's authentication API path between guest Wi-Fi and the core booking/PMS system), plus the shore-IT vs on-board IT/OT boundary.
+- Prompt rule: no inject may assert a compromise that skips the stated bridge; each technical inject references the assumption or a timeline event.
+- Quality check: blocker if the field is empty; warning if an inject names a compromised system that appears in neither the architecture assumption nor the timeline.
 
-### 3. Save, reload and reuse exercises
-- Export/import the exercise as JSON, so a finished exercise can be reopened later, edited and re-exported without a new AI call.
-- Keep the last 5 generated exercises in localStorage with a small "Recent exercises" list on the landing screen.
+## 4. ISPS wording corrected
+- Prompt rule: never ask whether the ISPS security level should be changed — security levels are set by the responsible SOLAS contracting state, not by master or company.
+- Required framing instead: which immediate protective measures under the Ship Security Plan are appropriate, whom the master informs (CSO, SSO, flag state, port facility), and under what conditions escalation to authorities is recommended. Cyber risk management stays separated from a formal ISPS level change.
+- The "IMO / ISPS, class & flag state" obligation text is reworded from "document any change of ISPS security level" to notification and SSP-measure wording.
+- Quality check: warning on any prompt or inject text asking to set/raise/change an ISPS security level.
 
-### 4. Facilitator-usability additions to the exports
-- Inject cards: add a check-box header block (time sent / channel used / who received / response given) for live use.
-- Facilitator guide: add a dependency map (inject → predecessor) and a "master timeline" combining ground truth and injects.
-- Add an evaluation/hotwash sheet with observation criteria per objective and a simple rating scale.
-- Optional: a one-page participant briefing (scenario, rules, roles, no spoilers).
+## 5. Regulation as a decision path, not a knowledge question
+- Prompt rule: reporting injects must not ask "which reporting duties are triggered?". They ask who is controller, which jurisdictions are in scope, which facts are still missing for a deadline assessment, and who tasks legal/privacy.
+- Reporting obligations keep concrete deadlines (existing rule), but each obligation additionally names the decision owner and the facts required before the clock can be assessed.
+- Quality check: warning if a discussion prompt is a bare enumeration question about legal norms.
 
-### 5. Generator robustness
-- Two-stage generation for 4 h / 14-inject exercises: first ground truth + schedule + roles, then injects in one follow-up call. This removes the token-limit truncation risk that currently needs the JSON repair fallback.
-- Feed the quality-check rules into the system prompt as an explicit self-check list before it answers.
-- Slightly raise the daily rate cap only if needed; keep the current limits otherwise.
+## 6. Recovery phase added
+- The exercise gains a closing recovery segment: the last inject (and the schedule) covers the decision on safe restoration, manual fallback processes, revoking/re-granting provider access, evidence preservation and the departure/resumption decision.
+- Phase vocabulary becomes explicit: Detection → Containment → Operational impact → Communication → Recovery, matching the identify/protect/detect/respond/recover cycle.
+- Quality check: blocker if no inject carries a recovery phase or a restoration/resumption decision.
 
-### 6. Smaller UX polish
-- Live "estimated exercise length vs. inject count" hint in Parameters.
-- Warning when more than 4 topics are weighted (prompt quality drops).
-- Deadline overview as a small timeline strip (T+0 → T+72 h) instead of a plain list.
-- Copy-to-clipboard for single injects (for chat-based delivery during the exercise).
+All new checks feed the existing silent auto-repair loop, so the user sees no extra UI.
 
-### Technical notes
-- New: `src/utils/marsecQualityCheck.ts` (pure validation), `src/components/marsec/InjectDetail.tsx`, `src/components/marsec/QualityPanel.tsx`.
-- `MarSec.tsx` gets an editable `exercise` state (already local) plus JSON import/export; DOCX builders stay where they are but are extended for the new blocks.
-- Edge function gains a `mode` parameter: `full` (as today), `stage1`/`stage2` (split generation) and `repair` (targeted fix from quality findings). Same model, rate limiting and AI usage logging.
-- No schema or database changes.
-
-### Suggested order
-Start with 1 + 2 (quality check and inject review) — they change perceived output quality the most. Then 4, then 3, 5, 6.
+## Technical notes
+- `src/data/marsecTypes.ts`: extend `Exercise.groundTruth` with `architectureAssumption: string` and `facts: { question: string; answer: string }[]`; both optional for backward compatibility with saved sessions.
+- `supabase/functions/marsec-generate/index.ts`: extend `SYSTEM_BASE` rules and the self-check list (objectives, fact sheet, architecture bridge, ISPS wording, regulatory decision framing, recovery inject), and add the two new fields plus the recovery phase to the JSON schema block in the user prompt. Repair mode inherits the same system prompt automatically.
+- `src/utils/marsecQualityCheck.ts`: add the checks listed above with `fix` strings written as imperative repair instructions.
+- `src/data/marsecSectors.ts`: reword the IMO/ISPS obligation prompt.
+- `src/pages/MarSec.tsx`: render architecture assumption and fact sheet in the facilitator Word handbook (new sections after "Adversary / root cause"), keep them out of the participant briefing; keep objectives first in both.
+- `src/utils/marsecOnePagerPdf.ts`: keep objectives block, add a one-line architecture assumption to the scenario column if space allows.
