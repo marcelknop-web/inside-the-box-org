@@ -171,7 +171,7 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   // ── Objectives | Reporting (two columns) ────────────────
   const colTop = heading("Exercise objectives", M, COL);
   y = colTop - 8;
-  heading("Reporting clocks under test", M + COL + GUT, COL);
+  heading("Notification clocks under test", M + COL + GUT, COL);
   y = colTop;
 
   let leftY = y;
@@ -186,6 +186,13 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
 
   const rx = M + COL + GUT;
   let rightY = y;
+  const kindOf = (r: { kind?: string; addressee: string; basis?: string }) => {
+    if (r.kind) return clean(r.kind);
+    const s = `${r.addressee} ${r.basis ?? ""}`;
+    if (/nis2|nis 2|art\.?\s*23|gdpr|art\.?\s*33/i.test(s)) return "Regulatory deadline";
+    if (/imo|msc-fal|class|flag state|charter|sla|customer|cargo/i.test(s)) return "Company / contract / class target";
+    return "Internal escalation target";
+  };
   (ex.reportingObligations ?? []).slice(0, 4).forEach((r) => {
     set(T.small, "bold", NAVY);
     const addr = wrap(r.addressee, COL, 2);
@@ -194,8 +201,24 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
     set(T.micro, "normal", CRIMSON);
     const dl = wrap(r.deadline, COL, 2);
     doc.text(dl, rx, rightY + 1.2, { lineHeightFactor: 1.3 });
-    rightY += dl.length * LH.micro + 5;
+    rightY += dl.length * LH.micro + 1.2;
+    set(T.micro - 0.6, "normal", MID);
+    const kd = wrap(kindOf(r), COL, 1);
+    doc.text(kd, rx, rightY + 1.2, { lineHeightFactor: 1.2 });
+    rightY += LH.micro + 4;
   });
+  set(T.micro - 0.6, "normal", MID);
+  doc.text(
+    wrap(
+      "Statutory clocks as written in law (NIS2 Art. 23: 24 h / 72 h / 1 month; GDPR Art. 33: 72 h). Company, contract and class targets are exercise assumptions, not regulatory deadlines.",
+      COL,
+      3,
+    ),
+    rx,
+    rightY + 0.5,
+    { lineHeightFactor: 1.25 },
+  );
+  rightY += 3 * LH.micro + 2;
 
   y = Math.max(leftY, rightY) + 4;
 
@@ -223,14 +246,25 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   });
   y = trackY + 12;
 
-  injects.slice(0, 3).forEach((inj) => {
+  const listed = injects.slice(0, 4);
+  listed.forEach((inj) => {
     set(T.small, "bold", NAVY);
     doc.text(tick(inj.time), M, y);
     set(T.small, "normal", INK);
     doc.text(wrap(`${inj.title} - ${inj.channel}`, CW - 20, 1), M + 18, y);
     y += 5.4;
   });
+  if (injects.length > listed.length) {
+    set(T.micro - 0.6, "normal", MID);
+    doc.text(
+      clean(`Selected injects shown - ${injects.length} injects in total, full sequence in the facilitator guide.`),
+      M,
+      y,
+    );
+    y += 4;
+  }
   y += 3;
+
 
   // ── Delivery at a glance (single row of four metrics) ────
   const channels = [...new Set(injects.map((i) => clean(i.channel)).filter(Boolean))];
