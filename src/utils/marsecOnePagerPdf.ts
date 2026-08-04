@@ -276,24 +276,32 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   });
   y = trackY + 12;
 
-  const listed = injects.slice(0, 4);
-  listed.forEach((inj) => {
-    set(T.small, "bold", NAVY);
-    doc.text(tick(inj.time), M, y);
-    set(T.small, "normal", INK);
-    doc.text(wrap(`${inj.title} - ${inj.channel}`, CW - 20, 1), M + 18, y);
-    y += 5.4;
+  // Every inject is named — two columns so the whole sequence fits on the page.
+  const listed = injects.slice(0, 12);
+  const rows = Math.ceil(listed.length / 2);
+  const icw = (CW - GUT) / 2;
+  listed.forEach((inj, i) => {
+    const col = i < rows ? 0 : 1;
+    const row = i < rows ? i : i - rows;
+    const ix = M + col * (icw + GUT);
+    const iy = y + row * 4.6;
+    set(T.micro, "bold", inj.mandatory ? CRIMSON : NAVY);
+    doc.text(tick(inj.time), ix, iy);
+    set(T.micro, "normal", INK);
+    doc.text(wrap(`${inj.title} - ${inj.channel}`, icw - 15, 1), ix + 14, iy);
   });
-  if (injects.length > listed.length) {
-    set(T.micro - 0.6, "normal", MID);
-    doc.text(
-      clean(`Selected injects shown - ${injects.length} injects in total, full sequence in the facilitator guide.`),
-      M,
-      y,
-    );
-    y += 4;
-  }
-  y += 3;
+  y += rows * 4.6 + 1;
+  set(T.micro - 0.6, "normal", MID);
+  doc.text(
+    clean(
+      injects.length > listed.length
+        ? `${injects.length} injects in total - red markers are mandatory. Full content, expected responses and facilitator notes in the facilitator guide.`
+        : `All ${injects.length} injects listed - red markers are mandatory. Full content, expected responses and facilitator notes in the facilitator guide.`,
+    ),
+    M,
+    y,
+  );
+  y += 6;
 
 
   // ── Value block geometry (anchored above the footer) ─────
