@@ -825,7 +825,9 @@ export default function MarSec() {
       topics,
       obligationLabels: OBLIGATIONS.filter((o) => obligations.includes(o.id)).map((o) => o.label),
       roleCount: roleScope === "full" ? 8 : 6,
+      durationMinutes: sessionMinutes,
     });
+  }, [exercise, injectCount, topics, obligations, roleScope, sessionMinutes]);
   }, [exercise, injectCount, topics, obligations, roleScope]);
 
   // Auto QA: fully automated. Blockers and warnings both trigger silent AI repair
