@@ -204,7 +204,7 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   if (ex.groundTruth?.architectureAssumption) {
     set(T.small, "italic", MID);
     const arch = wrap(
-      `Technical premise held by the facilitator: ${firstSentences(ex.groundTruth.architectureAssumption, 175)}`,
+      `Technical premise held by the facilitator: ${firstSentences(ex.groundTruth.architectureAssumption, 165)}`,
       CW,
       2,
     );
@@ -222,7 +222,7 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
 
   // Hard bottom limit for both columns: the run-of-play band (27 mm) and the
   // deliverables box own the page from here down, so nothing may cross it.
-  const COL_LIMIT = SAFE_BOTTOM - 30 - 27 - 4;
+  const COL_LIMIT = SAFE_BOTTOM - 28 - 25 - 2;
 
   let leftY = y;
   set(T.small, "normal", MID);
@@ -293,9 +293,9 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
 
   set(T.small, "normal", MID);
   const clockIntro = wrap(
-    "Three notification paths are exercised live, with the statutory window shown next to the target.",
+    "Exercised live, with the statutory window named next to each target.",
     RCOL,
-    3,
+    2,
   );
   doc.text(clockIntro, rx, rightY, { lineHeightFactor: 1.3 });
   rightY += clockIntro.length * LH.small + 3.4;
@@ -318,13 +318,13 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   });
 
   // ── Value block geometry (anchored above the footer) ─────
-  const boxH = 30;
+  const boxH = 28;
   const boxY = SAFE_BOTTOM - boxH;
 
   // The run-of-play band needs 24 mm (heading, track, tick labels, caption).
   // Clamping guarantees it always sits fully above the deliverables box, no
   // matter how long the objectives or notification entries turn out.
-  y = Math.min(Math.max(leftY, rightY) + 6, boxY - 27);
+  y = Math.min(Math.max(leftY, rightY) + 6, boxY - 25);
 
   // ── Run of play ─────────────────────────────────────────
   const injects = ex.injects ?? [];
@@ -379,7 +379,7 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
     const col = i % 2;
     const row = Math.floor(i / 2);
     const dx = M + 7 + col * (dcw + 6);
-    const dy = boxY + 14.5 + row * 7.6;
+    const dy = boxY + 14 + row * 7.2;
     doc.setFillColor(...CRIMSON);
     doc.circle(dx + 1, dy - 1.2, 0.9, "F");
     set(T.micro, "normal", [201, 216, 230]);
