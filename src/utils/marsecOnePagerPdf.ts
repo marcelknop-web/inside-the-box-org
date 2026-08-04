@@ -287,7 +287,7 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   y += 12;
 
   // ── Value block (anchored above the footer) ─────────────
-  const boxH = 28;
+  const boxH = 32;
   const boxY = SAFE_BOTTOM - boxH;
 
   doc.setFillColor(...NAVY);
@@ -295,15 +295,25 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   doc.setFillColor(...CRIMSON);
   doc.rect(M, boxY, 1.4, boxH, "F");
   set(T.small, "bold", [255, 255, 255]);
-  doc.text("WHAT THE ORGANISATION TAKES AWAY", M + 7, boxY + 8);
-  set(T.small, "normal", [193, 209, 224]);
-  const take = wrap(
-    (ex.hotwashNotes ?? []).slice(0, 2).join(" ") ||
-      "A tested decision chain, evidenced reporting timelines and a documented view of where the crisis organisation breaks under pressure.",
-    CW - 14,
-    3,
-  );
-  doc.text(take, M + 7, boxY + 14.5, { lineHeightFactor: 1.3 });
+  doc.text("DELIVERABLES AFTER THE EXERCISE", M + 7, boxY + 7.5);
+  const deliverables = [
+    "After-action report with observed decisions and timings",
+    "Prioritised remediation actions with owners and due dates",
+    "Documented role, deputy and contact gaps",
+    "Evidence of the notification paths tested (statutory, contractual, internal)",
+  ];
+  const dcw = (CW - 20) / 2;
+  deliverables.forEach((d, i) => {
+    const col = i % 2;
+    const row = Math.floor(i / 2);
+    const dx = M + 7 + col * (dcw + 6);
+    const dy = boxY + 14 + row * 8.4;
+    doc.setFillColor(...CRIMSON);
+    doc.circle(dx + 1, dy - 1.2, 0.9, "F");
+    set(T.micro, "normal", [201, 216, 230]);
+    doc.text(wrap(d, dcw - 6, 2), dx + 4.5, dy, { lineHeightFactor: 1.25 });
+  });
+
 
   // ── Footer ──────────────────────────────────────────────
   doc.setDrawColor(...RULE);
