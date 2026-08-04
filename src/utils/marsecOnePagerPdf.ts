@@ -108,14 +108,20 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   let y = headerH + 10;
 
   // ── Fact strip ──────────────────────────────────────────
+  const levelLabel = (() => {
+    const d = clean(meta.difficulty).toLowerCase();
+    if (/beginner|foundation|basic/.test(d)) return "Foundation tabletop";
+    if (/expert|advanced/.test(d)) return "Advanced crisis exercise";
+    return "Crisis leadership exercise";
+  })();
   const facts: [string, string][] = [
     ["DURATION", meta.duration],
     ["INJECTS", String(meta.injectCount)],
     ["ROLES", String(meta.roleCount)],
-    ["LEVEL", meta.difficulty],
-    ["CLASSIFIED", ex.groundTruth?.classificationTime || "n/a"],
+    ["FORMAT", levelLabel],
+    ["INITIAL CLASSIFICATION", ex.groundTruth?.classificationTime || "n/a"],
   ];
-  const stripH = 17;
+  const stripH = 19;
   const bw = CW / facts.length;
   doc.setFillColor(...LIGHT);
   doc.rect(M, y, CW, stripH, "F");
@@ -128,12 +134,14 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
       doc.setLineWidth(0.3);
       doc.line(M + i * bw, y + 3.5, M + i * bw, y + stripH - 3.5);
     }
-    set(T.micro, "normal", MID);
-    doc.text(clean(label), x, y + 6.6);
-    set(11, "bold", NAVY);
-    doc.text(wrap(value, bw - 8, 1), x, y + 13);
+    set(T.micro - 0.6, "normal", MID);
+    doc.text(wrap(label, bw - 7, 1), x, y + 6.2);
+    const long = clean(value).length > 12;
+    set(long ? 8.6 : 11, "bold", NAVY);
+    doc.text(wrap(value, bw - 7, 2), x, y + (long ? 11.4 : 13), { lineHeightFactor: 1.2 });
   });
   y += stripH + 10;
+
 
   // ── Section heading helper ──────────────────────────────
   const heading = (label: string, x = M, width = CW) => {
