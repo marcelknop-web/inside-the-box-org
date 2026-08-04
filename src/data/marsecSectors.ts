@@ -31,13 +31,13 @@ export const OBLIGATIONS: { id: string; label: string; detail: string; prompt: s
     id: "nis2",
     label: "NIS2 (EU)",
     detail: "24 h early warning, 72 h incident notification to the national competent authority.",
-    prompt: "NIS2 (EU): early warning to the national competent authority within 24h of becoming aware, incident notification within 72h, final report within 1 month.",
+    prompt: "NIS2 (EU) Art. 23: early warning to the CSIRT / national competent authority within 24h of becoming aware, incident notification within 72h, final report within 1 month. These 24h/72h clocks are the regulatory deadlines (kind: \"Regulatory deadline\") — never shorten them. Any faster internal ambition (e.g. brief the board within 1h) must be a separate entry labelled kind: \"Internal escalation target\".",
   },
   {
     id: "imo",
     label: "IMO / ISPS, class & flag state",
-    detail: "IMO MSC-FAL.1/Circ.3, ISPS Code, class society and flag state administration.",
-    prompt: "IMO MSC-FAL.1/Circ.3 and ISPS Code: notify the Company Security Officer, Ship Security Officer, flag state administration and class society; document the protective measures applied under the Ship Security Plan. Note: ISPS security levels are set by the responsible SOLAS contracting state — the company and the Master may only recommend escalation, never set the level themselves.",
+    detail: "Company, contract and class-specific notification targets (IMO cyber-risk guidance, ISPS Code).",
+    prompt: "IMO / ISPS, class and flag state: notify the Company Security Officer, Ship Security Officer, flag state administration and class society and document the protective measures applied under the Ship Security Plan. IMPORTANT: IMO MSC-FAL.1/Circ.3 is guidance on maritime cyber risk management and does NOT set fixed reporting deadlines — label every timing here as a company / contract / class-specific notification target (kind: \"Company / contract / class target\"), never as a regulatory deadline. Note: ISPS security levels are set by the responsible SOLAS contracting state — the company and the Master may only recommend escalation, never set the level themselves.",
   },
   {
     id: "gdpr",

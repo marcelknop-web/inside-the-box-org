@@ -289,6 +289,46 @@ export function runQualityCheck(ex: Exercise, ctx: CheckContext): Finding[] {
       fix: 'Express every deadline as "T+<hours>h" or a clock time anchored to the classification time.',
     });
   }
+  const KINDS = ["regulatory deadline", "internal escalation target", "company / contract / class target"];
+  const untyped = obs.filter((o) => !KINDS.includes(norm(o.kind || "")));
+  if (untyped.length) {
+    f.push({
+      id: "obligation-kind-missing",
+      severity: "warning",
+      rule: "Every reporting entry is typed",
+      detail: `No valid kind on: ${untyped.map((o) => o.addressee).join(", ")}.`,
+      fix: 'Set "kind" to "Regulatory deadline", "Internal escalation target" or "Company / contract / class target".',
+    });
+  }
+  // Statutory clocks must not be shortened.
+  const statutory = obs.filter((o) => /nis2|nis 2|art\.?\s*23|gdpr|art\.?\s*33/i.test(`${o.addressee} ${o.basis ?? ""}`));
+  statutory.forEach((o) => {
+    const hasLegalWindow = /(24\s*h|72\s*h|1\s*month|one month)/i.test(o.deadline || "");
+    if (!hasLegalWindow) {
+      f.push({
+        id: `deadline-statutory-${norm(o.addressee).slice(0, 16)}`,
+        severity: "blocker",
+        rule: "Statutory clocks are reproduced as written in law",
+        detail: `"${o.addressee}" states "${o.deadline}" instead of the legal window (NIS2: 24 h / 72 h / 1 month, GDPR Art. 33: 72 h).`,
+        fix: "Use the statutory window and move any faster ambition to a separate entry with kind \"Internal escalation target\".",
+      });
+    }
+  });
+  // IMO guidance is not a deadline source.
+  obs
+    .filter((o) => /imo|msc-fal|circ\.?\s*3|class society|flag state|ship security officer|company security officer/i.test(`${o.addressee} ${o.basis ?? ""}`))
+    .forEach((o) => {
+      if (norm(o.kind || "") === "regulatory deadline") {
+        f.push({
+          id: `imo-not-regulatory-${norm(o.addressee).slice(0, 16)}`,
+          severity: "blocker",
+          rule: "IMO/ISPS notifications are not statutory deadlines",
+          detail: `"${o.addressee}" is labelled as a regulatory deadline, but IMO MSC-FAL.1/Circ.3 is cyber-risk-management guidance and sets no reporting clock.`,
+          fix: 'Label CSO/SSO, flag state and class notifications as "Company / contract / class target".',
+        });
+      }
+    });
+
 
   // ── Roles ────────────────────────────────────────────────
   const roles = ex.roles ?? [];

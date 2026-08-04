@@ -108,14 +108,20 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   let y = headerH + 10;
 
   // ── Fact strip ──────────────────────────────────────────
+  const levelLabel = (() => {
+    const d = clean(meta.difficulty).toLowerCase();
+    if (/beginner|foundation|basic/.test(d)) return "Foundation tabletop";
+    if (/expert|advanced/.test(d)) return "Advanced crisis exercise";
+    return "Crisis leadership exercise";
+  })();
   const facts: [string, string][] = [
     ["DURATION", meta.duration],
     ["INJECTS", String(meta.injectCount)],
     ["ROLES", String(meta.roleCount)],
-    ["LEVEL", meta.difficulty],
-    ["CLASSIFIED", ex.groundTruth?.classificationTime || "n/a"],
+    ["FORMAT", levelLabel],
+    ["INITIAL CLASSIFICATION", ex.groundTruth?.classificationTime || "n/a"],
   ];
-  const stripH = 17;
+  const stripH = 19;
   const bw = CW / facts.length;
   doc.setFillColor(...LIGHT);
   doc.rect(M, y, CW, stripH, "F");
@@ -128,12 +134,14 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
       doc.setLineWidth(0.3);
       doc.line(M + i * bw, y + 3.5, M + i * bw, y + stripH - 3.5);
     }
-    set(T.micro, "normal", MID);
-    doc.text(clean(label), x, y + 6.6);
-    set(11, "bold", NAVY);
-    doc.text(wrap(value, bw - 8, 1), x, y + 13);
+    set(T.micro - 0.6, "normal", MID);
+    doc.text(wrap(label, bw - 7, 1), x, y + 6.2);
+    const long = clean(value).length > 12;
+    set(long ? 8.6 : 11, "bold", NAVY);
+    doc.text(wrap(value, bw - 7, 2), x, y + (long ? 11.4 : 13), { lineHeightFactor: 1.2 });
   });
   y += stripH + 10;
+
 
   // ── Section heading helper ──────────────────────────────
   const heading = (label: string, x = M, width = CW) => {
@@ -163,7 +171,7 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   // ── Objectives | Reporting (two columns) ────────────────
   const colTop = heading("Exercise objectives", M, COL);
   y = colTop - 8;
-  heading("Reporting clocks under test", M + COL + GUT, COL);
+  heading("Notification clocks under test", M + COL + GUT, COL);
   y = colTop;
 
   let leftY = y;
@@ -178,6 +186,13 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
 
   const rx = M + COL + GUT;
   let rightY = y;
+  const kindOf = (r: { kind?: string; addressee: string; basis?: string }) => {
+    if (r.kind) return clean(r.kind);
+    const s = `${r.addressee} ${r.basis ?? ""}`;
+    if (/nis2|nis 2|art\.?\s*23|gdpr|art\.?\s*33/i.test(s)) return "Regulatory deadline";
+    if (/imo|msc-fal|class|flag state|charter|sla|customer|cargo/i.test(s)) return "Company / contract / class target";
+    return "Internal escalation target";
+  };
   (ex.reportingObligations ?? []).slice(0, 4).forEach((r) => {
     set(T.small, "bold", NAVY);
     const addr = wrap(r.addressee, COL, 2);
@@ -186,8 +201,24 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
     set(T.micro, "normal", CRIMSON);
     const dl = wrap(r.deadline, COL, 2);
     doc.text(dl, rx, rightY + 1.2, { lineHeightFactor: 1.3 });
-    rightY += dl.length * LH.micro + 5;
+    rightY += dl.length * LH.micro + 1.2;
+    set(T.micro - 0.6, "normal", MID);
+    const kd = wrap(kindOf(r), COL, 1);
+    doc.text(kd, rx, rightY + 1.2, { lineHeightFactor: 1.2 });
+    rightY += LH.micro + 4;
   });
+  set(T.micro - 0.6, "normal", MID);
+  doc.text(
+    wrap(
+      "Statutory clocks as written in law (NIS2 Art. 23: 24 h / 72 h / 1 month; GDPR Art. 33: 72 h). Company, contract and class targets are exercise assumptions, not regulatory deadlines.",
+      COL,
+      3,
+    ),
+    rx,
+    rightY + 0.5,
+    { lineHeightFactor: 1.25 },
+  );
+  rightY += 3 * LH.micro + 2;
 
   y = Math.max(leftY, rightY) + 4;
 
@@ -215,16 +246,31 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
   });
   y = trackY + 12;
 
-  injects.slice(0, 3).forEach((inj) => {
+  const listed = injects.slice(0, 4);
+  listed.forEach((inj) => {
     set(T.small, "bold", NAVY);
     doc.text(tick(inj.time), M, y);
     set(T.small, "normal", INK);
     doc.text(wrap(`${inj.title} - ${inj.channel}`, CW - 20, 1), M + 18, y);
     y += 5.4;
   });
+  if (injects.length > listed.length) {
+    set(T.micro - 0.6, "normal", MID);
+    doc.text(
+      clean(`Selected injects shown - ${injects.length} injects in total, full sequence in the facilitator guide.`),
+      M,
+      y,
+    );
+    y += 4;
+  }
   y += 3;
 
-  // ── Delivery at a glance (single row of four metrics) ────
+
+  // ── Value block geometry (anchored above the footer) ─────
+  const boxH = 32;
+  const boxY = SAFE_BOTTOM - boxH;
+
+  // ── Delivery at a glance (only when it fits above the box) ─
   const channels = [...new Set(injects.map((i) => clean(i.channel)).filter(Boolean))];
   const phases = [...new Set(injects.map((i) => clean(i.phase)).filter(Boolean))];
   const stats: [string, string][] = [
@@ -233,35 +279,45 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
     ["EXERCISE PHASES", phases.length ? String(phases.length) : "-"],
     ["GROUND-TRUTH EVENTS", String((ex.groundTruth?.timeline ?? []).length)],
   ];
-  y = heading("Delivery at a glance");
-  const stw = CW / stats.length;
-  stats.forEach(([k, v], i) => {
-    const x = M + i * stw;
-    set(T.micro, "normal", MID);
-    doc.text(clean(k), x, y + 1);
-    set(11, "bold", NAVY);
-    doc.text(wrap(v, stw - 4, 1), x, y + 7.5);
-  });
-  y += 12;
+  if (y + 20 <= boxY - 6) {
+    y = heading("Delivery at a glance");
+    const stw = CW / stats.length;
+    stats.forEach(([k, v], i) => {
+      const x = M + i * stw;
+      set(T.micro, "normal", MID);
+      doc.text(clean(k), x, y + 1);
+      set(11, "bold", NAVY);
+      doc.text(wrap(v, stw - 4, 1), x, y + 7.5);
+    });
+    y += 12;
+  }
 
-  // ── Value block (anchored above the footer) ─────────────
-  const boxH = 28;
-  const boxY = SAFE_BOTTOM - boxH;
+
 
   doc.setFillColor(...NAVY);
   doc.rect(M, boxY, CW, boxH, "F");
   doc.setFillColor(...CRIMSON);
   doc.rect(M, boxY, 1.4, boxH, "F");
   set(T.small, "bold", [255, 255, 255]);
-  doc.text("WHAT THE ORGANISATION TAKES AWAY", M + 7, boxY + 8);
-  set(T.small, "normal", [193, 209, 224]);
-  const take = wrap(
-    (ex.hotwashNotes ?? []).slice(0, 2).join(" ") ||
-      "A tested decision chain, evidenced reporting timelines and a documented view of where the crisis organisation breaks under pressure.",
-    CW - 14,
-    3,
-  );
-  doc.text(take, M + 7, boxY + 14.5, { lineHeightFactor: 1.3 });
+  doc.text("DELIVERABLES AFTER THE EXERCISE", M + 7, boxY + 7.5);
+  const deliverables = [
+    "After-action report with observed decisions and timings",
+    "Prioritised remediation actions with owners and due dates",
+    "Documented role, deputy and contact gaps",
+    "Evidence of the notification paths tested (statutory, contractual, internal)",
+  ];
+  const dcw = (CW - 20) / 2;
+  deliverables.forEach((d, i) => {
+    const col = i % 2;
+    const row = Math.floor(i / 2);
+    const dx = M + 7 + col * (dcw + 6);
+    const dy = boxY + 14 + row * 8.4;
+    doc.setFillColor(...CRIMSON);
+    doc.circle(dx + 1, dy - 1.2, 0.9, "F");
+    set(T.micro, "normal", [201, 216, 230]);
+    doc.text(wrap(d, dcw - 6, 2), dx + 4.5, dy, { lineHeightFactor: 1.25 });
+  });
+
 
   // ── Footer ──────────────────────────────────────────────
   doc.setDrawColor(...RULE);

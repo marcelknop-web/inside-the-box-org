@@ -42,6 +42,12 @@ export interface Exercise {
   schedule: { time: string; segment: string; content: string }[];
   injects: Inject[];
   roles: ExerciseRole[];
-  reportingObligations: { addressee: string; deadline: string; basis?: string }[];
+  reportingObligations: {
+    addressee: string;
+    deadline: string;
+    basis?: string;
+    /** Distinguishes statutory clocks from internal or contractual targets. */
+    kind?: "Regulatory deadline" | "Internal escalation target" | "Company / contract / class target";
+  }[];
   hotwashNotes: string[];
 }
