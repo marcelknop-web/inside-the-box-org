@@ -623,9 +623,92 @@ export function runQualityCheck(ex: Exercise, ctx: CheckContext): Finding[] {
     });
   }
 
+  // ── Reporting table arithmetic and category truth ────────
+  const klass = ex.groundTruth?.classificationTime;
+  const klassMin = klass && /^\d{1,2}:\d{2}$/.test(klass)
+    ? parseInt(klass.split(":")[0], 10) * 60 + parseInt(klass.split(":")[1], 10)
+    : null;
+  const obligations = ex.reportingObligations ?? [];
+  const clockConflicts = obligations.filter((o) => {
+    if (klassMin === null) return false;
+    const clock = /\b([01]?\d|2[0-3]):([0-5]\d)\b/.exec(o.deadline || "");
+    const off = /t\s*\+\s*(\d+(?:[.,]\d+)?)\s*h/i.exec(o.deadline || "");
+    if (!clock || !off) return false;
+    const clockMin = parseInt(clock[1], 10) * 60 + parseInt(clock[2], 10);
+    const expected = (klassMin + parseFloat(off[1].replace(",", ".")) * 60) % 1440;
+    return Math.abs(((clockMin - expected) % 1440 + 1440) % 1440) > 5;
+  });
+  if (clockConflicts.length) {
+    f.push({
+      id: "deadline-clock-conflict",
+      severity: "blocker",
+      rule: "Stated deadline times match their T+ offsets",
+      detail: `Clock time and offset contradict each other: ${clockConflicts.map((o) => `${o.addressee} (${o.deadline})`).join("; ")}.`,
+      fix: `Recalculate every deadline from the classification time ${klass ?? "(HH:MM)"}: the written clock time must equal classification time plus the stated T+ offset.`,
+    });
+  }
+  const miscategorised = obligations.filter(
+    (o) =>
+      /regulatory/i.test(o.kind || "") &&
+      /police|law enforcement|prosecut|criminal|insur|supplier|vendor|service provider|customer|charter/i.test(`${o.addressee} ${o.basis ?? ""}`),
+  );
+  if (miscategorised.length) {
+    f.push({
+      id: "obligation-kind-wrong",
+      severity: "blocker",
+      rule: "Only statutory addressees carry a regulatory deadline",
+      detail: `Labelled as regulatory without a statutory clock: ${miscategorised.map((o) => o.addressee).join(", ")}.`,
+      fix: 'Relabel law enforcement as "Legal / operational escalation target" and insurers, suppliers, vendors and customers as contractual or company targets — a blanket statutory reporting clock does not exist for them.',
+    });
+  }
+
+  // ── Credential exposure needs a named mechanism ──────────
+  const allText = [
+    ex.summary,
+    ex.groundTruth?.architectureAssumption,
+    ...injects.map((i) => `${i.title} ${i.content} ${i.expectedResponse}`),
+  ].join(" | ");
+  const claimsCredExposure = /(credential|password|login|account)s?[^.;\n]{0,60}(exposed|at risk|compromis|harvest|steal|stolen|leak)/i.test(allText);
+  const namesMechanism = /(spoofed|fake|rogue) (?:captive )?portal|dns (?:spoof|manipulat|hijack)|proxy (?:manipulat|intercept)|credential re-?use|token (?:theft|steal|replay)|session hijack|man-in-the-middle|phish/i.test(allText);
+  if (claimsCredExposure && !namesMechanism) {
+    f.push({
+      id: "credential-mechanism",
+      severity: "blocker",
+      rule: "Credential exposure names its technical mechanism",
+      detail: "The scenario claims credentials of another system are exposed without naming how — a compromised guest network does not expose portal credentials by itself.",
+      fix: "State the concrete mechanism (spoofed captive portal, DNS/proxy manipulation, credential reuse across systems or session-token theft) in architectureAssumption and repeat it in the inject that raises the risk.",
+    });
+  }
+
+  // ── Placeholders and duplicated role content ─────────────
+  const placeholderText = [allText, ...roles.map((r) => `${r.profile} ${r.tension} ${(r.tasks ?? []).join(" ")}`)].join(" | ");
+  if (/\b(?:x{3,}|y{3,}|z{3,}|TBD|TODO|lorem ipsum)\b/i.test(placeholderText)) {
+    f.push({
+      id: "placeholder-text",
+      severity: "blocker",
+      rule: "No placeholder text in participant material",
+      detail: 'The material still contains placeholder tokens ("yyy", "TBD" or similar).',
+      fix: "Replace every placeholder with concrete, scenario-specific wording.",
+    });
+  }
+  const dupTasks = roles.filter((r) => {
+    const keys = (r.tasks ?? []).map((t) => norm(t));
+    return new Set(keys).size !== keys.length;
+  });
+  if (dupTasks.length) {
+    f.push({
+      id: "role-task-duplicate",
+      severity: "warning",
+      rule: "Role cards list each task once",
+      detail: `Duplicated tasks on: ${dupTasks.map((r) => r.name).join(", ")}.`,
+      fix: "Remove repeated tasks and replace them with distinct, role-specific responsibilities.",
+    });
+  }
+
   return f;
 
 }
+
 
 export const countBySeverity = (findings: Finding[]) => ({
   blockers: findings.filter((f) => f.severity === "blocker").length,
