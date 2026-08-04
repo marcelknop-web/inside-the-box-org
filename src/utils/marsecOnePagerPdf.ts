@@ -298,48 +298,22 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
       doc.text(tick(inj.time), tx, trackY + 5.4, { align: "center" });
     }
   });
-  y = trackY + 11;
-
-  // Inject list, two columns. Rows only exist if they fit fully above the
-  // deliverables box (incl. the closing note), otherwise the list is dropped
-  // and the timeline plus the note carry the section. Nothing is overprinted.
-  const ROW = 4.4;
-  const NOTE_H = 7;
-  const room = boxY - 8 - y;
-  const maxRows = Math.floor((room - NOTE_H) / ROW);
-  const icw = (CW - GUT) / 2;
-  let rows = 0;
-  let listed: typeof injects = [];
-  if (maxRows >= 1) {
-    rows = Math.min(maxRows, Math.ceil(Math.min(12, injects.length) / 2));
-    listed = injects.slice(0, rows * 2);
-  }
-  listed.forEach((inj, i) => {
-    const col = i < rows ? 0 : 1;
-    const row = i < rows ? i : i - rows;
-    const ix = M + col * (icw + GUT);
-    const iy = y + row * ROW;
-    set(T.micro, "bold", inj.mandatory ? CRIMSON : NAVY);
-    doc.text(tick(inj.time), ix, iy);
-    set(T.micro, "normal", INK);
-    doc.text(wrap(`${inj.title} - ${inj.channel}`, icw - 15, 1), ix + 14, iy);
-  });
+  // One explanatory line under the timeline. The detailed inject list lives in
+  // the facilitator guide — on the sales sheet the timeline plus this caption is
+  // the complete, self-explanatory statement, and it can never collide with the
+  // deliverables box below.
   const mandatoryCount = injects.filter((i) => i.mandatory).length;
-  const counted = listed.length
-    ? listed.length === injects.length
-      ? `All ${injects.length} injects listed`
-      : `${listed.length} of ${injects.length} injects listed`
-    : `${injects.length} injects on the timeline above`;
   set(T.micro - 0.6, "normal", MID);
   doc.text(
     wrap(
-      `${counted} - ${mandatoryCount} mandatory (red). Full inject content, expected responses and facilitator notes are in the facilitator guide.`,
+      `${injects.length} injects across the exercise, ${mandatoryCount} of them mandatory (red). Each inject carries content, expected response, discussion prompts and facilitator notes in the facilitator guide.`,
       CW,
       1,
     ),
     M,
-    Math.min(y + rows * ROW + 3, boxY - 5),
+    Math.min(trackY + 11, boxY - 5),
   );
+
 
 
 
