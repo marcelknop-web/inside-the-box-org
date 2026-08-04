@@ -302,9 +302,14 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
 
   (ex.reportingObligations ?? []).slice(0, 3).forEach((r) => {
     set(T.small, "bold", NAVY);
-    const addr = wrap(firstSentences(r.addressee, 70), RCOL, 2);
+    // drop parentheticals and "- depending on ..." tails: the column needs a name
+    const name = clean(r.addressee)
+      .replace(/\s*\([^)]*\)/g, "")
+      .replace(/\s*-\s*depending.*$/i, "")
+      .trim();
+    const addr = wrap(firstSentences(name || r.addressee, 70), RCOL, 2);
     // 3 measured bands (name, clock, basis) must still fit above the limit
-    if (rightY + addr.length * LH.small + 4 * LH.micro + 5 > COL_LIMIT) return;
+    if (rightY + addr.length * LH.small + 4 * LH.micro + 4 > COL_LIMIT) return;
     doc.text(addr, rx, rightY, { lineHeightFactor: 1.28 });
     rightY += addr.length * LH.small;
     set(T.micro, "normal", CRIMSON);
@@ -314,7 +319,7 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
     set(T.micro - 0.8, "normal", MID);
     const kd = wrap(`${kindOf(r)} - ${basisNote(r)}`, RCOL, 2);
     doc.text(kd, rx, rightY + 1.4, { lineHeightFactor: 1.2 });
-    rightY += kd.length * LH.micro + 3.6;
+    rightY += kd.length * LH.micro + 2.8;
   });
 
   // ── Value block geometry (anchored above the footer) ─────
