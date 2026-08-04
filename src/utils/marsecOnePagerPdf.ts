@@ -257,17 +257,14 @@ export function buildOnePagerPdf(ex: Exercise, meta: OnePagerMeta): jsPDF {
     rightY += kd.length * LH.micro + 3.4;
   });
   set(T.micro - 0.6, "normal", MID);
-  doc.text(
-    wrap(
-      "Statutory clocks are fixed by law (NIS2 Art. 23: 24 h / 72 h / 1 month; GDPR Art. 33: 72 h). Faster hour-level targets, IMO guidance, class, charter and customer commitments are exercise targets, not regulatory deadlines.",
-      COL,
-      4,
-    ),
-    rx,
-    rightY + 0.5,
-    { lineHeightFactor: 1.25 },
+  const disclaimer = wrap(
+    "Statutory clocks are fixed by law. Hour-level targets, IMO guidance, class, charter and customer commitments are exercise targets, not regulatory deadlines.",
+    COL,
+    3,
   );
-  rightY += 4 * LH.micro + 2;
+  doc.text(disclaimer, rx, rightY + 0.5, { lineHeightFactor: 1.25 });
+  rightY += disclaimer.length * LH.micro + 2;
+
 
   y = Math.max(leftY, rightY) + 4;
 
