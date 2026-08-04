@@ -30,14 +30,32 @@ export const OBLIGATIONS: { id: string; label: string; detail: string; prompt: s
   {
     id: "nis2",
     label: "NIS2 (EU)",
-    detail: "24 h early warning, 72 h incident notification to the national competent authority.",
-    prompt: "NIS2 (EU) Art. 23: early warning to the CSIRT / national competent authority within 24h of becoming aware, incident notification within 72h, final report within 1 month. These 24h/72h clocks are the regulatory deadlines (kind: \"Regulatory deadline\") — never shorten them. Any faster internal ambition (e.g. brief the board within 1h) must be a separate entry labelled kind: \"Internal escalation target\".",
+    detail: "24 h early warning, 72 h notification, final report after 1 month.",
+    prompt: "NIS2 (EU) Art. 23: early warning to the CSIRT / national competent authority within 24h of becoming aware, incident notification within 72h, final report within 1 month. These 24h/72h/1-month clocks are the regulatory deadlines (kind: \"Regulatory deadline\") — never shorten them. Any faster internal ambition (e.g. brief the board within 1h) must be a separate entry labelled kind: \"Internal escalation target\".",
   },
   {
     id: "imo",
-    label: "IMO / ISPS, class & flag state",
-    detail: "Company, contract and class-specific notification targets (IMO cyber-risk guidance, ISPS Code).",
-    prompt: "IMO / ISPS, class and flag state: notify the Company Security Officer, Ship Security Officer, flag state administration and class society and document the protective measures applied under the Ship Security Plan. IMPORTANT: IMO MSC-FAL.1/Circ.3 is guidance on maritime cyber risk management and does NOT set fixed reporting deadlines — label every timing here as a company / contract / class-specific notification target (kind: \"Company / contract / class target\"), never as a regulatory deadline. Note: ISPS security levels are set by the responsible SOLAS contracting state — the company and the Master may only recommend escalation, never set the level themselves.",
+    label: "IMO cyber-risk guidance (SMS)",
+    detail: "Company/SMS-driven handling under MSC-FAL.1/Circ.3 and Res. MSC.428(98) — guidance, no fixed clock.",
+    prompt: "IMO cyber risk management: handle the incident through the Safety Management System (SMS) as required by Res. MSC.428(98), applying MSC-FAL.1/Circ.3 guidance. IMPORTANT: this guidance sets NO fixed reporting deadline — every timing here is a company / SMS notification target (kind: \"Company / contract / class target\"), never a regulatory deadline. Note: ISPS security levels are set by the responsible SOLAS contracting state — the company and the Master may only recommend escalation, never set the level themselves.",
+  },
+  {
+    id: "flagstate",
+    label: "Flag state & class society",
+    detail: "Security incident report to the flag administration; class notification when class-relevant systems are affected.",
+    prompt: "Flag state administration and recognised organisation / class society: report the security incident to the flag state via the Company Security Officer (SOLAS XI-2 / ISPS Code obligation, wording \"without delay\" — statutory duty but no numeric hour clock, kind: \"Regulatory deadline\"), and notify class when navigation, propulsion, steering, power management or other class-relevant systems are affected or operated in degraded mode (kind: \"Company / contract / class target\").",
+  },
+  {
+    id: "portstate",
+    label: "Port state / coast guard (e.g. USCG MTSA)",
+    detail: "Breach of security / transportation security incident report — USCG NRC under 33 CFR 101.305, MARSEC level changes.",
+    prompt: "Port state authority and coast guard: for calls in US waters, report suspicious activity, breaches of security and transportation security incidents to the US Coast Guard via the National Response Center without delay (33 CFR 101.305, MTSA) and act on MARSEC level changes; for EU calls, notify the coastal state authority / VTS and the port state control body when navigation, safety or security of the vessel is affected. Statutory duty phrased as \"without delay\" — no numeric hour clock (kind: \"Regulatory deadline\").",
+  },
+  {
+    id: "designatedauthority",
+    label: "ISPS designated authority (port facility)",
+    detail: "PFSO reporting of a breach of security at the port facility (ISPS Code, EU Reg. 725/2004).",
+    prompt: "Designated authority for maritime security: the Port Facility Security Officer reports a breach of security or security incident at the port facility to the national designated authority and updates the Port Facility Security Plan measures (ISPS Code Part A, EU Reg. 725/2004). Statutory duty without a numeric hour clock (kind: \"Regulatory deadline\").",
   },
   {
     id: "gdpr",
@@ -53,9 +71,9 @@ export const OBLIGATIONS: { id: string; label: string; detail: string; prompt: s
   },
   {
     id: "portauthority",
-    label: "Port authority",
+    label: "Port authority / harbour master",
     detail: "Impact on port operations, vessel calls or terminal operations.",
-    prompt: "Port authority / harbour master: notify when port operations, a vessel call or terminal operations are affected; coordinate berth and traffic decisions.",
+    prompt: "Port authority / harbour master and VTS: notify when port operations, a vessel call or terminal operations are affected; coordinate berth, traffic and tug decisions.",
   },
   {
     id: "insurers",
@@ -67,21 +85,34 @@ export const OBLIGATIONS: { id: string; label: string; detail: string; prompt: s
     id: "cert",
     label: "CERT / CSIRT",
     detail: "National CERT or sector-specific maritime CERT.",
-    prompt: "National CERT/CSIRT or maritime sector CERT: request support and share indicators of compromise.",
+    prompt: "National CERT/CSIRT or maritime sector CERT: request support and share indicators of compromise. Voluntary support request unless it is the same body as the NIS2 competent authority.",
   },
   {
     id: "police",
     label: "Law enforcement",
-    detail: "Police, BKA, FBI, Europol — extortion, sabotage or ransomware.",
-    prompt: "Law enforcement (police, BKA, FBI, Europol): file a report in cases of extortion, sabotage or ransomware; align on evidence handling before any remediation.",
+    detail: "Police and national/international agencies — extortion, sabotage or ransomware.",
+    prompt: "Law enforcement (national police, federal criminal police, Europol / Interpol contact points): file a report in cases of extortion, sabotage or ransomware; align on evidence handling before any remediation. Not a statutory reporting clock (kind: \"Legal / operational escalation target\").",
   },
   {
     id: "otvendors",
     label: "Suppliers / OT vendors",
-    detail: "ABB, Kongsberg, Wärtsilä, Siemens, Schneider Electric — compromised OT.",
-    prompt: "Suppliers and OT vendors (e.g. ABB, Kongsberg, Wärtsilä, Siemens, Schneider Electric): mandatory involvement for compromised OT or navigation systems, including remote-access lockdown.",
+    detail: "Bridge, engine, crane and automation vendors — compromised OT.",
+    prompt: "Suppliers and OT vendors (bridge/navigation, engine automation, power management, crane and gate PLC vendors): mandatory involvement for compromised OT or navigation systems, including remote-access lockdown and vendor forensics support.",
+  },
+  {
+    id: "markets",
+    label: "Capital markets / investors",
+    detail: "Ad-hoc disclosure (EU MAR Art. 17) or SEC Form 8-K Item 1.05 for listed groups.",
+    prompt: "Capital markets: if the exercising group is listed, assess inside-information disclosure under EU MAR Art. 17 (without delay) or SEC Form 8-K Item 1.05 (within four business days of the materiality determination). Only include this if the organisation profile makes a listing plausible (kind: \"Regulatory deadline\").",
+  },
+  {
+    id: "crew",
+    label: "Crew, unions & seafarer welfare",
+    detail: "Crew notification, works council / ITF involvement when crew data or safety is affected.",
+    prompt: "Crew and employee representation: inform affected crew and shore staff, involve the works council or seafarer union representation (e.g. ITF) when crew personal data, payroll or on-board safety is affected. Internal obligation, no statutory clock (kind: \"Internal escalation target\").",
   },
 ];
+
 
 const COMMON_ROLES_COMPACT = [
   "Crisis Team Lead",
