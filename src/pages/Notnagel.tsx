@@ -304,6 +304,13 @@ export default function Notnagel() {
   const [contentFindings, setContentFindings] = useState<Finding[]>([]);
   const [tilesDone, setTilesDone] = useState(false);
 
+  /** Reveal-Sequenz der Startseite: jeder Block gibt an den nächsten weiter. */
+  const [seq, setSeq] = useState(0);
+  const advance = useCallback((order: number, pause: number) => {
+    window.setTimeout(() => setSeq((s) => (s > order ? s : order + 1)), pause);
+  }, []);
+
+
   const genTimer = useRef<number | null>(null);
 
   const input: NotnagelInput = useMemo(() => ({ profile, processes, team, exercise }), [profile, processes, team, exercise]);
