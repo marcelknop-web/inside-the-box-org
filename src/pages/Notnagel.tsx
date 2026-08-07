@@ -338,7 +338,7 @@ function TypewriterTileStack({ items, onDone }: { items: { title: string; body: 
 }
 
 /** Reveals a row of buttons one after another with a typewriter effect. */
-function TypewriterButtonStack({ items, onSelect }: { items: { label: string; body: string }[]; onSelect: (i: number) => void }) {
+function TypewriterButtonStack({ items, onSelect, onDone }: { items: { label: string; body: string }[]; onSelect: (i: number) => void; onDone?: () => void }) {
   const [doneCount, setDoneCount] = useState(0);
   return (
     <>
@@ -352,7 +352,11 @@ function TypewriterButtonStack({ items, onSelect }: { items: { label: string; bo
             <TypewriterReveal
               title={item.label}
               body={item.body}
-              onDone={() => setDoneCount(c => Math.max(c, i + 1))}
+              onDone={() => {
+                const next = i + 1;
+                setDoneCount(c => Math.max(c, next));
+                if (next >= items.length) onDone?.();
+              }}
             />
           </button>
         ) : null
