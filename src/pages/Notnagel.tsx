@@ -1038,13 +1038,13 @@ export default function Notnagel() {
               <Field label="Übungsleitung"><input className={inputCls} value={exercise.facilitator} onChange={(e) => setExercise({ ...exercise, facilitator: e.target.value })} /></Field>
             </div>
             <StepNav onBack={() => setStep(3)} next={{ label: "Zur Prüfung und Ausgabe →", onClick: () => setStep(5) }} />
-          </section>
+          </StepSection>
         )}
 
         {/* Step 5 – Ergebnisse */}
         {step === 5 && (
-          <section className="space-y-6">
-            <SectionHead step={5} title="Prüfung und Dokumente" lead="Notnagel prüft Ihre Angaben, formuliert die Texte und erzeugt die vier Word-Dokumente." />
+          <StepSection step={5} title="Prüfung und Dokumente" lead="Notnagel prüft Ihre Angaben, formuliert die Texte und erzeugt die vier Word-Dokumente." className="space-y-6">
+
 
             <div className="grid lg:grid-cols-2 gap-5">
               <div className="rounded-none border border-[#22303f] bg-[#16202e] shadow-voxel p-4 sm:p-5 space-y-3">
