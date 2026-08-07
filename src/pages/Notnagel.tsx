@@ -664,7 +664,7 @@ export default function Notnagel() {
 
         {/* Step 1 – Bereich */}
         {step === 1 && (
-          <section className="mx-auto max-w-4xl space-y-5">
+          <section className="mx-auto max-w-4xl space-y-5 lg:max-w-5xl lg:space-y-3.5">
             <SectionHead step={1} title="Bereichsprofil" lead="Diese Angaben erscheinen auf jedem Deckblatt und legen den Geltungsbereich der Dokumente fest." />
             <Hint>„Fachbereich“ ist die Organisationseinheit, für die Sie verantwortlich sind. Felder, die Sie nicht kennen, können leer bleiben.</Hint>
             <Card title="Verantwortung und Geltungsbereich">
@@ -681,6 +681,7 @@ export default function Notnagel() {
             </div>
             </Card>
 
+            <div className="grid gap-3.5 lg:grid-cols-2">
             <Card title="Normativer Rahmen">
               <p className="mb-2.5 text-[11px] text-[#93a4bb]">Woran wird sich die Leitlinie messen lassen? Mehrfachauswahl.</p>
               <div className="flex flex-wrap gap-2">
@@ -702,6 +703,8 @@ export default function Notnagel() {
                 <input className={inputCls} value={profile.crisisTeamRef} onChange={(e) => setProfile({ ...profile, crisisTeamRef: e.target.value })} />
               </Field>
             </Card>
+            </div>
+
 
             <StepNav onBack={() => setStep(0)} next={{ label: "Weiter zu den Prozessen →", onClick: () => setStep(2) }} />
 
