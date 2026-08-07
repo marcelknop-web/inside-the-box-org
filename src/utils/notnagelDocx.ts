@@ -161,7 +161,7 @@ function mtpdLabel(p: ProcessEntry) {
 
 function curveLabel(p: ProcessEntry) {
   const m = maxByHorizon(p);
-  return HORIZONS.map((h) => `${h}: Stufe ${m[h]}`).join(" · ");
+  return HORIZONS.map((h) => `${h}: S${m[h]}`).join(" · ");
 }
 
 // ─── 1. BCM-Leitlinie ───
@@ -226,15 +226,15 @@ function buildBia(input: NotnagelInput, c: GeneratedContent) {
       ["Fachbereich", profile.area],
       ["Verantwortlich", `${profile.owner}${profile.ownerFunction ? `, ${profile.ownerFunction}` : ""}`],
       ["Erfasste Prozesse", String(processes.length)],
-      ["Methodik", "Schadensverlauf über 4 Zeithorizonte, Skala 1–4; MTPD bei erstmaligem Erreichen von Stufe 3"],
+      ["Methodik", "Schadensverlauf über 4 Zeithorizonte, Schadensstufen S1–S4; MTPD = erster Horizont, an dem eine Kategorie S3 erreicht"],
       ["Version / Stand", `Entwurf 1.0 · ${dateLabel()}`],
     ]),
     H2("Managementzusammenfassung"),
     P(c.managementSummary || ""),
-    H2("Bewertungsskala"),
+    H2("Bewertungsskala der Schadensstufen"),
     table(
-      ["Stufe", "Bezeichnung", "Bedeutung"],
-      SCALE.map((s) => [String(s.level), s.name, s.hint]),
+      ["Schadensstufe", "Bezeichnung", "Bedeutung"],
+      SCALE.map((s) => [s.code, s.name, s.hint]),
       [900, 2200, 6260],
     ),
     P("", { after: 120 }),
@@ -268,7 +268,7 @@ function buildBia(input: NotnagelInput, c: GeneratedContent) {
         [4560, 1200, 1200, 1200, 1200],
       ),
       P("", { after: 100 }),
-      P(`Höchste Stufe je Horizont: ${HORIZONS.map((h) => `${h} → ${m[h]}`).join(" · ")}`, { size: 20, italics: true }),
+      P(`Höchste Schadensstufe je Horizont: ${HORIZONS.map((h) => `${h} → S${m[h]}`).join(" · ")}`, { size: 20, italics: true }),
       P(bia?.interpretation || "", { after: 140 }),
       H2("3 Kontinuitätsanforderungen"),
       kvTable([
@@ -328,8 +328,9 @@ function buildBcp(input: NotnagelInput, c: GeneratedContent) {
     P(B.zweck || ""),
     H2("2 Aktivierung"),
     ...(Array.isArray(B.aktivierung) && B.aktivierung.length
-      ? [table(["Stufe", "Auslösekriterium", "Reaktion"], B.aktivierung.map((a) => [a.stufe ?? "", a.kriterium ?? "", a.reaktion ?? ""]), [1900, 3730, 3730]), P("", { after: 160 })]
+      ? [table(["Aktivierungsstufe", "Auslösekriterium", "Reaktion"], B.aktivierung.map((a) => [a.stufe ?? "", a.kriterium ?? "", a.reaktion ?? ""]), [1900, 3730, 3730]), P("", { after: 160 })]
       : []),
+    P("Die Aktivierungsstufen A1 bis A3 steuern die Eskalation und sind nicht mit den Schadensstufen S1 bis S4 der Business Impact Analyse zu verwechseln.", { italics: true, size: 20, after: 160 }),
     P("Zeitvorgaben aus der BIA:", { bold: true }),
     table(
       ["Prozess", "MTPD", "RTO", "RPO"],
