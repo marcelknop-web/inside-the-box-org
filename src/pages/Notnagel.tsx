@@ -984,15 +984,13 @@ export default function Notnagel() {
             </div>
 
             <StepNav onBack={() => setStep(1)} next={{ label: "Weiter zum Notfallteam →", onClick: () => setStep(3), disabled: processes.length === 0, hint: processes.length === 0 ? "Mindestens ein Prozess nötig" : undefined }} />
-          </section>
+          </StepSection>
         )}
 
         {/* Step 3 – Team */}
         {step === 3 && (
-          <section className="mx-auto max-w-4xl space-y-5">
+          <StepSection step={3} title="Notfallteam des Bereichs" lead="Wer entscheidet, wer informiert, wer vertritt – knapp und eindeutig besetzt." className="mx-auto max-w-4xl space-y-5">
 
-
-            <SectionHead step={3} title="Notfallteam des Bereichs" lead="Wer entscheidet, wer informiert, wer vertritt – knapp und eindeutig besetzt." />
             <Hint>Im Ernstfall zählt, wer entscheidet. Jede Rolle braucht eine Vertretung – sonst hängt der Plan an einer einzigen Person.</Hint>
             <div className="space-y-2">
               {team.map((t, i) => (
