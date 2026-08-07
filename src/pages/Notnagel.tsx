@@ -1023,7 +1023,7 @@ export default function Notnagel() {
 
         {/* Step 3 – Team */}
         {step === 3 && (
-          <StepSection step={3} title="Notfallteam des Bereichs" lead="Wer entscheidet, wer informiert, wer vertritt – knapp und eindeutig besetzt." className="mx-auto max-w-4xl space-y-5">
+          <StepSection step={3} title="Notfallteam des Bereichs" lead="Wer entscheidet, wer informiert, wer vertritt – knapp und eindeutig besetzt." className="mx-auto max-w-4xl space-y-5" onCascadeDone={() => setCoachReady(true)}>
 
             <Hint>Im Ernstfall zählt, wer entscheidet. Jede Rolle braucht eine Vertretung – sonst hängt der Plan an einer einzigen Person.</Hint>
             <div className="space-y-2">
