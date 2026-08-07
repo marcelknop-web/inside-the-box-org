@@ -548,66 +548,32 @@ export default function Notnagel() {
   }, [step, profile, active, exercise]);
 
   return (
-    <div className="min-h-screen bg-[#080b10] text-[#e8eef7]">
+    <div className="voxel-stage min-h-screen bg-[#080b10] text-[#e8eef7]">
       <Helmet>
         <title>Notnagel – BCM-Assistent für Fachbereiche | inside-the-box</title>
         <meta name="description" content="Notnagel führt Fachbereichsverantwortliche durch den BCM-Prozess: Business Impact Analyse, Notfallplan, BCM-Leitlinie und Tabletop-Drehbuch als fertige Word-Dokumente." />
       </Helmet>
 
-      <header className="sticky top-0 z-30 border-b border-[#243347] bg-[#0b1119]/95 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-3.5">
-          <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
-            <span aria-hidden className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-none bg-[#f5b800] text-sm font-bold text-[#080b10] sm:h-9 sm:w-9">N</span>
-            <div className="min-w-0">
-              <h1 className="truncate text-base font-bold tracking-tight text-[#f5b800] sm:text-xl">Notnagel</h1>
-              <p className="truncate text-[10.5px] text-[#8090a6] sm:text-[11px]">BCM-Assistent für Fachbereiche · inside-the-box.org</p>
-            </div>
-          </div>
-          <div className="flex flex-shrink-0 items-center gap-2">
-            {step > 0 && <span className="hidden rounded-none bg-[#00bcd4]/10 px-2.5 py-1 text-[11px] font-medium text-[#7fdcea] sm:inline">Schritt {step}/5 · {STEPS[step - 1]}</span>}
-            <button onClick={resetAll} aria-label="Neu starten" className="rounded-none border border-[#2c3c52] px-2.5 py-1.5 text-xs font-medium text-[#c2cfe0] transition hover:bg-[#1a2535] sm:px-3">
-              ↺<span className="hidden sm:inline"> Neu starten</span>
-            </button>
-            <Link to="/" className="text-sm text-[#f5b800] hover:underline">←<span className="hidden sm:inline"> zurück</span></Link>
-          </div>
-        </div>
-        {step > 0 && (
-          <div className="h-0.5 w-full bg-[#243347]">
-            <div className="h-full bg-[#f5b800] transition-all duration-500" style={{ width: `${(step / 5) * 100}%` }} />
-          </div>
-        )}
-      </header>
+      <LevelSweep token={sweep} />
 
-      <main className="mx-auto max-w-6xl px-4 pb-28 pt-6 sm:px-6 sm:pb-12 sm:pt-8">
-        {step > 0 && (
-          <ol className={`mb-6 flex items-center gap-1 overflow-x-auto pb-1 sm:mb-7 ${step === 2 || step === 5 ? "" : "mx-auto max-w-4xl"}`}>
-            {STEPS.map((label, i) => {
+      <HudBar
+        step={step}
+        steps={STEPS}
+        soundOn={audio.enabled}
+        onToggleSound={() => { audio.play("click"); audio.toggle(); }}
+        onReset={resetAll}
+      />
 
-              const n = i + 1;
-              const activeStep = step === n;
-              const done = step > n;
-              return (
-                <li key={label} className="flex flex-shrink-0 items-center">
-                  <button
-                    onClick={() => setStep(n)}
-                    aria-current={activeStep ? "step" : undefined}
-                    className={`group flex items-center gap-2 rounded-none border px-3 py-1.5 text-xs font-medium transition sm:text-[13px] ${
-                      activeStep ? "border-[#f5b800] bg-[#f5b800] text-[#080b10] shadow-voxel-sm"
-                        : done ? "border-[#00bcd4]/40 bg-[#00bcd4]/10 text-[#f5b800] hover:border-[#f5b800]"
-                        : "border-[#243347] bg-[#141c28] text-[#8090a6] hover:border-[#f5b800]/50"
-                    }`}
-                  >
-                    <span className={`flex h-5 w-5 items-center justify-center rounded-none text-[10px] font-bold ${
-                      activeStep ? "bg-[#080b10]/25 text-[#080b10]" : done ? "bg-[#f5b800] text-[#080b10]" : "bg-[#1a2535] text-[#8090a6]"
-                    }`}>{done ? "✓" : n}</span>
-                    {label}
-                  </button>
-                  {n < STEPS.length && <span aria-hidden className={`mx-1 h-px w-3 sm:w-5 ${done ? "bg-[#f5b800]/40" : "bg-[#243347]"}`} />}
-                </li>
-              );
-            })}
-          </ol>
+      <main className="relative mx-auto max-w-6xl px-4 pb-28 pt-6 sm:px-6 sm:pb-12 sm:pt-8">
+        {step > 0 && (
+          <LevelStepper
+            step={step}
+            steps={STEPS}
+            onSelect={(n) => { audio.play("click"); setStep(n); }}
+            className={step === 2 || step === 5 ? "" : "mx-auto max-w-4xl"}
+          />
         )}
+
 
         {/* Step 0 – Einstieg */}
         {step === 0 && (
