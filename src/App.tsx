@@ -40,6 +40,7 @@ const MetaAssessmentTool = lazy(() => import("./pages/MetaAssessmentTool"));
 const Syndicate = lazy(() => import("./pages/Syndicate"));
 const Starfighter = lazy(() => import("./pages/Starfighter"));
 const Ernstfall = lazy(() => import("./pages/Ernstfall"));
+const Notnagel = lazy(() => import("./pages/Notnagel"));
 const MarSec = lazy(() => import("./pages/MarSec"));
 
 const queryClient = new QueryClient();
@@ -82,6 +83,7 @@ const App = () => (
               <Route path="/starfighter" element={<Suspense fallback={<RouteSkeleton />}><Starfighter /></Suspense>} />
               <Route path="/ernstlfall" element={<Suspense fallback={<RouteSkeleton />}><PasswordGate storageKey="ernstlfall" label="ERNSTLFALL"><Ernstfall /></PasswordGate></Suspense>} />
               <Route path="/ernstfall" element={<Navigate to="/ernstlfall" replace />} />
+              <Route path="/notnagel" element={<Suspense fallback={<RouteSkeleton />}><Notnagel /></Suspense>} />
               <Route path="/marsec" element={<Suspense fallback={<RouteSkeleton />}><PasswordGate storageKey="ernstlfall" label="MarSec Studio"><MarSec /></PasswordGate></Suspense>} />
 
               {/* Catch-all: every Journey service id (nis2-dora, virtual-ciso, …) renders ChatView */}
