@@ -244,7 +244,7 @@ Erzeuge das vollständige JSON erneut und behebe jeden dieser Befunde. Ändere k
     const t0 = Date.now();
     let response: Response;
     try {
-      response = await callGateway(userPrompt, LOVABLE_API_KEY);
+      response = await callGateway(finalPrompt, LOVABLE_API_KEY);
     } catch (e) {
       console.error("gateway fetch failed", e);
       return new Response(JSON.stringify({ error: "KI-Gateway nicht erreichbar" }), { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -280,7 +280,7 @@ Erzeuge das vollständige JSON erneut und behebe jeden dieser Befunde. Ändere k
       console.warn("notnagel_ai parse_failed, retrying once");
       try {
         const r2 = await callGateway(
-          userPrompt + `\n\nDie vorherige Antwort war kein valides JSON. Antworte AUSSCHLIESSLICH mit einem JSON-Objekt, das mit "{" beginnt und mit "}" endet.`,
+          finalPrompt + `\n\nDie vorherige Antwort war kein valides JSON. Antworte AUSSCHLIESSLICH mit einem JSON-Objekt, das mit "{" beginnt und mit "}" endet.`,
           LOVABLE_API_KEY,
           8000,
           0.2,
