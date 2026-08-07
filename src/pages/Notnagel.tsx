@@ -1076,7 +1076,7 @@ export default function Notnagel() {
                     </li>
                   ))}
                 </ul>
-                {!score.ready && <p className="text-xs text-red-300">Blocker bitte beheben – sie machen die Dokumente fachlich angreifbar.</p>}
+                {!score.ready && <p className="text-xs text-[#b7c5d6]">Offene Befunde werden automatisch in die Nachbesserungsläufe übernommen – keine Eingabe nötig.</p>}
               </div>
 
               <div className="rounded-none border border-[#22303f] bg-[#16202e] shadow-voxel p-4 sm:p-5 space-y-3">
