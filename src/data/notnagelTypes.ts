@@ -477,6 +477,21 @@ export function runQualityCheck(input: NotnagelInput): Finding[] {
   if (!exercise.facilitator.trim()) f.push({ severity: "hinweis", text: "Übungsleitung nicht benannt.", where: "Übung" });
   if (!profile.regulatory.length) f.push({ severity: "hinweis", text: "Kein Rahmenwerk gewählt – die Leitlinie bleibt ohne normativen Bezug.", where: "Bereichsprofil" });
 
+  // Konsistenz zwischen BIA-Zeitwerten und den abgeleiteten Aktivierungsstufen
+  const rtoList = processes.map((p) => Number(p.rtoHours)).filter((n) => Number.isFinite(n) && n > 0);
+  const mtpdList = processes.map((p) => deriveMtpd(p).hours).filter((n): n is number => n !== null);
+  if (rtoList.length && mtpdList.length) {
+    const minRto = Math.min(...rtoList);
+    const minMtpd = Math.min(...mtpdList);
+    if (minRto >= minMtpd / 2) {
+      f.push({
+        severity: "hinweis",
+        text: `Kürzeste RTO (${minRto} Std.) und halbe kürzeste MTPD (${Math.round(minMtpd / 2)} Std.) liegen zusammen – die Aktivierungsstufen A2 (Notfall) und A3 (Krise) greifen fast gleichzeitig. Entweder RTO senken oder die Krisenschwelle im Notfallplan bewusst so bestätigen.`,
+        where: "Notfallplan",
+      });
+    }
+  }
+
   return f;
 }
 
