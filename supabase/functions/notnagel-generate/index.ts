@@ -45,6 +45,12 @@ function rateCheck(ip: string) {
 
 const SYSTEM = `Du bist erfahrener Business-Continuity-Manager und formulierst BCM-Dokumente für einen Fachbereich (Leitlinie, Business Impact Analyse, Notfallplan/BCP, Tabletop-Drehbuch). Referenzen: ISO 22301, BSI-Standard 200-4, gängige Aufsichtsanforderungen.
 
+BEGRIFFE (strikt, keine Ausnahme):
+- Schadensstufen der BIA heißen S1 (gering), S2 (spürbar), S3 (erheblich), S4 (existenzbedrohend). Immer mit Präfix S schreiben, niemals nur "Stufe 3".
+- Aktivierungsstufen des Notfallplans heißen A1 (Störung), A2 (Notfall), A3 (Krise). Immer mit Präfix A schreiben.
+- Vermische die beiden Skalen nie und leite keine Aktivierungsstufe aus einer Schadensstufe ab. Eine Ausfalldauer hat genau eine Schadensstufe je Kategorie (aus dem Input) und genau eine Aktivierungsstufe (aus dem Abschnitt Aktivierungsstufen).
+- MTPD ist ein einziger Wert je Prozess. Nenne keine abweichenden Ausfallgrenzen und rechne keine Zwischenwerte aus.
+
 DATENINTEGRITÄT (strikt, oberste Regel):
 - Du erfindest KEINE Kennzahlen. MTPD, RTO, RPO, Schadensstufen, Prioritäten und Zeitgrenzen sind im Input bereits regelbasiert berechnet. Du übernimmst sie wörtlich und begründest sie fachlich.
 - Du erfindest keine Systeme, Personen, Dienstleister, Standorte oder Vorfälle. Verwende nur, was im Input steht.
@@ -147,14 +153,20 @@ BEREITS BERECHNET (wörtlich übernehmen, nicht verändern):
   Priorität: ${s(d.priority, 80)}
   RTO: ${s(String(p.rtoHours ?? ""), 20)} Std.
   RPO: ${s(String(p.rpoHours ?? ""), 20)} Std.
-  Schadensverlauf (höchste Stufe je Horizont, Skala 1-4): ${s(d.curve, 300)}
-  Treibende Schadenskategorien: ${s(d.drivers, 300)}
+  Höchste Schadensstufe je Horizont: ${s(d.curve, 300)}
+  Vollständige Bewertung je Kategorie: ${s(d.curveDetail, 1200)}
+  Treibende Schadenskategorien am MTPD-Horizont: ${s(d.drivers, 400)}
 Mindest-Notbetrieb: ${s(p.minimumService, 800)}
 Vitale Ressourcen:
 ${res.map((r: any) => `  - [${s(r.kind, 40)}] ${s(r.description, 300)} | Kritikalität ${s(r.criticality, 20)}${r.singlePointOfFailure ? " | SINGLE POINT OF FAILURE" : ""}`).join("\n") || "  - keine erfasst"}
 Notbetriebsverfahren:
 ${wa.map((w: any) => `  - Szenario "${s(w.scenario, 200)}": ${s(w.procedure, 600)} | trägt ${s(String(w.limitHours ?? ""), 20)} Std.`).join("\n") || "  - keine erfasst"}`;
     }).join("\n\n");
+
+    const activation = Array.isArray(body?.activation) ? body.activation.slice(0, 3) : [];
+    const activationBlock = activation
+      .map((a: any) => `- ${s(a.stufe, 60)} | Auslösekriterium: ${s(a.kriterium, 400)} | Reaktion: ${s(a.reaktion, 400)}`)
+      .join("\n");
 
     const teamBlock = team.map((t: any) => `- ${s(t.role, 80)}: ${s(t.primary, 120) || "Noch offen"} (Vertretung: ${s(t.deputy, 120) || "Noch offen"})`).join("\n");
 
@@ -168,6 +180,9 @@ ${profileBlock}
 ## Prozesse
 ${processBlocks}
 
+## Aktivierungsstufen (regelbasiert vorgegeben – wörtlich übernehmen, keine eigenen Zeitgrenzen)
+${activationBlock || "- Noch offen"}
+
 ## Notfallteam des Bereichs
 ${teamBlock || "- Noch offen"}
 
@@ -176,7 +191,7 @@ Dauer: ${s(exercise.duration, 40)} | Szenario: ${s(exercise.scenario, 600)} | Te
 
 ## Zusätzliche Anforderungen
 - Die BIA-Begründungen müssen sich auf die oben genannten Schadenskategorien und den Schadensverlauf stützen, nicht allgemein argumentieren.
-- Die Aktivierungsstufen des Notfallplans müssen an messbaren Kriterien hängen (Ausfalldauer, betroffene Ressource, Auswirkung), abgestimmt auf RTO und MTPD.
+- Die Aktivierungsstufen A1 bis A3 sind oben vorgegeben. Übernimm Bezeichnung und Auslösekriterium wörtlich und formuliere nur die Reaktion aus. Erfinde keine weiteren Stufen und keine anderen Stundenwerte.
 - Das Tabletop-Szenario muss genau die vitalen Ressourcen und Notbetriebsverfahren dieses Bereichs treffen und mindestens einen erfassten Single Point of Failure adressieren, falls vorhanden.
 - Jeder Inject nennt eine konkrete Entscheidung, die das Team treffen muss.
 
@@ -196,7 +211,7 @@ Dauer: ${s(exercise.duration, 40)} | Szenario: ${s(exercise.scenario, 600)} | Te
  "bia": [{"processId": "P-01", "interpretation": "4-6 Sätze zum Schadensverlauf", "mtpdBegruendung": "", "rtoBegruendung": "", "rpoBegruendung": "", "ergebnis": "3-4 Sätze Gesamturteil", "handlungsbedarf": ["3-5 konkrete Maßnahmen, je mit Verantwortlichkeit"]}],
  "bcp": {
    "zweck": "3-4 Sätze",
-   "aktivierung": [{"stufe": "Stufe 1 – Störung", "kriterium": "", "reaktion": ""}],
+   "aktivierung": [{"stufe": "A1 – Störung", "kriterium": "wörtlich aus der Vorgabe", "reaktion": "2-3 Sätze, konkrete Handlungen und Verantwortliche"}],
    "alarmierung": "3-4 Sätze",
    "sofortmassnahmen": ["6-8 Schritte in Reihenfolge der ersten 60 Minuten"],
    "notbetriebHinweis": "2-3 Sätze zur Nutzung der Notbetriebsverfahren",
@@ -213,7 +228,7 @@ Dauer: ${s(exercise.duration, 40)} | Szenario: ${s(exercise.scenario, 600)} | Te
    "nachbereitung": ["4-6 Schritte inkl. Fristen relativ zum Übungstag"]
  }
 }
-Für jeden Prozess genau ein bia-Eintrag mit passender processId. Für jedes gewählte Rahmenwerk genau ein rahmen-Eintrag. Drei Aktivierungsstufen.`;
+Für jeden Prozess genau ein bia-Eintrag mit passender processId. Für jedes gewählte Rahmenwerk genau ein rahmen-Eintrag. Genau drei Aktivierungseinträge in der Reihenfolge A1, A2, A3.`;
 
     const t0 = Date.now();
     let response: Response;
