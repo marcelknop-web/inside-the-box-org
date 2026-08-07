@@ -535,12 +535,16 @@ export default function Notnagel() {
       const MAX_PASSES = 3;
       let draft: GeneratedContent | null = null;
       let issues: Finding[] = [];
+      // Befunde aus der Eingabeprüfung gehen als Korrekturauftrag in den ersten Lauf,
+      // damit die Qualitätssicherung ohne Nutzerinteraktion greift.
+      const inputFixes = repairInstructions(findings.filter((f) => f.severity !== "hinweis"));
 
       for (let pass = 1; pass <= MAX_PASSES; pass++) {
         const base = pass === 1 ? 8 : 40 + (pass - 2) * 25;
         setProgressPct(base);
         setProgress(pass === 1 ? "Dokumente werden formuliert …" : `Nachbesserung ${pass - 1}: Befunde werden behoben …`);
-        draft = await callGenerate(pass === 1 ? [] : repairInstructions(issues), derived);
+        draft = await callGenerate(pass === 1 ? inputFixes : repairInstructions(issues), derived);
+
 
         setProgressPct(base + 18);
         setProgress(`Qualitätssicherung über alle Dokumente (Durchlauf ${pass}) …`);
@@ -577,6 +581,15 @@ export default function Notnagel() {
     blockers: contentFindings.filter((f) => f.severity === "blocker").length,
     warnings: contentFindings.filter((f) => f.severity === "warnung").length,
   }), [contentFindings]);
+
+  // Qualitätssicherung und Generierung starten selbsttätig beim Erreichen von Schritt 5.
+  const autoRun = useRef(false);
+  useEffect(() => {
+    if (step !== 5 || autoRun.current || loading || content) return;
+    autoRun.current = true;
+    void generate();
+  }, [step]); // eslint-disable-line react-hooks/exhaustive-deps
+
 
 
   async function downloadAll() {
@@ -1063,7 +1076,7 @@ export default function Notnagel() {
                     </li>
                   ))}
                 </ul>
-                {!score.ready && <p className="text-xs text-red-300">Blocker bitte beheben – sie machen die Dokumente fachlich angreifbar.</p>}
+                {!score.ready && <p className="text-xs text-[#b7c5d6]">Offene Befunde werden automatisch in die Nachbesserungsläufe übernommen – keine Eingabe nötig.</p>}
               </div>
 
               <div className="rounded-none border border-[#22303f] bg-[#16202e] shadow-voxel p-4 sm:p-5 space-y-3">
@@ -1089,7 +1102,7 @@ export default function Notnagel() {
 
             <div className="rounded-none border border-[#22303f] bg-[#16202e] shadow-voxel p-4 sm:p-5 space-y-4">
               <div className="flex flex-wrap gap-3 items-center">
-                <button onClick={generate} disabled={loading || !score.ready}
+                <button onClick={generate} disabled={loading}
                   className="rounded-none bg-[#f5b800] px-5 py-3 text-sm font-semibold text-[#080b10] shadow-voxel-sm transition hover:bg-[#ffd23f] disabled:cursor-not-allowed disabled:opacity-40">
                   {loading ? "Dokumente werden formuliert …" : content ? "Neu generieren" : "Dokumente erstellen"}
                 </button>
