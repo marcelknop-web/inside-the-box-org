@@ -644,7 +644,7 @@ export default function Notnagel() {
 
         {/* Step 1 – Bereich */}
         {step === 1 && (
-          <section className="space-y-5 max-w-4xl">
+          <section className="mx-auto max-w-4xl space-y-5">
             <SectionHead step={1} title="Bereichsprofil" lead="Diese Angaben erscheinen auf jedem Deckblatt und legen den Geltungsbereich der Dokumente fest." />
             <Hint>„Fachbereich“ ist die Organisationseinheit, für die Sie verantwortlich sind. Felder, die Sie nicht kennen, können leer bleiben.</Hint>
             <Card title="Verantwortung und Geltungsbereich">
