@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import * as XLSX from "xlsx";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
+import { useToolAudio } from "@/hooks/useToolAudio";
+
 import {
   Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, Header, Footer,
   AlignmentType, PageNumber, HeadingLevel, LevelFormat, BorderStyle, WidthType, ShadingType,
@@ -477,6 +479,16 @@ export default function Ernstfall() {
   const genTimerRef = useRef<number | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
+  /** Audio-Ebene: Bank-Ambience, UI-SFX, Sprach-Ansagen. */
+  const audio = useToolAudio("bank", "ernstlfall.sound.v1");
+  const firstStepRef = useRef(true);
+  useEffect(() => {
+    if (firstStepRef.current) { firstStepRef.current = false; return; }
+    audio.play("step");
+    if (step < 4) audio.say("step");
+  }, [step]); // eslint-disable-line react-hooks/exhaustive-deps
+
+
   function pushLog(msg: string) {
     const now = new Date();
     const t = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
@@ -613,6 +625,9 @@ export default function Ernstfall() {
       setProgressPct(100);
       setProgress("Übung erfolgreich generiert");
       pushLog(`Übung "${data.exercise?.uebungsname ?? ""}" erhalten`);
+      audio.play("complete");
+      audio.say("exercise");
+
     } catch (e: any) {
       if (e?.name === "AbortError") {
         setError("Generierung abgebrochen");
@@ -641,10 +656,14 @@ export default function Ernstfall() {
         setProgress(label);
         pushLog(label);
       });
+      audio.play("complete");
+      audio.say("ready");
     } catch (e: any) {
       console.error(e);
       setError("Word-Paket konnte nicht erzeugt werden.");
       pushLog("Fehler beim Erstellen des ZIP");
+      audio.play("error");
+
     } finally {
       setDownloading(false);
     }
@@ -665,6 +684,14 @@ export default function Ernstfall() {
           </div>
           <div className="flex items-center gap-2">
             <button
+              onClick={() => { audio.play("click"); audio.toggle(); }}
+              aria-label={audio.enabled ? "Ton ausschalten" : "Ton einschalten"}
+              className="text-xs px-3 py-1.5 rounded border border-neutral-300 text-neutral-700 hover:bg-neutral-50"
+            >
+              {audio.enabled ? "🔊 Ton" : "🔇 Ton"}
+            </button>
+            <button
+
               onClick={resetAll}
               disabled={loading || downloading}
               className="text-xs px-3 py-1.5 rounded border border-neutral-300 text-neutral-700 hover:bg-neutral-50 disabled:opacity-40"

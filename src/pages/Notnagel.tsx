@@ -388,7 +388,10 @@ export default function Notnagel() {
     if (firstStep.current) { firstStep.current = false; return; }
     setSweep((s) => s + 1);
     audio.play("step");
+    if (step === 1) audio.say("start");
+    else if (step > 1 && step < 5) audio.say("step");
   }, [step]); // eslint-disable-line react-hooks/exhaustive-deps
+
 
 
 
@@ -506,7 +509,9 @@ export default function Notnagel() {
       setProgress(blockers === 0
         ? "Qualitätssicherung bestanden – Dokumente freigegeben"
         : `Qualitätssicherung abgeschlossen – ${blockers} Befund(e) bleiben offen`);
-      audio.play(blockers === 0 ? "success" : "error");
+      audio.play(blockers === 0 ? "complete" : "error");
+      audio.say(blockers === 0 ? "ready" : "blocker");
+
     } catch (e: any) {
       setError(e.message || "Fehler bei der Generierung");
       setProgress("Abgebrochen");

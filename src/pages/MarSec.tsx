@@ -14,6 +14,8 @@ import { SECTORS, OBLIGATIONS, getSector, type SectorId, type Weight } from "@/d
 import type { Exercise, Inject } from "@/data/marsecTypes";
 import { runQualityCheck, countBySeverity, parseInjectMinutes, type Finding } from "@/utils/marsecQualityCheck";
 import InjectDetail from "@/components/marsec/InjectDetail";
+import { useToolAudio } from "@/hooks/useToolAudio";
+
 import { buildOnePagerPdf } from "@/utils/marsecOnePagerPdf";
 
 // ─── Brand tokens (MarSec Studio) ───
@@ -716,6 +718,17 @@ export default function MarSec() {
   const [regenId, setRegenId] = useState<string | null>(null);
   const [recent, setRecent] = useState<RecentEntry[]>(() => loadRecent());
 
+  /** Audio-Ebene: maritime Ambience, UI-SFX, Sprach-Ansagen. */
+  const audio = useToolAudio("maritime", "marsec.sound.v1");
+  const firstStepRef = useRef(true);
+  useEffect(() => {
+    if (firstStepRef.current) { firstStepRef.current = false; return; }
+    audio.play("step");
+    if (step === 1) audio.say("start");
+    else if (step > 1 && step < 5) audio.say("step");
+  }, [step]); // eslint-disable-line react-hooks/exhaustive-deps
+
+
   const fileRef = useRef<HTMLInputElement>(null);
   const jsonRef = useRef<HTMLInputElement>(null);
   const genTimerRef = useRef<number | null>(null);
@@ -867,6 +880,9 @@ export default function MarSec() {
       setProgressPct(100);
       setProgress("Exercise generated");
       pushLog(`Received "${data.exercise?.exerciseName ?? ""}"`);
+      audio.play("complete");
+      audio.say("exercise");
+
     } catch (e: any) {
       if (e?.name === "AbortError") {
         setError("Generation cancelled");
@@ -1051,13 +1067,17 @@ export default function MarSec() {
         setProgress(label);
         pushLog(label);
       });
+      audio.play("complete");
+      audio.say("ready");
     } catch (e) {
       console.error(e);
       setError("The Word package could not be created.");
       pushLog("Error while creating the ZIP");
+      audio.play("error");
     } finally {
       setDownloading(false);
     }
+
   }
 
   const btnPrimary = "px-5 py-2.5 rounded-full bg-[#D6003C] text-white text-sm font-semibold tracking-wide hover:bg-[#b30032] transition disabled:opacity-40";
@@ -1082,11 +1102,19 @@ export default function MarSec() {
             <span className="hidden sm:inline text-[11px] uppercase tracking-[0.22em] text-white/50">Studio</span>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => { audio.play("click"); audio.toggle(); }}
+              aria-label={audio.enabled ? "Sound off" : "Sound on"}
+              className="text-xs px-3 py-1.5 rounded-full border border-white/25 text-white/80 hover:bg-white/10"
+            >
+              {audio.enabled ? "🔊 Sound" : "🔇 Sound"}
+            </button>
             <button onClick={resetAll} disabled={loading || downloading} className="text-xs px-3 py-1.5 rounded-full border border-white/25 text-white/80 hover:bg-white/10 disabled:opacity-40">
               ↺ Restart
             </button>
             <Link to="/" className="text-xs px-4 py-1.5 rounded-full bg-[#D6003C] text-white font-semibold">Back to site</Link>
           </div>
+
         </div>
       </header>
 
