@@ -200,7 +200,10 @@ function useInView<T extends HTMLElement>(active = true) {
       { rootMargin: "0px 0px -10% 0px", threshold: 0.01 },
     );
     io.observe(el);
-    return () => io.disconnect();
+    // Fallback: in Scroll-Containern kann das Element nie „intersecting" melden –
+    // dann darf die serielle Sequenz nicht hängen bleiben.
+    const t = window.setTimeout(() => setInView(true), 1400);
+    return () => { io.disconnect(); window.clearTimeout(t); };
   }, [active, inView]);
   return { ref, inView };
 }
@@ -227,6 +230,32 @@ function TypewriterReveal({ title, body, onDone }: { title: string; body: string
   );
 }
 
+/** Tippt eine Reihe kurzer Labels strikt nacheinander – nichts läuft parallel. */
+function TypewriterInlineStack({ items, onDone }: { items: string[]; onDone?: () => void }) {
+  const [index, setIndex] = useState(0);
+  return (
+    <>
+      {items.map((label, i) =>
+        i <= index ? (
+          <span key={label} className="flex items-center gap-1.5">
+            <span aria-hidden className="text-[#f5b800]">●</span>
+            <Typewriter
+              text={label}
+              charDelay={9}
+              cursor={false}
+              onDone={() => {
+                const next = i + 1;
+                setIndex((c) => Math.max(c, next));
+                if (next >= items.length) onDone?.();
+              }}
+            />
+          </span>
+        ) : null,
+      )}
+    </>
+  );
+}
+
 /** Reveals a list of title/description tiles one after another with a typewriter effect. */
 function TypewriterTileStack({ items, onDone }: { items: { title: string; body: string }[]; onDone?: () => void }) {
   const [doneCount, setDoneCount] = useState(0);
@@ -236,7 +265,7 @@ function TypewriterTileStack({ items, onDone }: { items: { title: string; body: 
         i <= doneCount ? (
           <li
             key={item.title}
-            className="animate-fade-in rounded-none border border-[#22303f] bg-[#16202e] p-4 shadow-voxel transition hover:border-[#f5b800]/60"
+            className="rounded-none border border-[#22303f] bg-[#16202e] p-4 shadow-voxel transition hover:border-[#f5b800]/60"
           >
             <TypewriterReveal
               title={item.title}
@@ -264,7 +293,7 @@ function TypewriterButtonStack({ items, onSelect }: { items: { label: string; bo
           <button
             key={item.label}
             onClick={() => onSelect(i)}
-            className="max-w-xs animate-fade-in rounded-none border border-[#33455c] bg-[#16202e] px-4 py-2.5 text-left text-sm transition hover:border-[#f5b800] hover:shadow-voxel"
+            className="max-w-xs rounded-none border border-[#33455c] bg-[#16202e] px-4 py-2.5 text-left text-sm transition hover:border-[#f5b800] hover:shadow-voxel"
           >
             <TypewriterReveal
               title={item.label}
@@ -611,14 +640,14 @@ export default function Notnagel() {
                 className="text-[16.5px] leading-relaxed text-[#d6e0ee]"
                 text="Notnagel führt Sie Schritt für Schritt durch den BCM-Prozess – ohne BCM-Vorkenntnisse. Sie beschreiben Ihre Prozesse, Notnagel leitet Kennzahlen wie MTPD, RTO und RPO regelbasiert ab, prüft Ihre Angaben auf Widersprüche und erzeugt daraus vier freigabefähige Word-Dokumente."
               />
-              <SeqBlock order={3} current={seq} advance={advance} pause={560} hold={700}
-                className="flex flex-wrap gap-x-5 gap-y-2 pt-1 text-[12px] text-[#b7c5d6]">
-                {["5 Schritte", "ca. 20–30 Minuten", "4 Word-Dokumente", "Automatische Qualitätsprüfung"].map((f, i) => (
-                  <span key={f} className="flex animate-fade-in items-center gap-1.5" style={{ animationDelay: `${i * 160}ms` }}>
-                    <span aria-hidden className="text-[#f5b800]">●</span>{f}
-                  </span>
-                ))}
-              </SeqBlock>
+              {seq >= 3 && (
+                <div className="flex flex-wrap gap-x-5 gap-y-2 pt-1 text-[12px] text-[#b7c5d6]">
+                  <TypewriterInlineStack
+                    items={["5 Schritte", "ca. 20–30 Minuten", "4 Word-Dokumente", "Automatische Qualitätsprüfung"]}
+                    onDone={() => advance(3, 560)}
+                  />
+                </div>
+              )}
               {seq >= 4 && (
                 <ul className="grid gap-3 pt-2 sm:grid-cols-2">
                   <TypewriterTileStack
