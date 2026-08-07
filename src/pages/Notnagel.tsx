@@ -506,32 +506,32 @@ export default function Notnagel() {
               <Field label="Branche / Geschäftsmodell"><input className={inputCls} value={profile.sector} onChange={(e) => setProfile({ ...profile, sector: e.target.value })} /></Field>
               <Field label="Alarmierungsweg" hint="Wie wird das Team im Ernstfall erreicht?"><input className={inputCls} value={profile.alarmChannel} onChange={(e) => setProfile({ ...profile, alarmChannel: e.target.value })} /></Field>
             </div>
+            </Card>
 
-            <div>
-              <p className="text-xs font-medium text-neutral-700 mb-1">Normativer Rahmen</p>
-              <p className="text-[11px] text-neutral-500 mb-2">Woran wird sich die Leitlinie messen lassen? Mehrfachauswahl.</p>
+            <Card title="Normativer Rahmen">
+              <p className="mb-2.5 text-[11px] text-neutral-500">Woran wird sich die Leitlinie messen lassen? Mehrfachauswahl.</p>
               <div className="flex flex-wrap gap-2">
                 {REGULATORY.map((r) => {
                   const on = profile.regulatory.includes(r);
                   return (
                     <button key={r} onClick={() => setProfile({ ...profile, regulatory: on ? profile.regulatory.filter((x) => x !== r) : [...profile.regulatory, r] })}
-                      className={`px-3 py-1.5 rounded text-xs border ${on ? "bg-[#0E4749] text-white border-[#0E4749]" : "border-neutral-300 text-neutral-600"}`}>{r}</button>
+                      className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${on ? "border-[#0E4749] bg-[#0E4749] text-white" : "border-neutral-300 text-neutral-600 hover:border-neutral-400"}`}>{on ? "✓ " : ""}{r}</button>
                   );
                 })}
               </div>
-            </div>
+            </Card>
 
-            <Field label="Besonderheiten" hint="Saisonalität, kritische Kunden, laufende Projekte, bekannte Schwachstellen.">
-              <textarea rows={3} className={inputCls} value={profile.particularities} onChange={(e) => setProfile({ ...profile, particularities: e.target.value })} />
-            </Field>
-            <Field label="Anbindung an das Krisenmanagement" hint="An wen eskaliert der Bereich, wenn die eigene Reaktion nicht reicht?">
-              <input className={inputCls} value={profile.crisisTeamRef} onChange={(e) => setProfile({ ...profile, crisisTeamRef: e.target.value })} />
-            </Field>
+            <Card title="Kontext und Eskalation" className="space-y-4">
+              <Field label="Besonderheiten" hint="Saisonalität, kritische Kunden, laufende Projekte, bekannte Schwachstellen.">
+                <textarea rows={3} className={inputCls} value={profile.particularities} onChange={(e) => setProfile({ ...profile, particularities: e.target.value })} />
+              </Field>
+              <Field label="Anbindung an das Krisenmanagement" hint="An wen eskaliert der Bereich, wenn die eigene Reaktion nicht reicht?">
+                <input className={inputCls} value={profile.crisisTeamRef} onChange={(e) => setProfile({ ...profile, crisisTeamRef: e.target.value })} />
+              </Field>
+            </Card>
 
-            <div className="flex justify-between">
-              <button onClick={() => setStep(0)} className="px-4 py-2 rounded border border-neutral-300 text-sm">← zurück</button>
-              <button onClick={() => setStep(2)} className="px-4 py-2 rounded bg-[#0E4749] text-white text-sm font-medium">Weiter zu den Prozessen →</button>
-            </div>
+            <StepNav onBack={() => setStep(0)} next={{ label: "Weiter zu den Prozessen →", onClick: () => setStep(2) }} />
+
           </section>
         )}
 
