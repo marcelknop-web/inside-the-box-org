@@ -14,6 +14,9 @@ import { buildNotnagelZip, downloadSingleDoc } from "@/utils/notnagelDocx";
 import { checkGeneratedContent, repairInstructions } from "@/utils/notnagelContentCheck";
 
 import NotnagelCoach, { type CoachStep, type CoachTopic } from "@/components/notnagel/NotnagelCoach";
+import { VoxelPanel, VoxelButton } from "@/components/notnagel/VoxelUI";
+import { HudBar, LevelStepper, LevelSweep } from "@/components/notnagel/VoxelHud";
+import { useNotnagelAudio } from "@/hooks/useNotnagelAudio";
 
 /** Anleitung je Wizard-Schritt – bewusst kurz und prüfbar gehalten. */
 const COACH_GUIDES: Record<number, CoachStep> = {
