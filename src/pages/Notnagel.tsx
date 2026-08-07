@@ -165,6 +165,46 @@ function StepNav({ onBack, next }: { onBack?: () => void; next?: { label: string
   );
 }
 
+/** Typewriter reveal for a title + description pair, calling onDone after the body finishes. */
+function TypewriterReveal({ title, body, onDone }: { title: string; body: string; onDone?: () => void }) {
+  const [titleDone, setTitleDone] = useState(false);
+  return (
+    <>
+      <p className="text-sm font-semibold tracking-tight text-[#0E4749]">
+        <Typewriter text={title} charDelay={10} cursor={false} onDone={() => setTitleDone(true)} />
+      </p>
+      {titleDone && (
+        <p className="mt-1 text-xs leading-relaxed text-neutral-600">
+          <Typewriter text={body} charDelay={5} cursor={false} onDone={onDone} />
+        </p>
+      )}
+    </>
+  );
+}
+
+/** Reveals a list of title/description tiles one after another with a typewriter effect. */
+function TypewriterTileStack({ items }: { items: { title: string; body: string }[] }) {
+  const [doneCount, setDoneCount] = useState(0);
+  return (
+    <>
+      {items.map((item, i) => (
+        <li
+          key={item.title}
+          className="rounded-2xl border border-neutral-200/90 bg-white p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:border-teal-300"
+        >
+          {i <= doneCount && (
+            <TypewriterReveal
+              title={item.title}
+              body={item.body}
+              onDone={() => setDoneCount(c => Math.max(c, i + 1))}
+            />
+          )}
+        </li>
+      ))}
+    </>
+  );
+}
+
 const inputCls = "w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 shadow-[0_1px_1px_rgba(16,24,40,0.03)] transition focus:outline-none focus:ring-2 focus:ring-teal-700/25 focus:border-teal-700";
 
 export default function Notnagel() {
