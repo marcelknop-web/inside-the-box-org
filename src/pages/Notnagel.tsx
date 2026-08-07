@@ -246,6 +246,45 @@ function TypewriterButtonStack({ items, onSelect }: { items: { label: string; bo
   );
 }
 
+/**
+ * Ein Textblock innerhalb einer Reveal-Sequenz. Erscheint erst, wenn `current === order`,
+ * tippt sich ein und gibt nach `pause` ms an den nächsten Block weiter.
+ * Pause nach Bedeutung: kurz innerhalb eines Absatzes, länger vor einem neuen Abschnitt.
+ */
+function SeqText({
+  order, current, advance, text, className = "", pause = 320, charDelay = 8, as: Tag = "p",
+}: {
+  order: number; current: number; advance: (order: number, pause: number) => void;
+  text: string; className?: string; pause?: number; charDelay?: number;
+  as?: "p" | "h2" | "h3" | "span";
+}) {
+  if (current < order) return null;
+  return (
+    <Tag className={className}>
+      <Typewriter text={text} charDelay={charDelay} cursor={false} onDone={() => advance(order, pause)} />
+    </Tag>
+  );
+}
+
+/** Nicht-Text-Block in der Sequenz: kurz einblenden, danach weitergeben. */
+function SeqBlock({
+  order, current, advance, pause = 320, hold = 260, className = "", children,
+}: {
+  order: number; current: number; advance: (order: number, pause: number) => void;
+  pause?: number; hold?: number; className?: string; children: React.ReactNode;
+}) {
+  const fired = useRef(false);
+  useEffect(() => {
+    if (current !== order || fired.current) return;
+    fired.current = true;
+    const t = window.setTimeout(() => advance(order, pause), hold);
+    return () => window.clearTimeout(t);
+  }, [current, order, advance, pause, hold]);
+  if (current < order) return null;
+  return <div className={`animate-fade-in ${className}`}>{children}</div>;
+}
+
+
 const inputCls = "w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 shadow-[0_1px_1px_rgba(16,24,40,0.03)] transition focus:outline-none focus:ring-2 focus:ring-teal-700/25 focus:border-teal-700";
 
 export default function Notnagel() {
