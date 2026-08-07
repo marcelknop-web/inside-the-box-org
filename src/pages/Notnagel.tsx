@@ -183,24 +183,23 @@ export default function Notnagel() {
     setActiveProcess(p.id);
   }
 
-  async function generate() {
-    setError(null); setContent(null); setLoading(true); setProgressPct(4);
-    setProgress("Eingaben werden geprüft …");
+  async function callGenerate(fixes: string[], derived: unknown[]) {
+    const projectRef = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+    const anon = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+    const res = await fetch(`https://${projectRef}.supabase.co/functions/v1/notnagel-generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${anon}`, apikey: anon },
+      body: JSON.stringify({ profile, processes, team, exercise, derived, activation: deriveActivation(processes), fixes }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Generierung fehlgeschlagen");
+    return data.content as GeneratedContent;
+  }
 
-    const stages = [
-      { pct: 15, msg: "Leitlinie wird formuliert …" },
-      { pct: 35, msg: "Schadensverlauf wird interpretiert …" },
-      { pct: 55, msg: "Notfallplan wird abgeleitet …" },
-      { pct: 75, msg: "Übungsdrehbuch wird geschrieben …" },
-      { pct: 88, msg: "Konsistenzprüfung der Kennzahlen …" },
-    ];
-    let i = 0;
+  async function generate() {
+    setError(null); setContent(null); setContentFindings([]); setLoading(true); setProgressPct(4);
+    setProgress("Eingaben werden geprüft …");
     if (genTimer.current) window.clearInterval(genTimer.current);
-    genTimer.current = window.setInterval(() => {
-      if (i >= stages.length) return;
-      const s = stages[i++];
-      setProgressPct(s.pct); setProgress(s.msg);
-    }, 4000) as unknown as number;
 
     try {
       const derived = processes.map((p) => {
@@ -216,18 +215,32 @@ export default function Notnagel() {
         };
       });
 
-      const projectRef = import.meta.env.VITE_SUPABASE_PROJECT_ID;
-      const anon = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-      const res = await fetch(`https://${projectRef}.supabase.co/functions/v1/notnagel-generate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${anon}`, apikey: anon },
-        body: JSON.stringify({ profile, processes, team, exercise, derived, activation: deriveActivation(processes) }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Generierung fehlgeschlagen");
-      setContent(data.content);
+      const MAX_PASSES = 3;
+      let draft: GeneratedContent | null = null;
+      let issues: Finding[] = [];
+
+      for (let pass = 1; pass <= MAX_PASSES; pass++) {
+        const base = pass === 1 ? 8 : 40 + (pass - 2) * 25;
+        setProgressPct(base);
+        setProgress(pass === 1 ? "Dokumente werden formuliert …" : `Nachbesserung ${pass - 1}: Befunde werden behoben …`);
+        draft = await callGenerate(pass === 1 ? [] : repairInstructions(issues), derived);
+
+        setProgressPct(base + 18);
+        setProgress(`Qualitätssicherung über alle Dokumente (Durchlauf ${pass}) …`);
+        issues = checkGeneratedContent(input, draft);
+        const blockers = issues.filter((f) => f.severity === "blocker").length;
+        const warnings = issues.filter((f) => f.severity === "warnung").length;
+        if (blockers === 0 && warnings === 0) break;
+        if (pass === MAX_PASSES) break;
+      }
+
+      setContent(draft);
+      setContentFindings(issues);
       setProgressPct(100);
-      setProgress("Dokumentinhalte erstellt");
+      const blockers = issues.filter((f) => f.severity === "blocker").length;
+      setProgress(blockers === 0
+        ? "Qualitätssicherung bestanden – Dokumente freigegeben"
+        : `Qualitätssicherung abgeschlossen – ${blockers} Befund(e) bleiben offen`);
     } catch (e: any) {
       setError(e.message || "Fehler bei der Generierung");
       setProgress("Abgebrochen");
@@ -236,6 +249,7 @@ export default function Notnagel() {
       setLoading(false);
     }
   }
+
 
   async function downloadAll() {
     if (!content) return;
