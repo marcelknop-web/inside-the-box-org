@@ -33,11 +33,13 @@ interface Props {
   findings: Finding[];
   /** kompakter Kontext für die Vorschläge (Branche, Bereich, Prozesse …) */
   context: string;
+  /** Trigger wird erst eingeblendet, wenn die Seite vollständig aufgebaut ist. */
+  visible?: boolean;
 }
 
 interface Suggestion { text: string; warum: string }
 
-export default function NotnagelCoach({ guide, topics, findings, context }: Props) {
+export default function NotnagelCoach({ guide, topics, findings, context, visible = true }: Props) {
   const [open, setOpen] = useState(false);
   const [topicId, setTopicId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -75,20 +77,25 @@ export default function NotnagelCoach({ guide, topics, findings, context }: Prop
 
   return (
     <>
-      {/* Auslöser */}
-      <button
-        onClick={() => setOpen((o) => !o)}
-        className="voxel-press voxel-bevel-gold fixed bottom-[5.5rem] right-4 z-30 flex items-center gap-2 rounded-none border-2 border-[#ffd23f] bg-[#f5b800] px-4 py-2.5 text-[13px] font-bold uppercase tracking-[0.1em] text-[#0a0e14] transition hover:bg-[#ffd23f] sm:bottom-4"
+      {/* Auslöser – erscheint immer als letztes Element einer Seite. */}
+      <div
+        className={`fixed bottom-[5.5rem] right-4 z-30 transition-opacity duration-500 sm:bottom-4 ${
+          visible ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
       >
-        <span aria-hidden>💡</span>
-        <span className="hidden sm:inline">{open ? "Hilfe schließen" : "Hilfe & Vorschläge"}</span>
-        <span className="sm:hidden">{open ? "Schließen" : "Hilfe"}</span>
+        <button
+          onClick={() => setOpen((o) => !o)}
+          className="voxel-press voxel-bevel-gold flex items-center gap-2 rounded-none border-2 border-[#ffd23f] bg-[#f5b800] px-4 py-2.5 text-[13px] font-bold uppercase tracking-[0.1em] text-[#0a0e14] transition hover:bg-[#ffd23f]"
+        >
+          <span aria-hidden>💡</span>
+          <span className="hidden sm:inline">{open ? "Hilfe schließen" : "Hilfe & Vorschläge"}</span>
+          <span className="sm:hidden">{open ? "Schließen" : "Hilfe"}</span>
 
-
-        {!open && openFindings.length > 0 && (
-          <span className="ml-1 px-1.5 py-0.5 rounded-none bg-[#16202e] text-[#f5b800] text-[10px] font-bold">{openFindings.length}</span>
-        )}
-      </button>
+          {!open && openFindings.length > 0 && (
+            <span className="ml-1 px-1.5 py-0.5 rounded-none bg-[#16202e] text-[#f5b800] text-[10px] font-bold">{openFindings.length}</span>
+          )}
+        </button>
+      </div>
 
       {open && (
         <aside className="fixed inset-x-0 bottom-0 sm:inset-x-auto sm:right-4 sm:bottom-20 z-40 w-full sm:w-[420px] max-h-[78vh] sm:max-h-[70vh] overflow-y-auto rounded-none sm:rounded-none border border-[#22303f] bg-[#16202e] shadow-voxel-lg">

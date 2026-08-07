@@ -171,16 +171,20 @@ function SectionHead({ step, title, lead, onDone }: { step: number; title: strin
 /**
  * Reveal-Kaskade: zeigt die Kinder strikt nacheinander – nie parallel zum Text darüber.
  * Startet erst, wenn `start` true ist (z. B. wenn der Schrittkopf fertig getippt hat).
+ * Ruft `onDone`, sobald alle Kinder eingeblendet sind.
  */
-function Cascade({ start, gap = 260, children }: { start: boolean; gap?: number; children: React.ReactNode }) {
+function Cascade({ start, gap = 260, onDone, children }: { start: boolean; gap?: number; onDone?: () => void; children: React.ReactNode }) {
   const items = Children.toArray(children);
   const [shown, setShown] = useState(0);
   useEffect(() => {
     if (!start) { setShown(0); return; }
-    if (shown >= items.length) return;
+    if (shown >= items.length) {
+      onDone?.();
+      return;
+    }
     const t = window.setTimeout(() => setShown((s) => s + 1), shown === 0 ? 60 : gap);
     return () => window.clearTimeout(t);
-  }, [start, shown, items.length, gap]);
+  }, [start, shown, items.length, gap, onDone]);
   return (
     <>
       {items.slice(0, shown).map((child, i) => (
@@ -192,14 +196,14 @@ function Cascade({ start, gap = 260, children }: { start: boolean; gap?: number;
 
 /** Schritt-Hülle: Kopf tippt sich ein, danach erscheinen die Inhalte seriell. */
 function StepSection({
-  step, title, lead, className = "", gap, children,
-}: { step: number; title: string; lead?: string; className?: string; gap?: number; children: React.ReactNode }) {
+  step, title, lead, className = "", gap, onCascadeDone, children,
+}: { step: number; title: string; lead?: string; className?: string; gap?: number; onCascadeDone?: () => void; children: React.ReactNode }) {
   const [headDone, setHeadDone] = useState(false);
   useEffect(() => { setHeadDone(false); }, [title]);
   return (
     <section className={className}>
       <SectionHead step={step} title={title} lead={lead} onDone={() => setHeadDone(true)} />
-      <Cascade start={headDone} gap={gap}>{children}</Cascade>
+      <Cascade start={headDone} gap={gap} onDone={onCascadeDone}>{children}</Cascade>
     </section>
   );
 }
@@ -334,7 +338,7 @@ function TypewriterTileStack({ items, onDone }: { items: { title: string; body: 
 }
 
 /** Reveals a row of buttons one after another with a typewriter effect. */
-function TypewriterButtonStack({ items, onSelect }: { items: { label: string; body: string }[]; onSelect: (i: number) => void }) {
+function TypewriterButtonStack({ items, onSelect, onDone }: { items: { label: string; body: string }[]; onSelect: (i: number) => void; onDone?: () => void }) {
   const [doneCount, setDoneCount] = useState(0);
   return (
     <>
@@ -348,7 +352,11 @@ function TypewriterButtonStack({ items, onSelect }: { items: { label: string; bo
             <TypewriterReveal
               title={item.label}
               body={item.body}
-              onDone={() => setDoneCount(c => Math.max(c, i + 1))}
+              onDone={() => {
+                const next = i + 1;
+                setDoneCount(c => Math.max(c, next));
+                if (next >= items.length) onDone?.();
+              }}
             />
           </button>
         ) : null
@@ -419,6 +427,8 @@ export default function Notnagel() {
   const [content, setContent] = useState<GeneratedContent | null>(null);
   const [contentFindings, setContentFindings] = useState<Finding[]>([]);
   const [tilesDone, setTilesDone] = useState(false);
+  const [introButtonsDone, setIntroButtonsDone] = useState(false);
+  const [coachReady, setCoachReady] = useState(false);
 
   /** Reveal-Sequenz der Startseite: jeder Block gibt an den nächsten weiter. */
   const [seq, setSeq] = useState(0);
@@ -426,8 +436,19 @@ export default function Notnagel() {
     window.setTimeout(() => setSeq((s) => (s > order ? s : order + 1)), pause);
   }, []);
 
-  /** Bei Schrittwechsel an den Anfang des Schritts springen. */
-  useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, [step]);
+  /** Bei Schrittwechsel an den Anfang des Schritts springen und Hilfe-Trigger zurücksetzen. */
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    setCoachReady(false);
+    setIntroButtonsDone(false);
+  }, [step]);
+
+  /** Startseite: Hilfe-Trigger erst einblenden, wenn alle Texte und Buttons fertig sind. */
+  useEffect(() => {
+    if (step === 0 && seq >= 6 && tilesDone && introButtonsDone) {
+      setCoachReady(true);
+    }
+  }, [step, seq, tilesDone, introButtonsDone]);
 
   /** Game-Audio + Level-Sweep beim Schrittwechsel. */
   const audio = useNotnagelAudio();
@@ -749,7 +770,7 @@ export default function Notnagel() {
                       <Typewriter text="Oder mit einem Beispiel starten" charDelay={12} cursor={false} />
                     </p>
                     <div className="flex flex-wrap gap-3">
-                      <TypewriterButtonStack items={DEMO_SCENARIOS.map(d => ({ label: d.label, body: d.hint }))} onSelect={loadDemo} />
+                      <TypewriterButtonStack items={DEMO_SCENARIOS.map(d => ({ label: d.label, body: d.hint }))} onSelect={loadDemo} onDone={() => setIntroButtonsDone(true)} />
                     </div>
                   </div>
                 )}
@@ -761,7 +782,7 @@ export default function Notnagel() {
 
         {/* Step 1 – Bereich */}
         {step === 1 && (
-          <StepSection step={1} title="Bereichsprofil" lead="Diese Angaben erscheinen auf jedem Deckblatt und legen den Geltungsbereich der Dokumente fest." className="mx-auto max-w-4xl space-y-5 lg:max-w-5xl lg:space-y-3.5">
+          <StepSection step={1} title="Bereichsprofil" lead="Diese Angaben erscheinen auf jedem Deckblatt und legen den Geltungsbereich der Dokumente fest." className="mx-auto max-w-4xl space-y-5 lg:max-w-5xl lg:space-y-3.5" onCascadeDone={() => setCoachReady(true)}>
 
             <Hint>„Fachbereich“ ist die Organisationseinheit, für die Sie verantwortlich sind. Felder, die Sie nicht kennen, können leer bleiben.</Hint>
             <Card title="Verantwortung und Geltungsbereich">
@@ -811,7 +832,7 @@ export default function Notnagel() {
 
         {/* Step 2 – Prozesse */}
         {step === 2 && (
-          <StepSection step={2} title="Prozesse und Auswirkungen" lead="Erfassen Sie die Prozesse, für die Ihr Bereich gegenüber anderen einsteht. Zwei bis fünf Prozesse reichen für den Anfang." className="space-y-5">
+          <StepSection step={2} title="Prozesse und Auswirkungen" lead="Erfassen Sie die Prozesse, für die Ihr Bereich gegenüber anderen einsteht. Zwei bis fünf Prozesse reichen für den Anfang." className="space-y-5" onCascadeDone={() => setCoachReady(true)}>
 
             <Hint>
               Bewerten Sie je Zeithorizont, wie stark der Schaden wäre, wenn der Prozess ab jetzt ausfällt. Notnagel leitet daraus die MTPD ab.
@@ -1002,7 +1023,7 @@ export default function Notnagel() {
 
         {/* Step 3 – Team */}
         {step === 3 && (
-          <StepSection step={3} title="Notfallteam des Bereichs" lead="Wer entscheidet, wer informiert, wer vertritt – knapp und eindeutig besetzt." className="mx-auto max-w-4xl space-y-5">
+          <StepSection step={3} title="Notfallteam des Bereichs" lead="Wer entscheidet, wer informiert, wer vertritt – knapp und eindeutig besetzt." className="mx-auto max-w-4xl space-y-5" onCascadeDone={() => setCoachReady(true)}>
 
             <Hint>Im Ernstfall zählt, wer entscheidet. Jede Rolle braucht eine Vertretung – sonst hängt der Plan an einer einzigen Person.</Hint>
             <div className="space-y-2">
@@ -1022,7 +1043,7 @@ export default function Notnagel() {
 
         {/* Step 4 – Übung */}
         {step === 4 && (
-          <StepSection step={4} title="Tabletop-Übung" lead="Parameter für das Drehbuch, mit dem Sie den Plan erstmals belasten." className="mx-auto max-w-4xl space-y-5">
+          <StepSection step={4} title="Tabletop-Übung" lead="Parameter für das Drehbuch, mit dem Sie den Plan erstmals belasten." className="mx-auto max-w-4xl space-y-5" onCascadeDone={() => setCoachReady(true)}>
 
             <Hint>Ein Plan, der nie geübt wurde, ist eine Vermutung. Das Drehbuch testet genau die Prozesse und Notbetriebsverfahren, die Sie erfasst haben.</Hint>
             <div className="grid sm:grid-cols-2 gap-4">
@@ -1056,7 +1077,7 @@ export default function Notnagel() {
 
         {/* Step 5 – Ergebnisse */}
         {step === 5 && (
-          <StepSection step={5} title="Prüfung und Dokumente" lead="Notnagel prüft Ihre Angaben, formuliert die Texte und erzeugt die vier Word-Dokumente." className="space-y-6">
+          <StepSection step={5} title="Prüfung und Dokumente" lead="Notnagel prüft Ihre Angaben, formuliert die Texte und erzeugt die vier Word-Dokumente." className="space-y-6" onCascadeDone={() => setCoachReady(true)}>
 
 
             <div className="grid lg:grid-cols-2 gap-5">
@@ -1201,6 +1222,7 @@ export default function Notnagel() {
         topics={coachTopics}
         findings={findings}
         context={coachContext}
+        visible={coachReady}
       />
     </div>
   );
