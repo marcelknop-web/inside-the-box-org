@@ -640,7 +640,7 @@ export default function Notnagel() {
 
             {seq >= 6 && (
               <div className="animate-fade-in space-y-3">
-                <button onClick={() => { setStep(1); }} className="rounded-none bg-[#f5b800] px-6 py-3 text-sm font-semibold text-[#080b10] shadow-voxel-sm transition hover:bg-[#ffd23f]">Assistent starten →</button>
+                <VoxelButton pixel onClick={() => { audio.play("click"); setStep(1); }} className="px-6 py-3">Assistent starten →</VoxelButton>
                 {tilesDone && (
                   <div>
                     <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-[#8090a6]">
