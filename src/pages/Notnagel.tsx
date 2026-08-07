@@ -157,25 +157,28 @@ function SectionHead({ step, title, lead }: { step: number; title: string; lead?
 }
 
 
-/** Fußnavigation eines Schritts */
+/** Fußnavigation eines Schritts – auf Mobil volle Breite, auf Desktop links/rechts */
 function StepNav({ onBack, next }: { onBack?: () => void; next?: { label: string; onClick: () => void; disabled?: boolean; hint?: string } }) {
   return (
-    <div className="sticky bottom-0 -mx-4 mt-2 flex flex-wrap items-center justify-between gap-3 border-t border-neutral-200 bg-[#FBFCFC]/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6">
-      {onBack ? (
-        <button onClick={onBack} className="rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm font-medium text-neutral-700 transition hover:border-neutral-400 hover:bg-neutral-50">← zurück</button>
-      ) : <span />}
-      {next && (
-        <div className="flex items-center gap-3">
-          {next.hint && <span className="hidden text-[11px] text-neutral-500 sm:inline">{next.hint}</span>}
-          <button onClick={next.onClick} disabled={next.disabled}
-            className="rounded-lg bg-[#0E4749] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0b3a3c] disabled:cursor-not-allowed disabled:opacity-40">
-            {next.label}
-          </button>
-        </div>
-      )}
+    <div className="sticky bottom-0 z-20 -mx-4 mt-2 border-t border-neutral-200 bg-[#FBFCFC]/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6">
+      <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+        {onBack ? (
+          <button onClick={onBack} className="w-full rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm font-medium text-neutral-700 transition hover:border-neutral-400 hover:bg-neutral-50 sm:w-auto">← zurück</button>
+        ) : <span className="hidden sm:block" />}
+        {next && (
+          <div className="flex w-full items-center gap-3 sm:w-auto">
+            {next.hint && <span className="hidden text-[11px] text-neutral-500 sm:inline">{next.hint}</span>}
+            <button onClick={next.onClick} disabled={next.disabled}
+              className="w-full rounded-lg bg-[#0E4749] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0b3a3c] disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto sm:py-2.5">
+              {next.label}
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
+
 
 /** Typewriter reveal for a title + description pair, calling onDone after the body finishes. */
 function TypewriterReveal({ title, body, onDone }: { title: string; body: string; onDone?: () => void }) {
