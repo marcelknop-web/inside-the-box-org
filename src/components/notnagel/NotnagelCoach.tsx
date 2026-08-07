@@ -78,7 +78,7 @@ export default function NotnagelCoach({ guide, topics, findings, context }: Prop
       {/* Auslöser */}
       <button
         onClick={() => setOpen((o) => !o)}
-        className="fixed bottom-[5.5rem] right-4 z-30 flex items-center gap-2 rounded-none bg-[#f5b800] px-4 py-2.5 text-sm font-medium text-[#080b10] shadow-voxel-lg transition hover:bg-[#ffd23f] sm:bottom-4"
+        className="voxel-press voxel-bevel-gold fixed bottom-[5.5rem] right-4 z-30 flex items-center gap-2 rounded-none border-2 border-[#ffd23f] bg-[#f5b800] px-4 py-2.5 text-[13px] font-bold uppercase tracking-[0.1em] text-[#0a0e14] transition hover:bg-[#ffd23f] sm:bottom-4"
       >
         <span aria-hidden>💡</span>
         <span className="hidden sm:inline">{open ? "Hilfe schließen" : "Hilfe & Vorschläge"}</span>
