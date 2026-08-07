@@ -23,6 +23,7 @@ export default {
 				display: ['Space Grotesk', 'DM Sans', 'sans-serif'],
 				mono: ['IBM Plex Mono', 'Monaco', 'Menlo', 'monospace'],
 				rounded: ['DM Sans', 'sans-serif'],
+				pixel: ['Press Start 2P', 'IBM Plex Mono', 'monospace'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -100,6 +101,9 @@ export default {
 				'electric': 'var(--shadow-electric)',
 				'card': 'var(--shadow-card)',
 				'glow': 'var(--glow-subtle)',
+				'voxel-sm': '2px 2px 0 0 rgba(0,0,0,0.55)',
+				'voxel': '4px 4px 0 0 rgba(0,0,0,0.55)',
+				'voxel-lg': '6px 6px 0 0 rgba(0,0,0,0.65)',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
