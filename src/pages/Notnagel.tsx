@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import Typewriter from "@/components/Typewriter";
@@ -134,16 +134,28 @@ function Card({ title, action, children, className = "" }: { title?: string; act
   );
 }
 
-/** Schrittkopf: Nummer, Titel, Kurzbeschreibung */
+/** Schrittkopf: Nummer, Titel, Kurzbeschreibung – erscheint der Reihe nach. */
 function SectionHead({ step, title, lead }: { step: number; title: string; lead?: string }) {
+  const [phase, setPhase] = useState(0);
+  useEffect(() => { setPhase(0); }, [title]);
+  const advance = (pause: number) => () => window.setTimeout(() => setPhase((p) => p + 1), pause);
   return (
     <div className="space-y-1.5">
-      <p className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-teal-700">Schritt {step} von 5</p>
-      <h2 className="text-2xl font-bold tracking-tight text-[#0E4749]">{title}</h2>
-      {lead && <p className="max-w-2xl text-sm leading-relaxed text-neutral-600">{lead}</p>}
+      <p className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-teal-700">
+        <Typewriter key={`e-${title}`} text={`Schritt ${step} von 5`} charDelay={14} cursor={false} onDone={advance(280)} />
+      </p>
+      <h2 className="text-2xl font-bold tracking-tight text-[#0E4749]">
+        {phase >= 1 ? <Typewriter key={`t-${title}`} text={title} charDelay={18} cursor={false} onDone={advance(420)} /> : <span>&nbsp;</span>}
+      </h2>
+      {lead && (
+        <p className="max-w-2xl text-sm leading-relaxed text-neutral-600">
+          {phase >= 2 && <Typewriter key={`l-${title}`} text={lead} charDelay={7} cursor={false} />}
+        </p>
+      )}
     </div>
   );
 }
+
 
 /** Fußnavigation eines Schritts */
 function StepNav({ onBack, next }: { onBack?: () => void; next?: { label: string; onClick: () => void; disabled?: boolean; hint?: string } }) {
@@ -234,6 +246,45 @@ function TypewriterButtonStack({ items, onSelect }: { items: { label: string; bo
   );
 }
 
+/**
+ * Ein Textblock innerhalb einer Reveal-Sequenz. Erscheint erst, wenn `current === order`,
+ * tippt sich ein und gibt nach `pause` ms an den nächsten Block weiter.
+ * Pause nach Bedeutung: kurz innerhalb eines Absatzes, länger vor einem neuen Abschnitt.
+ */
+function SeqText({
+  order, current, advance, text, className = "", pause = 320, charDelay = 8, as: Tag = "p",
+}: {
+  order: number; current: number; advance: (order: number, pause: number) => void;
+  text: string; className?: string; pause?: number; charDelay?: number;
+  as?: "p" | "h2" | "h3" | "span";
+}) {
+  if (current < order) return null;
+  return (
+    <Tag className={className}>
+      <Typewriter text={text} charDelay={charDelay} cursor={false} onDone={() => advance(order, pause)} />
+    </Tag>
+  );
+}
+
+/** Nicht-Text-Block in der Sequenz: kurz einblenden, danach weitergeben. */
+function SeqBlock({
+  order, current, advance, pause = 320, hold = 260, className = "", children,
+}: {
+  order: number; current: number; advance: (order: number, pause: number) => void;
+  pause?: number; hold?: number; className?: string; children: React.ReactNode;
+}) {
+  const fired = useRef(false);
+  useEffect(() => {
+    if (current !== order || fired.current) return;
+    fired.current = true;
+    const t = window.setTimeout(() => advance(order, pause), hold);
+    return () => window.clearTimeout(t);
+  }, [current, order, advance, pause, hold]);
+  if (current < order) return null;
+  return <div className={`animate-fade-in ${className}`}>{children}</div>;
+}
+
+
 const inputCls = "w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 shadow-[0_1px_1px_rgba(16,24,40,0.03)] transition focus:outline-none focus:ring-2 focus:ring-teal-700/25 focus:border-teal-700";
 
 export default function Notnagel() {
@@ -252,6 +303,13 @@ export default function Notnagel() {
   const [content, setContent] = useState<GeneratedContent | null>(null);
   const [contentFindings, setContentFindings] = useState<Finding[]>([]);
   const [tilesDone, setTilesDone] = useState(false);
+
+  /** Reveal-Sequenz der Startseite: jeder Block gibt an den nächsten weiter. */
+  const [seq, setSeq] = useState(0);
+  const advance = useCallback((order: number, pause: number) => {
+    window.setTimeout(() => setSeq((s) => (s > order ? s : order + 1)), pause);
+  }, []);
+
 
   const genTimer = useRef<number | null>(null);
 
@@ -512,48 +570,71 @@ export default function Notnagel() {
         {step === 0 && (
           <section className="space-y-8">
             <div className="max-w-3xl space-y-4">
-              <p className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-teal-700">Business Continuity Management</p>
-              <h2 className="text-3xl sm:text-[2.6rem] font-bold leading-[1.1] tracking-tight text-[#0E4749]">Der Notnagel für Ihren Fachbereich.</h2>
-              <p className="text-[16.5px] leading-relaxed text-neutral-700">
-                Notnagel führt Sie Schritt für Schritt durch den BCM-Prozess – ohne BCM-Vorkenntnisse. Sie beschreiben Ihre Prozesse,
-                Notnagel leitet Kennzahlen wie MTPD, RTO und RPO regelbasiert ab, prüft Ihre Angaben auf Widersprüche und erzeugt
-                daraus vier freigabefähige Word-Dokumente.
-              </p>
-              <div className="flex flex-wrap gap-x-5 gap-y-2 pt-1 text-[12px] text-neutral-600">
-                {["5 Schritte", "ca. 20–30 Minuten", "4 Word-Dokumente", "Automatische Qualitätsprüfung"].map((f) => (
-                  <span key={f} className="flex items-center gap-1.5"><span aria-hidden className="text-[#0E4749]">●</span>{f}</span>
+              <SeqText
+                order={0} current={seq} advance={advance} pause={480} charDelay={16}
+                className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-teal-700"
+                text="Business Continuity Management"
+              />
+              <SeqText
+                order={1} current={seq} advance={advance} pause={640} charDelay={22} as="h2"
+                className="text-3xl sm:text-[2.6rem] font-bold leading-[1.1] tracking-tight text-[#0E4749]"
+                text="Der Notnagel für Ihren Fachbereich."
+              />
+              <SeqText
+                order={2} current={seq} advance={advance} pause={700} charDelay={6}
+                className="text-[16.5px] leading-relaxed text-neutral-700"
+                text="Notnagel führt Sie Schritt für Schritt durch den BCM-Prozess – ohne BCM-Vorkenntnisse. Sie beschreiben Ihre Prozesse, Notnagel leitet Kennzahlen wie MTPD, RTO und RPO regelbasiert ab, prüft Ihre Angaben auf Widersprüche und erzeugt daraus vier freigabefähige Word-Dokumente."
+              />
+              <SeqBlock order={3} current={seq} advance={advance} pause={560} hold={700}
+                className="flex flex-wrap gap-x-5 gap-y-2 pt-1 text-[12px] text-neutral-600">
+                {["5 Schritte", "ca. 20–30 Minuten", "4 Word-Dokumente", "Automatische Qualitätsprüfung"].map((f, i) => (
+                  <span key={f} className="flex animate-fade-in items-center gap-1.5" style={{ animationDelay: `${i * 160}ms` }}>
+                    <span aria-hidden className="text-[#0E4749]">●</span>{f}
+                  </span>
                 ))}
-              </div>
-              <ul className="grid gap-3 pt-2 sm:grid-cols-2">
-                <TypewriterTileStack
-                  items={[
-                    { title: "BCM-Leitlinie", body: "Zweck, Geltungsbereich, Rollen, Kennzahlen" },
-                    { title: "Business Impact Analyse", body: "Schadensverlauf, MTPD, RTO, RPO, Abhängigkeiten" },
-                    { title: "Notfallplan (BCP)", body: "Aktivierungsstufen, Sofortmaßnahmen, Notbetrieb" },
-                    { title: "Tabletop-Drehbuch", body: "Lage, Injects, Auswertung, Maßnahmenliste" },
-                  ]}
-                  onDone={() => setTilesDone(true)}
-                />
-              </ul>
-              <Hint>
-                Alle Eingaben bleiben in dieser Browser-Sitzung. Für die Ausformulierung der Texte wird ein anonymer KI-Aufruf genutzt –
-                Kennzahlen werden dabei nicht von der KI erfunden, sondern aus Ihren Angaben berechnet.
-              </Hint>
-            </div>
-
-            <div className="space-y-3">
-              <button onClick={() => { setStep(1); }} className="rounded-lg bg-[#0E4749] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0b3a3c]">Assistent starten →</button>
-              {tilesDone && (
-                <div className="animate-fade-in">
-                  <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-neutral-500">Oder mit einem Beispiel starten</p>
-                  <div className="flex flex-wrap gap-3">
-                    <TypewriterButtonStack items={DEMO_SCENARIOS.map(d => ({ label: d.label, body: d.hint }))} onSelect={loadDemo} />
-                  </div>
-                </div>
+              </SeqBlock>
+              {seq >= 4 && (
+                <ul className="grid gap-3 pt-2 sm:grid-cols-2">
+                  <TypewriterTileStack
+                    items={[
+                      { title: "BCM-Leitlinie", body: "Zweck, Geltungsbereich, Rollen, Kennzahlen" },
+                      { title: "Business Impact Analyse", body: "Schadensverlauf, MTPD, RTO, RPO, Abhängigkeiten" },
+                      { title: "Notfallplan (BCP)", body: "Aktivierungsstufen, Sofortmaßnahmen, Notbetrieb" },
+                      { title: "Tabletop-Drehbuch", body: "Lage, Injects, Auswertung, Maßnahmenliste" },
+                    ]}
+                    onDone={() => { setTilesDone(true); advance(4, 760); }}
+                  />
+                </ul>
+              )}
+              {seq >= 5 && (
+                <Hint>
+                  <Typewriter
+                    charDelay={5} cursor={false}
+                    text="Alle Eingaben bleiben in dieser Browser-Sitzung. Für die Ausformulierung der Texte wird ein anonymer KI-Aufruf genutzt – Kennzahlen werden dabei nicht von der KI erfunden, sondern aus Ihren Angaben berechnet."
+                    onDone={() => advance(5, 700)}
+                  />
+                </Hint>
               )}
             </div>
+
+            {seq >= 6 && (
+              <div className="animate-fade-in space-y-3">
+                <button onClick={() => { setStep(1); }} className="rounded-lg bg-[#0E4749] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0b3a3c]">Assistent starten →</button>
+                {tilesDone && (
+                  <div>
+                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
+                      <Typewriter text="Oder mit einem Beispiel starten" charDelay={12} cursor={false} />
+                    </p>
+                    <div className="flex flex-wrap gap-3">
+                      <TypewriterButtonStack items={DEMO_SCENARIOS.map(d => ({ label: d.label, body: d.hint }))} onSelect={loadDemo} />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </section>
         )}
+
 
         {/* Step 1 – Bereich */}
         {step === 1 && (
