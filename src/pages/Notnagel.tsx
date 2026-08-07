@@ -767,6 +767,28 @@ export default function Notnagel() {
               {error && <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded px-3 py-2">{error}</p>}
 
               {content && (
+                <div className={`rounded border p-3 text-xs space-y-1.5 ${contentScore.blockers ? "border-red-200 bg-red-50" : "border-emerald-200 bg-emerald-50"}`}>
+                  <p className="font-semibold text-neutral-800">
+                    Dokumentenprüfung: {contentScore.blockers} Blocker, {contentScore.warnings} Warnungen
+                  </p>
+                  {contentFindings.length === 0 ? (
+                    <p className="text-emerald-800">Alle vier Dokumente sind gegen die erfassten Kennzahlen geprüft – keine Befunde.</p>
+                  ) : (
+                    <ul className="space-y-1 max-h-40 overflow-y-auto pr-1">
+                      {contentFindings.map((f, i) => (
+                        <li key={i}>
+                          <span className={`inline-block w-2 h-2 rounded-full mr-2 align-middle ${f.severity === "blocker" ? "bg-red-600" : f.severity === "warnung" ? "bg-amber-500" : "bg-neutral-400"}`} />
+                          <strong className="text-neutral-700">{f.where}:</strong> <span className="text-neutral-600">{f.text}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <p className="text-[11px] text-neutral-500">Die Prüfung lief automatisch vor der Ausgabe; erkannte Befunde wurden in bis zu zwei Nachbesserungsläufen behoben. Verbleibende Befunde stehen im Prüfprotokoll des Downloads.</p>
+                </div>
+              )}
+
+
+              {content && (
                 <div className="space-y-4 pt-2">
                   <div className="rounded border border-neutral-200 p-3">
                     <p className="text-xs uppercase tracking-wide text-neutral-500 mb-1">Managementzusammenfassung</p>
