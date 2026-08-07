@@ -538,26 +538,30 @@ export default function Notnagel() {
         {/* Step 2 – Prozesse */}
         {step === 2 && (
           <section className="space-y-5">
-            <h2 className="text-xl font-semibold text-[#0E4749]">Prozesse und Auswirkungen</h2>
+            <SectionHead step={2} title="Prozesse und Auswirkungen" lead="Erfassen Sie die Prozesse, für die Ihr Bereich gegenüber anderen einsteht. Zwei bis fünf Prozesse reichen für den Anfang." />
             <Hint>
-              Erfassen Sie die Prozesse, für die Ihr Bereich gegenüber anderen einsteht. Zwei bis fünf Prozesse reichen für den Anfang.
               Bewerten Sie je Zeithorizont, wie stark der Schaden wäre, wenn der Prozess ab jetzt ausfällt. Notnagel leitet daraus die MTPD ab.
             </Hint>
 
-            <div className="grid lg:grid-cols-[260px_1fr] gap-5">
-              <aside className="space-y-2">
+            <div className="grid lg:grid-cols-[264px_1fr] gap-5">
+              <aside className="space-y-2 lg:sticky lg:top-24 lg:self-start">
+                <p className="px-1 text-[10.5px] font-semibold uppercase tracking-wider text-neutral-500">Prozesse ({processes.length})</p>
                 {processes.map((p) => {
                   const pr = priorityOf(p);
                   return (
                     <button key={p.id} onClick={() => setActiveProcess(p.id)}
-                      className={`w-full text-left px-3 py-2.5 rounded border text-sm ${activeProcess === p.id ? "border-[#0E4749] bg-[#0E4749]/5" : "border-neutral-200 bg-white"}`}>
-                      <span className="block font-medium">{p.name || `${p.id} (ohne Namen)`}</span>
-                      <span className={`block text-[11px] mt-0.5 ${pr.level === 1 ? "text-red-700" : pr.level === 2 ? "text-amber-700" : "text-neutral-500"}`}>{pr.label}</span>
+                      className={`w-full rounded-xl border px-3.5 py-3 text-left text-sm transition ${activeProcess === p.id ? "border-[#0E4749] bg-teal-50/80 shadow-sm" : "border-neutral-200 bg-white hover:border-neutral-300"}`}>
+                      <span className="block font-medium text-neutral-800">{p.name || `${p.id} (ohne Namen)`}</span>
+                      <span className={`mt-1 inline-flex items-center gap-1.5 text-[11px] font-medium ${pr.level === 1 ? "text-red-700" : pr.level === 2 ? "text-amber-700" : "text-neutral-500"}`}>
+                        <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${pr.level === 1 ? "bg-red-600" : pr.level === 2 ? "bg-amber-500" : "bg-neutral-400"}`} />
+                        {pr.label}
+                      </span>
                     </button>
                   );
                 })}
-                <button onClick={addProcess} className="w-full px-3 py-2.5 rounded border border-dashed border-neutral-400 text-sm text-neutral-600 hover:bg-white">+ Prozess hinzufügen</button>
+                <button onClick={addProcess} className="w-full rounded-xl border border-dashed border-neutral-400 px-3 py-3 text-sm font-medium text-neutral-600 transition hover:border-[#0E4749] hover:bg-white hover:text-[#0E4749]">+ Prozess hinzufügen</button>
               </aside>
+
 
               <div className="space-y-6">
                 {!active && <p className="text-sm text-neutral-500">Bitte einen Prozess anlegen oder auswählen.</p>}
