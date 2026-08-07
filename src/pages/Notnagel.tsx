@@ -535,12 +535,16 @@ export default function Notnagel() {
       const MAX_PASSES = 3;
       let draft: GeneratedContent | null = null;
       let issues: Finding[] = [];
+      // Befunde aus der Eingabeprüfung gehen als Korrekturauftrag in den ersten Lauf,
+      // damit die Qualitätssicherung ohne Nutzerinteraktion greift.
+      const inputFixes = repairInstructions(findings.filter((f) => f.severity !== "hinweis"));
 
       for (let pass = 1; pass <= MAX_PASSES; pass++) {
         const base = pass === 1 ? 8 : 40 + (pass - 2) * 25;
         setProgressPct(base);
         setProgress(pass === 1 ? "Dokumente werden formuliert …" : `Nachbesserung ${pass - 1}: Befunde werden behoben …`);
-        draft = await callGenerate(pass === 1 ? [] : repairInstructions(issues), derived);
+        draft = await callGenerate(pass === 1 ? inputFixes : repairInstructions(issues), derived);
+
 
         setProgressPct(base + 18);
         setProgress(`Qualitätssicherung über alle Dokumente (Durchlauf ${pass}) …`);
