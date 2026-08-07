@@ -459,12 +459,13 @@ export default function Notnagel() {
                   ["Business Impact Analyse", "Schadensverlauf, MTPD, RTO, RPO, Abhängigkeiten"],
                   ["Notfallplan (BCP)", "Aktivierungsstufen, Sofortmaßnahmen, Notbetrieb"],
                   ["Tabletop-Drehbuch", "Lage, Injects, Auswertung, Maßnahmenliste"],
-                ].map(([t, d]) => (
-                  <li key={t} className="rounded-2xl border border-neutral-200/90 bg-white p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:border-teal-300">
+                ].map(([t, d], i) => (
+                  <li key={t} style={{ animationDelay: `${300 + i * 220}ms`, animationFillMode: "both" }} className="animate-fade-in opacity-0 rounded-2xl border border-neutral-200/90 bg-white p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:border-teal-300">
                     <p className="text-sm font-semibold tracking-tight text-[#0E4749]">{t}</p>
                     <p className="mt-1 text-xs leading-relaxed text-neutral-600">{d}</p>
                   </li>
                 ))}
+
               </ul>
               <Hint>
                 Alle Eingaben bleiben in dieser Browser-Sitzung. Für die Ausformulierung der Texte wird ein anonymer KI-Aufruf genutzt –
