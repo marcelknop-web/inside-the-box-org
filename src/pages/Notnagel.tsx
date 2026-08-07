@@ -436,8 +436,12 @@ export default function Notnagel() {
     window.setTimeout(() => setSeq((s) => (s > order ? s : order + 1)), pause);
   }, []);
 
-  /** Bei Schrittwechsel an den Anfang des Schritts springen. */
-  useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, [step]);
+  /** Bei Schrittwechsel an den Anfang des Schritts springen und Hilfe-Trigger zurücksetzen. */
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    setCoachReady(false);
+    setIntroButtonsDone(false);
+  }, [step]);
 
   /** Game-Audio + Level-Sweep beim Schrittwechsel. */
   const audio = useNotnagelAudio();
