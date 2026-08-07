@@ -388,7 +388,10 @@ export default function Notnagel() {
     if (firstStep.current) { firstStep.current = false; return; }
     setSweep((s) => s + 1);
     audio.play("step");
+    if (step === 1) audio.say("start");
+    else if (step > 1 && step < 5) audio.say("step");
   }, [step]); // eslint-disable-line react-hooks/exhaustive-deps
+
 
 
 
