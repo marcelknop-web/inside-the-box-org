@@ -717,7 +717,7 @@ export default function Notnagel() {
             </div>
             </Card>
 
-            <div className="grid gap-3.5 lg:grid-cols-2">
+            <div className="grid items-start gap-3.5 lg:grid-cols-2">
             <Card title="Normativer Rahmen">
               <p className="mb-2.5 text-[11px] text-[#93a4bb]">Woran wird sich die Leitlinie messen lassen? Mehrfachauswahl.</p>
               <div className="flex flex-wrap gap-2">
@@ -863,7 +863,7 @@ export default function Notnagel() {
 
                     {/* Kontinuitätsanforderungen */}
                     <div className="rounded-none border border-[#22303f] bg-[#16202e] shadow-voxel p-4 sm:p-5 space-y-4">
-                      <div className="grid gap-4 sm:grid-cols-2 sm:items-end">
+                      <div className="grid gap-4 sm:grid-cols-2">
                         <Field label="RTO in Stunden" hint="Ziel-Wiederanlaufzeit, kleiner als die MTPD.">
                           <input className={inputCls} inputMode="numeric" value={active.rtoHours} onChange={(e) => updateProcess(active.id, { rtoHours: e.target.value })} />
                         </Field>
