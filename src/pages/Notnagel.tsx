@@ -259,7 +259,7 @@ export default function Notnagel() {
     if (!content) return;
     setDownloading(true);
     try {
-      await buildNotnagelZip(input, content, findings, (done, total, label) => {
+      await buildNotnagelZip(input, content, allFindings, (done, total, label) => {
         setProgressPct(Math.round((done / total) * 100));
         setProgress(label);
       });
@@ -772,7 +772,7 @@ export default function Notnagel() {
                       ["bcp", "Notfallplan (BCP)", "Aktivierung, Sofortmaßnahmen"],
                       ["tabletop", "Tabletop-Drehbuch", "Lage, Injects, Auswertung"],
                     ] as const).map(([key, title, desc]) => (
-                      <button key={key} onClick={() => downloadSingleDoc(key, input, content, findings)}
+                      <button key={key} onClick={() => downloadSingleDoc(key, input, content, allFindings)}
                         className="text-left rounded border border-neutral-200 p-3 hover:border-[#0E4749] transition">
                         <p className="text-sm font-semibold text-[#0E4749]">{title}</p>
                         <p className="text-[11px] text-neutral-600 mt-0.5">{desc}</p>
