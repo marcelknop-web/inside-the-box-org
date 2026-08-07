@@ -491,10 +491,12 @@ export default function Notnagel() {
 
         {/* Step 1 – Bereich */}
         {step === 1 && (
-          <section className="space-y-6 max-w-4xl">
-            <h2 className="text-xl font-semibold text-[#0E4749]">Bereichsprofil</h2>
-            <Hint>Diese Angaben erscheinen auf jedem Deckblatt und legen den Geltungsbereich fest. „Fachbereich“ ist die Organisationseinheit, für die Sie verantwortlich sind.</Hint>
+          <section className="space-y-5 max-w-4xl">
+            <SectionHead step={1} title="Bereichsprofil" lead="Diese Angaben erscheinen auf jedem Deckblatt und legen den Geltungsbereich der Dokumente fest." />
+            <Hint>„Fachbereich“ ist die Organisationseinheit, für die Sie verantwortlich sind. Felder, die Sie nicht kennen, können leer bleiben.</Hint>
+            <Card title="Verantwortung und Geltungsbereich">
             <div className="grid sm:grid-cols-2 gap-4">
+
               <Field label="Organisation"><input className={inputCls} value={profile.organisation} onChange={(e) => setProfile({ ...profile, organisation: e.target.value })} /></Field>
               <Field label="Fachbereich"><input className={inputCls} value={profile.area} onChange={(e) => setProfile({ ...profile, area: e.target.value })} /></Field>
               <Field label="Verantwortlich (Name)"><input className={inputCls} value={profile.owner} onChange={(e) => setProfile({ ...profile, owner: e.target.value })} /></Field>
