@@ -327,9 +327,14 @@ function buildBcp(input: NotnagelInput, c: GeneratedContent) {
     H2("1 Zweck und Anwendung"),
     P(B.zweck || ""),
     H2("2 Aktivierung"),
-    ...(Array.isArray(B.aktivierung) && B.aktivierung.length
-      ? [table(["Aktivierungsstufe", "Auslösekriterium", "Reaktion"], B.aktivierung.map((a) => [a.stufe ?? "", a.kriterium ?? "", a.reaktion ?? ""]), [1900, 3730, 3730]), P("", { after: 160 })]
-      : []),
+    // Stufenbezeichnung und Auslösekriterium kommen regelbasiert aus BIA-Werten,
+    // damit Notfallplan und BIA identische Zeitgrenzen nennen.
+    table(
+      ["Aktivierungsstufe", "Auslösekriterium", "Reaktion"],
+      deriveActivation(processes).map((a, i) => [a.stufe, a.kriterium, B.aktivierung?.[i]?.reaktion?.trim() || a.reaktion]),
+      [1900, 3730, 3730],
+    ),
+    P("", { after: 160 }),
     P("Die Aktivierungsstufen A1 bis A3 steuern die Eskalation und sind nicht mit den Schadensstufen S1 bis S4 der Business Impact Analyse zu verwechseln.", { italics: true, size: 20, after: 160 }),
     P("Zeitvorgaben aus der BIA:", { bold: true }),
     table(
