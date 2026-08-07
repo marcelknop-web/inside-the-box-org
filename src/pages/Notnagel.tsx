@@ -134,16 +134,28 @@ function Card({ title, action, children, className = "" }: { title?: string; act
   );
 }
 
-/** Schrittkopf: Nummer, Titel, Kurzbeschreibung */
+/** Schrittkopf: Nummer, Titel, Kurzbeschreibung – erscheint der Reihe nach. */
 function SectionHead({ step, title, lead }: { step: number; title: string; lead?: string }) {
+  const [phase, setPhase] = useState(0);
+  useEffect(() => { setPhase(0); }, [title]);
+  const advance = (pause: number) => () => window.setTimeout(() => setPhase((p) => p + 1), pause);
   return (
     <div className="space-y-1.5">
-      <p className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-teal-700">Schritt {step} von 5</p>
-      <h2 className="text-2xl font-bold tracking-tight text-[#0E4749]">{title}</h2>
-      {lead && <p className="max-w-2xl text-sm leading-relaxed text-neutral-600">{lead}</p>}
+      <p className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-teal-700">
+        <Typewriter key={`e-${title}`} text={`Schritt ${step} von 5`} charDelay={14} cursor={false} onDone={advance(280)} />
+      </p>
+      <h2 className="text-2xl font-bold tracking-tight text-[#0E4749]">
+        {phase >= 1 ? <Typewriter key={`t-${title}`} text={title} charDelay={18} cursor={false} onDone={advance(420)} /> : <span>&nbsp;</span>}
+      </h2>
+      {lead && (
+        <p className="max-w-2xl text-sm leading-relaxed text-neutral-600">
+          {phase >= 2 && <Typewriter key={`l-${title}`} text={lead} charDelay={7} cursor={false} />}
+        </p>
+      )}
     </div>
   );
 }
+
 
 /** Fußnavigation eines Schritts */
 function StepNav({ onBack, next }: { onBack?: () => void; next?: { label: string; onClick: () => void; disabled?: boolean; hint?: string } }) {
