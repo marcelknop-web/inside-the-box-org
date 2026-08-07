@@ -716,6 +716,17 @@ export default function MarSec() {
   const [regenId, setRegenId] = useState<string | null>(null);
   const [recent, setRecent] = useState<RecentEntry[]>(() => loadRecent());
 
+  /** Audio-Ebene: maritime Ambience, UI-SFX, Sprach-Ansagen. */
+  const audio = useToolAudio("maritime", "marsec.sound.v1");
+  const firstStepRef = useRef(true);
+  useEffect(() => {
+    if (firstStepRef.current) { firstStepRef.current = false; return; }
+    audio.play("step");
+    if (step === 1) audio.say("start");
+    else if (step > 1 && step < 5) audio.say("step");
+  }, [step]); // eslint-disable-line react-hooks/exhaustive-deps
+
+
   const fileRef = useRef<HTMLInputElement>(null);
   const jsonRef = useRef<HTMLInputElement>(null);
   const genTimerRef = useRef<number | null>(null);
