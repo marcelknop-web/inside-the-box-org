@@ -116,7 +116,7 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
   return (
     <label className="block">
       <span className="text-[12px] font-semibold tracking-tight text-[#dbe4f0]">{label}</span>
-      {hint && <span className="mb-1.5 block text-[11px] leading-relaxed text-[#8090a6]">{hint}</span>}
+      {hint && <span className="mb-1.5 block text-[11px] leading-relaxed text-[#93a4bb]">{hint}</span>}
       <div className={hint ? "" : "mt-1.5"}>{children}</div>
     </label>
   );
@@ -138,16 +138,16 @@ function SectionHead({ step, title, lead }: { step: number; title: string; lead?
   useEffect(() => { setPhase(0); }, [title]);
   const advance = (pause: number) => () => window.setTimeout(() => setPhase((p) => p + 1), pause);
   return (
-    <div className="space-y-1.5">
-      <p className="font-pixel text-[9px] uppercase tracking-wider text-[#00bcd4]">
-        <Typewriter key={`e-${title}`} text={`Level ${step} / 5`} charDelay={14} cursor={false} onDone={advance(280)} />
+    <div className="space-y-2">
+      <p className="text-[11.5px] font-bold uppercase tracking-[0.22em] text-[#4dd6e8]">
+        <Typewriter key={`e-${title}`} text={`Level ${step} von 5`} charDelay={14} cursor={false} onDone={advance(280)} />
       </p>
-      <h2 className="font-pixel text-[15px] leading-[1.5] text-[#f5b800] sm:text-[19px]">
+      <h2 className="text-[28px] font-extrabold leading-tight tracking-tight text-[#ffd23f] sm:text-[34px]">
         {phase >= 1 ? <Typewriter key={`t-${title}`} text={title} charDelay={18} cursor={false} onDone={advance(420)} /> : <span>&nbsp;</span>}
       </h2>
 
       {lead && (
-        <p className="max-w-2xl text-sm leading-relaxed text-[#9fb0c6]">
+        <p className="max-w-2xl text-[14.5px] leading-relaxed text-[#c3d0e0]">
           {phase >= 2 && <Typewriter key={`l-${title}`} text={lead} charDelay={7} cursor={false} />}
         </p>
       )}
@@ -159,7 +159,7 @@ function SectionHead({ step, title, lead }: { step: number; title: string; lead?
 /** Fußnavigation eines Schritts – auf Mobil volle Breite, auf Desktop links/rechts */
 function StepNav({ onBack, next }: { onBack?: () => void; next?: { label: string; onClick: () => void; disabled?: boolean; hint?: string } }) {
   return (
-    <div className="sticky bottom-0 z-20 -mx-4 mt-2 border-t-2 border-[#243347] bg-[#080b10]/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6">
+    <div className="sticky bottom-0 z-20 -mx-4 mt-2 border-t-2 border-[#22303f] bg-[#080b10]/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6">
       <div className="flex items-center gap-2 sm:justify-between sm:gap-3">
         {onBack ? (
           <VoxelButton variant="ghost" onClick={onBack} aria-label="zurück" className="flex-shrink-0">
@@ -168,7 +168,7 @@ function StepNav({ onBack, next }: { onBack?: () => void; next?: { label: string
         ) : <span className="hidden sm:block" />}
         {next && (
           <div className="flex min-w-0 flex-1 items-center justify-end gap-3 sm:flex-none">
-            {next.hint && <span className="hidden text-[11px] text-[#8090a6] sm:inline">{next.hint}</span>}
+            {next.hint && <span className="hidden text-[11px] text-[#93a4bb] sm:inline">{next.hint}</span>}
             <VoxelButton pixel onClick={next.onClick} disabled={next.disabled} className="w-full truncate sm:w-auto">
               {next.label}
             </VoxelButton>
@@ -219,7 +219,7 @@ function TypewriterReveal({ title, body, onDone }: { title: string; body: string
         )}
       </p>
       {titleDone && (
-        <p className="mt-1 text-xs leading-relaxed text-[#9fb0c6]">
+        <p className="mt-1 text-xs leading-relaxed text-[#b7c5d6]">
           <Typewriter text={body} charDelay={5} cursor={false} onDone={onDone} />
         </p>
       )}
@@ -236,7 +236,7 @@ function TypewriterTileStack({ items, onDone }: { items: { title: string; body: 
         i <= doneCount ? (
           <li
             key={item.title}
-            className="animate-fade-in rounded-none border border-[#243347] bg-[#141c28] p-4 shadow-voxel transition hover:border-[#f5b800]/60"
+            className="animate-fade-in rounded-none border border-[#22303f] bg-[#16202e] p-4 shadow-voxel transition hover:border-[#f5b800]/60"
           >
             <TypewriterReveal
               title={item.title}
@@ -264,7 +264,7 @@ function TypewriterButtonStack({ items, onSelect }: { items: { label: string; bo
           <button
             key={item.label}
             onClick={() => onSelect(i)}
-            className="max-w-xs animate-fade-in rounded-none border border-[#2c3c52] bg-[#141c28] px-4 py-2.5 text-left text-sm transition hover:border-[#f5b800] hover:shadow-voxel"
+            className="max-w-xs animate-fade-in rounded-none border border-[#33455c] bg-[#16202e] px-4 py-2.5 text-left text-sm transition hover:border-[#f5b800] hover:shadow-voxel"
           >
             <TypewriterReveal
               title={item.label}
@@ -322,7 +322,7 @@ function SeqBlock({
 
 
 
-const inputCls = "voxel-bevel w-full rounded-none border-2 border-[#2c3c52] bg-[#101823] px-3 py-2.5 text-sm text-[#e8eef7] placeholder:text-[#5f6f86] transition focus:outline-none focus:border-[#f5b800] focus:ring-0";
+const inputCls = "voxel-bevel w-full rounded-none border-2 border-[#33455c] bg-[#101823] px-3 py-2.5 text-sm text-[#e8eef7] placeholder:text-[#7c8ca3] transition focus:outline-none focus:border-[#f5b800] focus:ring-0";
 
 export default function Notnagel() {
   const [step, setStep] = useState(0);
@@ -594,22 +594,23 @@ export default function Notnagel() {
             <div className="max-w-3xl space-y-4">
               <SeqText
                 order={0} current={seq} advance={advance} pause={480} charDelay={16}
-                className="font-pixel text-[9px] uppercase tracking-wider text-[#00bcd4]"
+                className="text-[11.5px] font-bold uppercase tracking-[0.22em] text-[#4dd6e8]"
                 text="Business Continuity Management"
               />
               <SeqText
                 order={1} current={seq} advance={advance} pause={640} charDelay={22} as="h2"
-                className="font-pixel text-[19px] leading-[1.55] text-[#f5b800] sm:text-[26px]"
+                className="text-[34px] font-extrabold leading-[1.12] tracking-tight text-[#ffd23f] sm:text-[46px]"
                 text="Der Notnagel für Ihren Fachbereich."
               />
 
+
               <SeqText
                 order={2} current={seq} advance={advance} pause={700} charDelay={6}
-                className="text-[16.5px] leading-relaxed text-[#c2cfe0]"
+                className="text-[16.5px] leading-relaxed text-[#d6e0ee]"
                 text="Notnagel führt Sie Schritt für Schritt durch den BCM-Prozess – ohne BCM-Vorkenntnisse. Sie beschreiben Ihre Prozesse, Notnagel leitet Kennzahlen wie MTPD, RTO und RPO regelbasiert ab, prüft Ihre Angaben auf Widersprüche und erzeugt daraus vier freigabefähige Word-Dokumente."
               />
               <SeqBlock order={3} current={seq} advance={advance} pause={560} hold={700}
-                className="flex flex-wrap gap-x-5 gap-y-2 pt-1 text-[12px] text-[#9fb0c6]">
+                className="flex flex-wrap gap-x-5 gap-y-2 pt-1 text-[12px] text-[#b7c5d6]">
                 {["5 Schritte", "ca. 20–30 Minuten", "4 Word-Dokumente", "Automatische Qualitätsprüfung"].map((f, i) => (
                   <span key={f} className="flex animate-fade-in items-center gap-1.5" style={{ animationDelay: `${i * 160}ms` }}>
                     <span aria-hidden className="text-[#f5b800]">●</span>{f}
@@ -645,7 +646,7 @@ export default function Notnagel() {
                 <VoxelButton pixel onClick={() => { audio.play("click"); setStep(1); }} className="px-6 py-3">Assistent starten →</VoxelButton>
                 {tilesDone && (
                   <div>
-                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-[#8090a6]">
+                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-[#93a4bb]">
                       <Typewriter text="Oder mit einem Beispiel starten" charDelay={12} cursor={false} />
                     </p>
                     <div className="flex flex-wrap gap-3">
@@ -679,13 +680,13 @@ export default function Notnagel() {
             </Card>
 
             <Card title="Normativer Rahmen">
-              <p className="mb-2.5 text-[11px] text-[#8090a6]">Woran wird sich die Leitlinie messen lassen? Mehrfachauswahl.</p>
+              <p className="mb-2.5 text-[11px] text-[#93a4bb]">Woran wird sich die Leitlinie messen lassen? Mehrfachauswahl.</p>
               <div className="flex flex-wrap gap-2">
                 {REGULATORY.map((r) => {
                   const on = profile.regulatory.includes(r);
                   return (
                     <button key={r} onClick={() => setProfile({ ...profile, regulatory: on ? profile.regulatory.filter((x) => x !== r) : [...profile.regulatory, r] })}
-                      className={`rounded-none border px-3 py-1.5 text-xs font-medium transition ${on ? "border-[#f5b800] bg-[#f5b800] text-[#080b10]" : "border-[#2c3c52] text-[#9fb0c6] hover:border-[#f5b800]/60"}`}>{on ? "✓ " : ""}{r}</button>
+                      className={`rounded-none border px-3 py-1.5 text-xs font-medium transition ${on ? "border-[#f5b800] bg-[#f5b800] text-[#080b10]" : "border-[#33455c] text-[#b7c5d6] hover:border-[#f5b800]/60"}`}>{on ? "✓ " : ""}{r}</button>
                   );
                 })}
               </div>
@@ -715,35 +716,35 @@ export default function Notnagel() {
 
             <div className="grid lg:grid-cols-[264px_1fr] gap-5">
               <aside className="space-y-2 lg:sticky lg:top-24 lg:self-start">
-                <p className="px-1 text-[10.5px] font-semibold uppercase tracking-wider text-[#8090a6]">Prozesse ({processes.length})</p>
+                <p className="px-1 text-[10.5px] font-semibold uppercase tracking-wider text-[#93a4bb]">Prozesse ({processes.length})</p>
                 {processes.map((p) => {
                   const pr = priorityOf(p);
                   return (
                     <button key={p.id} onClick={() => setActiveProcess(p.id)}
-                      className={`w-full rounded-none border px-3.5 py-3 text-left text-sm transition ${activeProcess === p.id ? "border-[#f5b800] bg-[#f5b800]/10 shadow-voxel-sm" : "border-[#243347] bg-[#141c28] hover:border-[#f5b800]/50"}`}>
+                      className={`w-full rounded-none border px-3.5 py-3 text-left text-sm transition ${activeProcess === p.id ? "border-[#f5b800] bg-[#f5b800]/10 shadow-voxel-sm" : "border-[#22303f] bg-[#16202e] hover:border-[#f5b800]/50"}`}>
                       <span className="block font-medium text-[#dbe4f0]">{p.name || `${p.id} (ohne Namen)`}</span>
-                      <span className={`mt-1 inline-flex items-center gap-1.5 text-[11px] font-medium ${pr.level === 1 ? "text-red-300" : pr.level === 2 ? "text-amber-300" : "text-[#8090a6]"}`}>
+                      <span className={`mt-1 inline-flex items-center gap-1.5 text-[11px] font-medium ${pr.level === 1 ? "text-red-300" : pr.level === 2 ? "text-amber-300" : "text-[#93a4bb]"}`}>
                         <span aria-hidden className={`h-1.5 w-1.5 rounded-none ${pr.level === 1 ? "bg-[#ef4444]" : pr.level === 2 ? "bg-amber-400/100" : "bg-[#3b4d66]"}`} />
                         {pr.label}
                       </span>
                     </button>
                   );
                 })}
-                <button onClick={addProcess} className="w-full rounded-none border border-dashed border-[#3b4d66] px-3 py-3 text-sm font-medium text-[#9fb0c6] transition hover:border-[#f5b800] hover:bg-[#1a2535] hover:text-[#f5b800]">+ Prozess hinzufügen</button>
+                <button onClick={addProcess} className="w-full rounded-none border border-dashed border-[#3b4d66] px-3 py-3 text-sm font-medium text-[#b7c5d6] transition hover:border-[#f5b800] hover:bg-[#1a2535] hover:text-[#f5b800]">+ Prozess hinzufügen</button>
               </aside>
 
 
               <div className="space-y-6">
                 {!active && (
-                  <div className="rounded-none border border-dashed border-[#2c3c52] bg-[#141c28]/60 px-6 py-14 text-center">
-                    <p className="text-sm font-medium text-[#c2cfe0]">Noch kein Prozess ausgewählt</p>
-                    <p className="mx-auto mt-1 max-w-sm text-xs leading-relaxed text-[#8090a6]">Legen Sie links einen Prozess an – zum Beispiel „Kundenauftragsbearbeitung“ – und bewerten Sie anschließend den Schadensverlauf.</p>
+                  <div className="rounded-none border border-dashed border-[#33455c] bg-[#16202e]/60 px-6 py-14 text-center">
+                    <p className="text-sm font-medium text-[#d6e0ee]">Noch kein Prozess ausgewählt</p>
+                    <p className="mx-auto mt-1 max-w-sm text-xs leading-relaxed text-[#93a4bb]">Legen Sie links einen Prozess an – zum Beispiel „Kundenauftragsbearbeitung“ – und bewerten Sie anschließend den Schadensverlauf.</p>
                     <button onClick={addProcess} className="mt-4 rounded-none bg-[#f5b800] px-4 py-2.5 text-sm font-semibold text-[#080b10] transition hover:bg-[#ffd23f]">+ Ersten Prozess anlegen</button>
                   </div>
                 )}
                 {active && (
                   <>
-                    <div className="rounded-none border border-[#243347] bg-[#141c28] shadow-voxel p-4 sm:p-5 space-y-4">
+                    <div className="rounded-none border border-[#22303f] bg-[#16202e] shadow-voxel p-4 sm:p-5 space-y-4">
                       <div className="flex items-start justify-between gap-3">
                         <p className="text-sm font-semibold text-[#f5b800]">{active.id} · Prozesssteckbrief</p>
                         <button onClick={() => { setProcesses((ps) => ps.filter((p) => p.id !== active.id)); setActiveProcess(null); }}
@@ -764,15 +765,15 @@ export default function Notnagel() {
                     </div>
 
                     {/* Schadensverlauf */}
-                    <div className="rounded-none border border-[#243347] bg-[#141c28] shadow-voxel p-4 sm:p-5 space-y-3">
+                    <div className="rounded-none border border-[#22303f] bg-[#16202e] shadow-voxel p-4 sm:p-5 space-y-3">
                       <p className="text-sm font-semibold text-[#f5b800]">Schadensverlauf</p>
-                      <div className="flex flex-wrap gap-3 text-[11px] text-[#9fb0c6]">
+                      <div className="flex flex-wrap gap-3 text-[11px] text-[#b7c5d6]">
                         {SCALE.map((s) => <span key={s.level}><strong>{s.code} = {s.name}:</strong> {s.hint}</span>)}
                       </div>
                       <div className="overflow-x-auto">
                         <table className="w-full text-xs min-w-[560px]">
                           <thead>
-                            <tr className="text-left text-[#8090a6]">
+                            <tr className="text-left text-[#93a4bb]">
                               <th className="py-2 pr-2 font-medium">Auswirkung nach …</th>
                               {HORIZONS.map((h) => <th key={h} className="py-2 px-2 font-medium text-center">{h}</th>)}
                             </tr>
@@ -780,7 +781,7 @@ export default function Notnagel() {
                           <tbody>
                             {DAMAGE_CATEGORIES.map((cat) => (
                               <tr key={cat.key} className="border-t border-[#1c2734]">
-                                <td className="py-2 pr-2 text-[#c2cfe0]">{cat.label}</td>
+                                <td className="py-2 pr-2 text-[#d6e0ee]">{cat.label}</td>
                                 {HORIZONS.map((h) => (
                                   <td key={h} className="py-2 px-1 text-center">
                                     <div className="inline-flex gap-1">
@@ -794,7 +795,7 @@ export default function Notnagel() {
                                             }}
                                             className={`w-7 h-7 rounded-none text-[11px] font-semibold border transition ${on
                                               ? v >= 3 ? "bg-[#dc2626] text-[#080b10] border-red-500" : v === 2 ? "bg-amber-400/100 text-[#080b10] border-amber-500" : "bg-[#f5b800] text-[#080b10] border-[#f5b800]"
-                                              : "border-[#2c3c52] text-[#8090a6] hover:border-[#f5b800]/70"}`}>{v}</button>
+                                              : "border-[#33455c] text-[#93a4bb] hover:border-[#f5b800]/70"}`}>{v}</button>
                                         );
                                       })}
                                     </div>
@@ -820,7 +821,7 @@ export default function Notnagel() {
                     </div>
 
                     {/* Kontinuitätsanforderungen */}
-                    <div className="rounded-none border border-[#243347] bg-[#141c28] shadow-voxel p-4 sm:p-5 grid sm:grid-cols-3 gap-4">
+                    <div className="rounded-none border border-[#22303f] bg-[#16202e] shadow-voxel p-4 sm:p-5 grid sm:grid-cols-3 gap-4">
                       <Field label="RTO in Stunden" hint="Angestrebte Wiederanlaufzeit – muss unter der MTPD liegen.">
                         <input className={inputCls} inputMode="numeric" value={active.rtoHours} onChange={(e) => updateProcess(active.id, { rtoHours: e.target.value })} />
                       </Field>
@@ -835,13 +836,13 @@ export default function Notnagel() {
                     </div>
 
                     {/* Ressourcen */}
-                    <div className="rounded-none border border-[#243347] bg-[#141c28] shadow-voxel p-4 sm:p-5 space-y-3">
+                    <div className="rounded-none border border-[#22303f] bg-[#16202e] shadow-voxel p-4 sm:p-5 space-y-3">
                       <div className="flex items-center justify-between">
                         <p className="text-sm font-semibold text-[#f5b800]">Vitale Ressourcen</p>
                         <button onClick={() => updateProcess(active.id, { resources: [...active.resources, { kind: "IT-Anwendungen", description: "", criticality: "hoch", singlePointOfFailure: false }] })}
-                          className="text-xs px-2.5 py-1 rounded border border-[#2c3c52]">+ Ressource</button>
+                          className="text-xs px-2.5 py-1 rounded border border-[#33455c]">+ Ressource</button>
                       </div>
-                      <p className="text-[11px] text-[#8090a6]">Ohne welche IT, Daten, Personen, Standorte oder Dienstleister läuft der Prozess nicht?</p>
+                      <p className="text-[11px] text-[#93a4bb]">Ohne welche IT, Daten, Personen, Standorte oder Dienstleister läuft der Prozess nicht?</p>
                       {active.resources.map((r, i) => (
                         <div key={i} className="grid sm:grid-cols-[150px_1fr_120px_auto_auto] gap-2 items-center">
                           <select className={inputCls} value={r.kind} onChange={(e) => {
@@ -853,7 +854,7 @@ export default function Notnagel() {
                           <select className={inputCls} value={r.criticality} onChange={(e) => {
                             const rs = [...active.resources]; rs[i] = { ...r, criticality: e.target.value as ResourceEntry["criticality"] }; updateProcess(active.id, { resources: rs });
                           }}><option value="hoch">hoch</option><option value="mittel">mittel</option><option value="niedrig">niedrig</option></select>
-                          <label className="text-[11px] text-[#9fb0c6] flex items-center gap-1 whitespace-nowrap">
+                          <label className="text-[11px] text-[#b7c5d6] flex items-center gap-1 whitespace-nowrap">
                             <input type="checkbox" checked={r.singlePointOfFailure} onChange={(e) => {
                               const rs = [...active.resources]; rs[i] = { ...r, singlePointOfFailure: e.target.checked }; updateProcess(active.id, { resources: rs });
                             }} /> nur einfach vorhanden
@@ -864,13 +865,13 @@ export default function Notnagel() {
                     </div>
 
                     {/* Notbetrieb */}
-                    <div className="rounded-none border border-[#243347] bg-[#141c28] shadow-voxel p-4 sm:p-5 space-y-3">
+                    <div className="rounded-none border border-[#22303f] bg-[#16202e] shadow-voxel p-4 sm:p-5 space-y-3">
                       <div className="flex items-center justify-between">
                         <p className="text-sm font-semibold text-[#f5b800]">Notbetriebsverfahren</p>
                         <button onClick={() => updateProcess(active.id, { workarounds: [...active.workarounds, { scenario: "", procedure: "", limitHours: "" }] })}
-                          className="text-xs px-2.5 py-1 rounded border border-[#2c3c52]">+ Verfahren</button>
+                          className="text-xs px-2.5 py-1 rounded border border-[#33455c]">+ Verfahren</button>
                       </div>
-                      <p className="text-[11px] text-[#8090a6]">Was tut der Bereich konkret, wenn eine dieser Ressourcen fehlt? Auch „Papier und Telefon“ ist ein gültiges Verfahren.</p>
+                      <p className="text-[11px] text-[#93a4bb]">Was tut der Bereich konkret, wenn eine dieser Ressourcen fehlt? Auch „Papier und Telefon“ ist ein gültiges Verfahren.</p>
                       {active.workarounds.map((w, i) => (
                         <div key={i} className="grid sm:grid-cols-[220px_1fr_110px_auto] gap-2 items-start">
                           <input className={inputCls} placeholder="Ausfallszenario" value={w.scenario} onChange={(e) => {
@@ -927,7 +928,7 @@ export default function Notnagel() {
                 <div className="flex gap-2 flex-wrap">
                   {(["90 Min.", "2,5 Std.", "4 Std."] as const).map((d) => (
                     <button key={d} onClick={() => setExercise({ ...exercise, duration: d, injectCount: d === "90 Min." ? 4 : d === "2,5 Std." ? 6 : 9 })}
-                      className={`rounded-none border px-3.5 py-2.5 text-sm font-medium transition ${exercise.duration === d ? "border-[#f5b800] bg-[#f5b800] text-[#080b10]" : "border-[#2c3c52] bg-[#141c28] text-[#c2cfe0] hover:border-[#f5b800]/60"}`}>{d}</button>
+                      className={`rounded-none border px-3.5 py-2.5 text-sm font-medium transition ${exercise.duration === d ? "border-[#f5b800] bg-[#f5b800] text-[#080b10]" : "border-[#33455c] bg-[#16202e] text-[#d6e0ee] hover:border-[#f5b800]/60"}`}>{d}</button>
                   ))}
                 </div>
               </Field>
@@ -935,7 +936,7 @@ export default function Notnagel() {
                 <div className="flex gap-2 flex-wrap">
                   {(["Einsteiger", "Geübtes Team", "Erfahrenes Team"] as const).map((l) => (
                     <button key={l} onClick={() => setExercise({ ...exercise, level: l })}
-                      className={`rounded-none border px-3.5 py-2.5 text-sm font-medium transition ${exercise.level === l ? "border-[#f5b800] bg-[#f5b800] text-[#080b10]" : "border-[#2c3c52] bg-[#141c28] text-[#c2cfe0] hover:border-[#f5b800]/60"}`}>{l}</button>
+                      className={`rounded-none border px-3.5 py-2.5 text-sm font-medium transition ${exercise.level === l ? "border-[#f5b800] bg-[#f5b800] text-[#080b10]" : "border-[#33455c] bg-[#16202e] text-[#d6e0ee] hover:border-[#f5b800]/60"}`}>{l}</button>
                   ))}
                 </div>
               </Field>
@@ -957,29 +958,29 @@ export default function Notnagel() {
             <SectionHead step={5} title="Prüfung und Dokumente" lead="Notnagel prüft Ihre Angaben, formuliert die Texte und erzeugt die vier Word-Dokumente." />
 
             <div className="grid lg:grid-cols-2 gap-5">
-              <div className="rounded-none border border-[#243347] bg-[#141c28] shadow-voxel p-4 sm:p-5 space-y-3">
+              <div className="rounded-none border border-[#22303f] bg-[#16202e] shadow-voxel p-4 sm:p-5 space-y-3">
                 <p className="text-sm font-semibold text-[#f5b800]">Automatische Qualitätsprüfung</p>
                 <div className="flex gap-3 text-xs">
                   <span className={`px-2 py-1 rounded ${score.blockers ? "bg-red-500/100/20 text-red-200" : "bg-emerald-400/20 text-emerald-300"}`}>{score.blockers} Blocker</span>
                   <span className="px-2 py-1 rounded bg-amber-400/20 text-amber-200">{score.warnings} Warnungen</span>
-                  <span className="px-2 py-1 rounded bg-[#1a2535] text-[#c2cfe0]">{score.hints} Hinweise</span>
+                  <span className="px-2 py-1 rounded bg-[#1a2535] text-[#d6e0ee]">{score.hints} Hinweise</span>
                 </div>
                 <ul className="space-y-1.5 max-h-72 overflow-y-auto pr-1">
                   {findings.length === 0 && <li className="text-sm text-emerald-300">Keine Auffälligkeiten.</li>}
                   {findings.map((f: Finding, i) => (
                     <li key={i} className="text-xs leading-relaxed">
                       <span className={`inline-block w-2 h-2 rounded-none mr-2 align-middle ${f.severity === "blocker" ? "bg-[#ef4444]" : f.severity === "warnung" ? "bg-amber-400/100" : "bg-[#3b4d66]"}`} />
-                      <strong className="text-[#c2cfe0]">{f.where}:</strong> <span className="text-[#9fb0c6]">{f.text}</span>
+                      <strong className="text-[#d6e0ee]">{f.where}:</strong> <span className="text-[#b7c5d6]">{f.text}</span>
                     </li>
                   ))}
                 </ul>
                 {!score.ready && <p className="text-xs text-red-300">Blocker bitte beheben – sie machen die Dokumente fachlich angreifbar.</p>}
               </div>
 
-              <div className="rounded-none border border-[#243347] bg-[#141c28] shadow-voxel p-4 sm:p-5 space-y-3">
+              <div className="rounded-none border border-[#22303f] bg-[#16202e] shadow-voxel p-4 sm:p-5 space-y-3">
                 <p className="text-sm font-semibold text-[#f5b800]">Prozessübersicht</p>
                 <table className="w-full text-xs">
-                  <thead><tr className="text-left text-[#8090a6]"><th className="py-1">Prozess</th><th>MTPD</th><th>RTO</th><th>RPO</th></tr></thead>
+                  <thead><tr className="text-left text-[#93a4bb]"><th className="py-1">Prozess</th><th>MTPD</th><th>RTO</th><th>RPO</th></tr></thead>
                   <tbody>
                     {processes.map((p) => {
                       const { horizon, hours } = deriveMtpd(p);
@@ -997,7 +998,7 @@ export default function Notnagel() {
               </div>
             </div>
 
-            <div className="rounded-none border border-[#243347] bg-[#141c28] shadow-voxel p-4 sm:p-5 space-y-4">
+            <div className="rounded-none border border-[#22303f] bg-[#16202e] shadow-voxel p-4 sm:p-5 space-y-4">
               <div className="flex flex-wrap gap-3 items-center">
                 <button onClick={generate} disabled={loading || !score.ready}
                   className="rounded-none bg-[#f5b800] px-5 py-3 text-sm font-semibold text-[#080b10] shadow-voxel-sm transition hover:bg-[#ffd23f] disabled:cursor-not-allowed disabled:opacity-40">
@@ -1011,10 +1012,10 @@ export default function Notnagel() {
               </div>
               {(loading || downloading || progressPct > 0) && (
                 <div>
-                  <div className="h-1.5 bg-[#243347] rounded overflow-hidden">
+                  <div className="h-1.5 bg-[#22303f] rounded overflow-hidden">
                     <div className="h-full bg-[#f5b800] transition-all" style={{ width: `${progressPct}%` }} />
                   </div>
-                  <p className="text-xs text-[#9fb0c6] mt-1.5">{progress}</p>
+                  <p className="text-xs text-[#b7c5d6] mt-1.5">{progress}</p>
                 </div>
               )}
               {error && <p className="text-sm text-red-300 bg-red-500/10 border border-red-500/40 rounded px-3 py-2">{error}</p>}
@@ -1031,20 +1032,20 @@ export default function Notnagel() {
                       {contentFindings.map((f, i) => (
                         <li key={i}>
                           <span className={`inline-block w-2 h-2 rounded-none mr-2 align-middle ${f.severity === "blocker" ? "bg-[#ef4444]" : f.severity === "warnung" ? "bg-amber-400/100" : "bg-[#3b4d66]"}`} />
-                          <strong className="text-[#c2cfe0]">{f.where}:</strong> <span className="text-[#9fb0c6]">{f.text}</span>
+                          <strong className="text-[#d6e0ee]">{f.where}:</strong> <span className="text-[#b7c5d6]">{f.text}</span>
                         </li>
                       ))}
                     </ul>
                   )}
-                  <p className="text-[11px] text-[#8090a6]">Die Prüfung lief automatisch vor der Ausgabe; erkannte Befunde wurden in bis zu zwei Nachbesserungsläufen behoben. Verbleibende Befunde stehen im Prüfprotokoll des Downloads.</p>
+                  <p className="text-[11px] text-[#93a4bb]">Die Prüfung lief automatisch vor der Ausgabe; erkannte Befunde wurden in bis zu zwei Nachbesserungsläufen behoben. Verbleibende Befunde stehen im Prüfprotokoll des Downloads.</p>
                 </div>
               )}
 
 
               {content && (
                 <div className="space-y-4 pt-2">
-                  <div className="rounded border border-[#243347] p-3">
-                    <p className="text-xs uppercase tracking-wide text-[#8090a6] mb-1">Managementzusammenfassung</p>
+                  <div className="rounded border border-[#22303f] p-3">
+                    <p className="text-xs uppercase tracking-wide text-[#93a4bb] mb-1">Managementzusammenfassung</p>
                     <p className="text-sm text-[#dbe4f0] leading-relaxed">{content.managementSummary}</p>
                   </div>
                   <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -1055,14 +1056,14 @@ export default function Notnagel() {
                       ["tabletop", "Tabletop-Drehbuch", "Lage, Injects, Auswertung"],
                     ] as const).map(([key, title, desc]) => (
                       <button key={key} onClick={() => downloadSingleDoc(key, input, content, allFindings)}
-                        className="rounded-none border border-[#243347] bg-[#141c28] p-3.5 text-left transition hover:border-[#f5b800] hover:shadow-voxel">
+                        className="rounded-none border border-[#22303f] bg-[#16202e] p-3.5 text-left transition hover:border-[#f5b800] hover:shadow-voxel">
                         <p className="text-sm font-semibold text-[#f5b800]">{title}</p>
-                        <p className="text-[11px] text-[#9fb0c6] mt-0.5">{desc}</p>
+                        <p className="text-[11px] text-[#b7c5d6] mt-0.5">{desc}</p>
                         <p className="text-[11px] text-[#00bcd4] mt-2">Word herunterladen ↓</p>
                       </button>
                     ))}
                   </div>
-                  <p className="text-[11px] text-[#8090a6]">
+                  <p className="text-[11px] text-[#93a4bb]">
                     Die Dokumente sind Entwürfe. Kennzahlen stammen aus Ihren Angaben, die Texte sind KI-formuliert und vor der Freigabe fachlich zu prüfen.
                   </p>
                 </div>
@@ -1076,13 +1077,13 @@ export default function Notnagel() {
 
       {loading && (
         <div className="fixed inset-0 z-50 bg-[#04070b]/85 backdrop-blur-sm flex items-center justify-center px-4">
-          <div className="w-full max-w-md space-y-4 rounded-none bg-[#141c28] p-6 shadow-voxel-lg">
+          <div className="w-full max-w-md space-y-4 rounded-none bg-[#16202e] p-6 shadow-voxel-lg">
             <p className="text-sm font-semibold text-[#f5b800]">Dokumente werden erstellt und geprüft</p>
-            <div className="h-2 bg-[#243347] rounded overflow-hidden">
+            <div className="h-2 bg-[#22303f] rounded overflow-hidden">
               <div className="h-full bg-[#f5b800] transition-all duration-500" style={{ width: `${Math.max(progressPct, 4)}%` }} />
             </div>
-            <p className="text-xs text-[#c2cfe0]">{progress}</p>
-            <p className="text-[11px] text-[#8090a6]">
+            <p className="text-xs text-[#d6e0ee]">{progress}</p>
+            <p className="text-[11px] text-[#93a4bb]">
               Nach der Formulierung läuft automatisch eine Qualitätssicherung über alle vier Dokumente. Erkannte Blocker werden in bis zu zwei Nachbesserungsläufen behoben – das kann eine bis zwei Minuten dauern.
             </p>
           </div>
