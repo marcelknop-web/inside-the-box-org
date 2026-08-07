@@ -100,20 +100,71 @@ const RESOURCE_KINDS: ResourceEntry["kind"][] = ["IT-Anwendungen", "Daten", "Per
 const DRAFT_KEY = "notnagel.draft.v1";
 
 function Hint({ children }: { children: React.ReactNode }) {
-  return <p className="text-[12px] leading-relaxed text-teal-900/70 bg-teal-50 border border-teal-100 rounded px-3 py-2">{children}</p>;
+  return (
+    <div className="flex gap-2.5 rounded-xl border border-teal-100 bg-teal-50/70 px-3.5 py-3">
+      <span aria-hidden className="mt-px flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-[#0E4749] text-[10px] font-bold text-white">i</span>
+      <p className="text-[12.5px] leading-relaxed text-teal-900/80">{children}</p>
+    </div>
+  );
 }
 
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="text-xs font-medium text-neutral-700">{label}</span>
-      {hint && <span className="block text-[11px] text-neutral-500 mb-1">{hint}</span>}
-      <div className={hint ? "" : "mt-1"}>{children}</div>
+      <span className="text-[12px] font-semibold tracking-tight text-neutral-800">{label}</span>
+      {hint && <span className="mb-1.5 block text-[11px] leading-relaxed text-neutral-500">{hint}</span>}
+      <div className={hint ? "" : "mt-1.5"}>{children}</div>
     </label>
   );
 }
 
-const inputCls = "w-full px-3 py-2 rounded border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-700/30 focus:border-teal-700";
+/** Karte mit einheitlichem Rahmen, Radius und Schatten */
+function Card({ title, action, children, className = "" }: { title?: string; action?: React.ReactNode; children: React.ReactNode; className?: string }) {
+  return (
+    <div className={`rounded-2xl border border-neutral-200/90 bg-white p-4 sm:p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_-16px_rgba(16,24,40,0.12)] ${className}`}>
+      {(title || action) && (
+        <div className="mb-3.5 flex items-start justify-between gap-3">
+          {title && <p className="text-[13px] font-semibold tracking-tight text-[#0E4749]">{title}</p>}
+          {action}
+        </div>
+      )}
+      {children}
+    </div>
+  );
+}
+
+/** Schrittkopf: Nummer, Titel, Kurzbeschreibung */
+function SectionHead({ step, title, lead }: { step: number; title: string; lead?: string }) {
+  return (
+    <div className="space-y-1.5">
+      <p className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-teal-700">Schritt {step} von 5</p>
+      <h2 className="text-2xl font-bold tracking-tight text-[#0E4749]">{title}</h2>
+      {lead && <p className="max-w-2xl text-sm leading-relaxed text-neutral-600">{lead}</p>}
+    </div>
+  );
+}
+
+/** Fußnavigation eines Schritts */
+function StepNav({ onBack, next }: { onBack?: () => void; next?: { label: string; onClick: () => void; disabled?: boolean; hint?: string } }) {
+  return (
+    <div className="sticky bottom-0 -mx-4 mt-2 flex flex-wrap items-center justify-between gap-3 border-t border-neutral-200 bg-[#FBFCFC]/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6">
+      {onBack ? (
+        <button onClick={onBack} className="rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm font-medium text-neutral-700 transition hover:border-neutral-400 hover:bg-neutral-50">← zurück</button>
+      ) : <span />}
+      {next && (
+        <div className="flex items-center gap-3">
+          {next.hint && <span className="hidden text-[11px] text-neutral-500 sm:inline">{next.hint}</span>}
+          <button onClick={next.onClick} disabled={next.disabled}
+            className="rounded-lg bg-[#0E4749] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0b3a3c] disabled:cursor-not-allowed disabled:opacity-40">
+            {next.label}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const inputCls = "w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 shadow-[0_1px_1px_rgba(16,24,40,0.03)] transition focus:outline-none focus:ring-2 focus:ring-teal-700/25 focus:border-teal-700";
 
 export default function Notnagel() {
   const [step, setStep] = useState(0);
@@ -334,35 +385,52 @@ export default function Notnagel() {
         <meta name="description" content="Notnagel führt Fachbereichsverantwortliche durch den BCM-Prozess: Business Impact Analyse, Notfallplan, BCM-Leitlinie und Tabletop-Drehbuch als fertige Word-Dokumente." />
       </Helmet>
 
-      <header className="border-b border-neutral-200 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-3 flex-wrap">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-[#0E4749]">Notnagel</h1>
-            <p className="text-[11px] text-neutral-500">BCM-Assistent für Fachbereiche · inside-the-box.org</p>
+      <header className="sticky top-0 z-30 border-b border-neutral-200/80 bg-white/85 backdrop-blur">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-3">
+            <span aria-hidden className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#0E4749] text-sm font-bold text-white">N</span>
+            <div>
+              <h1 className="text-lg sm:text-xl font-bold tracking-tight text-[#0E4749]">Notnagel</h1>
+              <p className="text-[11px] text-neutral-500">BCM-Assistent für Fachbereiche · inside-the-box.org</p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={resetAll} className="text-xs px-3 py-1.5 rounded border border-neutral-300 text-neutral-700 hover:bg-neutral-50">↺ Neu starten</button>
+            {step > 0 && <span className="hidden rounded-full bg-teal-50 px-2.5 py-1 text-[11px] font-medium text-teal-800 sm:inline">Schritt {step}/5 · {STEPS[step - 1]}</span>}
+            <button onClick={resetAll} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 transition hover:bg-neutral-50">↺ Neu starten</button>
             <Link to="/" className="text-sm text-[#0E4749] hover:underline">← zurück</Link>
           </div>
         </div>
+        {step > 0 && (
+          <div className="h-0.5 w-full bg-neutral-200">
+            <div className="h-full bg-[#0E4749] transition-all duration-500" style={{ width: `${(step / 5) * 100}%` }} />
+          </div>
+        )}
       </header>
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {step > 0 && (
-          <ol className="flex gap-1.5 sm:gap-2 mb-6 flex-wrap">
+          <ol className="mb-7 flex items-center gap-1 overflow-x-auto pb-1">
             {STEPS.map((label, i) => {
               const n = i + 1;
               const activeStep = step === n;
+              const done = step > n;
               return (
-                <li key={label}>
+                <li key={label} className="flex flex-shrink-0 items-center">
                   <button
                     onClick={() => setStep(n)}
-                    className={`px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium border transition ${
-                      activeStep ? "bg-[#0E4749] text-white border-[#0E4749]"
-                        : step > n ? "bg-white text-[#0E4749] border-[#0E4749]"
-                        : "bg-white text-neutral-500 border-neutral-200"
+                    aria-current={activeStep ? "step" : undefined}
+                    className={`group flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition sm:text-[13px] ${
+                      activeStep ? "border-[#0E4749] bg-[#0E4749] text-white shadow-sm"
+                        : done ? "border-teal-200 bg-teal-50 text-[#0E4749] hover:border-[#0E4749]"
+                        : "border-neutral-200 bg-white text-neutral-500 hover:border-neutral-300"
                     }`}
-                  >{n}. {label}</button>
+                  >
+                    <span className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${
+                      activeStep ? "bg-white/20 text-white" : done ? "bg-[#0E4749] text-white" : "bg-neutral-100 text-neutral-500"
+                    }`}>{done ? "✓" : n}</span>
+                    {label}
+                  </button>
+                  {n < STEPS.length && <span aria-hidden className={`mx-1 h-px w-3 sm:w-5 ${done ? "bg-[#0E4749]/40" : "bg-neutral-200"}`} />}
                 </li>
               );
             })}
@@ -373,23 +441,28 @@ export default function Notnagel() {
         {step === 0 && (
           <section className="space-y-8">
             <div className="max-w-3xl space-y-4">
-              <p className="text-xs uppercase tracking-widest text-teal-700 font-semibold">Business Continuity Management</p>
-              <h2 className="text-3xl sm:text-4xl font-bold text-[#0E4749] leading-tight">Der Notnagel für Ihren Fachbereich.</h2>
-              <p className="text-base text-neutral-700 leading-relaxed">
+              <p className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-teal-700">Business Continuity Management</p>
+              <h2 className="text-3xl sm:text-[2.6rem] font-bold leading-[1.1] tracking-tight text-[#0E4749]">Der Notnagel für Ihren Fachbereich.</h2>
+              <p className="text-[16.5px] leading-relaxed text-neutral-700">
                 Notnagel führt Sie Schritt für Schritt durch den BCM-Prozess – ohne BCM-Vorkenntnisse. Sie beschreiben Ihre Prozesse,
                 Notnagel leitet Kennzahlen wie MTPD, RTO und RPO regelbasiert ab, prüft Ihre Angaben auf Widersprüche und erzeugt
                 daraus vier freigabefähige Word-Dokumente.
               </p>
-              <ul className="grid sm:grid-cols-2 gap-3 pt-2">
+              <div className="flex flex-wrap gap-x-5 gap-y-2 pt-1 text-[12px] text-neutral-600">
+                {["5 Schritte", "ca. 20–30 Minuten", "4 Word-Dokumente", "Automatische Qualitätsprüfung"].map((f) => (
+                  <span key={f} className="flex items-center gap-1.5"><span aria-hidden className="text-[#0E4749]">●</span>{f}</span>
+                ))}
+              </div>
+              <ul className="grid gap-3 pt-2 sm:grid-cols-2">
                 {[
                   ["BCM-Leitlinie", "Zweck, Geltungsbereich, Rollen, Kennzahlen"],
                   ["Business Impact Analyse", "Schadensverlauf, MTPD, RTO, RPO, Abhängigkeiten"],
                   ["Notfallplan (BCP)", "Aktivierungsstufen, Sofortmaßnahmen, Notbetrieb"],
                   ["Tabletop-Drehbuch", "Lage, Injects, Auswertung, Maßnahmenliste"],
                 ].map(([t, d]) => (
-                  <li key={t} className="rounded-lg border border-neutral-200 bg-white p-4">
-                    <p className="text-sm font-semibold text-[#0E4749]">{t}</p>
-                    <p className="text-xs text-neutral-600 mt-1">{d}</p>
+                  <li key={t} className="rounded-2xl border border-neutral-200/90 bg-white p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:border-teal-300">
+                    <p className="text-sm font-semibold tracking-tight text-[#0E4749]">{t}</p>
+                    <p className="mt-1 text-xs leading-relaxed text-neutral-600">{d}</p>
                   </li>
                 ))}
               </ul>
@@ -399,24 +472,31 @@ export default function Notnagel() {
               </Hint>
             </div>
 
-            <div className="flex flex-wrap gap-3">
-              <button onClick={() => { setStep(1); }} className="px-5 py-2.5 rounded bg-[#0E4749] text-white text-sm font-medium">Assistent starten →</button>
-              {DEMO_SCENARIOS.map((d, i) => (
-                <button key={d.label} onClick={() => loadDemo(i)} className="px-4 py-2.5 rounded border border-neutral-300 text-sm text-left">
-                  <span className="font-medium">Beispiel: {d.label}</span>
-                  <span className="block text-[11px] text-neutral-500">{d.hint}</span>
-                </button>
-              ))}
+            <div className="space-y-3">
+              <button onClick={() => { setStep(1); }} className="rounded-lg bg-[#0E4749] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0b3a3c]">Assistent starten →</button>
+              <div>
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-neutral-500">Oder mit einem Beispiel starten</p>
+                <div className="flex flex-wrap gap-3">
+                  {DEMO_SCENARIOS.map((d, i) => (
+                    <button key={d.label} onClick={() => loadDemo(i)} className="max-w-xs rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-left text-sm transition hover:border-[#0E4749] hover:shadow-sm">
+                      <span className="font-medium text-neutral-800">{d.label}</span>
+                      <span className="mt-0.5 block text-[11px] leading-relaxed text-neutral-500">{d.hint}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </section>
         )}
 
         {/* Step 1 – Bereich */}
         {step === 1 && (
-          <section className="space-y-6 max-w-4xl">
-            <h2 className="text-xl font-semibold text-[#0E4749]">Bereichsprofil</h2>
-            <Hint>Diese Angaben erscheinen auf jedem Deckblatt und legen den Geltungsbereich fest. „Fachbereich“ ist die Organisationseinheit, für die Sie verantwortlich sind.</Hint>
+          <section className="space-y-5 max-w-4xl">
+            <SectionHead step={1} title="Bereichsprofil" lead="Diese Angaben erscheinen auf jedem Deckblatt und legen den Geltungsbereich der Dokumente fest." />
+            <Hint>„Fachbereich“ ist die Organisationseinheit, für die Sie verantwortlich sind. Felder, die Sie nicht kennen, können leer bleiben.</Hint>
+            <Card title="Verantwortung und Geltungsbereich">
             <div className="grid sm:grid-cols-2 gap-4">
+
               <Field label="Organisation"><input className={inputCls} value={profile.organisation} onChange={(e) => setProfile({ ...profile, organisation: e.target.value })} /></Field>
               <Field label="Fachbereich"><input className={inputCls} value={profile.area} onChange={(e) => setProfile({ ...profile, area: e.target.value })} /></Field>
               <Field label="Verantwortlich (Name)"><input className={inputCls} value={profile.owner} onChange={(e) => setProfile({ ...profile, owner: e.target.value })} /></Field>
@@ -426,64 +506,74 @@ export default function Notnagel() {
               <Field label="Branche / Geschäftsmodell"><input className={inputCls} value={profile.sector} onChange={(e) => setProfile({ ...profile, sector: e.target.value })} /></Field>
               <Field label="Alarmierungsweg" hint="Wie wird das Team im Ernstfall erreicht?"><input className={inputCls} value={profile.alarmChannel} onChange={(e) => setProfile({ ...profile, alarmChannel: e.target.value })} /></Field>
             </div>
+            </Card>
 
-            <div>
-              <p className="text-xs font-medium text-neutral-700 mb-1">Normativer Rahmen</p>
-              <p className="text-[11px] text-neutral-500 mb-2">Woran wird sich die Leitlinie messen lassen? Mehrfachauswahl.</p>
+            <Card title="Normativer Rahmen">
+              <p className="mb-2.5 text-[11px] text-neutral-500">Woran wird sich die Leitlinie messen lassen? Mehrfachauswahl.</p>
               <div className="flex flex-wrap gap-2">
                 {REGULATORY.map((r) => {
                   const on = profile.regulatory.includes(r);
                   return (
                     <button key={r} onClick={() => setProfile({ ...profile, regulatory: on ? profile.regulatory.filter((x) => x !== r) : [...profile.regulatory, r] })}
-                      className={`px-3 py-1.5 rounded text-xs border ${on ? "bg-[#0E4749] text-white border-[#0E4749]" : "border-neutral-300 text-neutral-600"}`}>{r}</button>
+                      className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${on ? "border-[#0E4749] bg-[#0E4749] text-white" : "border-neutral-300 text-neutral-600 hover:border-neutral-400"}`}>{on ? "✓ " : ""}{r}</button>
                   );
                 })}
               </div>
-            </div>
+            </Card>
 
-            <Field label="Besonderheiten" hint="Saisonalität, kritische Kunden, laufende Projekte, bekannte Schwachstellen.">
-              <textarea rows={3} className={inputCls} value={profile.particularities} onChange={(e) => setProfile({ ...profile, particularities: e.target.value })} />
-            </Field>
-            <Field label="Anbindung an das Krisenmanagement" hint="An wen eskaliert der Bereich, wenn die eigene Reaktion nicht reicht?">
-              <input className={inputCls} value={profile.crisisTeamRef} onChange={(e) => setProfile({ ...profile, crisisTeamRef: e.target.value })} />
-            </Field>
+            <Card title="Kontext und Eskalation" className="space-y-4">
+              <Field label="Besonderheiten" hint="Saisonalität, kritische Kunden, laufende Projekte, bekannte Schwachstellen.">
+                <textarea rows={3} className={inputCls} value={profile.particularities} onChange={(e) => setProfile({ ...profile, particularities: e.target.value })} />
+              </Field>
+              <Field label="Anbindung an das Krisenmanagement" hint="An wen eskaliert der Bereich, wenn die eigene Reaktion nicht reicht?">
+                <input className={inputCls} value={profile.crisisTeamRef} onChange={(e) => setProfile({ ...profile, crisisTeamRef: e.target.value })} />
+              </Field>
+            </Card>
 
-            <div className="flex justify-between">
-              <button onClick={() => setStep(0)} className="px-4 py-2 rounded border border-neutral-300 text-sm">← zurück</button>
-              <button onClick={() => setStep(2)} className="px-4 py-2 rounded bg-[#0E4749] text-white text-sm font-medium">Weiter zu den Prozessen →</button>
-            </div>
+            <StepNav onBack={() => setStep(0)} next={{ label: "Weiter zu den Prozessen →", onClick: () => setStep(2) }} />
+
           </section>
         )}
 
         {/* Step 2 – Prozesse */}
         {step === 2 && (
           <section className="space-y-5">
-            <h2 className="text-xl font-semibold text-[#0E4749]">Prozesse und Auswirkungen</h2>
+            <SectionHead step={2} title="Prozesse und Auswirkungen" lead="Erfassen Sie die Prozesse, für die Ihr Bereich gegenüber anderen einsteht. Zwei bis fünf Prozesse reichen für den Anfang." />
             <Hint>
-              Erfassen Sie die Prozesse, für die Ihr Bereich gegenüber anderen einsteht. Zwei bis fünf Prozesse reichen für den Anfang.
               Bewerten Sie je Zeithorizont, wie stark der Schaden wäre, wenn der Prozess ab jetzt ausfällt. Notnagel leitet daraus die MTPD ab.
             </Hint>
 
-            <div className="grid lg:grid-cols-[260px_1fr] gap-5">
-              <aside className="space-y-2">
+            <div className="grid lg:grid-cols-[264px_1fr] gap-5">
+              <aside className="space-y-2 lg:sticky lg:top-24 lg:self-start">
+                <p className="px-1 text-[10.5px] font-semibold uppercase tracking-wider text-neutral-500">Prozesse ({processes.length})</p>
                 {processes.map((p) => {
                   const pr = priorityOf(p);
                   return (
                     <button key={p.id} onClick={() => setActiveProcess(p.id)}
-                      className={`w-full text-left px-3 py-2.5 rounded border text-sm ${activeProcess === p.id ? "border-[#0E4749] bg-[#0E4749]/5" : "border-neutral-200 bg-white"}`}>
-                      <span className="block font-medium">{p.name || `${p.id} (ohne Namen)`}</span>
-                      <span className={`block text-[11px] mt-0.5 ${pr.level === 1 ? "text-red-700" : pr.level === 2 ? "text-amber-700" : "text-neutral-500"}`}>{pr.label}</span>
+                      className={`w-full rounded-xl border px-3.5 py-3 text-left text-sm transition ${activeProcess === p.id ? "border-[#0E4749] bg-teal-50/80 shadow-sm" : "border-neutral-200 bg-white hover:border-neutral-300"}`}>
+                      <span className="block font-medium text-neutral-800">{p.name || `${p.id} (ohne Namen)`}</span>
+                      <span className={`mt-1 inline-flex items-center gap-1.5 text-[11px] font-medium ${pr.level === 1 ? "text-red-700" : pr.level === 2 ? "text-amber-700" : "text-neutral-500"}`}>
+                        <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${pr.level === 1 ? "bg-red-600" : pr.level === 2 ? "bg-amber-500" : "bg-neutral-400"}`} />
+                        {pr.label}
+                      </span>
                     </button>
                   );
                 })}
-                <button onClick={addProcess} className="w-full px-3 py-2.5 rounded border border-dashed border-neutral-400 text-sm text-neutral-600 hover:bg-white">+ Prozess hinzufügen</button>
+                <button onClick={addProcess} className="w-full rounded-xl border border-dashed border-neutral-400 px-3 py-3 text-sm font-medium text-neutral-600 transition hover:border-[#0E4749] hover:bg-white hover:text-[#0E4749]">+ Prozess hinzufügen</button>
               </aside>
 
+
               <div className="space-y-6">
-                {!active && <p className="text-sm text-neutral-500">Bitte einen Prozess anlegen oder auswählen.</p>}
+                {!active && (
+                  <div className="rounded-2xl border border-dashed border-neutral-300 bg-white/60 px-6 py-14 text-center">
+                    <p className="text-sm font-medium text-neutral-700">Noch kein Prozess ausgewählt</p>
+                    <p className="mx-auto mt-1 max-w-sm text-xs leading-relaxed text-neutral-500">Legen Sie links einen Prozess an – zum Beispiel „Kundenauftragsbearbeitung“ – und bewerten Sie anschließend den Schadensverlauf.</p>
+                    <button onClick={addProcess} className="mt-4 rounded-lg bg-[#0E4749] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0b3a3c]">+ Ersten Prozess anlegen</button>
+                  </div>
+                )}
                 {active && (
                   <>
-                    <div className="rounded-lg border border-neutral-200 bg-white p-4 space-y-4">
+                    <div className="rounded-2xl border border-neutral-200/90 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_-16px_rgba(16,24,40,0.12)] p-4 sm:p-5 space-y-4">
                       <div className="flex items-start justify-between gap-3">
                         <p className="text-sm font-semibold text-[#0E4749]">{active.id} · Prozesssteckbrief</p>
                         <button onClick={() => { setProcesses((ps) => ps.filter((p) => p.id !== active.id)); setActiveProcess(null); }}
@@ -504,7 +594,7 @@ export default function Notnagel() {
                     </div>
 
                     {/* Schadensverlauf */}
-                    <div className="rounded-lg border border-neutral-200 bg-white p-4 space-y-3">
+                    <div className="rounded-2xl border border-neutral-200/90 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_-16px_rgba(16,24,40,0.12)] p-4 sm:p-5 space-y-3">
                       <p className="text-sm font-semibold text-[#0E4749]">Schadensverlauf</p>
                       <div className="flex flex-wrap gap-3 text-[11px] text-neutral-600">
                         {SCALE.map((s) => <span key={s.level}><strong>{s.code} = {s.name}:</strong> {s.hint}</span>)}
@@ -532,7 +622,7 @@ export default function Notnagel() {
                                               const m = { ...active.matrix, [cat.key]: { ...active.matrix[cat.key], [h as Horizon]: v } };
                                               updateProcess(active.id, { matrix: m });
                                             }}
-                                            className={`w-6 h-6 rounded text-[11px] border ${on
+                                            className={`w-7 h-7 rounded-md text-[11px] font-semibold border transition ${on
                                               ? v >= 3 ? "bg-red-700 text-white border-red-700" : v === 2 ? "bg-amber-500 text-white border-amber-500" : "bg-[#0E4749] text-white border-[#0E4749]"
                                               : "border-neutral-300 text-neutral-500 hover:border-neutral-500"}`}>{v}</button>
                                         );
@@ -560,7 +650,7 @@ export default function Notnagel() {
                     </div>
 
                     {/* Kontinuitätsanforderungen */}
-                    <div className="rounded-lg border border-neutral-200 bg-white p-4 grid sm:grid-cols-3 gap-4">
+                    <div className="rounded-2xl border border-neutral-200/90 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_-16px_rgba(16,24,40,0.12)] p-4 sm:p-5 grid sm:grid-cols-3 gap-4">
                       <Field label="RTO in Stunden" hint="Angestrebte Wiederanlaufzeit – muss unter der MTPD liegen.">
                         <input className={inputCls} inputMode="numeric" value={active.rtoHours} onChange={(e) => updateProcess(active.id, { rtoHours: e.target.value })} />
                       </Field>
@@ -575,7 +665,7 @@ export default function Notnagel() {
                     </div>
 
                     {/* Ressourcen */}
-                    <div className="rounded-lg border border-neutral-200 bg-white p-4 space-y-3">
+                    <div className="rounded-2xl border border-neutral-200/90 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_-16px_rgba(16,24,40,0.12)] p-4 sm:p-5 space-y-3">
                       <div className="flex items-center justify-between">
                         <p className="text-sm font-semibold text-[#0E4749]">Vitale Ressourcen</p>
                         <button onClick={() => updateProcess(active.id, { resources: [...active.resources, { kind: "IT-Anwendungen", description: "", criticality: "hoch", singlePointOfFailure: false }] })}
@@ -604,7 +694,7 @@ export default function Notnagel() {
                     </div>
 
                     {/* Notbetrieb */}
-                    <div className="rounded-lg border border-neutral-200 bg-white p-4 space-y-3">
+                    <div className="rounded-2xl border border-neutral-200/90 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_-16px_rgba(16,24,40,0.12)] p-4 sm:p-5 space-y-3">
                       <div className="flex items-center justify-between">
                         <p className="text-sm font-semibold text-[#0E4749]">Notbetriebsverfahren</p>
                         <button onClick={() => updateProcess(active.id, { workarounds: [...active.workarounds, { scenario: "", procedure: "", limitHours: "" }] })}
@@ -631,17 +721,14 @@ export default function Notnagel() {
               </div>
             </div>
 
-            <div className="flex justify-between">
-              <button onClick={() => setStep(1)} className="px-4 py-2 rounded border border-neutral-300 text-sm">← zurück</button>
-              <button onClick={() => setStep(3)} disabled={processes.length === 0} className="px-4 py-2 rounded bg-[#0E4749] text-white text-sm font-medium disabled:opacity-40">Weiter →</button>
-            </div>
+            <StepNav onBack={() => setStep(1)} next={{ label: "Weiter zum Notfallteam →", onClick: () => setStep(3), disabled: processes.length === 0, hint: processes.length === 0 ? "Mindestens ein Prozess nötig" : undefined }} />
           </section>
         )}
 
         {/* Step 3 – Team */}
         {step === 3 && (
           <section className="space-y-5 max-w-3xl">
-            <h2 className="text-xl font-semibold text-[#0E4749]">Notfallteam des Bereichs</h2>
+            <SectionHead step={3} title="Notfallteam des Bereichs" lead="Wer entscheidet, wer informiert, wer vertritt – knapp und eindeutig besetzt." />
             <Hint>Im Ernstfall zählt, wer entscheidet. Jede Rolle braucht eine Vertretung – sonst hängt der Plan an einer einzigen Person.</Hint>
             <div className="space-y-2">
               {team.map((t, i) => (
@@ -654,24 +741,21 @@ export default function Notnagel() {
               ))}
               <button onClick={() => setTeam([...team, { role: "", primary: "", deputy: "" }])} className="text-xs px-3 py-1.5 rounded border border-dashed border-neutral-400">+ Rolle</button>
             </div>
-            <div className="flex justify-between">
-              <button onClick={() => setStep(2)} className="px-4 py-2 rounded border border-neutral-300 text-sm">← zurück</button>
-              <button onClick={() => setStep(4)} className="px-4 py-2 rounded bg-[#0E4749] text-white text-sm font-medium">Weiter →</button>
-            </div>
+            <StepNav onBack={() => setStep(2)} next={{ label: "Weiter zur Übung →", onClick: () => setStep(4) }} />
           </section>
         )}
 
         {/* Step 4 – Übung */}
         {step === 4 && (
           <section className="space-y-5 max-w-3xl">
-            <h2 className="text-xl font-semibold text-[#0E4749]">Tabletop-Übung</h2>
+            <SectionHead step={4} title="Tabletop-Übung" lead="Parameter für das Drehbuch, mit dem Sie den Plan erstmals belasten." />
             <Hint>Ein Plan, der nie geübt wurde, ist eine Vermutung. Das Drehbuch testet genau die Prozesse und Notbetriebsverfahren, die Sie erfasst haben.</Hint>
             <div className="grid sm:grid-cols-2 gap-4">
               <Field label="Dauer">
                 <div className="flex gap-2 flex-wrap">
                   {(["90 Min.", "2,5 Std.", "4 Std."] as const).map((d) => (
                     <button key={d} onClick={() => setExercise({ ...exercise, duration: d, injectCount: d === "90 Min." ? 4 : d === "2,5 Std." ? 6 : 9 })}
-                      className={`px-3 py-2 rounded border text-sm ${exercise.duration === d ? "bg-[#0E4749] text-white border-[#0E4749]" : "border-neutral-300"}`}>{d}</button>
+                      className={`rounded-lg border px-3.5 py-2.5 text-sm font-medium transition ${exercise.duration === d ? "border-[#0E4749] bg-[#0E4749] text-white" : "border-neutral-300 bg-white text-neutral-700 hover:border-neutral-400"}`}>{d}</button>
                   ))}
                 </div>
               </Field>
@@ -679,7 +763,7 @@ export default function Notnagel() {
                 <div className="flex gap-2 flex-wrap">
                   {(["Einsteiger", "Geübtes Team", "Erfahrenes Team"] as const).map((l) => (
                     <button key={l} onClick={() => setExercise({ ...exercise, level: l })}
-                      className={`px-3 py-2 rounded border text-sm ${exercise.level === l ? "bg-[#0E4749] text-white border-[#0E4749]" : "border-neutral-300"}`}>{l}</button>
+                      className={`rounded-lg border px-3.5 py-2.5 text-sm font-medium transition ${exercise.level === l ? "border-[#0E4749] bg-[#0E4749] text-white" : "border-neutral-300 bg-white text-neutral-700 hover:border-neutral-400"}`}>{l}</button>
                   ))}
                 </div>
               </Field>
@@ -691,20 +775,17 @@ export default function Notnagel() {
               <Field label="Teilnehmer"><input className={inputCls} value={exercise.participants} onChange={(e) => setExercise({ ...exercise, participants: e.target.value })} /></Field>
               <Field label="Übungsleitung"><input className={inputCls} value={exercise.facilitator} onChange={(e) => setExercise({ ...exercise, facilitator: e.target.value })} /></Field>
             </div>
-            <div className="flex justify-between">
-              <button onClick={() => setStep(3)} className="px-4 py-2 rounded border border-neutral-300 text-sm">← zurück</button>
-              <button onClick={() => setStep(5)} className="px-4 py-2 rounded bg-[#0E4749] text-white text-sm font-medium">Zur Auswertung →</button>
-            </div>
+            <StepNav onBack={() => setStep(3)} next={{ label: "Zur Prüfung und Ausgabe →", onClick: () => setStep(5) }} />
           </section>
         )}
 
         {/* Step 5 – Ergebnisse */}
         {step === 5 && (
           <section className="space-y-6">
-            <h2 className="text-xl font-semibold text-[#0E4749]">Prüfung und Dokumente</h2>
+            <SectionHead step={5} title="Prüfung und Dokumente" lead="Notnagel prüft Ihre Angaben, formuliert die Texte und erzeugt die vier Word-Dokumente." />
 
             <div className="grid lg:grid-cols-2 gap-5">
-              <div className="rounded-lg border border-neutral-200 bg-white p-4 space-y-3">
+              <div className="rounded-2xl border border-neutral-200/90 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_-16px_rgba(16,24,40,0.12)] p-4 sm:p-5 space-y-3">
                 <p className="text-sm font-semibold text-[#0E4749]">Automatische Qualitätsprüfung</p>
                 <div className="flex gap-3 text-xs">
                   <span className={`px-2 py-1 rounded ${score.blockers ? "bg-red-100 text-red-800" : "bg-emerald-100 text-emerald-800"}`}>{score.blockers} Blocker</span>
@@ -723,7 +804,7 @@ export default function Notnagel() {
                 {!score.ready && <p className="text-xs text-red-700">Blocker bitte beheben – sie machen die Dokumente fachlich angreifbar.</p>}
               </div>
 
-              <div className="rounded-lg border border-neutral-200 bg-white p-4 space-y-3">
+              <div className="rounded-2xl border border-neutral-200/90 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_-16px_rgba(16,24,40,0.12)] p-4 sm:p-5 space-y-3">
                 <p className="text-sm font-semibold text-[#0E4749]">Prozessübersicht</p>
                 <table className="w-full text-xs">
                   <thead><tr className="text-left text-neutral-500"><th className="py-1">Prozess</th><th>MTPD</th><th>RTO</th><th>RPO</th></tr></thead>
@@ -744,14 +825,14 @@ export default function Notnagel() {
               </div>
             </div>
 
-            <div className="rounded-lg border border-neutral-200 bg-white p-5 space-y-4">
+            <div className="rounded-2xl border border-neutral-200/90 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_-16px_rgba(16,24,40,0.12)] p-4 sm:p-5 space-y-4">
               <div className="flex flex-wrap gap-3 items-center">
                 <button onClick={generate} disabled={loading || !score.ready}
-                  className="px-5 py-2.5 rounded bg-[#0E4749] text-white text-sm font-medium disabled:opacity-40">
+                  className="rounded-lg bg-[#0E4749] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0b3a3c] disabled:cursor-not-allowed disabled:opacity-40">
                   {loading ? "Dokumente werden formuliert …" : content ? "Neu generieren" : "Dokumente erstellen"}
                 </button>
                 {content && (
-                  <button onClick={downloadAll} disabled={downloading} className="px-5 py-2.5 rounded border border-[#0E4749] text-[#0E4749] text-sm font-medium disabled:opacity-40">
+                  <button onClick={downloadAll} disabled={downloading} className="rounded-lg border border-[#0E4749] px-5 py-3 text-sm font-semibold text-[#0E4749] transition hover:bg-teal-50 disabled:opacity-40">
                     {downloading ? "Paket wird gepackt …" : "Alle Dokumente als ZIP"}
                   </button>
                 )}
@@ -802,7 +883,7 @@ export default function Notnagel() {
                       ["tabletop", "Tabletop-Drehbuch", "Lage, Injects, Auswertung"],
                     ] as const).map(([key, title, desc]) => (
                       <button key={key} onClick={() => downloadSingleDoc(key, input, content, allFindings)}
-                        className="text-left rounded border border-neutral-200 p-3 hover:border-[#0E4749] transition">
+                        className="rounded-xl border border-neutral-200 bg-white p-3.5 text-left transition hover:border-[#0E4749] hover:shadow-sm">
                         <p className="text-sm font-semibold text-[#0E4749]">{title}</p>
                         <p className="text-[11px] text-neutral-600 mt-0.5">{desc}</p>
                         <p className="text-[11px] text-teal-700 mt-2">Word herunterladen ↓</p>
@@ -816,16 +897,14 @@ export default function Notnagel() {
               )}
             </div>
 
-            <div className="flex justify-between">
-              <button onClick={() => setStep(4)} className="px-4 py-2 rounded border border-neutral-300 text-sm">← zurück</button>
-            </div>
+            <StepNav onBack={() => setStep(4)} />
           </section>
         )}
       </main>
 
       {loading && (
         <div className="fixed inset-0 z-50 bg-neutral-900/60 backdrop-blur-sm flex items-center justify-center px-4">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 space-y-4 shadow-xl">
+          <div className="w-full max-w-md space-y-4 rounded-2xl bg-white p-6 shadow-2xl">
             <p className="text-sm font-semibold text-[#0E4749]">Dokumente werden erstellt und geprüft</p>
             <div className="h-2 bg-neutral-200 rounded overflow-hidden">
               <div className="h-full bg-[#0E4749] transition-all duration-500" style={{ width: `${Math.max(progressPct, 4)}%` }} />
