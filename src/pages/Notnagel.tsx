@@ -443,6 +443,13 @@ export default function Notnagel() {
     setIntroButtonsDone(false);
   }, [step]);
 
+  /** Startseite: Hilfe-Trigger erst einblenden, wenn alle Texte und Buttons fertig sind. */
+  useEffect(() => {
+    if (step === 0 && seq >= 6 && tilesDone && introButtonsDone) {
+      setCoachReady(true);
+    }
+  }, [step, seq, tilesDone, introButtonsDone]);
+
   /** Game-Audio + Level-Sweep beim Schrittwechsel. */
   const audio = useNotnagelAudio();
   const [sweep, setSweep] = useState(0);
