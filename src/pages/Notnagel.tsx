@@ -459,12 +459,13 @@ export default function Notnagel() {
                   ["Business Impact Analyse", "Schadensverlauf, MTPD, RTO, RPO, Abhängigkeiten"],
                   ["Notfallplan (BCP)", "Aktivierungsstufen, Sofortmaßnahmen, Notbetrieb"],
                   ["Tabletop-Drehbuch", "Lage, Injects, Auswertung, Maßnahmenliste"],
-                ].map(([t, d]) => (
-                  <li key={t} className="rounded-2xl border border-neutral-200/90 bg-white p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:border-teal-300">
+                ].map(([t, d], i) => (
+                  <li key={t} style={{ animationDelay: `${300 + i * 220}ms`, animationFillMode: "both" }} className="animate-fade-in opacity-0 rounded-2xl border border-neutral-200/90 bg-white p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:border-teal-300">
                     <p className="text-sm font-semibold tracking-tight text-[#0E4749]">{t}</p>
                     <p className="mt-1 text-xs leading-relaxed text-neutral-600">{d}</p>
                   </li>
                 ))}
+
               </ul>
               <Hint>
                 Alle Eingaben bleiben in dieser Browser-Sitzung. Für die Ausformulierung der Texte wird ein anonymer KI-Aufruf genutzt –
@@ -478,7 +479,8 @@ export default function Notnagel() {
                 <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-neutral-500">Oder mit einem Beispiel starten</p>
                 <div className="flex flex-wrap gap-3">
                   {DEMO_SCENARIOS.map((d, i) => (
-                    <button key={d.label} onClick={() => loadDemo(i)} className="max-w-xs rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-left text-sm transition hover:border-[#0E4749] hover:shadow-sm">
+                    <button key={d.label} onClick={() => loadDemo(i)} style={{ animationDelay: `${1200 + i * 200}ms`, animationFillMode: "both" }} className="animate-fade-in opacity-0 max-w-xs rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-left text-sm transition hover:border-[#0E4749] hover:shadow-sm">
+
                       <span className="font-medium text-neutral-800">{d.label}</span>
                       <span className="mt-0.5 block text-[11px] leading-relaxed text-neutral-500">{d.hint}</span>
                     </button>
