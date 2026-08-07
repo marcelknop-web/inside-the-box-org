@@ -196,14 +196,14 @@ function Cascade({ start, gap = 260, onDone, children }: { start: boolean; gap?:
 
 /** Schritt-Hülle: Kopf tippt sich ein, danach erscheinen die Inhalte seriell. */
 function StepSection({
-  step, title, lead, className = "", gap, children,
-}: { step: number; title: string; lead?: string; className?: string; gap?: number; children: React.ReactNode }) {
+  step, title, lead, className = "", gap, onCascadeDone, children,
+}: { step: number; title: string; lead?: string; className?: string; gap?: number; onCascadeDone?: () => void; children: React.ReactNode }) {
   const [headDone, setHeadDone] = useState(false);
   useEffect(() => { setHeadDone(false); }, [title]);
   return (
     <section className={className}>
       <SectionHead step={step} title={title} lead={lead} onDone={() => setHeadDone(true)} />
-      <Cascade start={headDone} gap={gap}>{children}</Cascade>
+      <Cascade start={headDone} gap={gap} onDone={onCascadeDone}>{children}</Cascade>
     </section>
   );
 }
