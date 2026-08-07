@@ -81,13 +81,15 @@ export function checkGeneratedContent(input: NotnagelInput, c: GeneratedContent 
       f.push({ severity: "blocker", where: `BIA ${b.processId}`, text: "MTPD-Begründung fehlt oder ist nicht prüfbar formuliert." });
     if (horizon && !all.includes(horizon) && !(hours && all.includes(String(hours))))
       f.push({ severity: "blocker", where: `BIA ${b.processId}`, text: `Der abgeleitete MTPD (${horizon}) wird im Text nicht aufgegriffen.` });
-    if (p.rtoHours) {
+    const rto = Number(p.rtoHours);
+    if (Number.isFinite(rto) && rto > 0) {
       const nums = (all.match(/(\d{1,3})\s*(?:Std|Stunden|h\b)/gi) ?? []).map((x) => Number(/\d+/.exec(x)![0]));
-      if (nums.length && !nums.includes(p.rtoHours) && hours && !nums.includes(hours))
-        f.push({ severity: "warnung", where: `BIA ${b.processId}`, text: `Genannte Stundenwerte (${nums.join(", ")}) weichen von RTO ${p.rtoHours} h / MTPD ${hours} h ab.` });
-      if (hours && p.rtoHours > hours)
-        f.push({ severity: "blocker", where: `BIA ${b.processId}`, text: `RTO (${p.rtoHours} h) liegt über dem MTPD (${hours} h).` });
+      if (nums.length && !nums.includes(rto) && hours && !nums.includes(hours))
+        f.push({ severity: "warnung", where: `BIA ${b.processId}`, text: `Genannte Stundenwerte (${nums.join(", ")}) weichen von RTO ${rto} h / MTPD ${hours} h ab.` });
+      if (hours && rto > hours)
+        f.push({ severity: "blocker", where: `BIA ${b.processId}`, text: `RTO (${rto} h) liegt über dem MTPD (${hours} h).` });
     }
+
     if ((b.handlungsbedarf ?? []).length < 2)
       f.push({ severity: "warnung", where: `BIA ${b.processId}`, text: "Weniger als zwei Maßnahmen im Handlungsbedarf." });
   });
