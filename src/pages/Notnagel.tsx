@@ -549,7 +549,7 @@ export default function Notnagel() {
 
       <main className="mx-auto max-w-6xl px-4 pb-28 pt-6 sm:px-6 sm:pb-12 sm:pt-8">
         {step > 0 && (
-          <ol className="mb-6 flex items-center gap-1 overflow-x-auto pb-1 sm:mb-7">
+          <ol className={`mb-6 flex items-center gap-1 overflow-x-auto pb-1 sm:mb-7 ${step === 2 || step === 5 ? "" : "mx-auto max-w-4xl"}`}>
             {STEPS.map((label, i) => {
 
               const n = i + 1;
