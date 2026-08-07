@@ -14,6 +14,8 @@ import { SECTORS, OBLIGATIONS, getSector, type SectorId, type Weight } from "@/d
 import type { Exercise, Inject } from "@/data/marsecTypes";
 import { runQualityCheck, countBySeverity, parseInjectMinutes, type Finding } from "@/utils/marsecQualityCheck";
 import InjectDetail from "@/components/marsec/InjectDetail";
+import { useToolAudio } from "@/hooks/useToolAudio";
+
 import { buildOnePagerPdf } from "@/utils/marsecOnePagerPdf";
 
 // ─── Brand tokens (MarSec Studio) ───
