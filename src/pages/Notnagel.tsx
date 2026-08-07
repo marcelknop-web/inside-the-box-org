@@ -10,6 +10,8 @@ import {
   type NotnagelInput, type GeneratedContent, type ResourceEntry, type Finding, type Horizon,
 } from "@/data/notnagelTypes";
 import { buildNotnagelZip, downloadSingleDoc } from "@/utils/notnagelDocx";
+import { checkGeneratedContent, repairInstructions } from "@/utils/notnagelContentCheck";
+
 import NotnagelCoach, { type CoachStep, type CoachTopic } from "@/components/notnagel/NotnagelCoach";
 
 /** Anleitung je Wizard-Schritt – bewusst kurz und prüfbar gehalten. */
