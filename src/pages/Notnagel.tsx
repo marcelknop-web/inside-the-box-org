@@ -254,6 +254,13 @@ export default function Notnagel() {
     }
   }
 
+  /** Eingabeprüfung plus Dokumentenprüfung – Grundlage für das Prüfprotokoll. */
+  const allFindings = useMemo(() => [...findings, ...contentFindings], [findings, contentFindings]);
+  const contentScore = useMemo(() => ({
+    blockers: contentFindings.filter((f) => f.severity === "blocker").length,
+    warnings: contentFindings.filter((f) => f.severity === "warnung").length,
+  }), [contentFindings]);
+
 
   async function downloadAll() {
     if (!content) return;
