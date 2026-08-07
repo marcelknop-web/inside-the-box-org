@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import {
   DAMAGE_CATEGORIES, HORIZONS, SCALE, DEFAULT_PROFILE, DEFAULT_TEAM, DEFAULT_EXERCISE,
   DEMO_SCENARIOS, newProcess, deriveMtpd, suggestRto, priorityOf, maxByHorizon,
+  curveDetail, driversAtMtpd, deriveActivation,
   runQualityCheck, qualityScore,
   type AreaProfile, type ProcessEntry, type TeamRole, type ExerciseParams,
   type NotnagelInput, type GeneratedContent, type ResourceEntry, type Finding, type Horizon,
@@ -125,15 +126,13 @@ export default function Notnagel() {
       const derived = processes.map((p) => {
         const { horizon, hours } = deriveMtpd(p);
         const m = maxByHorizon(p);
-        const drivers = DAMAGE_CATEGORIES
-          .filter((c) => Math.max(...HORIZONS.map((h) => p.matrix[c.key][h])) >= 3)
-          .map((c) => c.label).join("; ");
         return {
           mtpdLabel: horizon ?? null,
           mtpdHours: hours,
           priority: priorityOf(p).label,
-          curve: HORIZONS.map((h) => `${h}=${m[h]}`).join(", "),
-          drivers: drivers || "keine Kategorie erreicht Stufe 3",
+          curve: HORIZONS.map((h) => `${h}=S${m[h]}`).join(", "),
+          curveDetail: curveDetail(p),
+          drivers: driversAtMtpd(p),
         };
       });
 
@@ -142,7 +141,7 @@ export default function Notnagel() {
       const res = await fetch(`https://${projectRef}.supabase.co/functions/v1/notnagel-generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${anon}`, apikey: anon },
-        body: JSON.stringify({ profile, processes, team, exercise, derived }),
+        body: JSON.stringify({ profile, processes, team, exercise, derived, activation: deriveActivation(processes) }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Generierung fehlgeschlagen");
@@ -356,7 +355,7 @@ export default function Notnagel() {
                     <div className="rounded-lg border border-neutral-200 bg-white p-4 space-y-3">
                       <p className="text-sm font-semibold text-[#0E4749]">Schadensverlauf</p>
                       <div className="flex flex-wrap gap-3 text-[11px] text-neutral-600">
-                        {SCALE.map((s) => <span key={s.level}><strong>{s.level} = {s.name}:</strong> {s.hint}</span>)}
+                        {SCALE.map((s) => <span key={s.level}><strong>{s.code} = {s.name}:</strong> {s.hint}</span>)}
                       </div>
                       <div className="overflow-x-auto">
                         <table className="w-full text-xs min-w-[560px]">

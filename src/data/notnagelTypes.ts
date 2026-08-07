@@ -21,12 +21,17 @@ export const DAMAGE_CATEGORIES = [
 ] as const;
 export type DamageCategoryKey = (typeof DAMAGE_CATEGORIES)[number]["key"];
 
+/**
+ * Schadensstufen der BIA. Bewusst mit Code S1–S4 geführt, damit sie nie mit den
+ * Aktivierungsstufen A1–A3 des Notfallplans verwechselt werden.
+ */
 export const SCALE = [
-  { level: 1, name: "gering", hint: "Kaum spürbar, intern abfangbar, keine Außenwirkung." },
-  { level: 2, name: "spürbar", hint: "Erste Beschwerden, einzelne SLA-Verletzungen, Zusatzaufwand." },
-  { level: 3, name: "erheblich", hint: "Vertragsstrafen, Eskalation durch Kunden oder Aufsicht, Medienthema." },
-  { level: 4, name: "existenzbedrohend", hint: "Kündigung von Rahmenverträgen, regulatorische Folgen, Gefahr für Personen." },
+  { level: 1, code: "S1", name: "gering", hint: "Kaum spürbar, intern abfangbar, keine Außenwirkung." },
+  { level: 2, code: "S2", name: "spürbar", hint: "Erste Beschwerden, einzelne SLA-Verletzungen, Zusatzaufwand." },
+  { level: 3, code: "S3", name: "erheblich", hint: "Vertragsstrafen, Eskalation durch Kunden oder Aufsicht, Medienthema." },
+  { level: 4, code: "S4", name: "existenzbedrohend", hint: "Kündigung von Rahmenverträgen, regulatorische Folgen, Gefahr für Personen." },
 ] as const;
+
 
 export type Criticality = "hoch" | "mittel" | "niedrig";
 
@@ -310,7 +315,11 @@ export function maxByHorizon(p: ProcessEntry): Record<Horizon, number> {
   return out;
 }
 
-/** MTPD = erster Zeithorizont, an dem eine Kategorie Stufe 3 (erheblich) erreicht. */
+/**
+ * MTPD = erster Zeithorizont, an dem eine Schadenskategorie die Schadensstufe S3
+ * (erheblich) erreicht. Dieser Horizont ist die Obergrenze: ab hier ist der Ausfall
+ * nicht mehr tolerierbar. Es gibt genau eine MTPD je Prozess.
+ */
 export function deriveMtpd(p: ProcessEntry): { horizon: Horizon | null; hours: number | null } {
   const m = maxByHorizon(p);
   for (const h of HORIZONS) {
@@ -318,6 +327,69 @@ export function deriveMtpd(p: ProcessEntry): { horizon: Horizon | null; hours: n
   }
   return { horizon: null, hours: null };
 }
+
+/** Vollständige Bewertungsmatrix als Text – eine Zeile je Kategorie, damit die KI nichts nachrechnet. */
+export function curveDetail(p: ProcessEntry): string {
+  return DAMAGE_CATEGORIES.map(
+    (c) => `${c.label}: ${HORIZONS.map((h) => `${h}=S${p.matrix[c.key][h] || 1}`).join(", ")}`,
+  ).join(" | ");
+}
+
+/** Kategorien, die genau am MTPD-Horizont S3 oder S4 erreichen (nicht irgendwann später). */
+export function driversAtMtpd(p: ProcessEntry): string {
+  const { horizon } = deriveMtpd(p);
+  if (!horizon) return "keine Kategorie erreicht S3 im Betrachtungszeitraum";
+  return (
+    DAMAGE_CATEGORIES.filter((c) => (p.matrix[c.key][horizon] || 1) >= 3)
+      .map((c) => `${c.label} (S${p.matrix[c.key][horizon]})`)
+      .join("; ") || "keine"
+  );
+}
+
+export interface ActivationLevel {
+  code: "A1" | "A2" | "A3";
+  stufe: string;
+  kriterium: string;
+  reaktion: string;
+}
+
+/**
+ * Aktivierungsstufen des Notfallplans – regelbasiert aus RTO und MTPD der zeitkritischen
+ * Prozesse abgeleitet, damit Notfallplan und BIA nie unterschiedliche Zahlen nennen.
+ * Bewusst dreistufig (A1–A3) und getrennt von den vierstufigen Schadensstufen S1–S4.
+ */
+export function deriveActivation(processes: ProcessEntry[]): ActivationLevel[] {
+  const rtos = processes.map((p) => Number(p.rtoHours)).filter((n) => Number.isFinite(n) && n > 0);
+  const mtpds = processes.map((p) => deriveMtpd(p).hours).filter((n): n is number => n !== null);
+  const minRto = rtos.length ? Math.min(...rtos) : null;
+  const minMtpd = mtpds.length ? Math.min(...mtpds) : null;
+  const rtoTxt = minRto !== null ? `${minRto} Std.` : "der kürzesten RTO";
+  const mtpdTxt = minMtpd !== null ? `${minMtpd} Std.` : "der kürzesten MTPD";
+  const halfMtpd = minMtpd !== null ? Math.max(1, Math.round(minMtpd / 2)) : null;
+  const halfTxt = halfMtpd !== null ? `${halfMtpd} Std.` : "der Hälfte der kürzesten MTPD";
+
+  return [
+    {
+      code: "A1",
+      stufe: "A1 – Störung",
+      kriterium: `Ausfall unter ${rtoTxt} absehbar behoben, kein zeitkritischer Prozess dauerhaft betroffen, kein Notbetrieb nötig.`,
+      reaktion: "Bearbeitung in der Linie, Information an den Bereichsverantwortlichen, Dokumentation im Störungsprotokoll.",
+    },
+    {
+      code: "A2",
+      stufe: "A2 – Notfall",
+      kriterium: `Ausfall erreicht ${rtoTxt} (kürzeste RTO) oder ein vorgesehenes Notbetriebsverfahren greift nicht.`,
+      reaktion: "Notfallteam des Bereichs wird alarmiert, Notbetrieb wird angeordnet, Lagebild und Entscheidungen werden protokolliert.",
+    },
+    {
+      code: "A3",
+      stufe: "A3 – Krise",
+      kriterium: `Ausfall erreicht ${halfTxt} (Hälfte der kürzesten MTPD von ${mtpdTxt}) und ein Wiederanlauf innerhalb der MTPD ist nicht belastbar zugesagt, oder Personen bzw. Anlagen sind gefährdet.`,
+      reaktion: "Übergabe an den Krisenstab, externe Kommunikation und Meldepflichten werden dort entschieden, Bereich liefert Lagebild im festen Takt.",
+    },
+  ];
+}
+
 
 /** RTO-Vorschlag: klarer Sicherheitsabstand zur MTPD, an Schichtlogik gerundet. */
 export function suggestRto(mtpdHours: number | null): number | null {
@@ -404,6 +476,21 @@ export function runQualityCheck(input: NotnagelInput): Finding[] {
   if (noDeputy.length > 0) f.push({ severity: "warnung", text: `${noDeputy.length} Rolle(n) ohne Vertretung – im Ernstfall ist immer jemand im Urlaub.`, where: "Notfallteam" });
   if (!exercise.facilitator.trim()) f.push({ severity: "hinweis", text: "Übungsleitung nicht benannt.", where: "Übung" });
   if (!profile.regulatory.length) f.push({ severity: "hinweis", text: "Kein Rahmenwerk gewählt – die Leitlinie bleibt ohne normativen Bezug.", where: "Bereichsprofil" });
+
+  // Konsistenz zwischen BIA-Zeitwerten und den abgeleiteten Aktivierungsstufen
+  const rtoList = processes.map((p) => Number(p.rtoHours)).filter((n) => Number.isFinite(n) && n > 0);
+  const mtpdList = processes.map((p) => deriveMtpd(p).hours).filter((n): n is number => n !== null);
+  if (rtoList.length && mtpdList.length) {
+    const minRto = Math.min(...rtoList);
+    const minMtpd = Math.min(...mtpdList);
+    if (minRto >= minMtpd / 2) {
+      f.push({
+        severity: "hinweis",
+        text: `Kürzeste RTO (${minRto} Std.) und halbe kürzeste MTPD (${Math.round(minMtpd / 2)} Std.) liegen zusammen – die Aktivierungsstufen A2 (Notfall) und A3 (Krise) greifen fast gleichzeitig. Entweder RTO senken oder die Krisenschwelle im Notfallplan bewusst so bestätigen.`,
+        where: "Notfallplan",
+      });
+    }
+  }
 
   return f;
 }
