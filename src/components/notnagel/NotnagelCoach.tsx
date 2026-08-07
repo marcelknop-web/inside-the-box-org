@@ -81,8 +81,9 @@ export default function NotnagelCoach({ guide, topics, findings, context }: Prop
         className="fixed bottom-[5.5rem] right-4 z-30 flex items-center gap-2 rounded-full bg-[#0E4749] px-4 py-2.5 text-sm font-medium text-white shadow-lg transition hover:bg-[#0b3a3c] sm:bottom-4"
       >
         <span aria-hidden>💡</span>
-        <span className="hidden xs:inline sm:inline">{open ? "Hilfe schließen" : "Hilfe & Vorschläge"}</span>
-        <span className="xs:hidden sm:hidden">Hilfe</span>
+        <span className="hidden sm:inline">{open ? "Hilfe schließen" : "Hilfe & Vorschläge"}</span>
+        <span className="sm:hidden">{open ? "Schließen" : "Hilfe"}</span>
+
 
         {!open && openFindings.length > 0 && (
           <span className="ml-1 px-1.5 py-0.5 rounded-full bg-white text-[#0E4749] text-[10px] font-bold">{openFindings.length}</span>
