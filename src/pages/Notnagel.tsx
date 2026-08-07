@@ -856,19 +856,20 @@ export default function Notnagel() {
                     </div>
 
                     {/* Kontinuitätsanforderungen */}
-                    <div className="rounded-none border border-[#22303f] bg-[#16202e] shadow-voxel p-4 sm:p-5 grid sm:grid-cols-3 gap-4">
-                      <Field label="RTO in Stunden" hint="Angestrebte Wiederanlaufzeit – muss unter der MTPD liegen.">
-                        <input className={inputCls} inputMode="numeric" value={active.rtoHours} onChange={(e) => updateProcess(active.id, { rtoHours: e.target.value })} />
-                      </Field>
-                      <Field label="RPO in Stunden" hint="Maximal tolerierbarer Datenverlust.">
-                        <input className={inputCls} inputMode="numeric" value={active.rpoHours} onChange={(e) => updateProcess(active.id, { rpoHours: e.target.value })} />
-                      </Field>
-                      <div className="sm:col-span-3">
-                        <Field label="Mindest-Notbetrieb" hint="Welche Leistung muss im Notfall zwingend erbracht werden – und für wen?">
-                          <textarea rows={2} className={inputCls} value={active.minimumService} onChange={(e) => updateProcess(active.id, { minimumService: e.target.value })} />
+                    <div className="rounded-none border border-[#22303f] bg-[#16202e] shadow-voxel p-4 sm:p-5 space-y-4">
+                      <div className="grid gap-4 sm:grid-cols-2 sm:items-end">
+                        <Field label="RTO in Stunden" hint="Ziel-Wiederanlaufzeit, kleiner als die MTPD.">
+                          <input className={inputCls} inputMode="numeric" value={active.rtoHours} onChange={(e) => updateProcess(active.id, { rtoHours: e.target.value })} />
+                        </Field>
+                        <Field label="RPO in Stunden" hint="Maximal tolerierbarer Datenverlust.">
+                          <input className={inputCls} inputMode="numeric" value={active.rpoHours} onChange={(e) => updateProcess(active.id, { rpoHours: e.target.value })} />
                         </Field>
                       </div>
+                      <Field label="Mindest-Notbetrieb" hint="Welche Leistung bleibt zwingend – und für wen?">
+                        <textarea rows={2} className={`${inputCls} resize-y leading-relaxed`} value={active.minimumService} onChange={(e) => updateProcess(active.id, { minimumService: e.target.value })} />
+                      </Field>
                     </div>
+
 
                     {/* Ressourcen */}
                     <div className="rounded-none border border-[#22303f] bg-[#16202e] shadow-voxel p-4 sm:p-5 space-y-3">
