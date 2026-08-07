@@ -21,12 +21,17 @@ export const DAMAGE_CATEGORIES = [
 ] as const;
 export type DamageCategoryKey = (typeof DAMAGE_CATEGORIES)[number]["key"];
 
+/**
+ * Schadensstufen der BIA. Bewusst mit Code S1–S4 geführt, damit sie nie mit den
+ * Aktivierungsstufen A1–A3 des Notfallplans verwechselt werden.
+ */
 export const SCALE = [
-  { level: 1, name: "gering", hint: "Kaum spürbar, intern abfangbar, keine Außenwirkung." },
-  { level: 2, name: "spürbar", hint: "Erste Beschwerden, einzelne SLA-Verletzungen, Zusatzaufwand." },
-  { level: 3, name: "erheblich", hint: "Vertragsstrafen, Eskalation durch Kunden oder Aufsicht, Medienthema." },
-  { level: 4, name: "existenzbedrohend", hint: "Kündigung von Rahmenverträgen, regulatorische Folgen, Gefahr für Personen." },
+  { level: 1, code: "S1", name: "gering", hint: "Kaum spürbar, intern abfangbar, keine Außenwirkung." },
+  { level: 2, code: "S2", name: "spürbar", hint: "Erste Beschwerden, einzelne SLA-Verletzungen, Zusatzaufwand." },
+  { level: 3, code: "S3", name: "erheblich", hint: "Vertragsstrafen, Eskalation durch Kunden oder Aufsicht, Medienthema." },
+  { level: 4, code: "S4", name: "existenzbedrohend", hint: "Kündigung von Rahmenverträgen, regulatorische Folgen, Gefahr für Personen." },
 ] as const;
+
 
 export type Criticality = "hoch" | "mittel" | "niedrig";
 
