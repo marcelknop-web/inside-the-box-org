@@ -94,7 +94,7 @@ export function LevelStepper({
   className?: string;
 }) {
   return (
-    <ol className={`mb-7 flex items-stretch gap-2 overflow-x-auto pb-1 ${className}`}>
+    <ol className={`mb-5 flex items-stretch gap-2 overflow-x-auto pb-1 lg:mb-4 ${className}`}>
       {steps.map((label, i) => {
         const n = i + 1;
         const active = step === n;

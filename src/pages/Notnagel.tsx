@@ -138,16 +138,16 @@ function SectionHead({ step, title, lead }: { step: number; title: string; lead?
   useEffect(() => { setPhase(0); }, [title]);
   const advance = (pause: number) => () => window.setTimeout(() => setPhase((p) => p + 1), pause);
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5">
       <p className="text-[11.5px] font-bold uppercase tracking-[0.22em] text-[#4dd6e8]">
         <Typewriter key={`e-${title}`} text={`Level ${step} von 5`} charDelay={14} cursor={false} onDone={advance(280)} />
       </p>
-      <h2 className="text-[28px] font-extrabold leading-tight tracking-tight text-[#ffd23f] sm:text-[34px]">
+      <h2 className="text-[26px] font-extrabold leading-tight tracking-tight text-[#ffd23f] sm:text-[30px]">
         {phase >= 1 ? <Typewriter key={`t-${title}`} text={title} charDelay={18} cursor={false} onDone={advance(420)} /> : <span>&nbsp;</span>}
       </h2>
 
       {lead && (
-        <p className="max-w-2xl text-[14.5px] leading-relaxed text-[#c3d0e0]">
+        <p className="max-w-3xl text-[13.5px] leading-relaxed text-[#c3d0e0]">
           {phase >= 2 && <Typewriter key={`l-${title}`} text={lead} charDelay={7} cursor={false} />}
         </p>
       )}
@@ -561,7 +561,7 @@ export default function Notnagel() {
   }, [step, profile, active, exercise]);
 
   return (
-    <div className="voxel-stage min-h-screen bg-[#080b10] text-[#e8eef7]">
+    <div className="voxel-stage min-h-screen bg-[#080b10] text-[#e8eef7] lg:flex lg:h-screen lg:min-h-0 lg:flex-col lg:overflow-hidden">
       <Helmet>
         <title>Notnagel – BCM-Assistent für Fachbereiche | inside-the-box</title>
         <meta name="description" content="Notnagel führt Fachbereichsverantwortliche durch den BCM-Prozess: Business Impact Analyse, Notfallplan, BCM-Leitlinie und Tabletop-Drehbuch als fertige Word-Dokumente." />
@@ -577,7 +577,7 @@ export default function Notnagel() {
         onReset={resetAll}
       />
 
-      <main className="relative mx-auto max-w-6xl px-4 pb-28 pt-6 sm:px-6 sm:pb-12 sm:pt-8">
+      <main className="relative mx-auto flex w-full max-w-6xl flex-col px-4 pb-28 pt-6 sm:px-6 sm:pb-12 sm:pt-8 lg:min-h-0 lg:flex-1 lg:overflow-hidden lg:pb-3 lg:pt-5">
         {step > 0 && (
           <LevelStepper
             step={step}
@@ -587,6 +587,8 @@ export default function Notnagel() {
           />
         )}
 
+        {/* Auf Desktop scrollt nur dieser Bereich – die Seite selbst bleibt fix. */}
+        <div className="lg:-mr-1 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pr-1">
 
         {/* Step 0 – Einstieg */}
         {step === 0 && (
@@ -666,7 +668,7 @@ export default function Notnagel() {
             <SectionHead step={1} title="Bereichsprofil" lead="Diese Angaben erscheinen auf jedem Deckblatt und legen den Geltungsbereich der Dokumente fest." />
             <Hint>„Fachbereich“ ist die Organisationseinheit, für die Sie verantwortlich sind. Felder, die Sie nicht kennen, können leer bleiben.</Hint>
             <Card title="Verantwortung und Geltungsbereich">
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
               <Field label="Organisation"><input className={inputCls} value={profile.organisation} onChange={(e) => setProfile({ ...profile, organisation: e.target.value })} /></Field>
               <Field label="Fachbereich"><input className={inputCls} value={profile.area} onChange={(e) => setProfile({ ...profile, area: e.target.value })} /></Field>
@@ -1073,6 +1075,7 @@ export default function Notnagel() {
             <StepNav onBack={() => setStep(4)} />
           </section>
         )}
+        </div>
       </main>
 
       {loading && (
