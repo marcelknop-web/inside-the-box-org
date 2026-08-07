@@ -477,6 +477,16 @@ export default function Ernstfall() {
   const genTimerRef = useRef<number | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
+  /** Audio-Ebene: Bank-Ambience, UI-SFX, Sprach-Ansagen. */
+  const audio = useToolAudio("bank", "ernstlfall.sound.v1");
+  const firstStepRef = useRef(true);
+  useEffect(() => {
+    if (firstStepRef.current) { firstStepRef.current = false; return; }
+    audio.play("step");
+    if (step < 4) audio.say("step");
+  }, [step]); // eslint-disable-line react-hooks/exhaustive-deps
+
+
   function pushLog(msg: string) {
     const now = new Date();
     const t = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
