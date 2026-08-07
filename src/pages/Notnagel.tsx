@@ -570,48 +570,71 @@ export default function Notnagel() {
         {step === 0 && (
           <section className="space-y-8">
             <div className="max-w-3xl space-y-4">
-              <p className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-teal-700">Business Continuity Management</p>
-              <h2 className="text-3xl sm:text-[2.6rem] font-bold leading-[1.1] tracking-tight text-[#0E4749]">Der Notnagel für Ihren Fachbereich.</h2>
-              <p className="text-[16.5px] leading-relaxed text-neutral-700">
-                Notnagel führt Sie Schritt für Schritt durch den BCM-Prozess – ohne BCM-Vorkenntnisse. Sie beschreiben Ihre Prozesse,
-                Notnagel leitet Kennzahlen wie MTPD, RTO und RPO regelbasiert ab, prüft Ihre Angaben auf Widersprüche und erzeugt
-                daraus vier freigabefähige Word-Dokumente.
-              </p>
-              <div className="flex flex-wrap gap-x-5 gap-y-2 pt-1 text-[12px] text-neutral-600">
-                {["5 Schritte", "ca. 20–30 Minuten", "4 Word-Dokumente", "Automatische Qualitätsprüfung"].map((f) => (
-                  <span key={f} className="flex items-center gap-1.5"><span aria-hidden className="text-[#0E4749]">●</span>{f}</span>
+              <SeqText
+                order={0} current={seq} advance={advance} pause={480} charDelay={16}
+                className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-teal-700"
+                text="Business Continuity Management"
+              />
+              <SeqText
+                order={1} current={seq} advance={advance} pause={640} charDelay={22} as="h2"
+                className="text-3xl sm:text-[2.6rem] font-bold leading-[1.1] tracking-tight text-[#0E4749]"
+                text="Der Notnagel für Ihren Fachbereich."
+              />
+              <SeqText
+                order={2} current={seq} advance={advance} pause={700} charDelay={6}
+                className="text-[16.5px] leading-relaxed text-neutral-700"
+                text="Notnagel führt Sie Schritt für Schritt durch den BCM-Prozess – ohne BCM-Vorkenntnisse. Sie beschreiben Ihre Prozesse, Notnagel leitet Kennzahlen wie MTPD, RTO und RPO regelbasiert ab, prüft Ihre Angaben auf Widersprüche und erzeugt daraus vier freigabefähige Word-Dokumente."
+              />
+              <SeqBlock order={3} current={seq} advance={advance} pause={560} hold={700}
+                className="flex flex-wrap gap-x-5 gap-y-2 pt-1 text-[12px] text-neutral-600">
+                {["5 Schritte", "ca. 20–30 Minuten", "4 Word-Dokumente", "Automatische Qualitätsprüfung"].map((f, i) => (
+                  <span key={f} className="flex animate-fade-in items-center gap-1.5" style={{ animationDelay: `${i * 160}ms` }}>
+                    <span aria-hidden className="text-[#0E4749]">●</span>{f}
+                  </span>
                 ))}
-              </div>
-              <ul className="grid gap-3 pt-2 sm:grid-cols-2">
-                <TypewriterTileStack
-                  items={[
-                    { title: "BCM-Leitlinie", body: "Zweck, Geltungsbereich, Rollen, Kennzahlen" },
-                    { title: "Business Impact Analyse", body: "Schadensverlauf, MTPD, RTO, RPO, Abhängigkeiten" },
-                    { title: "Notfallplan (BCP)", body: "Aktivierungsstufen, Sofortmaßnahmen, Notbetrieb" },
-                    { title: "Tabletop-Drehbuch", body: "Lage, Injects, Auswertung, Maßnahmenliste" },
-                  ]}
-                  onDone={() => setTilesDone(true)}
-                />
-              </ul>
-              <Hint>
-                Alle Eingaben bleiben in dieser Browser-Sitzung. Für die Ausformulierung der Texte wird ein anonymer KI-Aufruf genutzt –
-                Kennzahlen werden dabei nicht von der KI erfunden, sondern aus Ihren Angaben berechnet.
-              </Hint>
-            </div>
-
-            <div className="space-y-3">
-              <button onClick={() => { setStep(1); }} className="rounded-lg bg-[#0E4749] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0b3a3c]">Assistent starten →</button>
-              {tilesDone && (
-                <div className="animate-fade-in">
-                  <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-neutral-500">Oder mit einem Beispiel starten</p>
-                  <div className="flex flex-wrap gap-3">
-                    <TypewriterButtonStack items={DEMO_SCENARIOS.map(d => ({ label: d.label, body: d.hint }))} onSelect={loadDemo} />
-                  </div>
-                </div>
+              </SeqBlock>
+              {seq >= 4 && (
+                <ul className="grid gap-3 pt-2 sm:grid-cols-2">
+                  <TypewriterTileStack
+                    items={[
+                      { title: "BCM-Leitlinie", body: "Zweck, Geltungsbereich, Rollen, Kennzahlen" },
+                      { title: "Business Impact Analyse", body: "Schadensverlauf, MTPD, RTO, RPO, Abhängigkeiten" },
+                      { title: "Notfallplan (BCP)", body: "Aktivierungsstufen, Sofortmaßnahmen, Notbetrieb" },
+                      { title: "Tabletop-Drehbuch", body: "Lage, Injects, Auswertung, Maßnahmenliste" },
+                    ]}
+                    onDone={() => { setTilesDone(true); advance(4, 760); }}
+                  />
+                </ul>
+              )}
+              {seq >= 5 && (
+                <Hint>
+                  <Typewriter
+                    charDelay={5} cursor={false}
+                    text="Alle Eingaben bleiben in dieser Browser-Sitzung. Für die Ausformulierung der Texte wird ein anonymer KI-Aufruf genutzt – Kennzahlen werden dabei nicht von der KI erfunden, sondern aus Ihren Angaben berechnet."
+                    onDone={() => advance(5, 700)}
+                  />
+                </Hint>
               )}
             </div>
+
+            {seq >= 6 && (
+              <div className="animate-fade-in space-y-3">
+                <button onClick={() => { setStep(1); }} className="rounded-lg bg-[#0E4749] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0b3a3c]">Assistent starten →</button>
+                {tilesDone && (
+                  <div>
+                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
+                      <Typewriter text="Oder mit einem Beispiel starten" charDelay={12} cursor={false} />
+                    </p>
+                    <div className="flex flex-wrap gap-3">
+                      <TypewriterButtonStack items={DEMO_SCENARIOS.map(d => ({ label: d.label, body: d.hint }))} onSelect={loadDemo} />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </section>
         )}
+
 
         {/* Step 1 – Bereich */}
         {step === 1 && (
