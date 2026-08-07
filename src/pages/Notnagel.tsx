@@ -886,7 +886,8 @@ export default function Notnagel() {
 
         {/* Step 3 – Team */}
         {step === 3 && (
-          <section className="mx-auto max-w-3xl space-y-5">
+          <section className="mx-auto max-w-4xl space-y-5">
+
 
             <SectionHead step={3} title="Notfallteam des Bereichs" lead="Wer entscheidet, wer informiert, wer vertritt – knapp und eindeutig besetzt." />
             <Hint>Im Ernstfall zählt, wer entscheidet. Jede Rolle braucht eine Vertretung – sonst hängt der Plan an einer einzigen Person.</Hint>
