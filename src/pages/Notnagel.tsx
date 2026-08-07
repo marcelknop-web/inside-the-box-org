@@ -100,20 +100,71 @@ const RESOURCE_KINDS: ResourceEntry["kind"][] = ["IT-Anwendungen", "Daten", "Per
 const DRAFT_KEY = "notnagel.draft.v1";
 
 function Hint({ children }: { children: React.ReactNode }) {
-  return <p className="text-[12px] leading-relaxed text-teal-900/70 bg-teal-50 border border-teal-100 rounded px-3 py-2">{children}</p>;
+  return (
+    <div className="flex gap-2.5 rounded-xl border border-teal-100 bg-teal-50/70 px-3.5 py-3">
+      <span aria-hidden className="mt-px flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-[#0E4749] text-[10px] font-bold text-white">i</span>
+      <p className="text-[12.5px] leading-relaxed text-teal-900/80">{children}</p>
+    </div>
+  );
 }
 
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="text-xs font-medium text-neutral-700">{label}</span>
-      {hint && <span className="block text-[11px] text-neutral-500 mb-1">{hint}</span>}
-      <div className={hint ? "" : "mt-1"}>{children}</div>
+      <span className="text-[12px] font-semibold tracking-tight text-neutral-800">{label}</span>
+      {hint && <span className="mb-1.5 block text-[11px] leading-relaxed text-neutral-500">{hint}</span>}
+      <div className={hint ? "" : "mt-1.5"}>{children}</div>
     </label>
   );
 }
 
-const inputCls = "w-full px-3 py-2 rounded border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-700/30 focus:border-teal-700";
+/** Karte mit einheitlichem Rahmen, Radius und Schatten */
+function Card({ title, action, children, className = "" }: { title?: string; action?: React.ReactNode; children: React.ReactNode; className?: string }) {
+  return (
+    <div className={`rounded-2xl border border-neutral-200/90 bg-white p-4 sm:p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_-16px_rgba(16,24,40,0.12)] ${className}`}>
+      {(title || action) && (
+        <div className="mb-3.5 flex items-start justify-between gap-3">
+          {title && <p className="text-[13px] font-semibold tracking-tight text-[#0E4749]">{title}</p>}
+          {action}
+        </div>
+      )}
+      {children}
+    </div>
+  );
+}
+
+/** Schrittkopf: Nummer, Titel, Kurzbeschreibung */
+function SectionHead({ step, title, lead }: { step: number; title: string; lead?: string }) {
+  return (
+    <div className="space-y-1.5">
+      <p className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-teal-700">Schritt {step} von 5</p>
+      <h2 className="text-2xl font-bold tracking-tight text-[#0E4749]">{title}</h2>
+      {lead && <p className="max-w-2xl text-sm leading-relaxed text-neutral-600">{lead}</p>}
+    </div>
+  );
+}
+
+/** Fußnavigation eines Schritts */
+function StepNav({ onBack, next }: { onBack?: () => void; next?: { label: string; onClick: () => void; disabled?: boolean; hint?: string } }) {
+  return (
+    <div className="sticky bottom-0 -mx-4 mt-2 flex flex-wrap items-center justify-between gap-3 border-t border-neutral-200 bg-[#FBFCFC]/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6">
+      {onBack ? (
+        <button onClick={onBack} className="rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm font-medium text-neutral-700 transition hover:border-neutral-400 hover:bg-neutral-50">← zurück</button>
+      ) : <span />}
+      {next && (
+        <div className="flex items-center gap-3">
+          {next.hint && <span className="hidden text-[11px] text-neutral-500 sm:inline">{next.hint}</span>}
+          <button onClick={next.onClick} disabled={next.disabled}
+            className="rounded-lg bg-[#0E4749] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0b3a3c] disabled:cursor-not-allowed disabled:opacity-40">
+            {next.label}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const inputCls = "w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 shadow-[0_1px_1px_rgba(16,24,40,0.03)] transition focus:outline-none focus:ring-2 focus:ring-teal-700/25 focus:border-teal-700";
 
 export default function Notnagel() {
   const [step, setStep] = useState(0);
