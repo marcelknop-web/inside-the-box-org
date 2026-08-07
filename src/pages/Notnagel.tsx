@@ -183,7 +183,7 @@ function TypewriterReveal({ title, body, onDone }: { title: string; body: string
 }
 
 /** Reveals a list of title/description tiles one after another with a typewriter effect. */
-function TypewriterTileStack({ items }: { items: { title: string; body: string }[] }) {
+function TypewriterTileStack({ items, onDone }: { items: { title: string; body: string }[]; onDone?: () => void }) {
   const [doneCount, setDoneCount] = useState(0);
   return (
     <>
@@ -196,10 +196,39 @@ function TypewriterTileStack({ items }: { items: { title: string; body: string }
             <TypewriterReveal
               title={item.title}
               body={item.body}
-              onDone={() => setDoneCount(c => Math.max(c, i + 1))}
+              onDone={() => {
+                const next = i + 1;
+                setDoneCount(c => Math.max(c, next));
+                if (next >= items.length) onDone?.();
+              }}
             />
           )}
         </li>
+      ))}
+    </>
+  );
+}
+
+/** Reveals a row of buttons one after another with a typewriter effect. */
+function TypewriterButtonStack({ items, onSelect }: { items: { label: string; body: string }[]; onSelect: (i: number) => void }) {
+  const [doneCount, setDoneCount] = useState(0);
+  return (
+    <>
+      {items.map((item, i) => (
+        <button
+          key={item.label}
+          disabled={i > doneCount}
+          onClick={() => onSelect(i)}
+          className="max-w-xs rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-left text-sm transition hover:border-[#0E4749] hover:shadow-sm disabled:opacity-50"
+        >
+          {i <= doneCount && (
+            <TypewriterReveal
+              title={item.label}
+              body={item.body}
+              onDone={() => setDoneCount(c => Math.max(c, i + 1))}
+            />
+          )}
+        </button>
       ))}
     </>
   );
