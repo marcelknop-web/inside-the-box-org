@@ -10,6 +10,86 @@ import {
   type NotnagelInput, type GeneratedContent, type ResourceEntry, type Finding, type Horizon,
 } from "@/data/notnagelTypes";
 import { buildNotnagelZip, downloadSingleDoc } from "@/utils/notnagelDocx";
+import NotnagelCoach, { type CoachStep, type CoachTopic } from "@/components/notnagel/NotnagelCoach";
+
+/** Anleitung je Wizard-Schritt – bewusst kurz und prüfbar gehalten. */
+const COACH_GUIDES: Record<number, CoachStep> = {
+  0: {
+    title: "Einstieg",
+    intro: "Notnagel begleitet vier Ergebnisse: Leitlinie, Business Impact Analyse, Notfallplan und Tabletop-Drehbuch. Der Aufwand liegt bei rund 30 bis 45 Minuten je Bereich.",
+    steps: [
+      "Ein Beispielszenario laden, wenn die Methodik noch neu ist – alle Werte bleiben danach änderbar.",
+      "Sonst direkt starten: das Bereichsprofil legt den Geltungsbereich der Dokumente fest.",
+      "Unterlagen bereitlegen: Prozessliste, verwendete IT-Anwendungen, Dienstleisterverträge, Erreichbarkeiten.",
+    ],
+    pitfalls: ["Den gesamten Konzern beschreiben. Notnagel arbeitet auf Ebene eines Fachbereichs."],
+  },
+  1: {
+    title: "Bereichsprofil",
+    intro: "Diese Angaben erscheinen auf jedem Deckblatt und bestimmen, worauf sich die Dokumente beziehen.",
+    steps: [
+      "Fachbereich so benennen, wie er im Organigramm heißt.",
+      "Verantwortliche Person und Funktion eintragen – ohne Namen ist die Leitlinie nicht freigabefähig.",
+      "Normativen Rahmen wählen: nur, woran der Bereich tatsächlich gemessen wird.",
+      "Alarmierungsweg und Eskalation an das Krisenmanagement konkret beschreiben (Kanal, Nummer, Vertretung).",
+    ],
+    pitfalls: [
+      "Alle Rahmenwerke ankreuzen. Das erzeugt Nachweispflichten, die niemand erfüllt.",
+      "Alarmierung über einen Kanal, der bei IT-Ausfall selbst nicht verfügbar ist.",
+    ],
+  },
+  2: {
+    title: "Prozesse und Auswirkungen",
+    intro: "Hier entsteht die Business Impact Analyse. Bewertet wird nicht die Wahrscheinlichkeit eines Ausfalls, sondern allein die Auswirkung über die Zeit.",
+    steps: [
+      "Zwei bis fünf Prozesse erfassen, für die der Bereich gegenüber anderen einsteht.",
+      "Je Zeithorizont die Schadensstufe S1 bis S4 setzen – die Stufen dürfen über die Zeit nur steigen.",
+      "MTPD wird abgeleitet, sobald eine Kategorie S3 erreicht. RTO-Vorschlag übernehmen oder begründet unterschreiten.",
+      "Vitale Ressourcen benennen und markieren, was nur einfach vorhanden ist.",
+      "Für jede kritische Ressource ein Notbetriebsverfahren mit realistischer Tragfähigkeit in Stunden hinterlegen.",
+    ],
+    pitfalls: [
+      "Alles auf S4 setzen. Dann gibt es keine Priorisierung und der Notfallplan wird beliebig.",
+      "RTO gleich oder größer als die MTPD wählen – der Wiederanlauf käme zu spät.",
+      "Notbetrieb beschreiben, der dieselbe ausgefallene Ressource benötigt.",
+    ],
+  },
+  3: {
+    title: "Notfallteam",
+    intro: "Das Notfallteam trifft im Ernstfall Entscheidungen für den Bereich. Wichtig ist nicht die Größe, sondern die durchgehende Erreichbarkeit.",
+    steps: [
+      "Je Rolle eine Person und eine Vertretung benennen – ohne Vertretung fällt die Rolle bei Urlaub aus.",
+      "Rollen an Aufgaben binden, nicht an Hierarchie: Lagebild, Notbetrieb, Kommunikation, Protokoll.",
+      "Prüfen, ob die Personen außerhalb der Betriebszeiten erreichbar sind.",
+    ],
+    pitfalls: ["Eine Person in mehreren Rollen. Im Ernstfall ist sie mehrfach gebunden."],
+  },
+  4: {
+    title: "Tabletop-Übung",
+    intro: "Die Übung prüft, ob Notfallplan und Notbetrieb im Bereich tragen. Das Szenario wird mit den erfassten Ressourcen verknüpft.",
+    steps: [
+      "Szenario an einer erfassten kritischen Ressource aufhängen, möglichst an einem Single Point of Failure.",
+      "Dauer und Zahl der Injects zum Erfahrungsstand passend wählen.",
+      "Teilnehmerkreis auf das Notfallteam plus benötigte Schnittstellen begrenzen.",
+      "Übungsleitung benennen: sie spielt die Lage, entscheidet aber nicht mit.",
+    ],
+    pitfalls: [
+      "Szenario ohne Bezug zu den erfassten Ressourcen – dann prüft die Übung nichts.",
+      "Zu viele Injects für die Zeit. Diskussion ist wichtiger als Vollständigkeit.",
+    ],
+  },
+  5: {
+    title: "Prüfung und Dokumente",
+    intro: "Die Prüfung läuft automatisch bei jeder Eingabe. Blocker verhindern die Generierung, weil sie die Dokumente fachlich angreifbar machen.",
+    steps: [
+      "Blocker beheben, Warnungen bewerten und bewusst annehmen oder korrigieren.",
+      "Dokumente erstellen – Kennzahlen stammen aus den Eingaben, die KI formuliert nur die Texte.",
+      "Word-Dateien einzeln oder als Paket herunterladen und fachlich prüfen, bevor sie in die Freigabe gehen.",
+    ],
+    pitfalls: ["Dokumente ungeprüft freigeben. Sie sind Entwürfe, keine Beschlüsse."],
+  },
+};
+
 
 const STEPS = ["Bereich", "Prozesse", "Notfallteam", "Übung", "Ergebnisse"];
 const REGULATORY = ["ISO 22301", "BSI-Standard 200-4", "ISO/IEC 27001", "NIS-2 / nationale Umsetzung", "DORA", "KRITIS-Verordnung", "Kundenanforderung / Vertrag"];
@@ -174,6 +254,53 @@ export default function Notnagel() {
   }
 
   const active = processes.find((p) => p.id === activeProcess) ?? null;
+
+  /** Kompakter Kontext für die Vorschlagsfunktion – nur bereits erfasste Angaben. */
+  const coachContext = useMemo(() => {
+    const lines = [
+      `Organisation: ${profile.organisation || "noch offen"}`,
+      `Fachbereich: ${profile.area || "noch offen"}`,
+      `Branche: ${profile.sector || "noch offen"}`,
+      `Standorte: ${profile.sites || "noch offen"}`,
+      `Rahmenwerke: ${profile.regulatory.join(", ") || "keine"}`,
+      `Besonderheiten: ${profile.particularities || "noch offen"}`,
+      `Übungsszenario: ${exercise.scenario || "noch offen"} (Dauer ${exercise.duration}, Erfahrungsstand ${exercise.level})`,
+    ];
+    processes.forEach((p) => {
+      const { horizon } = deriveMtpd(p);
+      lines.push(
+        `Prozess ${p.id} "${p.name || "ohne Namen"}": ${p.description || "keine Beschreibung"} | Empfänger: ${p.recipients || "offen"} | MTPD: ${horizon ?? "nicht erreicht"} | RTO: ${p.rtoHours || "offen"} Std. | Ressourcen: ${p.resources.map((r) => `${r.kind}/${r.description || "unbenannt"}${r.singlePointOfFailure ? " (einfach vorhanden)" : ""}`).join("; ") || "keine"} | Notbetrieb: ${p.workarounds.map((w) => w.scenario || "unbenannt").join("; ") || "keiner"}`,
+      );
+    });
+    return lines.join("\n");
+  }, [profile, processes, exercise]);
+
+  const coachTopics: CoachTopic[] = useMemo(() => {
+    if (step === 1) {
+      return [
+        { id: "sector", label: "Branche / Geschäftsmodell", help: "Kurze Einordnung des Geschäftsmodells und der Leistung, die der Bereich dazu beiträgt.", current: profile.sector, apply: (t) => setProfile((pr) => ({ ...pr, sector: t })) },
+        { id: "particularities", label: "Besonderheiten", help: "Saisonalität, kritische Kunden, laufende Projekte, bekannte Schwachstellen und Abhängigkeiten des Bereichs.", current: profile.particularities, apply: (t) => setProfile((pr) => ({ ...pr, particularities: t })) },
+        { id: "alarmChannel", label: "Alarmierungsweg", help: "Wie das Notfallteam erreicht wird, inklusive Rückfallkanal bei IT- oder Telefonieausfall.", current: profile.alarmChannel, apply: (t) => setProfile((pr) => ({ ...pr, alarmChannel: t })) },
+        { id: "crisisTeamRef", label: "Anbindung an das Krisenmanagement", help: "An wen der Bereich eskaliert, wenn die eigene Reaktion nicht reicht, und in welchem Takt Lagebilder geliefert werden.", current: profile.crisisTeamRef, apply: (t) => setProfile((pr) => ({ ...pr, crisisTeamRef: t })) },
+      ];
+    }
+    if (step === 2 && active) {
+      return [
+        { id: "description", label: `Kurzbeschreibung (${active.id})`, help: "Was der Prozess leistet, für wen und mit welcher Zusage. Zwei bis drei Sätze.", current: active.description, apply: (t) => updateProcess(active.id, { description: t }) },
+        { id: "recipients", label: `Leistungsempfänger (${active.id})`, help: "Wer die Leistung abnimmt: interne Bereiche, Kunden, Aufsicht, Lieferanten.", current: active.recipients, apply: (t) => updateProcess(active.id, { recipients: t }) },
+        { id: "minimumService", label: `Mindest-Notbetrieb (${active.id})`, help: "Welche Teilleistung im Notfall zwingend erbracht werden muss, für wen und in welchem Umfang.", current: active.minimumService, apply: (t) => updateProcess(active.id, { minimumService: t }) },
+        { id: "resource", label: `Vitale Ressource ergänzen (${active.id})`, help: "Eine einzelne Ressource, ohne die der Prozess nicht läuft – knappe Bezeichnung, keine Erklärung.", current: active.resources.map((r) => r.description).join("; "), apply: (t) => updateProcess(active.id, { resources: [...active.resources, { kind: "IT-Anwendungen", description: t, criticality: "hoch", singlePointOfFailure: false }] }) },
+        { id: "workaround", label: `Notbetriebsverfahren ergänzen (${active.id})`, help: "Ein konkretes Verfahren für den Ausfall einer erfassten Ressource: welche Handlung, mit welchem Hilfsmittel, durch wen.", current: active.workarounds.map((w) => w.procedure).join("; "), apply: (t) => updateProcess(active.id, { workarounds: [...active.workarounds, { scenario: "", procedure: t, limitHours: "" }] }) },
+      ];
+    }
+    if (step === 4) {
+      return [
+        { id: "scenario", label: "Übungsszenario", help: "Ein Szenario, das genau die erfassten kritischen Ressourcen und Notbetriebsverfahren des Bereichs trifft. Zwei bis vier Sätze, ohne Lösung.", current: exercise.scenario, apply: (t) => setExercise((ex) => ({ ...ex, scenario: t })) },
+        { id: "participants", label: "Teilnehmer", help: "Rollen und Schnittstellen, die für die Übung im Raum sein müssen.", current: exercise.participants, apply: (t) => setExercise((ex) => ({ ...ex, participants: t })) },
+      ];
+    }
+    return [];
+  }, [step, profile, active, exercise]);
 
   return (
     <div className="min-h-screen bg-[#FBFCFC] text-neutral-900">
@@ -648,6 +775,13 @@ export default function Notnagel() {
           </section>
         )}
       </main>
+
+      <NotnagelCoach
+        guide={COACH_GUIDES[step] ?? COACH_GUIDES[0]}
+        topics={coachTopics}
+        findings={findings}
+        context={coachContext}
+      />
     </div>
   );
 }
