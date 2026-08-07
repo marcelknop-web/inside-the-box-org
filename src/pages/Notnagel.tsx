@@ -114,13 +114,14 @@ function Hint({ children }: { children: React.ReactNode }) {
 
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
-    <label className="block">
-      <span className="text-[12px] font-semibold tracking-tight text-[#dbe4f0]">{label}</span>
-      {hint && <span className="mb-1.5 block text-[11px] leading-relaxed text-[#93a4bb]">{hint}</span>}
-      <div className={hint ? "" : "mt-1.5"}>{children}</div>
+    <label className="flex h-full flex-col">
+      <span className="text-[12px] font-semibold leading-snug tracking-tight text-[#dbe4f0]">{label}</span>
+      {hint && <span className="mt-0.5 block text-[11px] leading-snug text-[#93a4bb]">{hint}</span>}
+      <div className="mt-auto pt-2">{children}</div>
     </label>
   );
 }
+
 
 /** Karte: Voxel-Block mit Bevel und Pixel-Titel */
 function Card({ title, action, children, className = "" }: { title?: string; action?: React.ReactNode; children: React.ReactNode; className?: string }) {
