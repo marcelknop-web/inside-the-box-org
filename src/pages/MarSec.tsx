@@ -1102,11 +1102,19 @@ export default function MarSec() {
             <span className="hidden sm:inline text-[11px] uppercase tracking-[0.22em] text-white/50">Studio</span>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => { audio.play("click"); audio.toggle(); }}
+              aria-label={audio.enabled ? "Sound off" : "Sound on"}
+              className="text-xs px-3 py-1.5 rounded-full border border-white/25 text-white/80 hover:bg-white/10"
+            >
+              {audio.enabled ? "🔊 Sound" : "🔇 Sound"}
+            </button>
             <button onClick={resetAll} disabled={loading || downloading} className="text-xs px-3 py-1.5 rounded-full border border-white/25 text-white/80 hover:bg-white/10 disabled:opacity-40">
               ↺ Restart
             </button>
             <Link to="/" className="text-xs px-4 py-1.5 rounded-full bg-[#D6003C] text-white font-semibold">Back to site</Link>
           </div>
+
         </div>
       </header>
 
