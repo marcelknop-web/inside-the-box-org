@@ -684,6 +684,14 @@ export default function Ernstfall() {
           </div>
           <div className="flex items-center gap-2">
             <button
+              onClick={() => { audio.play("click"); audio.toggle(); }}
+              aria-label={audio.enabled ? "Ton ausschalten" : "Ton einschalten"}
+              className="text-xs px-3 py-1.5 rounded border border-neutral-300 text-neutral-700 hover:bg-neutral-50"
+            >
+              {audio.enabled ? "🔊 Ton" : "🔇 Ton"}
+            </button>
+            <button
+
               onClick={resetAll}
               disabled={loading || downloading}
               className="text-xs px-3 py-1.5 rounded border border-neutral-300 text-neutral-700 hover:bg-neutral-50 disabled:opacity-40"
