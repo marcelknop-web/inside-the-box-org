@@ -625,6 +625,9 @@ export default function Ernstfall() {
       setProgressPct(100);
       setProgress("Übung erfolgreich generiert");
       pushLog(`Übung "${data.exercise?.uebungsname ?? ""}" erhalten`);
+      audio.play("complete");
+      audio.say("exercise");
+
     } catch (e: any) {
       if (e?.name === "AbortError") {
         setError("Generierung abgebrochen");
