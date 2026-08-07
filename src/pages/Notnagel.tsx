@@ -427,6 +427,8 @@ export default function Notnagel() {
   const [content, setContent] = useState<GeneratedContent | null>(null);
   const [contentFindings, setContentFindings] = useState<Finding[]>([]);
   const [tilesDone, setTilesDone] = useState(false);
+  const [introButtonsDone, setIntroButtonsDone] = useState(false);
+  const [coachReady, setCoachReady] = useState(false);
 
   /** Reveal-Sequenz der Startseite: jeder Block gibt an den nächsten weiter. */
   const [seq, setSeq] = useState(0);
