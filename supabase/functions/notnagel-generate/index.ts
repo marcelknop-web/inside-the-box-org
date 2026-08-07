@@ -230,6 +230,17 @@ Dauer: ${s(exercise.duration, 40)} | Szenario: ${s(exercise.scenario, 600)} | Te
 }
 Für jeden Prozess genau ein bia-Eintrag mit passender processId. Für jedes gewählte Rahmenwerk genau ein rahmen-Eintrag. Genau drei Aktivierungseinträge in der Reihenfolge A1, A2, A3.`;
 
+    const fixes: string[] = Array.isArray(body?.fixes)
+      ? body.fixes.filter((x: unknown) => typeof x === "string").slice(0, 20).map((x: string) => s(x, 300))
+      : [];
+    const repairBlock = fixes.length
+      ? `\n\n## QUALITÄTSSICHERUNG – zwingend zu behebende Befunde des vorherigen Entwurfs
+${fixes.map((x) => `- ${x}`).join("\n")}
+Erzeuge das vollständige JSON erneut und behebe jeden dieser Befunde. Ändere keine Kennzahlen aus dem Input.`
+      : "";
+    const finalPrompt = userPrompt + repairBlock;
+
+
     const t0 = Date.now();
     let response: Response;
     try {
