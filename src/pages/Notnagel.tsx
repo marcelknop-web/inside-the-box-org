@@ -348,7 +348,19 @@ export default function Notnagel() {
   }, []);
 
   /** Bei Schrittwechsel an den Anfang des Schritts springen. */
+  /** Bei Schrittwechsel an den Anfang des Schritts springen. */
   useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, [step]);
+
+  /** Game-Audio + Level-Sweep beim Schrittwechsel. */
+  const audio = useNotnagelAudio();
+  const [sweep, setSweep] = useState(0);
+  const firstStep = useRef(true);
+  useEffect(() => {
+    if (firstStep.current) { firstStep.current = false; return; }
+    setSweep((s) => s + 1);
+    audio.play("step");
+  }, [step]); // eslint-disable-line react-hooks/exhaustive-deps
+
 
 
   const genTimer = useRef<number | null>(null);
