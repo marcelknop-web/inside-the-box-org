@@ -200,7 +200,10 @@ function useInView<T extends HTMLElement>(active = true) {
       { rootMargin: "0px 0px -10% 0px", threshold: 0.01 },
     );
     io.observe(el);
-    return () => io.disconnect();
+    // Fallback: in Scroll-Containern kann das Element nie „intersecting" melden –
+    // dann darf die serielle Sequenz nicht hängen bleiben.
+    const t = window.setTimeout(() => setInView(true), 1400);
+    return () => { io.disconnect(); window.clearTimeout(t); };
   }, [active, inView]);
   return { ref, inView };
 }
@@ -290,7 +293,7 @@ function TypewriterButtonStack({ items, onSelect }: { items: { label: string; bo
           <button
             key={item.label}
             onClick={() => onSelect(i)}
-            className="max-w-xs animate-fade-in rounded-none border border-[#33455c] bg-[#16202e] px-4 py-2.5 text-left text-sm transition hover:border-[#f5b800] hover:shadow-voxel"
+            className="max-w-xs rounded-none border border-[#33455c] bg-[#16202e] px-4 py-2.5 text-left text-sm transition hover:border-[#f5b800] hover:shadow-voxel"
           >
             <TypewriterReveal
               title={item.label}
