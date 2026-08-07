@@ -313,6 +313,9 @@ export default function Notnagel() {
     window.setTimeout(() => setSeq((s) => (s > order ? s : order + 1)), pause);
   }, []);
 
+  /** Bei Schrittwechsel an den Anfang des Schritts springen. */
+  useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, [step]);
+
 
   const genTimer = useRef<number | null>(null);
 
