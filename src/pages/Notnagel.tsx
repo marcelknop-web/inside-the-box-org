@@ -136,7 +136,7 @@ function Card({ title, action, children, className = "" }: { title?: string; act
 
 
 /** Schrittkopf: Nummer, Titel, Kurzbeschreibung – erscheint der Reihe nach. */
-function SectionHead({ step, title, lead }: { step: number; title: string; lead?: string }) {
+function SectionHead({ step, title, lead, onDone }: { step: number; title: string; lead?: string; onDone?: () => void }) {
   const [phase, setPhase] = useState(0);
   useEffect(() => { setPhase(0); }, [title]);
   const advance = (pause: number) => () => window.setTimeout(() => setPhase((p) => p + 1), pause);
@@ -146,17 +146,64 @@ function SectionHead({ step, title, lead }: { step: number; title: string; lead?
         <Typewriter key={`e-${title}`} text={`Level ${step} von 5`} charDelay={14} cursor={false} onDone={advance(280)} />
       </p>
       <h2 className="text-[26px] font-extrabold leading-tight tracking-tight text-[#ffd23f] sm:text-[30px]">
-        {phase >= 1 ? <Typewriter key={`t-${title}`} text={title} charDelay={18} cursor={false} onDone={advance(420)} /> : <span>&nbsp;</span>}
+        {phase >= 1 ? (
+          <Typewriter
+            key={`t-${title}`} text={title} charDelay={18} cursor={false}
+            onDone={() => { window.setTimeout(() => { setPhase((p) => p + 1); if (!lead) onDone?.(); }, 420); }}
+          />
+        ) : <span>&nbsp;</span>}
       </h2>
 
       {lead && (
         <p className="max-w-3xl text-[13.5px] leading-relaxed text-[#c3d0e0]">
-          {phase >= 2 && <Typewriter key={`l-${title}`} text={lead} charDelay={7} cursor={false} />}
+          {phase >= 2 && (
+            <Typewriter
+              key={`l-${title}`} text={lead} charDelay={7} cursor={false}
+              onDone={() => window.setTimeout(() => onDone?.(), 260)}
+            />
+          )}
         </p>
       )}
     </div>
   );
 }
+
+/**
+ * Reveal-Kaskade: zeigt die Kinder strikt nacheinander – nie parallel zum Text darüber.
+ * Startet erst, wenn `start` true ist (z. B. wenn der Schrittkopf fertig getippt hat).
+ */
+function Cascade({ start, gap = 260, children }: { start: boolean; gap?: number; children: React.ReactNode }) {
+  const items = React.Children.toArray(children);
+  const [shown, setShown] = useState(0);
+  useEffect(() => {
+    if (!start) { setShown(0); return; }
+    if (shown >= items.length) return;
+    const t = window.setTimeout(() => setShown((s) => s + 1), shown === 0 ? 60 : gap);
+    return () => window.clearTimeout(t);
+  }, [start, shown, items.length, gap]);
+  return (
+    <>
+      {items.slice(0, shown).map((child, i) => (
+        <div key={i} className="animate-fade-in">{child}</div>
+      ))}
+    </>
+  );
+}
+
+/** Schritt-Hülle: Kopf tippt sich ein, danach erscheinen die Inhalte seriell. */
+function StepSection({
+  step, title, lead, className = "", gap, children,
+}: { step: number; title: string; lead?: string; className?: string; gap?: number; children: React.ReactNode }) {
+  const [headDone, setHeadDone] = useState(false);
+  useEffect(() => { setHeadDone(false); }, [title]);
+  return (
+    <section className={className}>
+      <SectionHead step={step} title={title} lead={lead} onDone={() => setHeadDone(true)} />
+      <Cascade start={headDone} gap={gap}>{children}</Cascade>
+    </section>
+  );
+}
+
 
 
 /** Fußnavigation eines Schritts – auf Mobil volle Breite, auf Desktop links/rechts */
