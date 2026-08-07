@@ -173,7 +173,7 @@ function SectionHead({ step, title, lead, onDone }: { step: number; title: strin
  * Startet erst, wenn `start` true ist (z. B. wenn der Schrittkopf fertig getippt hat).
  */
 function Cascade({ start, gap = 260, children }: { start: boolean; gap?: number; children: React.ReactNode }) {
-  const items = React.Children.toArray(children);
+  const items = Children.toArray(children);
   const [shown, setShown] = useState(0);
   useEffect(() => {
     if (!start) { setShown(0); return; }
