@@ -40,6 +40,7 @@ const MetaAssessmentTool = lazy(() => import("./pages/MetaAssessmentTool"));
 const Syndicate = lazy(() => import("./pages/Syndicate"));
 const Starfighter = lazy(() => import("./pages/Starfighter"));
 const Ernstfall = lazy(() => import("./pages/Ernstfall"));
+const Notnagel = lazy(() => import("./pages/Notnagel"));
 const MarSec = lazy(() => import("./pages/MarSec"));
 
 const queryClient = new QueryClient();
