@@ -183,20 +183,48 @@ function StepNav({ onBack, next }: { onBack?: () => void; next?: { label: string
 }
 
 
+/**
+ * Scroll-Gate: meldet, sobald das Element einmal im Viewport war.
+ * Damit startet die Reveal-Sequenz erst beim Erreichen – die Reihenfolge bleibt erhalten,
+ * weil ein Block erst weitergibt, wenn er selbst getippt hat.
+ */
+function useInView<T extends HTMLElement>(active = true) {
+  const ref = useRef<T | null>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    if (!active || inView) return;
+    const el = ref.current;
+    if (!el) return;
+    if (typeof IntersectionObserver === "undefined") { setInView(true); return; }
+    const io = new IntersectionObserver(
+      (entries) => { if (entries.some((e) => e.isIntersecting)) setInView(true); },
+      { rootMargin: "0px 0px -10% 0px", threshold: 0.01 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [active, inView]);
+  return { ref, inView };
+}
+
 /** Typewriter reveal for a title + description pair, calling onDone after the body finishes. */
 function TypewriterReveal({ title, body, onDone }: { title: string; body: string; onDone?: () => void }) {
   const [titleDone, setTitleDone] = useState(false);
+  const { ref, inView } = useInView<HTMLDivElement>();
   return (
-    <>
+    <div ref={ref}>
       <p className="text-sm font-semibold tracking-tight text-[#0E4749]">
-        <Typewriter text={title} charDelay={10} cursor={false} onDone={() => setTitleDone(true)} />
+        {inView ? (
+          <Typewriter text={title} charDelay={10} cursor={false} onDone={() => setTitleDone(true)} />
+        ) : (
+          <span aria-hidden className="opacity-0">{title}</span>
+        )}
       </p>
       {titleDone && (
         <p className="mt-1 text-xs leading-relaxed text-neutral-600">
           <Typewriter text={body} charDelay={5} cursor={false} onDone={onDone} />
         </p>
       )}
-    </>
+    </div>
   );
 }
 
@@ -206,11 +234,11 @@ function TypewriterTileStack({ items, onDone }: { items: { title: string; body: 
   return (
     <>
       {items.map((item, i) => (
-        <li
-          key={item.title}
-          className="rounded-2xl border border-neutral-200/90 bg-white p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:border-teal-300"
-        >
-          {i <= doneCount && (
+        i <= doneCount ? (
+          <li
+            key={item.title}
+            className="animate-fade-in rounded-2xl border border-neutral-200/90 bg-white p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:border-teal-300"
+          >
             <TypewriterReveal
               title={item.title}
               body={item.body}
@@ -220,8 +248,8 @@ function TypewriterTileStack({ items, onDone }: { items: { title: string; body: 
                 if (next >= items.length) onDone?.();
               }}
             />
-          )}
-        </li>
+          </li>
+        ) : null
       ))}
     </>
   );
@@ -233,20 +261,19 @@ function TypewriterButtonStack({ items, onSelect }: { items: { label: string; bo
   return (
     <>
       {items.map((item, i) => (
-        <button
-          key={item.label}
-          disabled={i > doneCount}
-          onClick={() => onSelect(i)}
-          className="max-w-xs rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-left text-sm transition hover:border-[#0E4749] hover:shadow-sm disabled:opacity-50"
-        >
-          {i <= doneCount && (
+        i <= doneCount ? (
+          <button
+            key={item.label}
+            onClick={() => onSelect(i)}
+            className="max-w-xs animate-fade-in rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-left text-sm transition hover:border-[#0E4749] hover:shadow-sm"
+          >
             <TypewriterReveal
               title={item.label}
               body={item.body}
               onDone={() => setDoneCount(c => Math.max(c, i + 1))}
             />
-          )}
-        </button>
+          </button>
+        ) : null
       ))}
     </>
   );
@@ -254,7 +281,7 @@ function TypewriterButtonStack({ items, onSelect }: { items: { label: string; bo
 
 /**
  * Ein Textblock innerhalb einer Reveal-Sequenz. Erscheint erst, wenn `current === order`,
- * tippt sich ein und gibt nach `pause` ms an den nächsten Block weiter.
+ * tippt sich ein (sobald sichtbar) und gibt nach `pause` ms an den nächsten Block weiter.
  * Pause nach Bedeutung: kurz innerhalb eines Absatzes, länger vor einem neuen Abschnitt.
  */
 function SeqText({
@@ -264,10 +291,13 @@ function SeqText({
   text: string; className?: string; pause?: number; charDelay?: number;
   as?: "p" | "h2" | "h3" | "span";
 }) {
+  const { ref, inView } = useInView<HTMLElement>(current >= order);
   if (current < order) return null;
   return (
-    <Tag className={className}>
-      <Typewriter text={text} charDelay={charDelay} cursor={false} onDone={() => advance(order, pause)} />
+    <Tag ref={ref as never} className={className}>
+      {inView
+        ? <Typewriter text={text} charDelay={charDelay} cursor={false} onDone={() => advance(order, pause)} />
+        : <span aria-hidden className="opacity-0">{text}</span>}
     </Tag>
   );
 }
@@ -280,15 +310,17 @@ function SeqBlock({
   pause?: number; hold?: number; className?: string; children: React.ReactNode;
 }) {
   const fired = useRef(false);
+  const { ref, inView } = useInView<HTMLDivElement>(current >= order);
   useEffect(() => {
-    if (current !== order || fired.current) return;
+    if (current !== order || !inView || fired.current) return;
     fired.current = true;
     const t = window.setTimeout(() => advance(order, pause), hold);
     return () => window.clearTimeout(t);
-  }, [current, order, advance, pause, hold]);
+  }, [current, order, advance, pause, hold, inView]);
   if (current < order) return null;
-  return <div className={`animate-fade-in ${className}`}>{children}</div>;
+  return <div ref={ref} className={`${inView ? "animate-fade-in" : "opacity-0"} ${className}`}>{children}</div>;
 }
+
 
 
 const inputCls = "w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 shadow-[0_1px_1px_rgba(16,24,40,0.03)] transition focus:outline-none focus:ring-2 focus:ring-teal-700/25 focus:border-teal-700";
