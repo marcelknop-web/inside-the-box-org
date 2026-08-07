@@ -770,7 +770,7 @@ export default function Notnagel() {
                       <Typewriter text="Oder mit einem Beispiel starten" charDelay={12} cursor={false} />
                     </p>
                     <div className="flex flex-wrap gap-3">
-                      <TypewriterButtonStack items={DEMO_SCENARIOS.map(d => ({ label: d.label, body: d.hint }))} onSelect={loadDemo} />
+                      <TypewriterButtonStack items={DEMO_SCENARIOS.map(d => ({ label: d.label, body: d.hint }))} onSelect={loadDemo} onDone={() => setIntroButtonsDone(true)} />
                     </div>
                   </div>
                 )}
