@@ -1102,7 +1102,7 @@ export default function Notnagel() {
 
             <div className="rounded-none border border-[#22303f] bg-[#16202e] shadow-voxel p-4 sm:p-5 space-y-4">
               <div className="flex flex-wrap gap-3 items-center">
-                <button onClick={generate} disabled={loading || !score.ready}
+                <button onClick={generate} disabled={loading}
                   className="rounded-none bg-[#f5b800] px-5 py-3 text-sm font-semibold text-[#080b10] shadow-voxel-sm transition hover:bg-[#ffd23f] disabled:cursor-not-allowed disabled:opacity-40">
                   {loading ? "Dokumente werden formuliert …" : content ? "Neu generieren" : "Dokumente erstellen"}
                 </button>
