@@ -15,11 +15,11 @@ export function VoxelPanel({
     : tone === "cyan" ? "border-[#00bcd4]/40"
     : "border-[#243347]";
   return (
-    <div className={`voxel-bevel border-2 ${border} bg-[#141c28] p-4 sm:p-5 ${className}`}>
+    <div className={`voxel-bevel border-2 ${border} bg-[#16202e] p-4 sm:p-5 ${className}`}>
       {(title || action) && (
-        <div className="mb-3 flex items-start justify-between gap-3 border-b-2 border-[#1c2734] pb-2.5">
+        <div className="mb-3.5 flex items-start justify-between gap-3 border-b-2 border-[#22303f] pb-2.5">
           {title && (
-            <h3 className="font-pixel text-[10px] uppercase text-[#f5b800] sm:text-[11px]">{title}</h3>
+            <h3 className="text-[13.5px] font-bold uppercase tracking-[0.14em] text-[#ffd23f]">{title}</h3>
           )}
           {action}
         </div>
@@ -28,6 +28,7 @@ export function VoxelPanel({
     </div>
   );
 }
+
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: "primary" | "ghost" | "danger";
