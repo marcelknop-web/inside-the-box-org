@@ -159,24 +159,24 @@ function SectionHead({ step, title, lead }: { step: number; title: string; lead?
 /** Fußnavigation eines Schritts – auf Mobil volle Breite, auf Desktop links/rechts */
 function StepNav({ onBack, next }: { onBack?: () => void; next?: { label: string; onClick: () => void; disabled?: boolean; hint?: string } }) {
   return (
-    <div className="sticky bottom-0 z-20 -mx-4 mt-2 border-t border-[#243347] bg-[#080b10]/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6">
+    <div className="sticky bottom-0 z-20 -mx-4 mt-2 border-t-2 border-[#243347] bg-[#080b10]/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6">
       <div className="flex items-center gap-2 sm:justify-between sm:gap-3">
         {onBack ? (
-          <button onClick={onBack} aria-label="zurück" className="flex-shrink-0 rounded-none border border-[#2c3c52] bg-[#141c28] px-3.5 py-2.5 text-sm font-medium text-[#c2cfe0] transition hover:border-[#f5b800]/60 hover:bg-[#1a2535] sm:px-4">
+          <VoxelButton variant="ghost" onClick={onBack} aria-label="zurück" className="flex-shrink-0">
             ←<span className="hidden sm:inline"> zurück</span>
-          </button>
+          </VoxelButton>
         ) : <span className="hidden sm:block" />}
         {next && (
           <div className="flex min-w-0 flex-1 items-center justify-end gap-3 sm:flex-none">
             {next.hint && <span className="hidden text-[11px] text-[#8090a6] sm:inline">{next.hint}</span>}
-            <button onClick={next.onClick} disabled={next.disabled}
-              className="w-full truncate rounded-none bg-[#f5b800] px-5 py-2.5 text-sm font-semibold text-[#080b10] shadow-voxel-sm transition hover:bg-[#ffd23f] disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto">
+            <VoxelButton pixel onClick={next.onClick} disabled={next.disabled} className="w-full truncate sm:w-auto">
               {next.label}
-            </button>
+            </VoxelButton>
           </div>
         )}
       </div>
     </div>
+
 
   );
 }
