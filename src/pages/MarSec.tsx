@@ -880,6 +880,9 @@ export default function MarSec() {
       setProgressPct(100);
       setProgress("Exercise generated");
       pushLog(`Received "${data.exercise?.exerciseName ?? ""}"`);
+      audio.play("complete");
+      audio.say("exercise");
+
     } catch (e: any) {
       if (e?.name === "AbortError") {
         setError("Generation cancelled");
