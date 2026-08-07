@@ -264,7 +264,7 @@ function buildBia(input: NotnagelInput, c: GeneratedContent) {
       H2("2 Schadensverlauf"),
       table(
         ["Schadenskategorie", ...HORIZONS],
-        DAMAGE_CATEGORIES.map((cat) => [cat.label, ...HORIZONS.map((h) => String(p.matrix[cat.key][h]))]),
+        DAMAGE_CATEGORIES.map((cat) => [cat.label, ...HORIZONS.map((h) => `S${p.matrix[cat.key][h] || 1}`)]),
         [4560, 1200, 1200, 1200, 1200],
       ),
       P("", { after: 100 }),
