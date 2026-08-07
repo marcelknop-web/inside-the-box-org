@@ -157,25 +157,31 @@ function SectionHead({ step, title, lead }: { step: number; title: string; lead?
 }
 
 
-/** Fußnavigation eines Schritts */
+/** Fußnavigation eines Schritts – auf Mobil volle Breite, auf Desktop links/rechts */
 function StepNav({ onBack, next }: { onBack?: () => void; next?: { label: string; onClick: () => void; disabled?: boolean; hint?: string } }) {
   return (
-    <div className="sticky bottom-0 -mx-4 mt-2 flex flex-wrap items-center justify-between gap-3 border-t border-neutral-200 bg-[#FBFCFC]/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6">
-      {onBack ? (
-        <button onClick={onBack} className="rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm font-medium text-neutral-700 transition hover:border-neutral-400 hover:bg-neutral-50">← zurück</button>
-      ) : <span />}
-      {next && (
-        <div className="flex items-center gap-3">
-          {next.hint && <span className="hidden text-[11px] text-neutral-500 sm:inline">{next.hint}</span>}
-          <button onClick={next.onClick} disabled={next.disabled}
-            className="rounded-lg bg-[#0E4749] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0b3a3c] disabled:cursor-not-allowed disabled:opacity-40">
-            {next.label}
+    <div className="sticky bottom-0 z-20 -mx-4 mt-2 border-t border-neutral-200 bg-[#FBFCFC]/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6">
+      <div className="flex items-center gap-2 sm:justify-between sm:gap-3">
+        {onBack ? (
+          <button onClick={onBack} aria-label="zurück" className="flex-shrink-0 rounded-lg border border-neutral-300 bg-white px-3.5 py-2.5 text-sm font-medium text-neutral-700 transition hover:border-neutral-400 hover:bg-neutral-50 sm:px-4">
+            ←<span className="hidden sm:inline"> zurück</span>
           </button>
-        </div>
-      )}
+        ) : <span className="hidden sm:block" />}
+        {next && (
+          <div className="flex min-w-0 flex-1 items-center justify-end gap-3 sm:flex-none">
+            {next.hint && <span className="hidden text-[11px] text-neutral-500 sm:inline">{next.hint}</span>}
+            <button onClick={next.onClick} disabled={next.disabled}
+              className="w-full truncate rounded-lg bg-[#0E4749] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0b3a3c] disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto">
+              {next.label}
+            </button>
+          </div>
+        )}
+      </div>
     </div>
+
   );
 }
+
 
 /** Typewriter reveal for a title + description pair, calling onDone after the body finishes. */
 function TypewriterReveal({ title, body, onDone }: { title: string; body: string; onDone?: () => void }) {
@@ -309,6 +315,9 @@ export default function Notnagel() {
   const advance = useCallback((order: number, pause: number) => {
     window.setTimeout(() => setSeq((s) => (s > order ? s : order + 1)), pause);
   }, []);
+
+  /** Bei Schrittwechsel an den Anfang des Schritts springen. */
+  useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, [step]);
 
 
   const genTimer = useRef<number | null>(null);
@@ -515,18 +524,20 @@ export default function Notnagel() {
       </Helmet>
 
       <header className="sticky top-0 z-30 border-b border-neutral-200/80 bg-white/85 backdrop-blur">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3 flex-wrap">
-          <div className="flex items-center gap-3">
-            <span aria-hidden className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#0E4749] text-sm font-bold text-white">N</span>
-            <div>
-              <h1 className="text-lg sm:text-xl font-bold tracking-tight text-[#0E4749]">Notnagel</h1>
-              <p className="text-[11px] text-neutral-500">BCM-Assistent für Fachbereiche · inside-the-box.org</p>
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-3.5">
+          <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+            <span aria-hidden className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-[#0E4749] text-sm font-bold text-white sm:h-9 sm:w-9">N</span>
+            <div className="min-w-0">
+              <h1 className="truncate text-base font-bold tracking-tight text-[#0E4749] sm:text-xl">Notnagel</h1>
+              <p className="truncate text-[10.5px] text-neutral-500 sm:text-[11px]">BCM-Assistent für Fachbereiche · inside-the-box.org</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-shrink-0 items-center gap-2">
             {step > 0 && <span className="hidden rounded-full bg-teal-50 px-2.5 py-1 text-[11px] font-medium text-teal-800 sm:inline">Schritt {step}/5 · {STEPS[step - 1]}</span>}
-            <button onClick={resetAll} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 transition hover:bg-neutral-50">↺ Neu starten</button>
-            <Link to="/" className="text-sm text-[#0E4749] hover:underline">← zurück</Link>
+            <button onClick={resetAll} aria-label="Neu starten" className="rounded-lg border border-neutral-300 px-2.5 py-1.5 text-xs font-medium text-neutral-700 transition hover:bg-neutral-50 sm:px-3">
+              ↺<span className="hidden sm:inline"> Neu starten</span>
+            </button>
+            <Link to="/" className="text-sm text-[#0E4749] hover:underline">←<span className="hidden sm:inline"> zurück</span></Link>
           </div>
         </div>
         {step > 0 && (
@@ -536,10 +547,11 @@ export default function Notnagel() {
         )}
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      <main className="mx-auto max-w-6xl px-4 pb-28 pt-6 sm:px-6 sm:pb-12 sm:pt-8">
         {step > 0 && (
-          <ol className="mb-7 flex items-center gap-1 overflow-x-auto pb-1">
+          <ol className={`mb-6 flex items-center gap-1 overflow-x-auto pb-1 sm:mb-7 ${step === 2 || step === 5 ? "" : "mx-auto max-w-4xl"}`}>
             {STEPS.map((label, i) => {
+
               const n = i + 1;
               const activeStep = step === n;
               const done = step > n;
@@ -638,7 +650,7 @@ export default function Notnagel() {
 
         {/* Step 1 – Bereich */}
         {step === 1 && (
-          <section className="space-y-5 max-w-4xl">
+          <section className="mx-auto max-w-4xl space-y-5">
             <SectionHead step={1} title="Bereichsprofil" lead="Diese Angaben erscheinen auf jedem Deckblatt und legen den Geltungsbereich der Dokumente fest." />
             <Hint>„Fachbereich“ ist die Organisationseinheit, für die Sie verantwortlich sind. Felder, die Sie nicht kennen, können leer bleiben.</Hint>
             <Card title="Verantwortung und Geltungsbereich">
@@ -874,7 +886,9 @@ export default function Notnagel() {
 
         {/* Step 3 – Team */}
         {step === 3 && (
-          <section className="space-y-5 max-w-3xl">
+          <section className="mx-auto max-w-4xl space-y-5">
+
+
             <SectionHead step={3} title="Notfallteam des Bereichs" lead="Wer entscheidet, wer informiert, wer vertritt – knapp und eindeutig besetzt." />
             <Hint>Im Ernstfall zählt, wer entscheidet. Jede Rolle braucht eine Vertretung – sonst hängt der Plan an einer einzigen Person.</Hint>
             <div className="space-y-2">
@@ -894,7 +908,7 @@ export default function Notnagel() {
 
         {/* Step 4 – Übung */}
         {step === 4 && (
-          <section className="space-y-5 max-w-3xl">
+          <section className="mx-auto max-w-4xl space-y-5">
             <SectionHead step={4} title="Tabletop-Übung" lead="Parameter für das Drehbuch, mit dem Sie den Plan erstmals belasten." />
             <Hint>Ein Plan, der nie geübt wurde, ist eine Vermutung. Das Drehbuch testet genau die Prozesse und Notbetriebsverfahren, die Sie erfasst haben.</Hint>
             <div className="grid sm:grid-cols-2 gap-4">
