@@ -476,9 +476,11 @@ export default function Notnagel() {
       setProgress(blockers === 0
         ? "Qualitätssicherung bestanden – Dokumente freigegeben"
         : `Qualitätssicherung abgeschlossen – ${blockers} Befund(e) bleiben offen`);
+      audio.play(blockers === 0 ? "success" : "error");
     } catch (e: any) {
       setError(e.message || "Fehler bei der Generierung");
       setProgress("Abgebrochen");
+      audio.play("error");
     } finally {
       if (genTimer.current) { window.clearInterval(genTimer.current); genTimer.current = null; }
       setLoading(false);
