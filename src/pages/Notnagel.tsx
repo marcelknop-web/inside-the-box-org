@@ -102,8 +102,8 @@ const DRAFT_KEY = "notnagel.draft.v1";
 
 function Hint({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex gap-2.5 rounded-none border border-[#00bcd4]/30 bg-[#00bcd4]/10 px-3.5 py-3">
-      <span aria-hidden className="mt-px flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-none bg-[#f5b800] text-[10px] font-bold text-[#080b10]">i</span>
+    <div className="voxel-bevel flex gap-2.5 border-2 border-[#00bcd4]/30 bg-[#00bcd4]/10 px-3.5 py-3">
+      <span aria-hidden className="mt-px flex h-4 w-4 flex-shrink-0 items-center justify-center border border-[#00bcd4]/60 bg-[#00bcd4]/25 font-pixel text-[7px] text-[#bfeaf2]">i</span>
       <p className="text-[12.5px] leading-relaxed text-[#bfeaf2]">{children}</p>
     </div>
   );
@@ -119,20 +119,15 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
   );
 }
 
-/** Karte mit einheitlichem Rahmen, Radius und Schatten */
+/** Karte: Voxel-Block mit Bevel und Pixel-Titel */
 function Card({ title, action, children, className = "" }: { title?: string; action?: React.ReactNode; children: React.ReactNode; className?: string }) {
   return (
-    <div className={`rounded-none border border-[#243347] bg-[#141c28] p-4 sm:p-5 shadow-voxel ${className}`}>
-      {(title || action) && (
-        <div className="mb-3.5 flex items-start justify-between gap-3">
-          {title && <p className="text-[13px] font-semibold tracking-tight text-[#f5b800]">{title}</p>}
-          {action}
-        </div>
-      )}
+    <VoxelPanel title={title} action={action} className={className}>
       {children}
-    </div>
+    </VoxelPanel>
   );
 }
+
 
 /** Schrittkopf: Nummer, Titel, Kurzbeschreibung – erscheint der Reihe nach. */
 function SectionHead({ step, title, lead }: { step: number; title: string; lead?: string }) {
