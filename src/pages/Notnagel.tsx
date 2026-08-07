@@ -1077,7 +1077,7 @@ export default function Notnagel() {
 
         {/* Step 5 – Ergebnisse */}
         {step === 5 && (
-          <StepSection step={5} title="Prüfung und Dokumente" lead="Notnagel prüft Ihre Angaben, formuliert die Texte und erzeugt die vier Word-Dokumente." className="space-y-6">
+          <StepSection step={5} title="Prüfung und Dokumente" lead="Notnagel prüft Ihre Angaben, formuliert die Texte und erzeugt die vier Word-Dokumente." className="space-y-6" onCascadeDone={() => setCoachReady(true)}>
 
 
             <div className="grid lg:grid-cols-2 gap-5">
