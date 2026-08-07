@@ -1043,7 +1043,7 @@ export default function Notnagel() {
 
         {/* Step 4 – Übung */}
         {step === 4 && (
-          <StepSection step={4} title="Tabletop-Übung" lead="Parameter für das Drehbuch, mit dem Sie den Plan erstmals belasten." className="mx-auto max-w-4xl space-y-5">
+          <StepSection step={4} title="Tabletop-Übung" lead="Parameter für das Drehbuch, mit dem Sie den Plan erstmals belasten." className="mx-auto max-w-4xl space-y-5" onCascadeDone={() => setCoachReady(true)}>
 
             <Hint>Ein Plan, der nie geübt wurde, ist eine Vermutung. Das Drehbuch testet genau die Prozesse und Notbetriebsverfahren, die Sie erfasst haben.</Hint>
             <div className="grid sm:grid-cols-2 gap-4">
