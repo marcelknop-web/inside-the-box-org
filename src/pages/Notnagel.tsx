@@ -594,14 +594,15 @@ export default function Notnagel() {
             <div className="max-w-3xl space-y-4">
               <SeqText
                 order={0} current={seq} advance={advance} pause={480} charDelay={16}
-                className="font-pixel text-[9px] uppercase tracking-wider text-[#00bcd4]"
+                className="text-[11.5px] font-bold uppercase tracking-[0.22em] text-[#4dd6e8]"
                 text="Business Continuity Management"
               />
               <SeqText
                 order={1} current={seq} advance={advance} pause={640} charDelay={22} as="h2"
-                className="font-pixel text-[19px] leading-[1.55] text-[#f5b800] sm:text-[26px]"
+                className="text-[34px] font-extrabold leading-[1.12] tracking-tight text-[#ffd23f] sm:text-[46px]"
                 text="Der Notnagel für Ihren Fachbereich."
               />
+
 
               <SeqText
                 order={2} current={seq} advance={advance} pause={700} charDelay={6}
