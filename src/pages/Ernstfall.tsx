@@ -656,10 +656,14 @@ export default function Ernstfall() {
         setProgress(label);
         pushLog(label);
       });
+      audio.play("complete");
+      audio.say("ready");
     } catch (e: any) {
       console.error(e);
       setError("Word-Paket konnte nicht erzeugt werden.");
       pushLog("Fehler beim Erstellen des ZIP");
+      audio.play("error");
+
     } finally {
       setDownloading(false);
     }
