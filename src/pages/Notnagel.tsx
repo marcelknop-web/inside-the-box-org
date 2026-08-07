@@ -823,6 +823,23 @@ export default function Notnagel() {
         )}
       </main>
 
+      {loading && (
+        <div className="fixed inset-0 z-50 bg-neutral-900/60 backdrop-blur-sm flex items-center justify-center px-4">
+          <div className="w-full max-w-md rounded-lg bg-white p-6 space-y-4 shadow-xl">
+            <p className="text-sm font-semibold text-[#0E4749]">Dokumente werden erstellt und geprüft</p>
+            <div className="h-2 bg-neutral-200 rounded overflow-hidden">
+              <div className="h-full bg-[#0E4749] transition-all duration-500" style={{ width: `${Math.max(progressPct, 4)}%` }} />
+            </div>
+            <p className="text-xs text-neutral-700">{progress}</p>
+            <p className="text-[11px] text-neutral-500">
+              Nach der Formulierung läuft automatisch eine Qualitätssicherung über alle vier Dokumente. Erkannte Blocker werden in bis zu zwei Nachbesserungsläufen behoben – das kann eine bis zwei Minuten dauern.
+            </p>
+          </div>
+        </div>
+      )}
+
+
+
       <NotnagelCoach
         guide={COACH_GUIDES[step] ?? COACH_GUIDES[0]}
         topics={coachTopics}
