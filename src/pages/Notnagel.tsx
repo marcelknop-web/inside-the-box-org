@@ -251,6 +251,7 @@ export default function Notnagel() {
   const [error, setError] = useState<string | null>(null);
   const [content, setContent] = useState<GeneratedContent | null>(null);
   const [contentFindings, setContentFindings] = useState<Finding[]>([]);
+  const [tilesDone, setTilesDone] = useState(false);
 
   const genTimer = useRef<number | null>(null);
 
