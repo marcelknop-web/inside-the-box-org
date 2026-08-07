@@ -385,35 +385,52 @@ export default function Notnagel() {
         <meta name="description" content="Notnagel führt Fachbereichsverantwortliche durch den BCM-Prozess: Business Impact Analyse, Notfallplan, BCM-Leitlinie und Tabletop-Drehbuch als fertige Word-Dokumente." />
       </Helmet>
 
-      <header className="border-b border-neutral-200 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-3 flex-wrap">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-[#0E4749]">Notnagel</h1>
-            <p className="text-[11px] text-neutral-500">BCM-Assistent für Fachbereiche · inside-the-box.org</p>
+      <header className="sticky top-0 z-30 border-b border-neutral-200/80 bg-white/85 backdrop-blur">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-3">
+            <span aria-hidden className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#0E4749] text-sm font-bold text-white">N</span>
+            <div>
+              <h1 className="text-lg sm:text-xl font-bold tracking-tight text-[#0E4749]">Notnagel</h1>
+              <p className="text-[11px] text-neutral-500">BCM-Assistent für Fachbereiche · inside-the-box.org</p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={resetAll} className="text-xs px-3 py-1.5 rounded border border-neutral-300 text-neutral-700 hover:bg-neutral-50">↺ Neu starten</button>
+            {step > 0 && <span className="hidden rounded-full bg-teal-50 px-2.5 py-1 text-[11px] font-medium text-teal-800 sm:inline">Schritt {step}/5 · {STEPS[step - 1]}</span>}
+            <button onClick={resetAll} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 transition hover:bg-neutral-50">↺ Neu starten</button>
             <Link to="/" className="text-sm text-[#0E4749] hover:underline">← zurück</Link>
           </div>
         </div>
+        {step > 0 && (
+          <div className="h-0.5 w-full bg-neutral-200">
+            <div className="h-full bg-[#0E4749] transition-all duration-500" style={{ width: `${(step / 5) * 100}%` }} />
+          </div>
+        )}
       </header>
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {step > 0 && (
-          <ol className="flex gap-1.5 sm:gap-2 mb-6 flex-wrap">
+          <ol className="mb-7 flex items-center gap-1 overflow-x-auto pb-1">
             {STEPS.map((label, i) => {
               const n = i + 1;
               const activeStep = step === n;
+              const done = step > n;
               return (
-                <li key={label}>
+                <li key={label} className="flex flex-shrink-0 items-center">
                   <button
                     onClick={() => setStep(n)}
-                    className={`px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium border transition ${
-                      activeStep ? "bg-[#0E4749] text-white border-[#0E4749]"
-                        : step > n ? "bg-white text-[#0E4749] border-[#0E4749]"
-                        : "bg-white text-neutral-500 border-neutral-200"
+                    aria-current={activeStep ? "step" : undefined}
+                    className={`group flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition sm:text-[13px] ${
+                      activeStep ? "border-[#0E4749] bg-[#0E4749] text-white shadow-sm"
+                        : done ? "border-teal-200 bg-teal-50 text-[#0E4749] hover:border-[#0E4749]"
+                        : "border-neutral-200 bg-white text-neutral-500 hover:border-neutral-300"
                     }`}
-                  >{n}. {label}</button>
+                  >
+                    <span className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${
+                      activeStep ? "bg-white/20 text-white" : done ? "bg-[#0E4749] text-white" : "bg-neutral-100 text-neutral-500"
+                    }`}>{done ? "✓" : n}</span>
+                    {label}
+                  </button>
+                  {n < STEPS.length && <span aria-hidden className={`mx-1 h-px w-3 sm:w-5 ${done ? "bg-[#0E4749]/40" : "bg-neutral-200"}`} />}
                 </li>
               );
             })}
@@ -424,23 +441,28 @@ export default function Notnagel() {
         {step === 0 && (
           <section className="space-y-8">
             <div className="max-w-3xl space-y-4">
-              <p className="text-xs uppercase tracking-widest text-teal-700 font-semibold">Business Continuity Management</p>
-              <h2 className="text-3xl sm:text-4xl font-bold text-[#0E4749] leading-tight">Der Notnagel für Ihren Fachbereich.</h2>
-              <p className="text-base text-neutral-700 leading-relaxed">
+              <p className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-teal-700">Business Continuity Management</p>
+              <h2 className="text-3xl sm:text-[2.6rem] font-bold leading-[1.1] tracking-tight text-[#0E4749]">Der Notnagel für Ihren Fachbereich.</h2>
+              <p className="text-[16.5px] leading-relaxed text-neutral-700">
                 Notnagel führt Sie Schritt für Schritt durch den BCM-Prozess – ohne BCM-Vorkenntnisse. Sie beschreiben Ihre Prozesse,
                 Notnagel leitet Kennzahlen wie MTPD, RTO und RPO regelbasiert ab, prüft Ihre Angaben auf Widersprüche und erzeugt
                 daraus vier freigabefähige Word-Dokumente.
               </p>
-              <ul className="grid sm:grid-cols-2 gap-3 pt-2">
+              <div className="flex flex-wrap gap-x-5 gap-y-2 pt-1 text-[12px] text-neutral-600">
+                {["5 Schritte", "ca. 20–30 Minuten", "4 Word-Dokumente", "Automatische Qualitätsprüfung"].map((f) => (
+                  <span key={f} className="flex items-center gap-1.5"><span aria-hidden className="text-[#0E4749]">●</span>{f}</span>
+                ))}
+              </div>
+              <ul className="grid gap-3 pt-2 sm:grid-cols-2">
                 {[
                   ["BCM-Leitlinie", "Zweck, Geltungsbereich, Rollen, Kennzahlen"],
                   ["Business Impact Analyse", "Schadensverlauf, MTPD, RTO, RPO, Abhängigkeiten"],
                   ["Notfallplan (BCP)", "Aktivierungsstufen, Sofortmaßnahmen, Notbetrieb"],
                   ["Tabletop-Drehbuch", "Lage, Injects, Auswertung, Maßnahmenliste"],
                 ].map(([t, d]) => (
-                  <li key={t} className="rounded-lg border border-neutral-200 bg-white p-4">
-                    <p className="text-sm font-semibold text-[#0E4749]">{t}</p>
-                    <p className="text-xs text-neutral-600 mt-1">{d}</p>
+                  <li key={t} className="rounded-2xl border border-neutral-200/90 bg-white p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:border-teal-300">
+                    <p className="text-sm font-semibold tracking-tight text-[#0E4749]">{t}</p>
+                    <p className="mt-1 text-xs leading-relaxed text-neutral-600">{d}</p>
                   </li>
                 ))}
               </ul>
@@ -450,14 +472,19 @@ export default function Notnagel() {
               </Hint>
             </div>
 
-            <div className="flex flex-wrap gap-3">
-              <button onClick={() => { setStep(1); }} className="px-5 py-2.5 rounded bg-[#0E4749] text-white text-sm font-medium">Assistent starten →</button>
-              {DEMO_SCENARIOS.map((d, i) => (
-                <button key={d.label} onClick={() => loadDemo(i)} className="px-4 py-2.5 rounded border border-neutral-300 text-sm text-left">
-                  <span className="font-medium">Beispiel: {d.label}</span>
-                  <span className="block text-[11px] text-neutral-500">{d.hint}</span>
-                </button>
-              ))}
+            <div className="space-y-3">
+              <button onClick={() => { setStep(1); }} className="rounded-lg bg-[#0E4749] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0b3a3c]">Assistent starten →</button>
+              <div>
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-neutral-500">Oder mit einem Beispiel starten</p>
+                <div className="flex flex-wrap gap-3">
+                  {DEMO_SCENARIOS.map((d, i) => (
+                    <button key={d.label} onClick={() => loadDemo(i)} className="max-w-xs rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-left text-sm transition hover:border-[#0E4749] hover:shadow-sm">
+                      <span className="font-medium text-neutral-800">{d.label}</span>
+                      <span className="mt-0.5 block text-[11px] leading-relaxed text-neutral-500">{d.hint}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </section>
         )}
