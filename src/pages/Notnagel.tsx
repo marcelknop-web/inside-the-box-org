@@ -792,7 +792,8 @@ export default function Notnagel() {
 
             <StepNav onBack={() => setStep(0)} next={{ label: "Weiter zu den Prozessen →", onClick: () => setStep(2) }} />
 
-          </section>
+          </StepSection>
+
         )}
 
         {/* Step 2 – Prozesse */}
