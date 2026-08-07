@@ -1160,7 +1160,8 @@ export default function Notnagel() {
             </div>
 
             <StepNav onBack={() => setStep(4)} />
-          </section>
+          </StepSection>
+
         )}
         </div>
       </main>
