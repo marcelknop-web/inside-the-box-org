@@ -83,6 +83,7 @@ const App = () => (
               <Route path="/starfighter" element={<Suspense fallback={<RouteSkeleton />}><Starfighter /></Suspense>} />
               <Route path="/ernstlfall" element={<Suspense fallback={<RouteSkeleton />}><PasswordGate storageKey="ernstlfall" label="ERNSTLFALL"><Ernstfall /></PasswordGate></Suspense>} />
               <Route path="/ernstfall" element={<Navigate to="/ernstlfall" replace />} />
+              <Route path="/notnagel" element={<Suspense fallback={<RouteSkeleton />}><Notnagel /></Suspense>} />
               <Route path="/marsec" element={<Suspense fallback={<RouteSkeleton />}><PasswordGate storageKey="ernstlfall" label="MarSec Studio"><MarSec /></PasswordGate></Suspense>} />
 
               {/* Catch-all: every Journey service id (nis2-dora, virtual-ciso, …) renders ChatView */}
