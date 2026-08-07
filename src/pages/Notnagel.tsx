@@ -162,7 +162,7 @@ function SectionHead({ step, title, lead }: { step: number; title: string; lead?
 /** Fußnavigation eines Schritts – auf Mobil volle Breite, auf Desktop links/rechts */
 function StepNav({ onBack, next }: { onBack?: () => void; next?: { label: string; onClick: () => void; disabled?: boolean; hint?: string } }) {
   return (
-    <div className="sticky bottom-0 z-20 -mx-4 mt-3 border-t-2 border-[#22303f] bg-[#080b10]/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6 lg:py-2.5 lg:pr-64">
+    <div className="sticky bottom-0 z-20 -mx-4 mt-3 border-t-2 border-[#22303f] bg-[#080b10]/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6 lg:py-2.5 lg:pr-[19.5rem]">
       <div className="flex items-center gap-2 sm:justify-between sm:gap-3">
         {onBack ? (
           <VoxelButton variant="ghost" onClick={onBack} aria-label="zurück" className="flex-shrink-0">
