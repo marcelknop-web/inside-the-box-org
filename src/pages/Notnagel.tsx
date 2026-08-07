@@ -582,6 +582,15 @@ export default function Notnagel() {
     warnings: contentFindings.filter((f) => f.severity === "warnung").length,
   }), [contentFindings]);
 
+  // Qualitätssicherung und Generierung starten selbsttätig beim Erreichen von Schritt 5.
+  const autoRun = useRef(false);
+  useEffect(() => {
+    if (step !== 5 || autoRun.current || loading || content) return;
+    autoRun.current = true;
+    void generate();
+  }, [step]); // eslint-disable-line react-hooks/exhaustive-deps
+
+
 
   async function downloadAll() {
     if (!content) return;
