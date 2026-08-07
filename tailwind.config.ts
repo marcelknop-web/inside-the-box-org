@@ -23,6 +23,7 @@ export default {
 				display: ['Space Grotesk', 'DM Sans', 'sans-serif'],
 				mono: ['IBM Plex Mono', 'Monaco', 'Menlo', 'monospace'],
 				rounded: ['DM Sans', 'sans-serif'],
+				pixel: ['Press Start 2P', 'IBM Plex Mono', 'monospace'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
