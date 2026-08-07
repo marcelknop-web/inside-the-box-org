@@ -518,18 +518,20 @@ export default function Notnagel() {
       </Helmet>
 
       <header className="sticky top-0 z-30 border-b border-neutral-200/80 bg-white/85 backdrop-blur">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3 flex-wrap">
-          <div className="flex items-center gap-3">
-            <span aria-hidden className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#0E4749] text-sm font-bold text-white">N</span>
-            <div>
-              <h1 className="text-lg sm:text-xl font-bold tracking-tight text-[#0E4749]">Notnagel</h1>
-              <p className="text-[11px] text-neutral-500">BCM-Assistent für Fachbereiche · inside-the-box.org</p>
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-3.5">
+          <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+            <span aria-hidden className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-[#0E4749] text-sm font-bold text-white sm:h-9 sm:w-9">N</span>
+            <div className="min-w-0">
+              <h1 className="truncate text-base font-bold tracking-tight text-[#0E4749] sm:text-xl">Notnagel</h1>
+              <p className="truncate text-[10.5px] text-neutral-500 sm:text-[11px]">BCM-Assistent für Fachbereiche · inside-the-box.org</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-shrink-0 items-center gap-2">
             {step > 0 && <span className="hidden rounded-full bg-teal-50 px-2.5 py-1 text-[11px] font-medium text-teal-800 sm:inline">Schritt {step}/5 · {STEPS[step - 1]}</span>}
-            <button onClick={resetAll} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 transition hover:bg-neutral-50">↺ Neu starten</button>
-            <Link to="/" className="text-sm text-[#0E4749] hover:underline">← zurück</Link>
+            <button onClick={resetAll} aria-label="Neu starten" className="rounded-lg border border-neutral-300 px-2.5 py-1.5 text-xs font-medium text-neutral-700 transition hover:bg-neutral-50 sm:px-3">
+              ↺<span className="hidden sm:inline"> Neu starten</span>
+            </button>
+            <Link to="/" className="text-sm text-[#0E4749] hover:underline">←<span className="hidden sm:inline"> zurück</span></Link>
           </div>
         </div>
         {step > 0 && (
@@ -539,10 +541,11 @@ export default function Notnagel() {
         )}
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      <main className="mx-auto max-w-6xl px-4 pb-28 pt-6 sm:px-6 sm:pb-12 sm:pt-8">
         {step > 0 && (
-          <ol className="mb-7 flex items-center gap-1 overflow-x-auto pb-1">
+          <ol className="mb-6 flex items-center gap-1 overflow-x-auto pb-1 sm:mb-7">
             {STEPS.map((label, i) => {
+
               const n = i + 1;
               const activeStep = step === n;
               const done = step > n;
