@@ -1004,13 +1004,13 @@ export default function Notnagel() {
               <button onClick={() => setTeam([...team, { role: "", primary: "", deputy: "" }])} className="text-xs px-3 py-1.5 rounded border border-dashed border-[#3b4d66]">+ Rolle</button>
             </div>
             <StepNav onBack={() => setStep(2)} next={{ label: "Weiter zur Übung →", onClick: () => setStep(4) }} />
-          </section>
+          </StepSection>
         )}
 
         {/* Step 4 – Übung */}
         {step === 4 && (
-          <section className="mx-auto max-w-4xl space-y-5">
-            <SectionHead step={4} title="Tabletop-Übung" lead="Parameter für das Drehbuch, mit dem Sie den Plan erstmals belasten." />
+          <StepSection step={4} title="Tabletop-Übung" lead="Parameter für das Drehbuch, mit dem Sie den Plan erstmals belasten." className="mx-auto max-w-4xl space-y-5">
+
             <Hint>Ein Plan, der nie geübt wurde, ist eine Vermutung. Das Drehbuch testet genau die Prozesse und Notbetriebsverfahren, die Sie erfasst haben.</Hint>
             <div className="grid sm:grid-cols-2 gap-4">
               <Field label="Dauer">
