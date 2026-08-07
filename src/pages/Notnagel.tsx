@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
+import Typewriter from "@/components/Typewriter";
 import {
   DAMAGE_CATEGORIES, HORIZONS, SCALE, DEFAULT_PROFILE, DEFAULT_TEAM, DEFAULT_EXERCISE,
   DEMO_SCENARIOS, newProcess, deriveMtpd, suggestRto, priorityOf, maxByHorizon,
@@ -164,6 +165,75 @@ function StepNav({ onBack, next }: { onBack?: () => void; next?: { label: string
   );
 }
 
+/** Typewriter reveal for a title + description pair, calling onDone after the body finishes. */
+function TypewriterReveal({ title, body, onDone }: { title: string; body: string; onDone?: () => void }) {
+  const [titleDone, setTitleDone] = useState(false);
+  return (
+    <>
+      <p className="text-sm font-semibold tracking-tight text-[#0E4749]">
+        <Typewriter text={title} charDelay={10} cursor={false} onDone={() => setTitleDone(true)} />
+      </p>
+      {titleDone && (
+        <p className="mt-1 text-xs leading-relaxed text-neutral-600">
+          <Typewriter text={body} charDelay={5} cursor={false} onDone={onDone} />
+        </p>
+      )}
+    </>
+  );
+}
+
+/** Reveals a list of title/description tiles one after another with a typewriter effect. */
+function TypewriterTileStack({ items, onDone }: { items: { title: string; body: string }[]; onDone?: () => void }) {
+  const [doneCount, setDoneCount] = useState(0);
+  return (
+    <>
+      {items.map((item, i) => (
+        <li
+          key={item.title}
+          className="rounded-2xl border border-neutral-200/90 bg-white p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:border-teal-300"
+        >
+          {i <= doneCount && (
+            <TypewriterReveal
+              title={item.title}
+              body={item.body}
+              onDone={() => {
+                const next = i + 1;
+                setDoneCount(c => Math.max(c, next));
+                if (next >= items.length) onDone?.();
+              }}
+            />
+          )}
+        </li>
+      ))}
+    </>
+  );
+}
+
+/** Reveals a row of buttons one after another with a typewriter effect. */
+function TypewriterButtonStack({ items, onSelect }: { items: { label: string; body: string }[]; onSelect: (i: number) => void }) {
+  const [doneCount, setDoneCount] = useState(0);
+  return (
+    <>
+      {items.map((item, i) => (
+        <button
+          key={item.label}
+          disabled={i > doneCount}
+          onClick={() => onSelect(i)}
+          className="max-w-xs rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-left text-sm transition hover:border-[#0E4749] hover:shadow-sm disabled:opacity-50"
+        >
+          {i <= doneCount && (
+            <TypewriterReveal
+              title={item.label}
+              body={item.body}
+              onDone={() => setDoneCount(c => Math.max(c, i + 1))}
+            />
+          )}
+        </button>
+      ))}
+    </>
+  );
+}
+
 const inputCls = "w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 shadow-[0_1px_1px_rgba(16,24,40,0.03)] transition focus:outline-none focus:ring-2 focus:ring-teal-700/25 focus:border-teal-700";
 
 export default function Notnagel() {
@@ -181,6 +251,7 @@ export default function Notnagel() {
   const [error, setError] = useState<string | null>(null);
   const [content, setContent] = useState<GeneratedContent | null>(null);
   const [contentFindings, setContentFindings] = useState<Finding[]>([]);
+  const [tilesDone, setTilesDone] = useState(false);
 
   const genTimer = useRef<number | null>(null);
 
@@ -454,18 +525,15 @@ export default function Notnagel() {
                 ))}
               </div>
               <ul className="grid gap-3 pt-2 sm:grid-cols-2">
-                {[
-                  ["BCM-Leitlinie", "Zweck, Geltungsbereich, Rollen, Kennzahlen"],
-                  ["Business Impact Analyse", "Schadensverlauf, MTPD, RTO, RPO, Abhängigkeiten"],
-                  ["Notfallplan (BCP)", "Aktivierungsstufen, Sofortmaßnahmen, Notbetrieb"],
-                  ["Tabletop-Drehbuch", "Lage, Injects, Auswertung, Maßnahmenliste"],
-                ].map(([t, d], i) => (
-                  <li key={t} style={{ animationDelay: `${300 + i * 220}ms`, animationFillMode: "both" }} className="animate-fade-in opacity-0 rounded-2xl border border-neutral-200/90 bg-white p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:border-teal-300">
-                    <p className="text-sm font-semibold tracking-tight text-[#0E4749]">{t}</p>
-                    <p className="mt-1 text-xs leading-relaxed text-neutral-600">{d}</p>
-                  </li>
-                ))}
-
+                <TypewriterTileStack
+                  items={[
+                    { title: "BCM-Leitlinie", body: "Zweck, Geltungsbereich, Rollen, Kennzahlen" },
+                    { title: "Business Impact Analyse", body: "Schadensverlauf, MTPD, RTO, RPO, Abhängigkeiten" },
+                    { title: "Notfallplan (BCP)", body: "Aktivierungsstufen, Sofortmaßnahmen, Notbetrieb" },
+                    { title: "Tabletop-Drehbuch", body: "Lage, Injects, Auswertung, Maßnahmenliste" },
+                  ]}
+                  onDone={() => setTilesDone(true)}
+                />
               </ul>
               <Hint>
                 Alle Eingaben bleiben in dieser Browser-Sitzung. Für die Ausformulierung der Texte wird ein anonymer KI-Aufruf genutzt –
@@ -475,18 +543,14 @@ export default function Notnagel() {
 
             <div className="space-y-3">
               <button onClick={() => { setStep(1); }} className="rounded-lg bg-[#0E4749] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0b3a3c]">Assistent starten →</button>
-              <div>
-                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-neutral-500">Oder mit einem Beispiel starten</p>
-                <div className="flex flex-wrap gap-3">
-                  {DEMO_SCENARIOS.map((d, i) => (
-                    <button key={d.label} onClick={() => loadDemo(i)} style={{ animationDelay: `${1200 + i * 200}ms`, animationFillMode: "both" }} className="animate-fade-in opacity-0 max-w-xs rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-left text-sm transition hover:border-[#0E4749] hover:shadow-sm">
-
-                      <span className="font-medium text-neutral-800">{d.label}</span>
-                      <span className="mt-0.5 block text-[11px] leading-relaxed text-neutral-500">{d.hint}</span>
-                    </button>
-                  ))}
+              {tilesDone && (
+                <div className="animate-fade-in">
+                  <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-neutral-500">Oder mit einem Beispiel starten</p>
+                  <div className="flex flex-wrap gap-3">
+                    <TypewriterButtonStack items={DEMO_SCENARIOS.map(d => ({ label: d.label, body: d.hint }))} onSelect={loadDemo} />
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </section>
         )}
