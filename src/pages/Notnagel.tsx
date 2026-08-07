@@ -116,11 +116,12 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
   return (
     <label className="block">
       <span className="block text-[12px] font-semibold leading-snug tracking-tight text-[#dbe4f0]">{label}</span>
-      {hint && <span className="mt-0.5 block text-[11px] leading-snug text-[#93a4bb]">{hint}</span>}
       <div className="mt-2">{children}</div>
+      {hint && <span className="mt-1 block text-[11px] leading-snug text-[#93a4bb]">{hint}</span>}
     </label>
   );
 }
+
 
 
 
