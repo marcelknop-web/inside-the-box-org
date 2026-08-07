@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
+import Typewriter from "@/components/Typewriter";
 import {
   DAMAGE_CATEGORIES, HORIZONS, SCALE, DEFAULT_PROFILE, DEFAULT_TEAM, DEFAULT_EXERCISE,
   DEMO_SCENARIOS, newProcess, deriveMtpd, suggestRto, priorityOf, maxByHorizon,
