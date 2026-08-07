@@ -171,16 +171,20 @@ function SectionHead({ step, title, lead, onDone }: { step: number; title: strin
 /**
  * Reveal-Kaskade: zeigt die Kinder strikt nacheinander – nie parallel zum Text darüber.
  * Startet erst, wenn `start` true ist (z. B. wenn der Schrittkopf fertig getippt hat).
+ * Ruft `onDone`, sobald alle Kinder eingeblendet sind.
  */
-function Cascade({ start, gap = 260, children }: { start: boolean; gap?: number; children: React.ReactNode }) {
+function Cascade({ start, gap = 260, onDone, children }: { start: boolean; gap?: number; onDone?: () => void; children: React.ReactNode }) {
   const items = Children.toArray(children);
   const [shown, setShown] = useState(0);
   useEffect(() => {
     if (!start) { setShown(0); return; }
-    if (shown >= items.length) return;
+    if (shown >= items.length) {
+      onDone?.();
+      return;
+    }
     const t = window.setTimeout(() => setShown((s) => s + 1), shown === 0 ? 60 : gap);
     return () => window.clearTimeout(t);
-  }, [start, shown, items.length, gap]);
+  }, [start, shown, items.length, gap, onDone]);
   return (
     <>
       {items.slice(0, shown).map((child, i) => (
