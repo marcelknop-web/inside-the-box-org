@@ -10,6 +10,8 @@ import {
   type NotnagelInput, type GeneratedContent, type ResourceEntry, type Finding, type Horizon,
 } from "@/data/notnagelTypes";
 import { buildNotnagelZip, downloadSingleDoc } from "@/utils/notnagelDocx";
+import { checkGeneratedContent, repairInstructions } from "@/utils/notnagelContentCheck";
+
 import NotnagelCoach, { type CoachStep, type CoachTopic } from "@/components/notnagel/NotnagelCoach";
 
 /** Anleitung je Wizard-Schritt – bewusst kurz und prüfbar gehalten. */
@@ -127,6 +129,8 @@ export default function Notnagel() {
   const [progressPct, setProgressPct] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [content, setContent] = useState<GeneratedContent | null>(null);
+  const [contentFindings, setContentFindings] = useState<Finding[]>([]);
+
   const genTimer = useRef<number | null>(null);
 
   const input: NotnagelInput = useMemo(() => ({ profile, processes, team, exercise }), [profile, processes, team, exercise]);
@@ -183,24 +187,23 @@ export default function Notnagel() {
     setActiveProcess(p.id);
   }
 
-  async function generate() {
-    setError(null); setContent(null); setLoading(true); setProgressPct(4);
-    setProgress("Eingaben werden geprüft …");
+  async function callGenerate(fixes: string[], derived: unknown[]) {
+    const projectRef = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+    const anon = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+    const res = await fetch(`https://${projectRef}.supabase.co/functions/v1/notnagel-generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${anon}`, apikey: anon },
+      body: JSON.stringify({ profile, processes, team, exercise, derived, activation: deriveActivation(processes), fixes }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Generierung fehlgeschlagen");
+    return data.content as GeneratedContent;
+  }
 
-    const stages = [
-      { pct: 15, msg: "Leitlinie wird formuliert …" },
-      { pct: 35, msg: "Schadensverlauf wird interpretiert …" },
-      { pct: 55, msg: "Notfallplan wird abgeleitet …" },
-      { pct: 75, msg: "Übungsdrehbuch wird geschrieben …" },
-      { pct: 88, msg: "Konsistenzprüfung der Kennzahlen …" },
-    ];
-    let i = 0;
+  async function generate() {
+    setError(null); setContent(null); setContentFindings([]); setLoading(true); setProgressPct(4);
+    setProgress("Eingaben werden geprüft …");
     if (genTimer.current) window.clearInterval(genTimer.current);
-    genTimer.current = window.setInterval(() => {
-      if (i >= stages.length) return;
-      const s = stages[i++];
-      setProgressPct(s.pct); setProgress(s.msg);
-    }, 4000) as unknown as number;
 
     try {
       const derived = processes.map((p) => {
@@ -216,18 +219,32 @@ export default function Notnagel() {
         };
       });
 
-      const projectRef = import.meta.env.VITE_SUPABASE_PROJECT_ID;
-      const anon = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-      const res = await fetch(`https://${projectRef}.supabase.co/functions/v1/notnagel-generate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${anon}`, apikey: anon },
-        body: JSON.stringify({ profile, processes, team, exercise, derived, activation: deriveActivation(processes) }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Generierung fehlgeschlagen");
-      setContent(data.content);
+      const MAX_PASSES = 3;
+      let draft: GeneratedContent | null = null;
+      let issues: Finding[] = [];
+
+      for (let pass = 1; pass <= MAX_PASSES; pass++) {
+        const base = pass === 1 ? 8 : 40 + (pass - 2) * 25;
+        setProgressPct(base);
+        setProgress(pass === 1 ? "Dokumente werden formuliert …" : `Nachbesserung ${pass - 1}: Befunde werden behoben …`);
+        draft = await callGenerate(pass === 1 ? [] : repairInstructions(issues), derived);
+
+        setProgressPct(base + 18);
+        setProgress(`Qualitätssicherung über alle Dokumente (Durchlauf ${pass}) …`);
+        issues = checkGeneratedContent(input, draft);
+        const blockers = issues.filter((f) => f.severity === "blocker").length;
+        const warnings = issues.filter((f) => f.severity === "warnung").length;
+        if (blockers === 0 && warnings === 0) break;
+        if (pass === MAX_PASSES) break;
+      }
+
+      setContent(draft);
+      setContentFindings(issues);
       setProgressPct(100);
-      setProgress("Dokumentinhalte erstellt");
+      const blockers = issues.filter((f) => f.severity === "blocker").length;
+      setProgress(blockers === 0
+        ? "Qualitätssicherung bestanden – Dokumente freigegeben"
+        : `Qualitätssicherung abgeschlossen – ${blockers} Befund(e) bleiben offen`);
     } catch (e: any) {
       setError(e.message || "Fehler bei der Generierung");
       setProgress("Abgebrochen");
@@ -237,11 +254,19 @@ export default function Notnagel() {
     }
   }
 
+  /** Eingabeprüfung plus Dokumentenprüfung – Grundlage für das Prüfprotokoll. */
+  const allFindings = useMemo(() => [...findings, ...contentFindings], [findings, contentFindings]);
+  const contentScore = useMemo(() => ({
+    blockers: contentFindings.filter((f) => f.severity === "blocker").length,
+    warnings: contentFindings.filter((f) => f.severity === "warnung").length,
+  }), [contentFindings]);
+
+
   async function downloadAll() {
     if (!content) return;
     setDownloading(true);
     try {
-      await buildNotnagelZip(input, content, findings, (done, total, label) => {
+      await buildNotnagelZip(input, content, allFindings, (done, total, label) => {
         setProgressPct(Math.round((done / total) * 100));
         setProgress(label);
       });
@@ -742,6 +767,28 @@ export default function Notnagel() {
               {error && <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded px-3 py-2">{error}</p>}
 
               {content && (
+                <div className={`rounded border p-3 text-xs space-y-1.5 ${contentScore.blockers ? "border-red-200 bg-red-50" : "border-emerald-200 bg-emerald-50"}`}>
+                  <p className="font-semibold text-neutral-800">
+                    Dokumentenprüfung: {contentScore.blockers} Blocker, {contentScore.warnings} Warnungen
+                  </p>
+                  {contentFindings.length === 0 ? (
+                    <p className="text-emerald-800">Alle vier Dokumente sind gegen die erfassten Kennzahlen geprüft – keine Befunde.</p>
+                  ) : (
+                    <ul className="space-y-1 max-h-40 overflow-y-auto pr-1">
+                      {contentFindings.map((f, i) => (
+                        <li key={i}>
+                          <span className={`inline-block w-2 h-2 rounded-full mr-2 align-middle ${f.severity === "blocker" ? "bg-red-600" : f.severity === "warnung" ? "bg-amber-500" : "bg-neutral-400"}`} />
+                          <strong className="text-neutral-700">{f.where}:</strong> <span className="text-neutral-600">{f.text}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <p className="text-[11px] text-neutral-500">Die Prüfung lief automatisch vor der Ausgabe; erkannte Befunde wurden in bis zu zwei Nachbesserungsläufen behoben. Verbleibende Befunde stehen im Prüfprotokoll des Downloads.</p>
+                </div>
+              )}
+
+
+              {content && (
                 <div className="space-y-4 pt-2">
                   <div className="rounded border border-neutral-200 p-3">
                     <p className="text-xs uppercase tracking-wide text-neutral-500 mb-1">Managementzusammenfassung</p>
@@ -754,7 +801,7 @@ export default function Notnagel() {
                       ["bcp", "Notfallplan (BCP)", "Aktivierung, Sofortmaßnahmen"],
                       ["tabletop", "Tabletop-Drehbuch", "Lage, Injects, Auswertung"],
                     ] as const).map(([key, title, desc]) => (
-                      <button key={key} onClick={() => downloadSingleDoc(key, input, content, findings)}
+                      <button key={key} onClick={() => downloadSingleDoc(key, input, content, allFindings)}
                         className="text-left rounded border border-neutral-200 p-3 hover:border-[#0E4749] transition">
                         <p className="text-sm font-semibold text-[#0E4749]">{title}</p>
                         <p className="text-[11px] text-neutral-600 mt-0.5">{desc}</p>
@@ -775,6 +822,23 @@ export default function Notnagel() {
           </section>
         )}
       </main>
+
+      {loading && (
+        <div className="fixed inset-0 z-50 bg-neutral-900/60 backdrop-blur-sm flex items-center justify-center px-4">
+          <div className="w-full max-w-md rounded-lg bg-white p-6 space-y-4 shadow-xl">
+            <p className="text-sm font-semibold text-[#0E4749]">Dokumente werden erstellt und geprüft</p>
+            <div className="h-2 bg-neutral-200 rounded overflow-hidden">
+              <div className="h-full bg-[#0E4749] transition-all duration-500" style={{ width: `${Math.max(progressPct, 4)}%` }} />
+            </div>
+            <p className="text-xs text-neutral-700">{progress}</p>
+            <p className="text-[11px] text-neutral-500">
+              Nach der Formulierung läuft automatisch eine Qualitätssicherung über alle vier Dokumente. Erkannte Blocker werden in bis zu zwei Nachbesserungsläufen behoben – das kann eine bis zwei Minuten dauern.
+            </p>
+          </div>
+        </div>
+      )}
+
+
 
       <NotnagelCoach
         guide={COACH_GUIDES[step] ?? COACH_GUIDES[0]}

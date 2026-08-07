@@ -230,10 +230,21 @@ Dauer: ${s(exercise.duration, 40)} | Szenario: ${s(exercise.scenario, 600)} | Te
 }
 Für jeden Prozess genau ein bia-Eintrag mit passender processId. Für jedes gewählte Rahmenwerk genau ein rahmen-Eintrag. Genau drei Aktivierungseinträge in der Reihenfolge A1, A2, A3.`;
 
+    const fixes: string[] = Array.isArray(body?.fixes)
+      ? body.fixes.filter((x: unknown) => typeof x === "string").slice(0, 20).map((x: string) => s(x, 300))
+      : [];
+    const repairBlock = fixes.length
+      ? `\n\n## QUALITÄTSSICHERUNG – zwingend zu behebende Befunde des vorherigen Entwurfs
+${fixes.map((x) => `- ${x}`).join("\n")}
+Erzeuge das vollständige JSON erneut und behebe jeden dieser Befunde. Ändere keine Kennzahlen aus dem Input.`
+      : "";
+    const finalPrompt = userPrompt + repairBlock;
+
+
     const t0 = Date.now();
     let response: Response;
     try {
-      response = await callGateway(userPrompt, LOVABLE_API_KEY);
+      response = await callGateway(finalPrompt, LOVABLE_API_KEY);
     } catch (e) {
       console.error("gateway fetch failed", e);
       return new Response(JSON.stringify({ error: "KI-Gateway nicht erreichbar" }), { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -269,7 +280,7 @@ Für jeden Prozess genau ein bia-Eintrag mit passender processId. Für jedes gew
       console.warn("notnagel_ai parse_failed, retrying once");
       try {
         const r2 = await callGateway(
-          userPrompt + `\n\nDie vorherige Antwort war kein valides JSON. Antworte AUSSCHLIESSLICH mit einem JSON-Objekt, das mit "{" beginnt und mit "}" endet.`,
+          finalPrompt + `\n\nDie vorherige Antwort war kein valides JSON. Antworte AUSSCHLIESSLICH mit einem JSON-Objekt, das mit "{" beginnt und mit "}" endet.`,
           LOVABLE_API_KEY,
           8000,
           0.2,
