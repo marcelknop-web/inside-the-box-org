@@ -8,7 +8,7 @@ import {
   AlignmentType, PageNumber, HeadingLevel, BorderStyle, WidthType, ShadingType, VerticalAlign,
 } from "docx";
 import {
-  DAMAGE_CATEGORIES, HORIZONS, SCALE, deriveMtpd, priorityOf, maxByHorizon,
+  DAMAGE_CATEGORIES, HORIZONS, SCALE, deriveMtpd, priorityOf, maxByHorizon, deriveActivation,
   type NotnagelInput, type GeneratedContent, type ProcessEntry, type Finding,
 } from "@/data/notnagelTypes";
 
