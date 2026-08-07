@@ -348,7 +348,6 @@ export default function Notnagel() {
   }, []);
 
   /** Bei Schrittwechsel an den Anfang des Schritts springen. */
-  /** Bei Schrittwechsel an den Anfang des Schritts springen. */
   useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, [step]);
 
   /** Game-Audio + Level-Sweep beim Schrittwechsel. */
