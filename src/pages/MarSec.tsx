@@ -1067,13 +1067,17 @@ export default function MarSec() {
         setProgress(label);
         pushLog(label);
       });
+      audio.play("complete");
+      audio.say("ready");
     } catch (e) {
       console.error(e);
       setError("The Word package could not be created.");
       pushLog("Error while creating the ZIP");
+      audio.play("error");
     } finally {
       setDownloading(false);
     }
+
   }
 
   const btnPrimary = "px-5 py-2.5 rounded-full bg-[#D6003C] text-white text-sm font-semibold tracking-wide hover:bg-[#b30032] transition disabled:opacity-40";
