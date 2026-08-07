@@ -138,16 +138,16 @@ function SectionHead({ step, title, lead }: { step: number; title: string; lead?
   useEffect(() => { setPhase(0); }, [title]);
   const advance = (pause: number) => () => window.setTimeout(() => setPhase((p) => p + 1), pause);
   return (
-    <div className="space-y-1.5">
-      <p className="font-pixel text-[9px] uppercase tracking-wider text-[#00bcd4]">
-        <Typewriter key={`e-${title}`} text={`Level ${step} / 5`} charDelay={14} cursor={false} onDone={advance(280)} />
+    <div className="space-y-2">
+      <p className="text-[11.5px] font-bold uppercase tracking-[0.22em] text-[#4dd6e8]">
+        <Typewriter key={`e-${title}`} text={`Level ${step} von 5`} charDelay={14} cursor={false} onDone={advance(280)} />
       </p>
-      <h2 className="font-pixel text-[15px] leading-[1.5] text-[#f5b800] sm:text-[19px]">
+      <h2 className="text-[28px] font-extrabold leading-tight tracking-tight text-[#ffd23f] sm:text-[34px]">
         {phase >= 1 ? <Typewriter key={`t-${title}`} text={title} charDelay={18} cursor={false} onDone={advance(420)} /> : <span>&nbsp;</span>}
       </h2>
 
       {lead && (
-        <p className="max-w-2xl text-sm leading-relaxed text-[#9fb0c6]">
+        <p className="max-w-2xl text-[14.5px] leading-relaxed text-[#c3d0e0]">
           {phase >= 2 && <Typewriter key={`l-${title}`} text={lead} charDelay={7} cursor={false} />}
         </p>
       )}
