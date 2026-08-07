@@ -564,10 +564,16 @@ export default function Notnagel() {
 
 
               <div className="space-y-6">
-                {!active && <p className="text-sm text-neutral-500">Bitte einen Prozess anlegen oder auswählen.</p>}
+                {!active && (
+                  <div className="rounded-2xl border border-dashed border-neutral-300 bg-white/60 px-6 py-14 text-center">
+                    <p className="text-sm font-medium text-neutral-700">Noch kein Prozess ausgewählt</p>
+                    <p className="mx-auto mt-1 max-w-sm text-xs leading-relaxed text-neutral-500">Legen Sie links einen Prozess an – zum Beispiel „Kundenauftragsbearbeitung“ – und bewerten Sie anschließend den Schadensverlauf.</p>
+                    <button onClick={addProcess} className="mt-4 rounded-lg bg-[#0E4749] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0b3a3c]">+ Ersten Prozess anlegen</button>
+                  </div>
+                )}
                 {active && (
                   <>
-                    <div className="rounded-lg border border-neutral-200 bg-white p-4 space-y-4">
+                    <div className="rounded-2xl border border-neutral-200/90 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_-16px_rgba(16,24,40,0.12)] p-4 sm:p-5 space-y-4">
                       <div className="flex items-start justify-between gap-3">
                         <p className="text-sm font-semibold text-[#0E4749]">{active.id} · Prozesssteckbrief</p>
                         <button onClick={() => { setProcesses((ps) => ps.filter((p) => p.id !== active.id)); setActiveProcess(null); }}
@@ -588,7 +594,7 @@ export default function Notnagel() {
                     </div>
 
                     {/* Schadensverlauf */}
-                    <div className="rounded-lg border border-neutral-200 bg-white p-4 space-y-3">
+                    <div className="rounded-2xl border border-neutral-200/90 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_-16px_rgba(16,24,40,0.12)] p-4 sm:p-5 space-y-3">
                       <p className="text-sm font-semibold text-[#0E4749]">Schadensverlauf</p>
                       <div className="flex flex-wrap gap-3 text-[11px] text-neutral-600">
                         {SCALE.map((s) => <span key={s.level}><strong>{s.code} = {s.name}:</strong> {s.hint}</span>)}
@@ -616,7 +622,7 @@ export default function Notnagel() {
                                               const m = { ...active.matrix, [cat.key]: { ...active.matrix[cat.key], [h as Horizon]: v } };
                                               updateProcess(active.id, { matrix: m });
                                             }}
-                                            className={`w-6 h-6 rounded text-[11px] border ${on
+                                            className={`w-7 h-7 rounded-md text-[11px] font-semibold border transition ${on
                                               ? v >= 3 ? "bg-red-700 text-white border-red-700" : v === 2 ? "bg-amber-500 text-white border-amber-500" : "bg-[#0E4749] text-white border-[#0E4749]"
                                               : "border-neutral-300 text-neutral-500 hover:border-neutral-500"}`}>{v}</button>
                                         );
@@ -644,7 +650,7 @@ export default function Notnagel() {
                     </div>
 
                     {/* Kontinuitätsanforderungen */}
-                    <div className="rounded-lg border border-neutral-200 bg-white p-4 grid sm:grid-cols-3 gap-4">
+                    <div className="rounded-2xl border border-neutral-200/90 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_-16px_rgba(16,24,40,0.12)] p-4 sm:p-5 grid sm:grid-cols-3 gap-4">
                       <Field label="RTO in Stunden" hint="Angestrebte Wiederanlaufzeit – muss unter der MTPD liegen.">
                         <input className={inputCls} inputMode="numeric" value={active.rtoHours} onChange={(e) => updateProcess(active.id, { rtoHours: e.target.value })} />
                       </Field>
@@ -659,7 +665,7 @@ export default function Notnagel() {
                     </div>
 
                     {/* Ressourcen */}
-                    <div className="rounded-lg border border-neutral-200 bg-white p-4 space-y-3">
+                    <div className="rounded-2xl border border-neutral-200/90 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_-16px_rgba(16,24,40,0.12)] p-4 sm:p-5 space-y-3">
                       <div className="flex items-center justify-between">
                         <p className="text-sm font-semibold text-[#0E4749]">Vitale Ressourcen</p>
                         <button onClick={() => updateProcess(active.id, { resources: [...active.resources, { kind: "IT-Anwendungen", description: "", criticality: "hoch", singlePointOfFailure: false }] })}
@@ -688,7 +694,7 @@ export default function Notnagel() {
                     </div>
 
                     {/* Notbetrieb */}
-                    <div className="rounded-lg border border-neutral-200 bg-white p-4 space-y-3">
+                    <div className="rounded-2xl border border-neutral-200/90 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_-16px_rgba(16,24,40,0.12)] p-4 sm:p-5 space-y-3">
                       <div className="flex items-center justify-between">
                         <p className="text-sm font-semibold text-[#0E4749]">Notbetriebsverfahren</p>
                         <button onClick={() => updateProcess(active.id, { workarounds: [...active.workarounds, { scenario: "", procedure: "", limitHours: "" }] })}
@@ -715,17 +721,14 @@ export default function Notnagel() {
               </div>
             </div>
 
-            <div className="flex justify-between">
-              <button onClick={() => setStep(1)} className="px-4 py-2 rounded border border-neutral-300 text-sm">← zurück</button>
-              <button onClick={() => setStep(3)} disabled={processes.length === 0} className="px-4 py-2 rounded bg-[#0E4749] text-white text-sm font-medium disabled:opacity-40">Weiter →</button>
-            </div>
+            <StepNav onBack={() => setStep(1)} next={{ label: "Weiter zum Notfallteam →", onClick: () => setStep(3), disabled: processes.length === 0, hint: processes.length === 0 ? "Mindestens ein Prozess nötig" : undefined }} />
           </section>
         )}
 
         {/* Step 3 – Team */}
         {step === 3 && (
           <section className="space-y-5 max-w-3xl">
-            <h2 className="text-xl font-semibold text-[#0E4749]">Notfallteam des Bereichs</h2>
+            <SectionHead step={3} title="Notfallteam des Bereichs" lead="Wer entscheidet, wer informiert, wer vertritt – knapp und eindeutig besetzt." />
             <Hint>Im Ernstfall zählt, wer entscheidet. Jede Rolle braucht eine Vertretung – sonst hängt der Plan an einer einzigen Person.</Hint>
             <div className="space-y-2">
               {team.map((t, i) => (
@@ -738,24 +741,21 @@ export default function Notnagel() {
               ))}
               <button onClick={() => setTeam([...team, { role: "", primary: "", deputy: "" }])} className="text-xs px-3 py-1.5 rounded border border-dashed border-neutral-400">+ Rolle</button>
             </div>
-            <div className="flex justify-between">
-              <button onClick={() => setStep(2)} className="px-4 py-2 rounded border border-neutral-300 text-sm">← zurück</button>
-              <button onClick={() => setStep(4)} className="px-4 py-2 rounded bg-[#0E4749] text-white text-sm font-medium">Weiter →</button>
-            </div>
+            <StepNav onBack={() => setStep(2)} next={{ label: "Weiter zur Übung →", onClick: () => setStep(4) }} />
           </section>
         )}
 
         {/* Step 4 – Übung */}
         {step === 4 && (
           <section className="space-y-5 max-w-3xl">
-            <h2 className="text-xl font-semibold text-[#0E4749]">Tabletop-Übung</h2>
+            <SectionHead step={4} title="Tabletop-Übung" lead="Parameter für das Drehbuch, mit dem Sie den Plan erstmals belasten." />
             <Hint>Ein Plan, der nie geübt wurde, ist eine Vermutung. Das Drehbuch testet genau die Prozesse und Notbetriebsverfahren, die Sie erfasst haben.</Hint>
             <div className="grid sm:grid-cols-2 gap-4">
               <Field label="Dauer">
                 <div className="flex gap-2 flex-wrap">
                   {(["90 Min.", "2,5 Std.", "4 Std."] as const).map((d) => (
                     <button key={d} onClick={() => setExercise({ ...exercise, duration: d, injectCount: d === "90 Min." ? 4 : d === "2,5 Std." ? 6 : 9 })}
-                      className={`px-3 py-2 rounded border text-sm ${exercise.duration === d ? "bg-[#0E4749] text-white border-[#0E4749]" : "border-neutral-300"}`}>{d}</button>
+                      className={`rounded-lg border px-3.5 py-2.5 text-sm font-medium transition ${exercise.duration === d ? "border-[#0E4749] bg-[#0E4749] text-white" : "border-neutral-300 bg-white text-neutral-700 hover:border-neutral-400"}`}>{d}</button>
                   ))}
                 </div>
               </Field>
@@ -763,7 +763,7 @@ export default function Notnagel() {
                 <div className="flex gap-2 flex-wrap">
                   {(["Einsteiger", "Geübtes Team", "Erfahrenes Team"] as const).map((l) => (
                     <button key={l} onClick={() => setExercise({ ...exercise, level: l })}
-                      className={`px-3 py-2 rounded border text-sm ${exercise.level === l ? "bg-[#0E4749] text-white border-[#0E4749]" : "border-neutral-300"}`}>{l}</button>
+                      className={`rounded-lg border px-3.5 py-2.5 text-sm font-medium transition ${exercise.level === l ? "border-[#0E4749] bg-[#0E4749] text-white" : "border-neutral-300 bg-white text-neutral-700 hover:border-neutral-400"}`}>{l}</button>
                   ))}
                 </div>
               </Field>
@@ -775,20 +775,17 @@ export default function Notnagel() {
               <Field label="Teilnehmer"><input className={inputCls} value={exercise.participants} onChange={(e) => setExercise({ ...exercise, participants: e.target.value })} /></Field>
               <Field label="Übungsleitung"><input className={inputCls} value={exercise.facilitator} onChange={(e) => setExercise({ ...exercise, facilitator: e.target.value })} /></Field>
             </div>
-            <div className="flex justify-between">
-              <button onClick={() => setStep(3)} className="px-4 py-2 rounded border border-neutral-300 text-sm">← zurück</button>
-              <button onClick={() => setStep(5)} className="px-4 py-2 rounded bg-[#0E4749] text-white text-sm font-medium">Zur Auswertung →</button>
-            </div>
+            <StepNav onBack={() => setStep(3)} next={{ label: "Zur Prüfung und Ausgabe →", onClick: () => setStep(5) }} />
           </section>
         )}
 
         {/* Step 5 – Ergebnisse */}
         {step === 5 && (
           <section className="space-y-6">
-            <h2 className="text-xl font-semibold text-[#0E4749]">Prüfung und Dokumente</h2>
+            <SectionHead step={5} title="Prüfung und Dokumente" lead="Notnagel prüft Ihre Angaben, formuliert die Texte und erzeugt die vier Word-Dokumente." />
 
             <div className="grid lg:grid-cols-2 gap-5">
-              <div className="rounded-lg border border-neutral-200 bg-white p-4 space-y-3">
+              <div className="rounded-2xl border border-neutral-200/90 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_-16px_rgba(16,24,40,0.12)] p-4 sm:p-5 space-y-3">
                 <p className="text-sm font-semibold text-[#0E4749]">Automatische Qualitätsprüfung</p>
                 <div className="flex gap-3 text-xs">
                   <span className={`px-2 py-1 rounded ${score.blockers ? "bg-red-100 text-red-800" : "bg-emerald-100 text-emerald-800"}`}>{score.blockers} Blocker</span>
@@ -807,7 +804,7 @@ export default function Notnagel() {
                 {!score.ready && <p className="text-xs text-red-700">Blocker bitte beheben – sie machen die Dokumente fachlich angreifbar.</p>}
               </div>
 
-              <div className="rounded-lg border border-neutral-200 bg-white p-4 space-y-3">
+              <div className="rounded-2xl border border-neutral-200/90 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_-16px_rgba(16,24,40,0.12)] p-4 sm:p-5 space-y-3">
                 <p className="text-sm font-semibold text-[#0E4749]">Prozessübersicht</p>
                 <table className="w-full text-xs">
                   <thead><tr className="text-left text-neutral-500"><th className="py-1">Prozess</th><th>MTPD</th><th>RTO</th><th>RPO</th></tr></thead>
@@ -828,14 +825,14 @@ export default function Notnagel() {
               </div>
             </div>
 
-            <div className="rounded-lg border border-neutral-200 bg-white p-5 space-y-4">
+            <div className="rounded-2xl border border-neutral-200/90 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_-16px_rgba(16,24,40,0.12)] p-4 sm:p-5 space-y-4">
               <div className="flex flex-wrap gap-3 items-center">
                 <button onClick={generate} disabled={loading || !score.ready}
-                  className="px-5 py-2.5 rounded bg-[#0E4749] text-white text-sm font-medium disabled:opacity-40">
+                  className="rounded-lg bg-[#0E4749] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0b3a3c] disabled:cursor-not-allowed disabled:opacity-40">
                   {loading ? "Dokumente werden formuliert …" : content ? "Neu generieren" : "Dokumente erstellen"}
                 </button>
                 {content && (
-                  <button onClick={downloadAll} disabled={downloading} className="px-5 py-2.5 rounded border border-[#0E4749] text-[#0E4749] text-sm font-medium disabled:opacity-40">
+                  <button onClick={downloadAll} disabled={downloading} className="rounded-lg border border-[#0E4749] px-5 py-3 text-sm font-semibold text-[#0E4749] transition hover:bg-teal-50 disabled:opacity-40">
                     {downloading ? "Paket wird gepackt …" : "Alle Dokumente als ZIP"}
                   </button>
                 )}
@@ -886,7 +883,7 @@ export default function Notnagel() {
                       ["tabletop", "Tabletop-Drehbuch", "Lage, Injects, Auswertung"],
                     ] as const).map(([key, title, desc]) => (
                       <button key={key} onClick={() => downloadSingleDoc(key, input, content, allFindings)}
-                        className="text-left rounded border border-neutral-200 p-3 hover:border-[#0E4749] transition">
+                        className="rounded-xl border border-neutral-200 bg-white p-3.5 text-left transition hover:border-[#0E4749] hover:shadow-sm">
                         <p className="text-sm font-semibold text-[#0E4749]">{title}</p>
                         <p className="text-[11px] text-neutral-600 mt-0.5">{desc}</p>
                         <p className="text-[11px] text-teal-700 mt-2">Word herunterladen ↓</p>
@@ -900,16 +897,14 @@ export default function Notnagel() {
               )}
             </div>
 
-            <div className="flex justify-between">
-              <button onClick={() => setStep(4)} className="px-4 py-2 rounded border border-neutral-300 text-sm">← zurück</button>
-            </div>
+            <StepNav onBack={() => setStep(4)} />
           </section>
         )}
       </main>
 
       {loading && (
         <div className="fixed inset-0 z-50 bg-neutral-900/60 backdrop-blur-sm flex items-center justify-center px-4">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 space-y-4 shadow-xl">
+          <div className="w-full max-w-md space-y-4 rounded-2xl bg-white p-6 shadow-2xl">
             <p className="text-sm font-semibold text-[#0E4749]">Dokumente werden erstellt und geprüft</p>
             <div className="h-2 bg-neutral-200 rounded overflow-hidden">
               <div className="h-full bg-[#0E4749] transition-all duration-500" style={{ width: `${Math.max(progressPct, 4)}%` }} />
