@@ -832,7 +832,7 @@ export default function Notnagel() {
 
         {/* Step 2 – Prozesse */}
         {step === 2 && (
-          <StepSection step={2} title="Prozesse und Auswirkungen" lead="Erfassen Sie die Prozesse, für die Ihr Bereich gegenüber anderen einsteht. Zwei bis fünf Prozesse reichen für den Anfang." className="space-y-5">
+          <StepSection step={2} title="Prozesse und Auswirkungen" lead="Erfassen Sie die Prozesse, für die Ihr Bereich gegenüber anderen einsteht. Zwei bis fünf Prozesse reichen für den Anfang." className="space-y-5" onCascadeDone={() => setCoachReady(true)}>
 
             <Hint>
               Bewerten Sie je Zeithorizont, wie stark der Schaden wäre, wenn der Prozess ab jetzt ausfällt. Notnagel leitet daraus die MTPD ab.
