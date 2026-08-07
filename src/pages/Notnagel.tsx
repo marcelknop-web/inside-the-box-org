@@ -129,6 +129,8 @@ export default function Notnagel() {
   const [progressPct, setProgressPct] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [content, setContent] = useState<GeneratedContent | null>(null);
+  const [contentFindings, setContentFindings] = useState<Finding[]>([]);
+
   const genTimer = useRef<number | null>(null);
 
   const input: NotnagelInput = useMemo(() => ({ profile, processes, team, exercise }), [profile, processes, team, exercise]);
