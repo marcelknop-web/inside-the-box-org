@@ -101,9 +101,9 @@ export default {
 				'electric': 'var(--shadow-electric)',
 				'card': 'var(--shadow-card)',
 				'glow': 'var(--glow-subtle)',
-				'voxel-sm': '2px 2px 0 0 rgba(0,0,0,0.55)',
-				'voxel': '4px 4px 0 0 rgba(0,0,0,0.55)',
-				'voxel-lg': '6px 6px 0 0 rgba(0,0,0,0.65)',
+				'voxel-sm': '2px 2px 0 0 rgba(0,0,0,0.38)',
+				'voxel': '3px 3px 0 0 rgba(0,0,0,0.4)',
+				'voxel-lg': '4px 4px 0 0 rgba(0,0,0,0.5)',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
