@@ -445,7 +445,7 @@ export default function Notnagel() {
 
   /** Startseite: Hilfe-Trigger erst einblenden, wenn alle Texte und Buttons fertig sind. */
   useEffect(() => {
-    if (step === 0 && seq >= 6 && tilesDone && introButtonsDone) {
+    if (step === 0 && seq >= 4 && tilesDone && introButtonsDone) {
       setCoachReady(true);
     }
   }, [step, seq, tilesDone, introButtonsDone]);
@@ -730,14 +730,6 @@ export default function Notnagel() {
                 text="Notnagel führt Sie Schritt für Schritt durch den BCM-Prozess – ohne BCM-Vorkenntnisse. Sie beschreiben Ihre Prozesse, Notnagel leitet Kennzahlen wie MTPD, RTO und RPO regelbasiert ab, prüft Ihre Angaben auf Widersprüche und erzeugt daraus vier freigabefähige Word-Dokumente."
               />
               {seq >= 3 && (
-                <div className="flex flex-wrap gap-x-5 gap-y-2 pt-1 text-[12px] text-[#b7c5d6]">
-                  <TypewriterInlineStack
-                    items={["5 Schritte", "ca. 20–30 Minuten", "4 Word-Dokumente", "Automatische Qualitätsprüfung"]}
-                    onDone={() => advance(3, 560)}
-                  />
-                </div>
-              )}
-              {seq >= 4 && (
                 <ul className="grid gap-3 pt-2 sm:grid-cols-2">
                   <TypewriterTileStack
                     items={[
@@ -746,22 +738,14 @@ export default function Notnagel() {
                       { title: "Notfallplan (BCP)", body: "Aktivierungsstufen, Sofortmaßnahmen, Notbetrieb" },
                       { title: "Tabletop-Drehbuch", body: "Lage, Injects, Auswertung, Maßnahmenliste" },
                     ]}
-                    onDone={() => { setTilesDone(true); advance(4, 760); }}
+                    onDone={() => { setTilesDone(true); advance(3, 760); }}
                   />
                 </ul>
               )}
-              {seq >= 5 && (
-                <Hint>
-                  <Typewriter
-                    charDelay={5} cursor={false}
-                    text="Alle Eingaben bleiben in dieser Browser-Sitzung. Für die Ausformulierung der Texte wird ein anonymer KI-Aufruf genutzt – Kennzahlen werden dabei nicht von der KI erfunden, sondern aus Ihren Angaben berechnet."
-                    onDone={() => advance(5, 700)}
-                  />
-                </Hint>
-              )}
             </div>
 
-            {seq >= 6 && (
+            {seq >= 4 && (
+
               <div className="animate-fade-in space-y-3">
                 <VoxelButton pixel onClick={() => { audio.play("click"); setStep(1); }} className="px-6 py-3">Assistent starten →</VoxelButton>
                 {tilesDone && (
