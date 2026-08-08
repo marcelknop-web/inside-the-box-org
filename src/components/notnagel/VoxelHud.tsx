@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom";
+import { ArrowLeft, RotateCcw, Volume2 } from "lucide-react";
+
 
 /** Game-HUD-Kopfzeile: Voxel-Logo, Titel, segmentierte Energieleiste, Sound-Toggle. */
 export function HudBar({
