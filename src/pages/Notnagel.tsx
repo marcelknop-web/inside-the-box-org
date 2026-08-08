@@ -891,10 +891,44 @@ export default function Notnagel() {
                     {/* Schadensverlauf */}
                     <div className="rounded-none border border-[#22303f] bg-[#16202e] shadow-voxel p-4 sm:p-5 space-y-3">
                       <p className="text-sm font-semibold text-[#f5b800]">Schadensverlauf</p>
-                      <div className="flex flex-wrap gap-3 text-[11px] text-[#b7c5d6]">
-                        {SCALE.map((s) => <span key={s.level}><strong>{s.code} = {s.name}:</strong> {s.hint}</span>)}
+                      <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] leading-relaxed text-[#b7c5d6]">
+                        {SCALE.map((s) => <span key={s.level} className="break-words"><strong>{s.code} = {s.name}:</strong> {s.hint}</span>)}
                       </div>
-                      <div className="max-w-full overflow-x-auto">
+
+                      {/* Mobil: gestapelte Bewertung statt breiter Tabelle – nichts läuft aus dem Bild */}
+                      <div className="space-y-3 sm:hidden">
+                        {DAMAGE_CATEGORIES.map((cat) => (
+                          <div key={cat.key} className="border border-[#1c2734] bg-[#101823] p-2.5">
+                            <p className="mb-2 text-[12px] font-semibold text-[#d6e0ee]">{cat.label}</p>
+                            <div className="space-y-1.5">
+                              {HORIZONS.map((h) => (
+                                <div key={h} className="flex items-center justify-between gap-2">
+                                  <span className="text-[11px] text-[#93a4bb]">{h}</span>
+                                  <div className="flex gap-1">
+                                    {[1, 2, 3, 4].map((v) => {
+                                      const on = active.matrix[cat.key][h] === v;
+                                      return (
+                                        <button key={v} title={SCALE[v - 1].hint}
+                                          aria-label={`${cat.label} nach ${h}: Stufe ${v}`}
+                                          onClick={() => {
+                                            const m = { ...active.matrix, [cat.key]: { ...active.matrix[cat.key], [h as Horizon]: v } };
+                                            updateProcess(active.id, { matrix: m });
+                                          }}
+                                          className={`h-8 w-8 rounded-none border text-[11px] font-semibold transition ${on
+                                            ? v >= 3 ? "bg-[#dc2626] text-[#080b10] border-red-500" : v === 2 ? "bg-amber-400/100 text-[#080b10] border-amber-500" : "bg-[#f5b800] text-[#080b10] border-[#f5b800]"
+                                            : "border-[#33455c] text-[#93a4bb]"}`}>{v}</button>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="hidden max-w-full overflow-x-auto sm:block">
+
                         <table className="w-full min-w-[560px] text-xs">
                           <thead>
                             <tr className="text-left text-[#93a4bb]">
