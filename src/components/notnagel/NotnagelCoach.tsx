@@ -4,6 +4,8 @@
  * und liefert auf Wunsch konkrete Formulierungsvorschläge für einzelne Felder.
  */
 import { useEffect, useState } from "react";
+import { Lightbulb, X } from "lucide-react";
+
 import type { Finding } from "@/data/notnagelTypes";
 
 export interface CoachTopic {
