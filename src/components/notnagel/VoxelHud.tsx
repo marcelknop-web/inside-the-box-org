@@ -112,7 +112,7 @@ export function LevelStepper({
   className?: string;
 }) {
   return (
-    <ol className={`mb-5 flex items-stretch gap-2 overflow-x-auto pb-1 lg:mb-4 ${className}`}>
+    <ol className={`mb-4 flex items-stretch gap-1.5 overflow-x-auto pb-1 sm:gap-2 sm:mb-5 lg:mb-4 ${className}`}>
       {steps.map((label, i) => {
         const n = i + 1;
         const active = step === n;
@@ -122,7 +122,9 @@ export function LevelStepper({
             <button
               onClick={() => onSelect(n)}
               aria-current={active ? "step" : undefined}
-              className={`voxel-press flex items-center gap-2.5 border-2 px-3 py-2.5 transition ${
+              aria-label={`Level ${n}: ${label}`}
+              className={`voxel-press flex items-center gap-2 border-2 px-2.5 py-2 transition sm:gap-2.5 sm:px-3 sm:py-2.5 ${
+
                 active
                   ? "voxel-bevel-gold border-[#ffd23f] bg-[#f5b800] text-[#0a0e14]"
                   : done
