@@ -560,6 +560,17 @@ export default function Notnagel() {
   const findings = useMemo(() => runQualityCheck(input), [input]);
   const score = useMemo(() => qualityScore(findings), [findings]);
 
+  /** Gemeinsame Props für alle StepNav-Instanzen (Footer-Controls). */
+  const navProps = {
+    soundOn: audio.enabled,
+    onToggleSound: () => { audio.play("click"); audio.toggle(); },
+    onReset: resetAll,
+    coachOpen,
+    onToggleCoach: () => { audio.play("click"); setCoachOpen((o) => !o); },
+    coachVisible: coachReady,
+    coachBadge: findings.filter((f) => f.severity !== "hinweis").length,
+  };
+
   // Entwurf lokal sichern
   const loaded = useRef(false);
   useEffect(() => {
