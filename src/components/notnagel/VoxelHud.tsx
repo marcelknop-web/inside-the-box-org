@@ -77,23 +77,6 @@ export function HudBar({
 
 
 
-
-      {/* Energieleiste: fünf Blöcke = fünf Level */}
-      {step > 0 && (
-        <div className="mx-auto flex max-w-6xl gap-1 px-4 pb-2 sm:px-6">
-          {steps.map((label, i) => (
-            <span
-              key={label}
-              aria-hidden
-              className={`h-2.5 flex-1 border-2 ${
-                i < step
-                  ? "border-[#ffd23f] bg-[#f5b800]"
-                  : "border-[#22303f] bg-[#101823]"
-              }`}
-            />
-          ))}
-        </div>
-      )}
     </header>
   );
 }
