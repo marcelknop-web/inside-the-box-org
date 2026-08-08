@@ -1042,19 +1042,29 @@ export default function Notnagel() {
                       </div>
                       <p className="text-[11px] text-[#93a4bb]">Was tut der Bereich konkret, wenn eine dieser Ressourcen fehlt? Auch „Papier und Telefon“ ist ein gültiges Verfahren.</p>
                       {active.workarounds.map((w, i) => (
-                        <div key={i} className="grid min-w-0 items-start gap-2 sm:grid-cols-[220px_1fr_110px_auto]">
-                          <input className={inputCls} placeholder="Ausfallszenario" value={w.scenario} onChange={(e) => {
-                            const ws = [...active.workarounds]; ws[i] = { ...w, scenario: e.target.value }; updateProcess(active.id, { workarounds: ws });
-                          }} />
-                          <textarea rows={2} className={inputCls} placeholder="Verfahren" value={w.procedure} onChange={(e) => {
-                            const ws = [...active.workarounds]; ws[i] = { ...w, procedure: e.target.value }; updateProcess(active.id, { workarounds: ws });
-                          }} />
-                          <input className={inputCls} placeholder="Std." inputMode="numeric" value={w.limitHours} onChange={(e) => {
-                            const ws = [...active.workarounds]; ws[i] = { ...w, limitHours: e.target.value }; updateProcess(active.id, { workarounds: ws });
-                          }} />
-                          <button onClick={() => updateProcess(active.id, { workarounds: active.workarounds.filter((_, j) => j !== i) })} className="text-xs text-red-300 pt-2">✕</button>
+                        <div key={i} className="grid min-w-0 items-start gap-2 border border-[#1c2734] p-2.5 sm:grid-cols-[220px_1fr_110px_auto] sm:border-0 sm:p-0">
+                          <label className="grid min-w-0 gap-1 sm:contents">
+                            <span className="text-[10px] uppercase tracking-wider text-[#93a4bb] sm:hidden">Ausfallszenario</span>
+                            <input className={inputCls} placeholder="Ausfallszenario" value={w.scenario} onChange={(e) => {
+                              const ws = [...active.workarounds]; ws[i] = { ...w, scenario: e.target.value }; updateProcess(active.id, { workarounds: ws });
+                            }} />
+                          </label>
+                          <label className="grid min-w-0 gap-1 sm:contents">
+                            <span className="text-[10px] uppercase tracking-wider text-[#93a4bb] sm:hidden">Verfahren</span>
+                            <textarea rows={2} className={`${inputCls} resize-y leading-relaxed`} placeholder="Verfahren" value={w.procedure} onChange={(e) => {
+                              const ws = [...active.workarounds]; ws[i] = { ...w, procedure: e.target.value }; updateProcess(active.id, { workarounds: ws });
+                            }} />
+                          </label>
+                          <label className="grid gap-1 sm:contents">
+                            <span className="text-[10px] uppercase tracking-wider text-[#93a4bb] sm:hidden">Grenze (Std.)</span>
+                            <input className={inputCls} placeholder="Std." inputMode="numeric" value={w.limitHours} onChange={(e) => {
+                              const ws = [...active.workarounds]; ws[i] = { ...w, limitHours: e.target.value }; updateProcess(active.id, { workarounds: ws });
+                            }} />
+                          </label>
+                          <button aria-label="Verfahren entfernen" onClick={() => updateProcess(active.id, { workarounds: active.workarounds.filter((_, j) => j !== i) })} className="justify-self-end text-xs text-red-300 sm:pt-2">✕ <span className="sm:hidden">entfernen</span></button>
                         </div>
                       ))}
+
                     </div>
                   </>
                 )}
