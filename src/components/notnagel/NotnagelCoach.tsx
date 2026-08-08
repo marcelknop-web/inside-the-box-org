@@ -81,7 +81,7 @@ export default function NotnagelCoach({ guide, topics, findings, context, visibl
     <>
       {/* Auslöser – erscheint immer als letztes Element einer Seite. */}
       <div
-        className={`fixed bottom-[5.25rem] left-3 z-30 transition-opacity duration-500 sm:bottom-4 sm:left-auto sm:right-4 ${
+        className={`fixed bottom-[5.25rem] left-3 z-40 transition-opacity duration-500 sm:bottom-24 sm:left-auto sm:right-4 ${
           visible ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
         style={{ marginBottom: "env(safe-area-inset-bottom)" }}
