@@ -1364,7 +1364,8 @@ export default function Notnagel() {
         topics={coachTopics}
         findings={findings}
         context={coachContext}
-        visible={coachReady}
+        open={coachOpen}
+        onOpenChange={setCoachOpen}
       />
     </div>
   );
