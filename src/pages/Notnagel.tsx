@@ -542,6 +542,17 @@ export default function Notnagel() {
   const audio = useNotnagelAudio();
   const [sweep, setSweep] = useState(0);
   const firstStep = useRef(true);
+
+  /** Gemeinsame Props für alle StepNav-Instanzen (Footer-Controls). */
+  const navProps = {
+    soundOn: audio.enabled,
+    onToggleSound: () => { audio.play("click"); audio.toggle(); },
+    onReset: resetAll,
+    coachOpen,
+    onToggleCoach: () => { audio.play("click"); setCoachOpen((o) => !o); },
+    coachVisible: coachReady,
+    coachBadge: findings.filter((f) => f.severity !== "hinweis").length,
+  };
   useEffect(() => {
     if (firstStep.current) { firstStep.current = false; return; }
     setSweep((s) => s + 1);
