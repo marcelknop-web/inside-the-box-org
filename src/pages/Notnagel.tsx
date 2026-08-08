@@ -710,7 +710,7 @@ export default function Notnagel() {
         onReset={resetAll}
       />
 
-      <main className="relative mx-auto flex w-full max-w-6xl flex-col px-4 pb-28 pt-6 sm:px-6 sm:pb-12 sm:pt-8 lg:min-h-0 lg:flex-1 lg:overflow-hidden lg:pb-3 lg:pt-5">
+      <main className="relative mx-auto flex w-full max-w-6xl flex-col px-4 pb-24 pt-6 sm:px-6 sm:pb-20 sm:pt-8 lg:min-h-0 lg:flex-1 lg:overflow-hidden lg:pb-20 lg:pt-5">
         {step > 0 && (
           <LevelStepper
             step={step}
