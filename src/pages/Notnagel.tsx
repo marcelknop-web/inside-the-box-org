@@ -1,6 +1,7 @@
 import { Children, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
+import { ArrowLeft, Home, Lightbulb, RotateCcw, Volume2, X } from "lucide-react";
 import Typewriter from "@/components/Typewriter";
 import {
   DAMAGE_CATEGORIES, HORIZONS, SCALE, DEFAULT_PROFILE, DEFAULT_TEAM, DEFAULT_EXERCISE,
