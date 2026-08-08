@@ -1,7 +1,7 @@
 import { Children, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Home, Lightbulb, RotateCcw, Volume2, X } from "lucide-react";
+import { ArrowLeft, Home, Lightbulb, RotateCcw, Volume2, VolumeX, X } from "lucide-react";
 import Typewriter from "@/components/Typewriter";
 import {
   DAMAGE_CATEGORIES, HORIZONS, SCALE, DEFAULT_PROFILE, DEFAULT_TEAM, DEFAULT_EXERCISE,
@@ -106,22 +106,23 @@ const DRAFT_KEY = "notnagel.draft.v1";
 
 function Hint({ children }: { children: React.ReactNode }) {
   return (
-    <div className="voxel-bevel flex gap-2.5 border-2 border-[#00bcd4]/30 bg-[#00bcd4]/10 px-3.5 py-3">
+    <div className="voxel-bevel flex gap-2.5 border border-[#00bcd4]/30 bg-[#00bcd4]/10 px-3.5 py-2.5">
       <span aria-hidden className="mt-px flex h-4 w-4 flex-shrink-0 items-center justify-center border border-[#00bcd4]/60 bg-[#00bcd4]/25 font-pixel text-[7px] text-[#bfeaf2]">i</span>
-      <p className="text-[12.5px] leading-relaxed text-[#bfeaf2]">{children}</p>
+      <p className="text-[12px] leading-relaxed text-[#bfeaf2]">{children}</p>
     </div>
   );
 }
 
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
-    <label className="block">
-      <span className="block text-[12px] font-semibold leading-snug tracking-tight text-[#dbe4f0]">{label}</span>
-      <div className="mt-2">{children}</div>
-      {hint && <span className="mt-1 block text-[11px] leading-snug text-[#93a4bb]">{hint}</span>}
+    <label className="flex min-w-0 flex-col">
+      <span className="block text-[11.5px] font-semibold uppercase leading-none tracking-[0.08em] text-[#93a4bb]">{label}</span>
+      <div className="mt-1.5">{children}</div>
+      {hint && <span className="mt-1.5 block min-h-[1.2em] text-[11px] leading-snug text-[#7f8fa6]">{hint}</span>}
     </label>
   );
 }
+
 
 
 
@@ -142,11 +143,11 @@ function SectionHead({ step, title, lead, onDone }: { step: number; title: strin
   useEffect(() => { setPhase(0); }, [title]);
   const advance = (pause: number) => () => window.setTimeout(() => setPhase((p) => p + 1), pause);
   return (
-    <div className="space-y-1.5">
-      <p className="text-[11.5px] font-bold uppercase tracking-[0.22em] text-[#4dd6e8]">
+    <div className="space-y-1">
+      <p className="text-[10.5px] font-bold uppercase tracking-[0.26em] text-[#4dd6e8]">
         <Typewriter key={`e-${title}`} text={`Level ${step} von 5`} charDelay={14} cursor={false} onDone={advance(280)} />
       </p>
-      <h2 className="text-[26px] font-extrabold leading-tight tracking-tight text-[#ffd23f] sm:text-[30px]">
+      <h2 className="text-[23px] font-extrabold leading-tight tracking-tight text-[#ffd23f] sm:text-[27px]">
         {phase >= 1 ? (
           <Typewriter
             key={`t-${title}`} text={title} charDelay={18} cursor={false}
@@ -156,7 +157,7 @@ function SectionHead({ step, title, lead, onDone }: { step: number; title: strin
       </h2>
 
       {lead && (
-        <p className="max-w-3xl text-[13.5px] leading-relaxed text-[#c3d0e0]">
+        <p className="max-w-3xl text-[13px] leading-relaxed text-[#a8b6c8]">
           {phase >= 2 && (
             <Typewriter
               key={`l-${title}`} text={lead} charDelay={7} cursor={false}
@@ -211,7 +212,7 @@ function StepSection({
 
 
 
-/** Starre Fußzeile: Navigation, Hilfe, Sound, Reset und Home in einer Zeile. */
+/** Starre Fußzeile in drei Zonen: Navigation · Werkzeuge · Primäraktion. */
 function StepNav({
   onBack, next, soundOn, onToggleSound, onReset, coachOpen, onToggleCoach, coachVisible, coachBadge,
 }: {
@@ -225,102 +226,80 @@ function StepNav({
   coachVisible: boolean;
   coachBadge?: number;
 }) {
+  const iconBtn = "voxel-press flex h-9 items-center justify-center gap-1.5 border border-[#2c3b4f] bg-[#131c28] px-2.5 text-[11.5px] font-bold uppercase tracking-[0.1em] text-[#b7c5d6] transition hover:border-[#f5b800]/60 hover:text-[#ffd23f] sm:px-3";
   return (
-    <footer className="fixed bottom-0 left-0 right-0 z-30 border-t-2 border-[#22303f] bg-[#0a1017]/97 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-2.5 sm:gap-3 sm:px-6 sm:py-3">
-        {/* Navigation links */}
+    <footer className="fixed bottom-0 left-0 right-0 z-30 h-16 border-t border-[#22303f] bg-[#0a1017]/95 backdrop-blur">
+      <div className="mx-auto flex h-full max-w-5xl items-center gap-2 px-4 sm:gap-3 sm:px-6">
+        {/* Zone 1 – Navigation */}
         <div className="flex flex-shrink-0 items-center gap-1.5 sm:gap-2">
-          <Link
-            to="/"
-            aria-label="Zurück zur Startseite"
-            title="Zurück zur Startseite"
-            className="voxel-press flex h-9 w-9 items-center justify-center border-2 border-[#33455c] text-[#d6e0ee] transition hover:border-[#f5b800]/60 hover:text-[#ffd23f] sm:h-auto sm:w-auto sm:gap-1.5 sm:px-3 sm:py-2"
-          >
-            <Home aria-hidden className="h-4 w-4" strokeWidth={2.5} />
-            <span className="hidden text-[12px] font-bold uppercase tracking-[0.08em] sm:inline">Start</span>
+          <Link to="/" aria-label="Zurück zur Startseite" title="Zurück zur Startseite" className={iconBtn}>
+            <Home aria-hidden className="h-4 w-4" strokeWidth={2.25} />
+            <span className="hidden sm:inline">Start</span>
           </Link>
-          {onBack ? (
-            <button
-              onClick={onBack}
-              className="voxel-press voxel-bevel flex h-9 items-center justify-center gap-1.5 border-2 border-[#33455c] bg-[#16202e] px-3 text-[12px] font-bold uppercase tracking-[0.08em] text-[#d6e0ee] transition hover:border-[#f5b800]/60 hover:text-[#ffd23f] sm:h-auto sm:px-4 sm:py-2"
-            >
-              <ArrowLeft aria-hidden className="h-4 w-4" strokeWidth={2.5} />
-              <span className="hidden sm:inline">zurück</span>
+          {onBack && (
+            <button onClick={onBack} aria-label="Ein Level zurück" className={iconBtn}>
+              <ArrowLeft aria-hidden className="h-4 w-4" strokeWidth={2.25} />
+              <span className="hidden sm:inline">Zurück</span>
             </button>
-          ) : (
-            <span className="hidden w-9 sm:block" />
           )}
         </div>
 
-        {next?.hint && (
-          <span className="hidden flex-1 truncate px-2 text-center text-[11px] text-[#93a4bb] lg:inline">
-            {next.hint}
-          </span>
-        )}
-
-        {/* Aktionen rechts */}
-        <div className="flex flex-shrink-0 items-center gap-1.5 sm:gap-2">
+        {/* Zone 2 – Werkzeuge, mittig */}
+        <div className="flex flex-1 items-center justify-center gap-1.5 sm:gap-2">
           <button
             onClick={onToggleSound}
-            aria-label={soundOn ? "Sound ausschalten" : "Sound einschalten"}
+            aria-label={soundOn ? "Ton ausschalten" : "Ton einschalten"}
             aria-pressed={soundOn}
             title={soundOn ? "Ton an" : "Ton aus"}
-            className={`voxel-press flex h-9 w-9 items-center justify-center border-2 transition sm:h-auto sm:w-auto sm:gap-1.5 sm:px-3 sm:py-2 ${
-              soundOn
-                ? "border-[#f5b800]/70 bg-[#f5b800]/15 text-[#ffd23f]"
-                : "border-[#33455c] text-[#93a4bb] hover:border-[#f5b800]/60 hover:text-[#ffd23f]"
-            }`}
+            className={`${iconBtn} ${soundOn ? "border-[#f5b800]/60 bg-[#f5b800]/12 text-[#ffd23f]" : ""}`}
           >
-            <Volume2 aria-hidden className="h-4 w-4" strokeWidth={2.5} />
-            <span className="hidden text-[12px] font-bold uppercase tracking-[0.08em] sm:inline">{soundOn ? "Ton an" : "Ton aus"}</span>
+            {soundOn ? <Volume2 aria-hidden className="h-4 w-4" strokeWidth={2.25} /> : <VolumeX aria-hidden className="h-4 w-4" strokeWidth={2.25} />}
+            <span className="hidden lg:inline">Ton</span>
           </button>
-          <button
-            onClick={onReset}
-            aria-label="Neu starten"
-            title="Neu starten"
-            className="voxel-press flex h-9 w-9 items-center justify-center border-2 border-[#33455c] text-[#d6e0ee] transition hover:border-[#f5b800]/60 hover:text-[#ffd23f] sm:h-auto sm:w-auto sm:gap-1.5 sm:px-3 sm:py-2"
-          >
-            <RotateCcw aria-hidden className="h-4 w-4" strokeWidth={2.5} />
-            <span className="hidden text-[12px] font-bold uppercase tracking-[0.08em] sm:inline">Neu</span>
+          <button onClick={onReset} aria-label="Neu starten" title="Neu starten" className={iconBtn}>
+            <RotateCcw aria-hidden className="h-4 w-4" strokeWidth={2.25} />
+            <span className="hidden lg:inline">Neu</span>
           </button>
           <button
             onClick={onToggleCoach}
             aria-label={coachOpen ? "Hilfe schließen" : "Hilfe und Vorschläge öffnen"}
             aria-pressed={coachOpen}
             disabled={!coachVisible}
-            className={`voxel-press relative flex h-9 items-center justify-center gap-1.5 border-2 px-3 text-[12px] font-bold uppercase tracking-[0.08em] transition sm:h-auto sm:px-4 sm:py-2 ${
-              coachOpen
-                ? "voxel-bevel-gold border-[#ffd23f] bg-[#f5b800] text-[#0a0e14] hover:bg-[#ffd23f]"
-                : coachVisible
-                  ? "voxel-bevel-gold border-[#ffd23f] bg-[#f5b800] text-[#0a0e14] hover:bg-[#ffd23f]"
-                  : "border-[#33455c] bg-[#16202e] text-[#93a4bb] opacity-40 cursor-not-allowed"
+            className={`voxel-press flex h-9 items-center justify-center gap-1.5 border px-2.5 text-[11.5px] font-bold uppercase tracking-[0.1em] transition sm:px-3 ${
+              coachVisible
+                ? "border-[#f5b800]/70 bg-[#f5b800]/12 text-[#ffd23f] hover:bg-[#f5b800]/20"
+                : "cursor-not-allowed border-[#22303f] bg-[#131c28] text-[#5c6b80] opacity-60"
             }`}
           >
-            {coachOpen ? <X aria-hidden className="h-4 w-4" strokeWidth={2.5} /> : <Lightbulb aria-hidden className="h-4 w-4" strokeWidth={2.5} />}
-            <span className="hidden sm:inline">{coachOpen ? "Hilfe" : "Hilfe"}</span>
+            {coachOpen ? <X aria-hidden className="h-4 w-4" strokeWidth={2.25} /> : <Lightbulb aria-hidden className="h-4 w-4" strokeWidth={2.25} />}
+            <span className="hidden sm:inline">Hilfe</span>
             {!coachOpen && coachVisible && coachBadge ? (
-              <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center border border-[#f5b800] bg-[#16202e] px-1 text-[10px] font-bold text-[#f5b800]">
-                {coachBadge}
-              </span>
+              <span className="border border-[#f5b800]/60 bg-[#f5b800]/20 px-1.5 text-[10.5px] leading-4 text-[#ffd23f]">{coachBadge}</span>
             ) : null}
           </button>
-          {next ? (
+        </div>
+
+        {/* Zone 3 – Primäraktion */}
+        <div className="flex min-w-0 flex-shrink-0 items-center gap-3">
+          {next?.hint && (
+            <span className="hidden max-w-[16rem] truncate text-[11px] text-[#7f8fa6] xl:inline">{next.hint}</span>
+          )}
+          {next && (
             <button
               onClick={next.onClick}
               disabled={next.disabled}
-              className="voxel-press voxel-bevel-gold flex h-9 items-center justify-center gap-1.5 border-2 border-[#ffd23f] bg-[#f5b800] px-4 text-[12px] font-bold uppercase tracking-[0.08em] text-[#0a0e14] transition hover:bg-[#ffd23f] disabled:cursor-not-allowed disabled:opacity-40 sm:h-auto sm:px-5 sm:py-2"
+              className="voxel-press voxel-bevel-gold flex h-9 items-center justify-center gap-2 border-2 border-[#ffd23f] bg-[#f5b800] px-3.5 text-[11.5px] font-bold uppercase tracking-[0.1em] text-[#0a0e14] transition hover:bg-[#ffd23f] disabled:cursor-not-allowed disabled:opacity-40 sm:px-5"
             >
               <span className="truncate">{next.label}</span>
               <span aria-hidden>→</span>
             </button>
-          ) : (
-            <span className="hidden w-9 sm:block" />
           )}
         </div>
       </div>
     </footer>
   );
 }
+
 
 
 /**
@@ -496,7 +475,7 @@ function SeqBlock({
 
 
 
-const inputCls = "voxel-bevel w-full rounded-none border-2 border-[#33455c] bg-[#101823] px-3 py-2.5 text-base text-[#e8eef7] placeholder:text-[#7c8ca3] transition focus:outline-none focus:border-[#f5b800] focus:ring-0 sm:text-sm";
+const inputCls = "voxel-bevel w-full rounded-none border border-[#33455c] bg-[#101823] px-3 py-2 text-base text-[#e8eef7] placeholder:text-[#7c8ca3] transition focus:outline-none focus:border-[#f5b800] focus:ring-0 sm:text-sm";
 
 export default function Notnagel() {
   const [step, setStep] = useState(0);
@@ -789,65 +768,66 @@ export default function Notnagel() {
 
       <HudBar step={step} steps={STEPS} />
 
-      <main className="relative mx-auto flex w-full max-w-6xl flex-col px-4 pb-24 pt-6 sm:px-6 sm:pb-20 sm:pt-8 lg:min-h-0 lg:flex-1 lg:overflow-hidden lg:pb-20 lg:pt-5">
+      <main className="relative mx-auto flex w-full max-w-5xl flex-col px-4 pb-24 pt-6 sm:px-6 sm:pt-7 lg:min-h-0 lg:pt-4 lg:flex-1 lg:overflow-hidden lg:pb-20">
         {step > 0 && (
           <LevelStepper
             step={step}
             steps={STEPS}
             onSelect={(n) => { audio.play("click"); setStep(n); }}
-            className={step === 2 || step === 5 ? "" : "mx-auto max-w-4xl"}
           />
         )}
 
         {/* Auf Desktop scrollt nur dieser Bereich – die Seite selbst bleibt fix. */}
-        <div className="lg:-mr-1 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pr-1">
+        <div className="lg:-mr-1 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:overflow-y-auto lg:pr-1">
+        <div className="w-full lg:my-auto">
+
 
         {/* Step 0 – Einstieg */}
         {step === 0 && (
-          <section className="space-y-8">
-            <div className="max-w-3xl space-y-4">
+          <section className="mx-auto max-w-4xl space-y-7 py-2 text-center">
+            <div className="space-y-4">
               <SeqText
                 order={0} current={seq} advance={advance} pause={480} charDelay={16}
-                className="text-[11.5px] font-bold uppercase tracking-[0.22em] text-[#4dd6e8]"
+                className="text-[11px] font-bold uppercase tracking-[0.28em] text-[#4dd6e8]"
                 text="Business Continuity Management"
               />
               <SeqText
                 order={1} current={seq} advance={advance} pause={640} charDelay={22} as="h2"
-                className="text-[34px] font-extrabold leading-[1.12] tracking-tight text-[#ffd23f] sm:text-[46px]"
+                className="text-[32px] font-extrabold leading-[1.1] tracking-tight text-[#ffd23f] sm:text-[44px]"
                 text="Der Notnagel für Ihren Fachbereich."
               />
-
-
               <SeqText
                 order={2} current={seq} advance={advance} pause={700} charDelay={6}
-                className="text-[16.5px] leading-relaxed text-[#d6e0ee]"
-                text="Notnagel führt Sie Schritt für Schritt durch den BCM-Prozess – ohne BCM-Vorkenntnisse. Sie beschreiben Ihre Prozesse, Notnagel leitet Kennzahlen wie MTPD, RTO und RPO regelbasiert ab, prüft Ihre Angaben auf Widersprüche und erzeugt daraus vier freigabefähige Word-Dokumente."
+                className="mx-auto max-w-2xl text-[15px] leading-relaxed text-[#c3d0e0] sm:text-[16px]"
+                text="Schritt für Schritt durch den BCM-Prozess – ohne Vorkenntnisse. Notnagel leitet MTPD, RTO und RPO regelbasiert ab, prüft Ihre Angaben auf Widersprüche und erzeugt vier freigabefähige Word-Dokumente."
               />
-              {seq >= 3 && (
-                <ul className="grid gap-3 pt-2 sm:grid-cols-2">
-                  <TypewriterTileStack
-                    items={[
-                      { title: "BCM-Leitlinie", body: "Zweck, Geltungsbereich, Rollen, Kennzahlen" },
-                      { title: "Business Impact Analyse", body: "Schadensverlauf, MTPD, RTO, RPO, Abhängigkeiten" },
-                      { title: "Notfallplan (BCP)", body: "Aktivierungsstufen, Sofortmaßnahmen, Notbetrieb" },
-                      { title: "Tabletop-Drehbuch", body: "Lage, Injects, Auswertung, Maßnahmenliste" },
-                    ]}
-                    onDone={() => { setTilesDone(true); advance(3, 760); }}
-                  />
-                </ul>
-              )}
             </div>
 
-            {seq >= 4 && (
+            {seq >= 3 && (
+              <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <TypewriterTileStack
+                  items={[
+                    { title: "BCM-Leitlinie", body: "Zweck, Rollen, Kennzahlen" },
+                    { title: "Business Impact Analyse", body: "Schadensverlauf, MTPD, RTO" },
+                    { title: "Notfallplan (BCP)", body: "Aktivierung, Notbetrieb" },
+                    { title: "Tabletop-Drehbuch", body: "Lage, Injects, Auswertung" },
+                  ]}
+                  onDone={() => { setTilesDone(true); advance(3, 760); }}
+                />
+              </ul>
+            )}
 
-              <div className="animate-fade-in space-y-3">
-                <VoxelButton pixel onClick={() => { audio.play("click"); setStep(1); }} className="px-6 py-3">Assistent starten →</VoxelButton>
+            {seq >= 4 && (
+              <div className="animate-fade-in space-y-5 pt-1">
+                <VoxelButton pixel size="lg" onClick={() => { audio.play("click"); setStep(1); }}>
+                  Assistent starten →
+                </VoxelButton>
                 {tilesDone && (
                   <div>
-                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-[#93a4bb]">
+                    <p className="mb-2.5 text-[10.5px] font-semibold uppercase tracking-[0.2em] text-[#7f8fa6]">
                       <Typewriter text="Oder mit einem Beispiel starten" charDelay={12} cursor={false} />
                     </p>
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-wrap justify-center gap-3">
                       <TypewriterButtonStack items={DEMO_SCENARIOS.map(d => ({ label: d.label, body: d.hint }))} onSelect={loadDemo} onDone={() => setIntroButtonsDone(true)} />
                     </div>
                   </div>
@@ -858,34 +838,35 @@ export default function Notnagel() {
         )}
 
 
+
         {/* Step 1 – Bereich */}
         {step === 1 && (
-          <StepSection step={1} title="Bereichsprofil" lead="Diese Angaben erscheinen auf jedem Deckblatt und legen den Geltungsbereich der Dokumente fest." className="mx-auto max-w-4xl space-y-5 lg:max-w-5xl lg:space-y-3.5" onCascadeDone={() => setCoachReady(true)}>
+          <StepSection step={1} title="Bereichsprofil" lead="Diese Angaben erscheinen auf jedem Deckblatt und legen den Geltungsbereich der Dokumente fest." className="space-y-4 lg:space-y-3" onCascadeDone={() => setCoachReady(true)}>
 
-            <Hint>„Fachbereich“ ist die Organisationseinheit, für die Sie verantwortlich sind. Felder, die Sie nicht kennen, können leer bleiben.</Hint>
+            <div className="lg:hidden"><Hint>„Fachbereich“ ist die Organisationseinheit, für die Sie verantwortlich sind. Felder, die Sie nicht kennen, können leer bleiben.</Hint></div>
             <Card title="Verantwortung und Geltungsbereich">
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-x-4 gap-y-2.5 sm:grid-cols-2 lg:grid-cols-4">
 
               <Field label="Organisation"><input className={inputCls} value={profile.organisation} onChange={(e) => setProfile({ ...profile, organisation: e.target.value })} /></Field>
               <Field label="Fachbereich"><input className={inputCls} value={profile.area} onChange={(e) => setProfile({ ...profile, area: e.target.value })} /></Field>
               <Field label="Verantwortlich (Name)"><input className={inputCls} value={profile.owner} onChange={(e) => setProfile({ ...profile, owner: e.target.value })} /></Field>
               <Field label="Funktion"><input className={inputCls} value={profile.ownerFunction} onChange={(e) => setProfile({ ...profile, ownerFunction: e.target.value })} /></Field>
-              <Field label="BC-Koordination" hint="Wer begleitet das Thema methodisch? Falls unbekannt: leer lassen."><input className={inputCls} value={profile.coordinator} onChange={(e) => setProfile({ ...profile, coordinator: e.target.value })} /></Field>
+              <Field label="BC-Koordination" hint="Methodische Begleitung, optional."><input className={inputCls} value={profile.coordinator} onChange={(e) => setProfile({ ...profile, coordinator: e.target.value })} /></Field>
               <Field label="Standorte"><input className={inputCls} value={profile.sites} onChange={(e) => setProfile({ ...profile, sites: e.target.value })} /></Field>
               <Field label="Branche / Geschäftsmodell"><input className={inputCls} value={profile.sector} onChange={(e) => setProfile({ ...profile, sector: e.target.value })} /></Field>
-              <Field label="Alarmierungsweg" hint="Wie wird das Team im Ernstfall erreicht?"><input className={inputCls} value={profile.alarmChannel} onChange={(e) => setProfile({ ...profile, alarmChannel: e.target.value })} /></Field>
+              <Field label="Alarmierungsweg" hint="Erreichbarkeit im Ernstfall."><input className={inputCls} value={profile.alarmChannel} onChange={(e) => setProfile({ ...profile, alarmChannel: e.target.value })} /></Field>
             </div>
             </Card>
 
-            <div className="grid items-start gap-3.5 lg:grid-cols-2">
+            <div className="grid items-stretch gap-4 lg:gap-3 lg:grid-cols-2">
             <Card title="Normativer Rahmen">
-              <p className="mb-2.5 text-[11px] text-[#93a4bb]">Woran wird sich die Leitlinie messen lassen? Mehrfachauswahl.</p>
+              <p className="mb-3 text-[11.5px] text-[#7f8fa6]">Woran wird sich die Leitlinie messen lassen? Mehrfachauswahl.</p>
               <div className="flex flex-wrap gap-2">
                 {REGULATORY.map((r) => {
                   const on = profile.regulatory.includes(r);
                   return (
                     <button key={r} onClick={() => setProfile({ ...profile, regulatory: on ? profile.regulatory.filter((x) => x !== r) : [...profile.regulatory, r] })}
-                      className={`rounded-none border px-3 py-1.5 text-xs font-medium transition ${on ? "border-[#f5b800] bg-[#f5b800] text-[#080b10]" : "border-[#33455c] text-[#b7c5d6] hover:border-[#f5b800]/60"}`}>{on ? "✓ " : ""}{r}</button>
+                      className={`voxel-press flex h-7 items-center rounded-none border px-2.5 text-[11px] font-semibold transition ${on ? "border-[#f5b800] bg-[#f5b800]/90 text-[#0a0e14]" : "border-[#2c3b4f] bg-[#131c28] text-[#b7c5d6] hover:border-[#f5b800]/60 hover:text-[#ffd23f]"}`}>{on ? "✓ " : ""}{r}</button>
                   );
                 })}
               </div>
@@ -902,7 +883,7 @@ export default function Notnagel() {
             </div>
 
 
-            <StepNav {...navProps} onBack={() => setStep(0)} next={{ label: "Weiter zu den Prozessen →", onClick: () => setStep(2) }} />
+            <StepNav {...navProps} onBack={() => setStep(0)} next={{ label: "Weiter: Prozesse", onClick: () => setStep(2) }} />
 
           </StepSection>
 
@@ -948,7 +929,7 @@ export default function Notnagel() {
                   <>
                     <div className="rounded-none border border-[#22303f] bg-[#16202e] shadow-voxel p-4 sm:p-5 space-y-4">
                       <div className="flex items-start justify-between gap-3">
-                        <p className="text-sm font-semibold text-[#f5b800]">{active.id} · Prozesssteckbrief</p>
+                        <p className="text-[13px] font-bold uppercase tracking-[0.12em] text-[#ffd23f]">{active.id} · Prozesssteckbrief</p>
                         <button onClick={() => { setProcesses((ps) => ps.filter((p) => p.id !== active.id)); setActiveProcess(null); }}
                           className="text-xs text-red-300 hover:underline">entfernen</button>
                       </div>
@@ -968,7 +949,7 @@ export default function Notnagel() {
 
                     {/* Schadensverlauf */}
                     <div className="rounded-none border border-[#22303f] bg-[#16202e] shadow-voxel p-4 sm:p-5 space-y-3">
-                      <p className="text-sm font-semibold text-[#f5b800]">Schadensverlauf</p>
+                      <p className="text-[13px] font-bold uppercase tracking-[0.12em] text-[#ffd23f]">Schadensverlauf</p>
                       <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] leading-relaxed text-[#b7c5d6]">
                         {SCALE.map((s) => <span key={s.level} className="break-words"><strong>{s.code} = {s.name}:</strong> {s.hint}</span>)}
                       </div>
@@ -1075,7 +1056,7 @@ export default function Notnagel() {
                     {/* Ressourcen */}
                     <div className="rounded-none border border-[#22303f] bg-[#16202e] shadow-voxel p-4 sm:p-5 space-y-3">
                       <div className="flex items-center justify-between">
-                        <p className="text-sm font-semibold text-[#f5b800]">Vitale Ressourcen</p>
+                        <p className="text-[13px] font-bold uppercase tracking-[0.12em] text-[#ffd23f]">Vitale Ressourcen</p>
                         <button onClick={() => updateProcess(active.id, { resources: [...active.resources, { kind: "IT-Anwendungen", description: "", criticality: "hoch", singlePointOfFailure: false }] })}
                           className="text-xs px-2.5 py-1 rounded border border-[#33455c]">+ Ressource</button>
                       </div>
@@ -1114,7 +1095,7 @@ export default function Notnagel() {
                     {/* Notbetrieb */}
                     <div className="rounded-none border border-[#22303f] bg-[#16202e] shadow-voxel p-4 sm:p-5 space-y-3">
                       <div className="flex items-center justify-between">
-                        <p className="text-sm font-semibold text-[#f5b800]">Notbetriebsverfahren</p>
+                        <p className="text-[13px] font-bold uppercase tracking-[0.12em] text-[#ffd23f]">Notbetriebsverfahren</p>
                         <button onClick={() => updateProcess(active.id, { workarounds: [...active.workarounds, { scenario: "", procedure: "", limitHours: "" }] })}
                           className="text-xs px-2.5 py-1 rounded border border-[#33455c]">+ Verfahren</button>
                       </div>
@@ -1149,13 +1130,13 @@ export default function Notnagel() {
               </div>
             </div>
 
-            <StepNav {...navProps} onBack={() => setStep(1)} next={{ label: "Weiter zum Notfallteam →", onClick: () => setStep(3), disabled: processes.length === 0, hint: processes.length === 0 ? "Mindestens ein Prozess nötig" : undefined }} />
+            <StepNav {...navProps} onBack={() => setStep(1)} next={{ label: "Weiter: Notfallteam", onClick: () => setStep(3), disabled: processes.length === 0, hint: processes.length === 0 ? "Mindestens ein Prozess nötig" : undefined }} />
           </StepSection>
         )}
 
         {/* Step 3 – Team */}
         {step === 3 && (
-          <StepSection step={3} title="Notfallteam des Bereichs" lead="Wer entscheidet, wer informiert, wer vertritt – knapp und eindeutig besetzt." className="mx-auto max-w-4xl space-y-5" onCascadeDone={() => setCoachReady(true)}>
+          <StepSection step={3} title="Notfallteam des Bereichs" lead="Wer entscheidet, wer informiert, wer vertritt – knapp und eindeutig besetzt." className="space-y-4 lg:space-y-3" onCascadeDone={() => setCoachReady(true)}>
 
             <Hint>Im Ernstfall zählt, wer entscheidet. Jede Rolle braucht eine Vertretung – sonst hängt der Plan an einer einzigen Person.</Hint>
             <div className="space-y-2">
@@ -1179,13 +1160,13 @@ export default function Notnagel() {
 
               <button onClick={() => setTeam([...team, { role: "", primary: "", deputy: "" }])} className="text-xs px-3 py-1.5 rounded border border-dashed border-[#3b4d66]">+ Rolle</button>
             </div>
-            <StepNav {...navProps} onBack={() => setStep(2)} next={{ label: "Weiter zur Übung →", onClick: () => setStep(4) }} />
+            <StepNav {...navProps} onBack={() => setStep(2)} next={{ label: "Weiter: Übung", onClick: () => setStep(4) }} />
           </StepSection>
         )}
 
         {/* Step 4 – Übung */}
         {step === 4 && (
-          <StepSection step={4} title="Tabletop-Übung" lead="Parameter für das Drehbuch, mit dem Sie den Plan erstmals belasten." className="mx-auto max-w-4xl space-y-5" onCascadeDone={() => setCoachReady(true)}>
+          <StepSection step={4} title="Tabletop-Übung" lead="Parameter für das Drehbuch, mit dem Sie den Plan erstmals belasten." className="space-y-4 lg:space-y-3" onCascadeDone={() => setCoachReady(true)}>
 
             <Hint>Ein Plan, der nie geübt wurde, ist eine Vermutung. Das Drehbuch testet genau die Prozesse und Notbetriebsverfahren, die Sie erfasst haben.</Hint>
             <div className="grid sm:grid-cols-2 gap-4">
@@ -1213,7 +1194,7 @@ export default function Notnagel() {
               <Field label="Teilnehmer"><input className={inputCls} value={exercise.participants} onChange={(e) => setExercise({ ...exercise, participants: e.target.value })} /></Field>
               <Field label="Übungsleitung"><input className={inputCls} value={exercise.facilitator} onChange={(e) => setExercise({ ...exercise, facilitator: e.target.value })} /></Field>
             </div>
-            <StepNav {...navProps} onBack={() => setStep(3)} next={{ label: "Zur Prüfung und Ausgabe →", onClick: () => setStep(5) }} />
+            <StepNav {...navProps} onBack={() => setStep(3)} next={{ label: "Weiter: Prüfung", onClick: () => setStep(5) }} />
           </StepSection>
         )}
 
@@ -1224,7 +1205,7 @@ export default function Notnagel() {
 
             <div className="grid lg:grid-cols-2 gap-5">
               <div className="rounded-none border border-[#22303f] bg-[#16202e] shadow-voxel p-4 sm:p-5 space-y-3">
-                <p className="text-sm font-semibold text-[#f5b800]">Automatische Qualitätsprüfung</p>
+                <p className="text-[13px] font-bold uppercase tracking-[0.12em] text-[#ffd23f]">Automatische Qualitätsprüfung</p>
                 <div className="flex gap-3 text-xs">
                   <span className={`px-2 py-1 rounded ${score.blockers ? "bg-red-500/100/20 text-red-200" : "bg-emerald-400/20 text-emerald-300"}`}>{score.blockers} Blocker</span>
                   <span className="px-2 py-1 rounded bg-amber-400/20 text-amber-200">{score.warnings} Warnungen</span>
@@ -1243,7 +1224,7 @@ export default function Notnagel() {
               </div>
 
               <div className="rounded-none border border-[#22303f] bg-[#16202e] shadow-voxel p-4 sm:p-5 space-y-3">
-                <p className="text-sm font-semibold text-[#f5b800]">Prozessübersicht</p>
+                <p className="text-[13px] font-bold uppercase tracking-[0.12em] text-[#ffd23f]">Prozessübersicht</p>
                 <table className="w-full text-xs">
                   <thead><tr className="text-left text-[#93a4bb]"><th className="py-1">Prozess</th><th>MTPD</th><th>RTO</th><th>RPO</th></tr></thead>
                   <tbody>
@@ -1322,7 +1303,7 @@ export default function Notnagel() {
                     ] as const).map(([key, title, desc]) => (
                       <button key={key} onClick={() => downloadSingleDoc(key, input, content, allFindings)}
                         className="rounded-none border border-[#22303f] bg-[#16202e] p-3.5 text-left transition hover:border-[#f5b800] hover:shadow-voxel">
-                        <p className="text-sm font-semibold text-[#f5b800]">{title}</p>
+                        <p className="text-[13px] font-bold uppercase tracking-[0.12em] text-[#ffd23f]">{title}</p>
                         <p className="text-[11px] text-[#b7c5d6] mt-0.5">{desc}</p>
                         <p className="text-[11px] text-[#00bcd4] mt-2">Word herunterladen ↓</p>
                       </button>
@@ -1340,12 +1321,14 @@ export default function Notnagel() {
 
         )}
         </div>
+        </div>
+
       </main>
 
       {loading && (
         <div className="fixed inset-0 z-50 bg-[#04070b]/85 backdrop-blur-sm flex items-center justify-center px-4">
           <div className="w-full max-w-md space-y-4 rounded-none bg-[#16202e] p-6 shadow-voxel-lg">
-            <p className="text-sm font-semibold text-[#f5b800]">Dokumente werden erstellt und geprüft</p>
+            <p className="text-[13px] font-bold uppercase tracking-[0.12em] text-[#ffd23f]">Dokumente werden erstellt und geprüft</p>
             <div className="h-2 bg-[#22303f] rounded overflow-hidden">
               <div className="h-full bg-[#f5b800] transition-all duration-500" style={{ width: `${Math.max(progressPct, 4)}%` }} />
             </div>
