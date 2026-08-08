@@ -902,7 +902,7 @@ export default function Notnagel() {
             </div>
 
 
-            <StepNav onBack={() => setStep(0)} next={{ label: "Weiter zu den Prozessen →", onClick: () => setStep(2) }} />
+            <StepNav {...navProps} onBack={() => setStep(0)} next={{ label: "Weiter zu den Prozessen →", onClick: () => setStep(2) }} />
 
           </StepSection>
 
@@ -1149,7 +1149,7 @@ export default function Notnagel() {
               </div>
             </div>
 
-            <StepNav onBack={() => setStep(1)} next={{ label: "Weiter zum Notfallteam →", onClick: () => setStep(3), disabled: processes.length === 0, hint: processes.length === 0 ? "Mindestens ein Prozess nötig" : undefined }} />
+            <StepNav {...navProps} onBack={() => setStep(1)} next={{ label: "Weiter zum Notfallteam →", onClick: () => setStep(3), disabled: processes.length === 0, hint: processes.length === 0 ? "Mindestens ein Prozess nötig" : undefined }} />
           </StepSection>
         )}
 
@@ -1179,7 +1179,7 @@ export default function Notnagel() {
 
               <button onClick={() => setTeam([...team, { role: "", primary: "", deputy: "" }])} className="text-xs px-3 py-1.5 rounded border border-dashed border-[#3b4d66]">+ Rolle</button>
             </div>
-            <StepNav onBack={() => setStep(2)} next={{ label: "Weiter zur Übung →", onClick: () => setStep(4) }} />
+            <StepNav {...navProps} onBack={() => setStep(2)} next={{ label: "Weiter zur Übung →", onClick: () => setStep(4) }} />
           </StepSection>
         )}
 
@@ -1213,7 +1213,7 @@ export default function Notnagel() {
               <Field label="Teilnehmer"><input className={inputCls} value={exercise.participants} onChange={(e) => setExercise({ ...exercise, participants: e.target.value })} /></Field>
               <Field label="Übungsleitung"><input className={inputCls} value={exercise.facilitator} onChange={(e) => setExercise({ ...exercise, facilitator: e.target.value })} /></Field>
             </div>
-            <StepNav onBack={() => setStep(3)} next={{ label: "Zur Prüfung und Ausgabe →", onClick: () => setStep(5) }} />
+            <StepNav {...navProps} onBack={() => setStep(3)} next={{ label: "Zur Prüfung und Ausgabe →", onClick: () => setStep(5) }} />
           </StepSection>
         )}
 
@@ -1335,7 +1335,7 @@ export default function Notnagel() {
               )}
             </div>
 
-            <StepNav onBack={() => setStep(4)} />
+            <StepNav {...navProps} onBack={() => setStep(4)} />
           </StepSection>
 
         )}
