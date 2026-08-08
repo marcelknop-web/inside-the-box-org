@@ -74,12 +74,8 @@ export function HudBar({
         </div>
       </div>
 
-      {/* Mobil: Levelanzeige unter dem Kopf, damit der Kontext nicht verloren geht */}
-      {step > 0 && (
-        <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#9ce6f2] lg:hidden">
-          Level {step}/5 · {steps[step - 1]}
-        </p>
-      )}
+
+
 
 
       {/* Energieleiste: fünf Blöcke = fünf Level */}
