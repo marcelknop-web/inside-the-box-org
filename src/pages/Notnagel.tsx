@@ -838,15 +838,15 @@ export default function Notnagel() {
               Bewerten Sie je Zeithorizont, wie stark der Schaden wäre, wenn der Prozess ab jetzt ausfällt. Notnagel leitet daraus die MTPD ab.
             </Hint>
 
-            <div className="grid lg:grid-cols-[264px_1fr] gap-5">
-              <aside className="space-y-2 lg:sticky lg:top-24 lg:self-start">
+            <div className="grid min-w-0 gap-5 lg:grid-cols-[264px_1fr]">
+              <aside className="min-w-0 space-y-2 lg:sticky lg:top-24 lg:self-start">
                 <p className="px-1 text-[10.5px] font-semibold uppercase tracking-wider text-[#93a4bb]">Prozesse ({processes.length})</p>
                 {processes.map((p) => {
                   const pr = priorityOf(p);
                   return (
                     <button key={p.id} onClick={() => setActiveProcess(p.id)}
                       className={`w-full rounded-none border px-3.5 py-3 text-left text-sm transition ${activeProcess === p.id ? "border-[#f5b800] bg-[#f5b800]/10 shadow-voxel-sm" : "border-[#22303f] bg-[#16202e] hover:border-[#f5b800]/50"}`}>
-                      <span className="block font-medium text-[#dbe4f0]">{p.name || `${p.id} (ohne Namen)`}</span>
+                      <span className="block break-words font-medium text-[#dbe4f0]">{p.name || `${p.id} (ohne Namen)`}</span>
                       <span className={`mt-1 inline-flex items-center gap-1.5 text-[11px] font-medium ${pr.level === 1 ? "text-red-300" : pr.level === 2 ? "text-amber-300" : "text-[#93a4bb]"}`}>
                         <span aria-hidden className={`h-1.5 w-1.5 rounded-none ${pr.level === 1 ? "bg-[#ef4444]" : pr.level === 2 ? "bg-amber-400/100" : "bg-[#3b4d66]"}`} />
                         {pr.label}
@@ -858,7 +858,7 @@ export default function Notnagel() {
               </aside>
 
 
-              <div className="space-y-6">
+              <div className="min-w-0 space-y-6">
                 {!active && (
                   <div className="rounded-none border border-dashed border-[#33455c] bg-[#16202e]/60 px-6 py-14 text-center">
                     <p className="text-sm font-medium text-[#d6e0ee]">Noch kein Prozess ausgewählt</p>
@@ -894,8 +894,8 @@ export default function Notnagel() {
                       <div className="flex flex-wrap gap-3 text-[11px] text-[#b7c5d6]">
                         {SCALE.map((s) => <span key={s.level}><strong>{s.code} = {s.name}:</strong> {s.hint}</span>)}
                       </div>
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-xs min-w-[560px]">
+                      <div className="max-w-full overflow-x-auto">
+                        <table className="w-full min-w-[560px] text-xs">
                           <thead>
                             <tr className="text-left text-[#93a4bb]">
                               <th className="py-2 pr-2 font-medium">Auswirkung nach …</th>
@@ -969,7 +969,7 @@ export default function Notnagel() {
                       </div>
                       <p className="text-[11px] text-[#93a4bb]">Ohne welche IT, Daten, Personen, Standorte oder Dienstleister läuft der Prozess nicht?</p>
                       {active.resources.map((r, i) => (
-                        <div key={i} className="grid sm:grid-cols-[150px_1fr_120px_auto_auto] gap-2 items-center">
+                        <div key={i} className="grid min-w-0 items-center gap-2 sm:grid-cols-[150px_1fr_120px_auto_auto]">
                           <select className={inputCls} value={r.kind} onChange={(e) => {
                             const rs = [...active.resources]; rs[i] = { ...r, kind: e.target.value as ResourceEntry["kind"] }; updateProcess(active.id, { resources: rs });
                           }}>{RESOURCE_KINDS.map((k) => <option key={k}>{k}</option>)}</select>
@@ -998,7 +998,7 @@ export default function Notnagel() {
                       </div>
                       <p className="text-[11px] text-[#93a4bb]">Was tut der Bereich konkret, wenn eine dieser Ressourcen fehlt? Auch „Papier und Telefon“ ist ein gültiges Verfahren.</p>
                       {active.workarounds.map((w, i) => (
-                        <div key={i} className="grid sm:grid-cols-[220px_1fr_110px_auto] gap-2 items-start">
+                        <div key={i} className="grid min-w-0 items-start gap-2 sm:grid-cols-[220px_1fr_110px_auto]">
                           <input className={inputCls} placeholder="Ausfallszenario" value={w.scenario} onChange={(e) => {
                             const ws = [...active.workarounds]; ws[i] = { ...w, scenario: e.target.value }; updateProcess(active.id, { workarounds: ws });
                           }} />
@@ -1028,7 +1028,7 @@ export default function Notnagel() {
             <Hint>Im Ernstfall zählt, wer entscheidet. Jede Rolle braucht eine Vertretung – sonst hängt der Plan an einer einzigen Person.</Hint>
             <div className="space-y-2">
               {team.map((t, i) => (
-                <div key={i} className="grid sm:grid-cols-[200px_1fr_1fr_auto] gap-2 items-center">
+                <div key={i} className="grid min-w-0 items-center gap-2 sm:grid-cols-[200px_1fr_1fr_auto]">
                   <input className={inputCls} value={t.role} onChange={(e) => { const ts = [...team]; ts[i] = { ...t, role: e.target.value }; setTeam(ts); }} />
                   <input className={inputCls} placeholder="Besetzung" value={t.primary} onChange={(e) => { const ts = [...team]; ts[i] = { ...t, primary: e.target.value }; setTeam(ts); }} />
                   <input className={inputCls} placeholder="Vertretung" value={t.deputy} onChange={(e) => { const ts = [...team]; ts[i] = { ...t, deputy: e.target.value }; setTeam(ts); }} />
