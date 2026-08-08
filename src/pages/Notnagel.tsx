@@ -210,28 +210,43 @@ function StepSection({
 
 
 
-/** Fußnavigation eines Schritts – auf Mobil volle Breite, auf Desktop links/rechts */
+/** Starre Fußzeile im Header-Stil: fixiert, blockige Voxel-Buttons. */
 function StepNav({ onBack, next }: { onBack?: () => void; next?: { label: string; onClick: () => void; disabled?: boolean; hint?: string } }) {
   return (
-    <div className="sticky bottom-0 z-20 -mx-4 mt-3 border-t-2 border-[#22303f] bg-[#080b10]/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6 lg:py-2.5 lg:pr-[19.5rem]">
-      <div className="flex items-center gap-2 sm:justify-between sm:gap-3">
+    <footer className="fixed bottom-0 left-0 right-0 z-30 border-t-2 border-[#22303f] bg-[#0a1017]/97 backdrop-blur">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-2.5 sm:gap-3 sm:px-6 sm:py-3">
         {onBack ? (
-          <VoxelButton variant="ghost" onClick={onBack} aria-label="zurück" className="flex-shrink-0">
-            ←<span className="hidden sm:inline"> zurück</span>
-          </VoxelButton>
-        ) : <span className="hidden sm:block" />}
-        {next && (
-          <div className="flex min-w-0 flex-1 items-center justify-end gap-3 sm:flex-none">
-            {next.hint && <span className="hidden text-[11px] text-[#93a4bb] sm:inline">{next.hint}</span>}
-            <VoxelButton pixel onClick={next.onClick} disabled={next.disabled} className="w-full truncate sm:w-auto">
-              {next.label}
-            </VoxelButton>
-          </div>
+          <button
+            onClick={onBack}
+            className="voxel-press voxel-bevel flex h-9 items-center justify-center gap-1.5 border-2 border-[#33455c] bg-[#16202e] px-3 text-[12px] font-bold uppercase tracking-[0.08em] text-[#d6e0ee] transition hover:border-[#f5b800]/60 hover:text-[#ffd23f] sm:h-auto sm:px-4 sm:py-2"
+          >
+            <span aria-hidden>←</span>
+            <span className="hidden sm:inline">zurück</span>
+          </button>
+        ) : (
+          <span className="hidden sm:block" />
+        )}
+
+        {next?.hint && (
+          <span className="hidden flex-1 truncate px-2 text-center text-[11px] text-[#93a4bb] lg:inline">
+            {next.hint}
+          </span>
+        )}
+
+        {next ? (
+          <button
+            onClick={next.onClick}
+            disabled={next.disabled}
+            className="voxel-press voxel-bevel-gold flex h-9 items-center justify-center gap-1.5 border-2 border-[#ffd23f] bg-[#f5b800] px-4 text-[12px] font-bold uppercase tracking-[0.08em] text-[#0a0e14] transition hover:bg-[#ffd23f] disabled:cursor-not-allowed disabled:opacity-40 sm:h-auto sm:px-5 sm:py-2"
+          >
+            <span className="truncate">{next.label}</span>
+            <span aria-hidden>→</span>
+          </button>
+        ) : (
+          <span className="hidden sm:block" />
         )}
       </div>
-    </div>
-
-
+    </footer>
   );
 }
 
