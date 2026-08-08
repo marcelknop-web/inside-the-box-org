@@ -445,7 +445,7 @@ export default function Notnagel() {
 
   /** Startseite: Hilfe-Trigger erst einblenden, wenn alle Texte und Buttons fertig sind. */
   useEffect(() => {
-    if (step === 0 && seq >= 6 && tilesDone && introButtonsDone) {
+    if (step === 0 && seq >= 4 && tilesDone && introButtonsDone) {
       setCoachReady(true);
     }
   }, [step, seq, tilesDone, introButtonsDone]);
