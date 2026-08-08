@@ -211,22 +211,46 @@ function StepSection({
 
 
 
-/** Starre Fußzeile im Header-Stil: fixiert, blockige Voxel-Buttons. */
-function StepNav({ onBack, next }: { onBack?: () => void; next?: { label: string; onClick: () => void; disabled?: boolean; hint?: string } }) {
+/** Starre Fußzeile: Navigation, Hilfe, Sound, Reset und Home in einer Zeile. */
+function StepNav({
+  onBack, next, soundOn, onToggleSound, onReset, coachOpen, onToggleCoach, coachVisible, coachBadge,
+}: {
+  onBack?: () => void;
+  next?: { label: string; onClick: () => void; disabled?: boolean; hint?: string };
+  soundOn: boolean;
+  onToggleSound: () => void;
+  onReset: () => void;
+  coachOpen: boolean;
+  onToggleCoach: () => void;
+  coachVisible: boolean;
+  coachBadge?: number;
+}) {
   return (
     <footer className="fixed bottom-0 left-0 right-0 z-30 border-t-2 border-[#22303f] bg-[#0a1017]/97 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-2.5 sm:gap-3 sm:px-6 sm:py-3">
-        {onBack ? (
-          <button
-            onClick={onBack}
-            className="voxel-press voxel-bevel flex h-9 items-center justify-center gap-1.5 border-2 border-[#33455c] bg-[#16202e] px-3 text-[12px] font-bold uppercase tracking-[0.08em] text-[#d6e0ee] transition hover:border-[#f5b800]/60 hover:text-[#ffd23f] sm:h-auto sm:px-4 sm:py-2"
+        {/* Navigation links */}
+        <div className="flex flex-shrink-0 items-center gap-1.5 sm:gap-2">
+          <Link
+            to="/"
+            aria-label="Zurück zur Startseite"
+            title="Zurück zur Startseite"
+            className="voxel-press flex h-9 w-9 items-center justify-center border-2 border-[#33455c] text-[#d6e0ee] transition hover:border-[#f5b800]/60 hover:text-[#ffd23f] sm:h-auto sm:w-auto sm:gap-1.5 sm:px-3 sm:py-2"
           >
-            <span aria-hidden>←</span>
-            <span className="hidden sm:inline">zurück</span>
-          </button>
-        ) : (
-          <span className="hidden sm:block" />
-        )}
+            <Home aria-hidden className="h-4 w-4" strokeWidth={2.5} />
+            <span className="hidden text-[12px] font-bold uppercase tracking-[0.08em] sm:inline">Start</span>
+          </Link>
+          {onBack ? (
+            <button
+              onClick={onBack}
+              className="voxel-press voxel-bevel flex h-9 items-center justify-center gap-1.5 border-2 border-[#33455c] bg-[#16202e] px-3 text-[12px] font-bold uppercase tracking-[0.08em] text-[#d6e0ee] transition hover:border-[#f5b800]/60 hover:text-[#ffd23f] sm:h-auto sm:px-4 sm:py-2"
+            >
+              <ArrowLeft aria-hidden className="h-4 w-4" strokeWidth={2.5} />
+              <span className="hidden sm:inline">zurück</span>
+            </button>
+          ) : (
+            <span className="hidden w-9 sm:block" />
+          )}
+        </div>
 
         {next?.hint && (
           <span className="hidden flex-1 truncate px-2 text-center text-[11px] text-[#93a4bb] lg:inline">
@@ -234,18 +258,65 @@ function StepNav({ onBack, next }: { onBack?: () => void; next?: { label: string
           </span>
         )}
 
-        {next ? (
+        {/* Aktionen rechts */}
+        <div className="flex flex-shrink-0 items-center gap-1.5 sm:gap-2">
           <button
-            onClick={next.onClick}
-            disabled={next.disabled}
-            className="voxel-press voxel-bevel-gold flex h-9 items-center justify-center gap-1.5 border-2 border-[#ffd23f] bg-[#f5b800] px-4 text-[12px] font-bold uppercase tracking-[0.08em] text-[#0a0e14] transition hover:bg-[#ffd23f] disabled:cursor-not-allowed disabled:opacity-40 sm:h-auto sm:px-5 sm:py-2"
+            onClick={onToggleSound}
+            aria-label={soundOn ? "Sound ausschalten" : "Sound einschalten"}
+            aria-pressed={soundOn}
+            title={soundOn ? "Ton an" : "Ton aus"}
+            className={`voxel-press flex h-9 w-9 items-center justify-center border-2 transition sm:h-auto sm:w-auto sm:gap-1.5 sm:px-3 sm:py-2 ${
+              soundOn
+                ? "border-[#f5b800]/70 bg-[#f5b800]/15 text-[#ffd23f]"
+                : "border-[#33455c] text-[#93a4bb] hover:border-[#f5b800]/60 hover:text-[#ffd23f]"
+            }`}
           >
-            <span className="truncate">{next.label}</span>
-            <span aria-hidden>→</span>
+            <Volume2 aria-hidden className="h-4 w-4" strokeWidth={2.5} />
+            <span className="hidden text-[12px] font-bold uppercase tracking-[0.08em] sm:inline">{soundOn ? "Ton an" : "Ton aus"}</span>
           </button>
-        ) : (
-          <span className="hidden sm:block" />
-        )}
+          <button
+            onClick={onReset}
+            aria-label="Neu starten"
+            title="Neu starten"
+            className="voxel-press flex h-9 w-9 items-center justify-center border-2 border-[#33455c] text-[#d6e0ee] transition hover:border-[#f5b800]/60 hover:text-[#ffd23f] sm:h-auto sm:w-auto sm:gap-1.5 sm:px-3 sm:py-2"
+          >
+            <RotateCcw aria-hidden className="h-4 w-4" strokeWidth={2.5} />
+            <span className="hidden text-[12px] font-bold uppercase tracking-[0.08em] sm:inline">Neu</span>
+          </button>
+          <button
+            onClick={onToggleCoach}
+            aria-label={coachOpen ? "Hilfe schließen" : "Hilfe und Vorschläge öffnen"}
+            aria-pressed={coachOpen}
+            disabled={!coachVisible}
+            className={`voxel-press relative flex h-9 items-center justify-center gap-1.5 border-2 px-3 text-[12px] font-bold uppercase tracking-[0.08em] transition sm:h-auto sm:px-4 sm:py-2 ${
+              coachOpen
+                ? "voxel-bevel-gold border-[#ffd23f] bg-[#f5b800] text-[#0a0e14] hover:bg-[#ffd23f]"
+                : coachVisible
+                  ? "voxel-bevel-gold border-[#ffd23f] bg-[#f5b800] text-[#0a0e14] hover:bg-[#ffd23f]"
+                  : "border-[#33455c] bg-[#16202e] text-[#93a4bb] opacity-40 cursor-not-allowed"
+            }`}
+          >
+            {coachOpen ? <X aria-hidden className="h-4 w-4" strokeWidth={2.5} /> : <Lightbulb aria-hidden className="h-4 w-4" strokeWidth={2.5} />}
+            <span className="hidden sm:inline">{coachOpen ? "Hilfe" : "Hilfe"}</span>
+            {!coachOpen && coachVisible && coachBadge ? (
+              <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center border border-[#f5b800] bg-[#16202e] px-1 text-[10px] font-bold text-[#f5b800]">
+                {coachBadge}
+              </span>
+            ) : null}
+          </button>
+          {next ? (
+            <button
+              onClick={next.onClick}
+              disabled={next.disabled}
+              className="voxel-press voxel-bevel-gold flex h-9 items-center justify-center gap-1.5 border-2 border-[#ffd23f] bg-[#f5b800] px-4 text-[12px] font-bold uppercase tracking-[0.08em] text-[#0a0e14] transition hover:bg-[#ffd23f] disabled:cursor-not-allowed disabled:opacity-40 sm:h-auto sm:px-5 sm:py-2"
+            >
+              <span className="truncate">{next.label}</span>
+              <span aria-hidden>→</span>
+            </button>
+          ) : (
+            <span className="hidden w-9 sm:block" />
+          )}
+        </div>
       </div>
     </footer>
   );
