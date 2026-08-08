@@ -775,13 +775,7 @@ export default function Notnagel() {
 
       <LevelSweep token={sweep} />
 
-      <HudBar
-        step={step}
-        steps={STEPS}
-        soundOn={audio.enabled}
-        onToggleSound={() => { audio.play("click"); audio.toggle(); }}
-        onReset={resetAll}
-      />
+      <HudBar step={step} steps={STEPS} />
 
       <main className="relative mx-auto flex w-full max-w-6xl flex-col px-4 pb-24 pt-6 sm:px-6 sm:pb-20 sm:pt-8 lg:min-h-0 lg:flex-1 lg:overflow-hidden lg:pb-20 lg:pt-5">
         {step > 0 && (
