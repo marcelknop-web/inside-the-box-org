@@ -838,15 +838,15 @@ export default function Notnagel() {
               Bewerten Sie je Zeithorizont, wie stark der Schaden wäre, wenn der Prozess ab jetzt ausfällt. Notnagel leitet daraus die MTPD ab.
             </Hint>
 
-            <div className="grid lg:grid-cols-[264px_1fr] gap-5">
-              <aside className="space-y-2 lg:sticky lg:top-24 lg:self-start">
+            <div className="grid min-w-0 gap-5 lg:grid-cols-[264px_1fr]">
+              <aside className="min-w-0 space-y-2 lg:sticky lg:top-24 lg:self-start">
                 <p className="px-1 text-[10.5px] font-semibold uppercase tracking-wider text-[#93a4bb]">Prozesse ({processes.length})</p>
                 {processes.map((p) => {
                   const pr = priorityOf(p);
                   return (
                     <button key={p.id} onClick={() => setActiveProcess(p.id)}
                       className={`w-full rounded-none border px-3.5 py-3 text-left text-sm transition ${activeProcess === p.id ? "border-[#f5b800] bg-[#f5b800]/10 shadow-voxel-sm" : "border-[#22303f] bg-[#16202e] hover:border-[#f5b800]/50"}`}>
-                      <span className="block font-medium text-[#dbe4f0]">{p.name || `${p.id} (ohne Namen)`}</span>
+                      <span className="block break-words font-medium text-[#dbe4f0]">{p.name || `${p.id} (ohne Namen)`}</span>
                       <span className={`mt-1 inline-flex items-center gap-1.5 text-[11px] font-medium ${pr.level === 1 ? "text-red-300" : pr.level === 2 ? "text-amber-300" : "text-[#93a4bb]"}`}>
                         <span aria-hidden className={`h-1.5 w-1.5 rounded-none ${pr.level === 1 ? "bg-[#ef4444]" : pr.level === 2 ? "bg-amber-400/100" : "bg-[#3b4d66]"}`} />
                         {pr.label}
@@ -858,7 +858,7 @@ export default function Notnagel() {
               </aside>
 
 
-              <div className="space-y-6">
+              <div className="min-w-0 space-y-6">
                 {!active && (
                   <div className="rounded-none border border-dashed border-[#33455c] bg-[#16202e]/60 px-6 py-14 text-center">
                     <p className="text-sm font-medium text-[#d6e0ee]">Noch kein Prozess ausgewählt</p>
@@ -891,11 +891,45 @@ export default function Notnagel() {
                     {/* Schadensverlauf */}
                     <div className="rounded-none border border-[#22303f] bg-[#16202e] shadow-voxel p-4 sm:p-5 space-y-3">
                       <p className="text-sm font-semibold text-[#f5b800]">Schadensverlauf</p>
-                      <div className="flex flex-wrap gap-3 text-[11px] text-[#b7c5d6]">
-                        {SCALE.map((s) => <span key={s.level}><strong>{s.code} = {s.name}:</strong> {s.hint}</span>)}
+                      <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] leading-relaxed text-[#b7c5d6]">
+                        {SCALE.map((s) => <span key={s.level} className="break-words"><strong>{s.code} = {s.name}:</strong> {s.hint}</span>)}
                       </div>
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-xs min-w-[560px]">
+
+                      {/* Mobil: gestapelte Bewertung statt breiter Tabelle – nichts läuft aus dem Bild */}
+                      <div className="space-y-3 sm:hidden">
+                        {DAMAGE_CATEGORIES.map((cat) => (
+                          <div key={cat.key} className="border border-[#1c2734] bg-[#101823] p-2.5">
+                            <p className="mb-2 text-[12px] font-semibold text-[#d6e0ee]">{cat.label}</p>
+                            <div className="space-y-1.5">
+                              {HORIZONS.map((h) => (
+                                <div key={h} className="flex items-center justify-between gap-2">
+                                  <span className="text-[11px] text-[#93a4bb]">{h}</span>
+                                  <div className="flex gap-1">
+                                    {[1, 2, 3, 4].map((v) => {
+                                      const on = active.matrix[cat.key][h] === v;
+                                      return (
+                                        <button key={v} title={SCALE[v - 1].hint}
+                                          aria-label={`${cat.label} nach ${h}: Stufe ${v}`}
+                                          onClick={() => {
+                                            const m = { ...active.matrix, [cat.key]: { ...active.matrix[cat.key], [h as Horizon]: v } };
+                                            updateProcess(active.id, { matrix: m });
+                                          }}
+                                          className={`h-8 w-8 rounded-none border text-[11px] font-semibold transition ${on
+                                            ? v >= 3 ? "bg-[#dc2626] text-[#080b10] border-red-500" : v === 2 ? "bg-amber-400/100 text-[#080b10] border-amber-500" : "bg-[#f5b800] text-[#080b10] border-[#f5b800]"
+                                            : "border-[#33455c] text-[#93a4bb]"}`}>{v}</button>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="hidden max-w-full overflow-x-auto sm:block">
+
+                        <table className="w-full min-w-[560px] text-xs">
                           <thead>
                             <tr className="text-left text-[#93a4bb]">
                               <th className="py-2 pr-2 font-medium">Auswirkung nach …</th>
@@ -969,24 +1003,34 @@ export default function Notnagel() {
                       </div>
                       <p className="text-[11px] text-[#93a4bb]">Ohne welche IT, Daten, Personen, Standorte oder Dienstleister läuft der Prozess nicht?</p>
                       {active.resources.map((r, i) => (
-                        <div key={i} className="grid sm:grid-cols-[150px_1fr_120px_auto_auto] gap-2 items-center">
-                          <select className={inputCls} value={r.kind} onChange={(e) => {
-                            const rs = [...active.resources]; rs[i] = { ...r, kind: e.target.value as ResourceEntry["kind"] }; updateProcess(active.id, { resources: rs });
-                          }}>{RESOURCE_KINDS.map((k) => <option key={k}>{k}</option>)}</select>
-                          <input className={inputCls} placeholder="Bezeichnung" value={r.description} onChange={(e) => {
-                            const rs = [...active.resources]; rs[i] = { ...r, description: e.target.value }; updateProcess(active.id, { resources: rs });
-                          }} />
-                          <select className={inputCls} value={r.criticality} onChange={(e) => {
-                            const rs = [...active.resources]; rs[i] = { ...r, criticality: e.target.value as ResourceEntry["criticality"] }; updateProcess(active.id, { resources: rs });
-                          }}><option value="hoch">hoch</option><option value="mittel">mittel</option><option value="niedrig">niedrig</option></select>
-                          <label className="text-[11px] text-[#b7c5d6] flex items-center gap-1 whitespace-nowrap">
-                            <input type="checkbox" checked={r.singlePointOfFailure} onChange={(e) => {
-                              const rs = [...active.resources]; rs[i] = { ...r, singlePointOfFailure: e.target.checked }; updateProcess(active.id, { resources: rs });
-                            }} /> nur einfach vorhanden
+                        <div key={i} className="grid min-w-0 items-center gap-2 border border-[#1c2734] p-2.5 sm:grid-cols-[150px_1fr_120px_auto_auto] sm:border-0 sm:p-0">
+                          <label className="grid gap-1 sm:contents">
+                            <span className="text-[10px] uppercase tracking-wider text-[#93a4bb] sm:hidden">Art</span>
+                            <select className={inputCls} value={r.kind} onChange={(e) => {
+                              const rs = [...active.resources]; rs[i] = { ...r, kind: e.target.value as ResourceEntry["kind"] }; updateProcess(active.id, { resources: rs });
+                            }}>{RESOURCE_KINDS.map((k) => <option key={k}>{k}</option>)}</select>
                           </label>
-                          <button onClick={() => updateProcess(active.id, { resources: active.resources.filter((_, j) => j !== i) })} className="text-xs text-red-300">✕</button>
+                          <label className="grid min-w-0 gap-1 sm:contents">
+                            <span className="text-[10px] uppercase tracking-wider text-[#93a4bb] sm:hidden">Bezeichnung</span>
+                            <textarea rows={2} className={`${inputCls} resize-y leading-relaxed`} placeholder="Bezeichnung" value={r.description} onChange={(e) => {
+                              const rs = [...active.resources]; rs[i] = { ...r, description: e.target.value }; updateProcess(active.id, { resources: rs });
+                            }} />
+                          </label>
+                          <label className="grid gap-1 sm:contents">
+                            <span className="text-[10px] uppercase tracking-wider text-[#93a4bb] sm:hidden">Kritikalität</span>
+                            <select className={inputCls} value={r.criticality} onChange={(e) => {
+                              const rs = [...active.resources]; rs[i] = { ...r, criticality: e.target.value as ResourceEntry["criticality"] }; updateProcess(active.id, { resources: rs });
+                            }}><option value="hoch">hoch</option><option value="mittel">mittel</option><option value="niedrig">niedrig</option></select>
+                          </label>
+                          <label className="flex items-start gap-2 text-[11px] leading-snug text-[#b7c5d6] sm:items-center sm:whitespace-nowrap">
+                            <input type="checkbox" className="mt-0.5 sm:mt-0" checked={r.singlePointOfFailure} onChange={(e) => {
+                              const rs = [...active.resources]; rs[i] = { ...r, singlePointOfFailure: e.target.checked }; updateProcess(active.id, { resources: rs });
+                            }} /> <span>nur einfach vorhanden</span>
+                          </label>
+                          <button aria-label="Ressource entfernen" onClick={() => updateProcess(active.id, { resources: active.resources.filter((_, j) => j !== i) })} className="justify-self-end text-xs text-red-300">✕ <span className="sm:hidden">entfernen</span></button>
                         </div>
                       ))}
+
                     </div>
 
                     {/* Notbetrieb */}
@@ -998,19 +1042,29 @@ export default function Notnagel() {
                       </div>
                       <p className="text-[11px] text-[#93a4bb]">Was tut der Bereich konkret, wenn eine dieser Ressourcen fehlt? Auch „Papier und Telefon“ ist ein gültiges Verfahren.</p>
                       {active.workarounds.map((w, i) => (
-                        <div key={i} className="grid sm:grid-cols-[220px_1fr_110px_auto] gap-2 items-start">
-                          <input className={inputCls} placeholder="Ausfallszenario" value={w.scenario} onChange={(e) => {
-                            const ws = [...active.workarounds]; ws[i] = { ...w, scenario: e.target.value }; updateProcess(active.id, { workarounds: ws });
-                          }} />
-                          <textarea rows={2} className={inputCls} placeholder="Verfahren" value={w.procedure} onChange={(e) => {
-                            const ws = [...active.workarounds]; ws[i] = { ...w, procedure: e.target.value }; updateProcess(active.id, { workarounds: ws });
-                          }} />
-                          <input className={inputCls} placeholder="Std." inputMode="numeric" value={w.limitHours} onChange={(e) => {
-                            const ws = [...active.workarounds]; ws[i] = { ...w, limitHours: e.target.value }; updateProcess(active.id, { workarounds: ws });
-                          }} />
-                          <button onClick={() => updateProcess(active.id, { workarounds: active.workarounds.filter((_, j) => j !== i) })} className="text-xs text-red-300 pt-2">✕</button>
+                        <div key={i} className="grid min-w-0 items-start gap-2 border border-[#1c2734] p-2.5 sm:grid-cols-[220px_1fr_110px_auto] sm:border-0 sm:p-0">
+                          <label className="grid min-w-0 gap-1 sm:contents">
+                            <span className="text-[10px] uppercase tracking-wider text-[#93a4bb] sm:hidden">Ausfallszenario</span>
+                            <input className={inputCls} placeholder="Ausfallszenario" value={w.scenario} onChange={(e) => {
+                              const ws = [...active.workarounds]; ws[i] = { ...w, scenario: e.target.value }; updateProcess(active.id, { workarounds: ws });
+                            }} />
+                          </label>
+                          <label className="grid min-w-0 gap-1 sm:contents">
+                            <span className="text-[10px] uppercase tracking-wider text-[#93a4bb] sm:hidden">Verfahren</span>
+                            <textarea rows={2} className={`${inputCls} resize-y leading-relaxed`} placeholder="Verfahren" value={w.procedure} onChange={(e) => {
+                              const ws = [...active.workarounds]; ws[i] = { ...w, procedure: e.target.value }; updateProcess(active.id, { workarounds: ws });
+                            }} />
+                          </label>
+                          <label className="grid gap-1 sm:contents">
+                            <span className="text-[10px] uppercase tracking-wider text-[#93a4bb] sm:hidden">Grenze (Std.)</span>
+                            <input className={inputCls} placeholder="Std." inputMode="numeric" value={w.limitHours} onChange={(e) => {
+                              const ws = [...active.workarounds]; ws[i] = { ...w, limitHours: e.target.value }; updateProcess(active.id, { workarounds: ws });
+                            }} />
+                          </label>
+                          <button aria-label="Verfahren entfernen" onClick={() => updateProcess(active.id, { workarounds: active.workarounds.filter((_, j) => j !== i) })} className="justify-self-end text-xs text-red-300 sm:pt-2">✕ <span className="sm:hidden">entfernen</span></button>
                         </div>
                       ))}
+
                     </div>
                   </>
                 )}
@@ -1028,13 +1082,23 @@ export default function Notnagel() {
             <Hint>Im Ernstfall zählt, wer entscheidet. Jede Rolle braucht eine Vertretung – sonst hängt der Plan an einer einzigen Person.</Hint>
             <div className="space-y-2">
               {team.map((t, i) => (
-                <div key={i} className="grid sm:grid-cols-[200px_1fr_1fr_auto] gap-2 items-center">
-                  <input className={inputCls} value={t.role} onChange={(e) => { const ts = [...team]; ts[i] = { ...t, role: e.target.value }; setTeam(ts); }} />
-                  <input className={inputCls} placeholder="Besetzung" value={t.primary} onChange={(e) => { const ts = [...team]; ts[i] = { ...t, primary: e.target.value }; setTeam(ts); }} />
-                  <input className={inputCls} placeholder="Vertretung" value={t.deputy} onChange={(e) => { const ts = [...team]; ts[i] = { ...t, deputy: e.target.value }; setTeam(ts); }} />
-                  <button onClick={() => setTeam(team.filter((_, j) => j !== i))} className="text-xs text-red-300">✕</button>
+                <div key={i} className="grid min-w-0 items-center gap-2 border border-[#1c2734] p-2.5 sm:grid-cols-[200px_1fr_1fr_auto] sm:border-0 sm:p-0">
+                  <label className="grid min-w-0 gap-1 sm:contents">
+                    <span className="text-[10px] uppercase tracking-wider text-[#93a4bb] sm:hidden">Rolle</span>
+                    <input className={inputCls} value={t.role} onChange={(e) => { const ts = [...team]; ts[i] = { ...t, role: e.target.value }; setTeam(ts); }} />
+                  </label>
+                  <label className="grid min-w-0 gap-1 sm:contents">
+                    <span className="text-[10px] uppercase tracking-wider text-[#93a4bb] sm:hidden">Besetzung</span>
+                    <input className={inputCls} placeholder="Besetzung" value={t.primary} onChange={(e) => { const ts = [...team]; ts[i] = { ...t, primary: e.target.value }; setTeam(ts); }} />
+                  </label>
+                  <label className="grid min-w-0 gap-1 sm:contents">
+                    <span className="text-[10px] uppercase tracking-wider text-[#93a4bb] sm:hidden">Vertretung</span>
+                    <input className={inputCls} placeholder="Vertretung" value={t.deputy} onChange={(e) => { const ts = [...team]; ts[i] = { ...t, deputy: e.target.value }; setTeam(ts); }} />
+                  </label>
+                  <button aria-label="Rolle entfernen" onClick={() => setTeam(team.filter((_, j) => j !== i))} className="justify-self-end text-xs text-red-300">✕ <span className="sm:hidden">entfernen</span></button>
                 </div>
               ))}
+
               <button onClick={() => setTeam([...team, { role: "", primary: "", deputy: "" }])} className="text-xs px-3 py-1.5 rounded border border-dashed border-[#3b4d66]">+ Rolle</button>
             </div>
             <StepNav onBack={() => setStep(2)} next={{ label: "Weiter zur Übung →", onClick: () => setStep(4) }} />
