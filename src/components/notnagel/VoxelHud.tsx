@@ -143,7 +143,14 @@ export function LevelStepper({
               >
                 {done ? "✓" : n}
               </span>
-              <span className="text-[13px] font-bold uppercase tracking-[0.1em]">{label}</span>
+              <span
+                className={`text-[12px] font-bold uppercase tracking-[0.08em] sm:text-[13px] sm:tracking-[0.1em] ${
+                  active ? "" : "hidden sm:inline"
+                }`}
+              >
+                {label}
+              </span>
+
             </button>
           </li>
         );
