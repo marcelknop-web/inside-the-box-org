@@ -1,16 +1,9 @@
-import { Link } from "react-router-dom";
-import { ArrowLeft, RotateCcw, Volume2 } from "lucide-react";
-
-
-/** Game-HUD-Kopfzeile: Voxel-Logo, Titel, segmentierte Energieleiste, Sound-Toggle. */
+/** Game-HUD-Kopfzeile: Voxel-Logo, Titel, Level-Info. Steuerungs-Buttons wandern in die fixe Fußzeile. */
 export function HudBar({
-  step, steps, soundOn, onToggleSound, onReset,
+  step, steps,
 }: {
   step: number;
   steps: string[];
-  soundOn: boolean;
-  onToggleSound: () => void;
-  onReset: () => void;
 }) {
   return (
     <header className="sticky top-0 z-30 border-b-2 border-[#22303f] bg-[#0a1017]/97 backdrop-blur">
@@ -33,50 +26,12 @@ export function HudBar({
           </div>
         </div>
 
-        <div className="flex flex-shrink-0 items-center gap-1.5 sm:gap-2">
-          {step > 0 && (
-            <span className="hidden border-2 border-[#00bcd4]/45 bg-[#00bcd4]/12 px-3 py-1.5 text-[12px] font-bold uppercase tracking-[0.1em] text-[#9ce6f2] lg:inline">
-              Level {step}/5 · {steps[step - 1]}
-            </span>
-          )}
-          <button
-            onClick={onToggleSound}
-            aria-label={soundOn ? "Sound ausschalten" : "Sound einschalten"}
-            aria-pressed={soundOn}
-            title={soundOn ? "Ton an" : "Ton aus"}
-            className={`voxel-press flex h-9 min-w-9 items-center justify-center border-2 px-2 text-[12px] font-bold uppercase tracking-[0.08em] transition sm:h-auto sm:px-3 sm:py-1.5 ${
-              soundOn
-                ? "border-[#f5b800]/70 bg-[#f5b800]/15 text-[#ffd23f]"
-                : "border-[#33455c] text-[#93a4bb] hover:border-[#f5b800]/60 hover:text-[#ffd23f]"
-            }`}
-          >
-            <Volume2 aria-hidden className="h-4 w-4 sm:hidden" strokeWidth={2.5} />
-            <span className="hidden sm:inline">{soundOn ? "Ton an" : "Ton aus"}</span>
-          </button>
-          <button
-            onClick={onReset}
-            aria-label="Neu starten"
-            title="Neu starten"
-            className="voxel-press flex h-9 min-w-9 items-center justify-center border-2 border-[#33455c] px-2 text-[12px] font-bold uppercase tracking-[0.08em] text-[#d6e0ee] transition hover:border-[#f5b800]/60 hover:text-[#ffd23f] sm:h-auto sm:px-3 sm:py-1.5"
-          >
-            <RotateCcw aria-hidden className="h-4 w-4 sm:hidden" strokeWidth={2.5} />
-            <span className="hidden sm:inline">↺ Neu</span>
-          </button>
-          <Link
-            to="/"
-            aria-label="Zurück zur Startseite"
-            title="Zurück"
-            className="voxel-press flex h-9 min-w-9 items-center justify-center border-2 border-[#33455c] px-2 text-[12px] font-bold uppercase tracking-[0.08em] text-[#d6e0ee] transition hover:border-[#f5b800]/60 hover:text-[#ffd23f] sm:h-auto sm:px-3 sm:py-1.5"
-          >
-            <ArrowLeft aria-hidden className="h-4 w-4 sm:hidden" strokeWidth={2.5} />
-            <span className="hidden sm:inline">← zurück</span>
-          </Link>
-        </div>
+        {step > 0 && (
+          <span className="hidden flex-shrink-0 border-2 border-[#00bcd4]/45 bg-[#00bcd4]/12 px-3 py-1.5 text-[12px] font-bold uppercase tracking-[0.1em] text-[#9ce6f2] lg:inline">
+            Level {step}/5 · {steps[step - 1]}
+          </span>
+        )}
       </div>
-
-
-
-
     </header>
   );
 }

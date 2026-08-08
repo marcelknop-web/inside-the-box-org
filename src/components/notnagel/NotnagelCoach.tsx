@@ -35,14 +35,14 @@ interface Props {
   findings: Finding[];
   /** kompakter Kontext für die Vorschläge (Branche, Bereich, Prozesse …) */
   context: string;
-  /** Trigger wird erst eingeblendet, wenn die Seite vollständig aufgebaut ist. */
-  visible?: boolean;
+  /** Panel wird geöffnet/geschlossen von außen gesteuert. */
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 interface Suggestion { text: string; warum: string }
 
-export default function NotnagelCoach({ guide, topics, findings, context, visible = true }: Props) {
-  const [open, setOpen] = useState(false);
+export default function NotnagelCoach({ guide, topics, findings, context, open, onOpenChange }: Props) {
   const [topicId, setTopicId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -79,31 +79,6 @@ export default function NotnagelCoach({ guide, topics, findings, context, visibl
 
   return (
     <>
-      {/* Auslöser – erscheint immer als letztes Element einer Seite. */}
-      <div
-        className={`fixed bottom-[5.25rem] left-3 z-40 transition-opacity duration-500 sm:bottom-24 sm:left-auto sm:right-4 ${
-          visible ? "opacity-100" : "pointer-events-none opacity-0"
-        }`}
-        style={{ marginBottom: "env(safe-area-inset-bottom)" }}
-      >
-        <button
-          onClick={() => setOpen((o) => !o)}
-          aria-label={open ? "Hilfe schließen" : "Hilfe und Vorschläge öffnen"}
-          className="voxel-press voxel-bevel-gold relative flex h-11 w-11 items-center justify-center gap-2 rounded-none border-2 border-[#ffd23f] bg-[#f5b800] text-[13px] font-bold uppercase tracking-[0.1em] text-[#0a0e14] transition hover:bg-[#ffd23f] sm:h-auto sm:w-auto sm:px-4 sm:py-2.5"
-        >
-          {open ? <X aria-hidden className="h-5 w-5 sm:hidden" strokeWidth={2.5} /> : <Lightbulb aria-hidden className="h-5 w-5 sm:hidden" strokeWidth={2.5} />}
-          <Lightbulb aria-hidden className="hidden h-4 w-4 sm:block" strokeWidth={2.5} />
-          <span className="hidden sm:inline">{open ? "Hilfe schließen" : "Hilfe & Vorschläge"}</span>
-
-          {!open && openFindings.length > 0 && (
-            <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-none border border-[#f5b800] bg-[#16202e] px-1 text-[10px] font-bold text-[#f5b800] sm:static sm:ml-1 sm:border-0 sm:px-1.5 sm:py-0.5">
-              {openFindings.length}
-            </span>
-          )}
-        </button>
-      </div>
-
-
       {open && (
         <aside className="fixed inset-x-0 bottom-0 sm:inset-x-auto sm:right-4 sm:bottom-20 z-40 w-full sm:w-[420px] max-h-[78vh] sm:max-h-[70vh] overflow-y-auto rounded-none sm:rounded-none border border-[#22303f] bg-[#16202e] shadow-voxel-lg">
           <div className="sticky top-0 bg-[#f5b800] text-[#080b10] px-4 py-3 flex items-start justify-between gap-3">
@@ -111,7 +86,7 @@ export default function NotnagelCoach({ guide, topics, findings, context, visibl
               <p className="text-[11px] uppercase tracking-widest text-[#bfeaf2]">Assistent</p>
               <p className="text-sm font-semibold">{guide.title}</p>
             </div>
-            <button onClick={() => setOpen(false)} className="text-[#bfeaf2] text-lg leading-none">✕</button>
+            <button onClick={() => onOpenChange(false)} className="text-[#bfeaf2] text-lg leading-none">✕</button>
           </div>
 
           <div className="p-4 space-y-4">

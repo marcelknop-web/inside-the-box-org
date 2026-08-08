@@ -1,6 +1,7 @@
 import { Children, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
+import { ArrowLeft, Home, Lightbulb, RotateCcw, Volume2, X } from "lucide-react";
 import Typewriter from "@/components/Typewriter";
 import {
   DAMAGE_CATEGORIES, HORIZONS, SCALE, DEFAULT_PROFILE, DEFAULT_TEAM, DEFAULT_EXERCISE,
@@ -210,22 +211,46 @@ function StepSection({
 
 
 
-/** Starre Fußzeile im Header-Stil: fixiert, blockige Voxel-Buttons. */
-function StepNav({ onBack, next }: { onBack?: () => void; next?: { label: string; onClick: () => void; disabled?: boolean; hint?: string } }) {
+/** Starre Fußzeile: Navigation, Hilfe, Sound, Reset und Home in einer Zeile. */
+function StepNav({
+  onBack, next, soundOn, onToggleSound, onReset, coachOpen, onToggleCoach, coachVisible, coachBadge,
+}: {
+  onBack?: () => void;
+  next?: { label: string; onClick: () => void; disabled?: boolean; hint?: string };
+  soundOn: boolean;
+  onToggleSound: () => void;
+  onReset: () => void;
+  coachOpen: boolean;
+  onToggleCoach: () => void;
+  coachVisible: boolean;
+  coachBadge?: number;
+}) {
   return (
     <footer className="fixed bottom-0 left-0 right-0 z-30 border-t-2 border-[#22303f] bg-[#0a1017]/97 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-2.5 sm:gap-3 sm:px-6 sm:py-3">
-        {onBack ? (
-          <button
-            onClick={onBack}
-            className="voxel-press voxel-bevel flex h-9 items-center justify-center gap-1.5 border-2 border-[#33455c] bg-[#16202e] px-3 text-[12px] font-bold uppercase tracking-[0.08em] text-[#d6e0ee] transition hover:border-[#f5b800]/60 hover:text-[#ffd23f] sm:h-auto sm:px-4 sm:py-2"
+        {/* Navigation links */}
+        <div className="flex flex-shrink-0 items-center gap-1.5 sm:gap-2">
+          <Link
+            to="/"
+            aria-label="Zurück zur Startseite"
+            title="Zurück zur Startseite"
+            className="voxel-press flex h-9 w-9 items-center justify-center border-2 border-[#33455c] text-[#d6e0ee] transition hover:border-[#f5b800]/60 hover:text-[#ffd23f] sm:h-auto sm:w-auto sm:gap-1.5 sm:px-3 sm:py-2"
           >
-            <span aria-hidden>←</span>
-            <span className="hidden sm:inline">zurück</span>
-          </button>
-        ) : (
-          <span className="hidden sm:block" />
-        )}
+            <Home aria-hidden className="h-4 w-4" strokeWidth={2.5} />
+            <span className="hidden text-[12px] font-bold uppercase tracking-[0.08em] sm:inline">Start</span>
+          </Link>
+          {onBack ? (
+            <button
+              onClick={onBack}
+              className="voxel-press voxel-bevel flex h-9 items-center justify-center gap-1.5 border-2 border-[#33455c] bg-[#16202e] px-3 text-[12px] font-bold uppercase tracking-[0.08em] text-[#d6e0ee] transition hover:border-[#f5b800]/60 hover:text-[#ffd23f] sm:h-auto sm:px-4 sm:py-2"
+            >
+              <ArrowLeft aria-hidden className="h-4 w-4" strokeWidth={2.5} />
+              <span className="hidden sm:inline">zurück</span>
+            </button>
+          ) : (
+            <span className="hidden w-9 sm:block" />
+          )}
+        </div>
 
         {next?.hint && (
           <span className="hidden flex-1 truncate px-2 text-center text-[11px] text-[#93a4bb] lg:inline">
@@ -233,18 +258,65 @@ function StepNav({ onBack, next }: { onBack?: () => void; next?: { label: string
           </span>
         )}
 
-        {next ? (
+        {/* Aktionen rechts */}
+        <div className="flex flex-shrink-0 items-center gap-1.5 sm:gap-2">
           <button
-            onClick={next.onClick}
-            disabled={next.disabled}
-            className="voxel-press voxel-bevel-gold flex h-9 items-center justify-center gap-1.5 border-2 border-[#ffd23f] bg-[#f5b800] px-4 text-[12px] font-bold uppercase tracking-[0.08em] text-[#0a0e14] transition hover:bg-[#ffd23f] disabled:cursor-not-allowed disabled:opacity-40 sm:h-auto sm:px-5 sm:py-2"
+            onClick={onToggleSound}
+            aria-label={soundOn ? "Sound ausschalten" : "Sound einschalten"}
+            aria-pressed={soundOn}
+            title={soundOn ? "Ton an" : "Ton aus"}
+            className={`voxel-press flex h-9 w-9 items-center justify-center border-2 transition sm:h-auto sm:w-auto sm:gap-1.5 sm:px-3 sm:py-2 ${
+              soundOn
+                ? "border-[#f5b800]/70 bg-[#f5b800]/15 text-[#ffd23f]"
+                : "border-[#33455c] text-[#93a4bb] hover:border-[#f5b800]/60 hover:text-[#ffd23f]"
+            }`}
           >
-            <span className="truncate">{next.label}</span>
-            <span aria-hidden>→</span>
+            <Volume2 aria-hidden className="h-4 w-4" strokeWidth={2.5} />
+            <span className="hidden text-[12px] font-bold uppercase tracking-[0.08em] sm:inline">{soundOn ? "Ton an" : "Ton aus"}</span>
           </button>
-        ) : (
-          <span className="hidden sm:block" />
-        )}
+          <button
+            onClick={onReset}
+            aria-label="Neu starten"
+            title="Neu starten"
+            className="voxel-press flex h-9 w-9 items-center justify-center border-2 border-[#33455c] text-[#d6e0ee] transition hover:border-[#f5b800]/60 hover:text-[#ffd23f] sm:h-auto sm:w-auto sm:gap-1.5 sm:px-3 sm:py-2"
+          >
+            <RotateCcw aria-hidden className="h-4 w-4" strokeWidth={2.5} />
+            <span className="hidden text-[12px] font-bold uppercase tracking-[0.08em] sm:inline">Neu</span>
+          </button>
+          <button
+            onClick={onToggleCoach}
+            aria-label={coachOpen ? "Hilfe schließen" : "Hilfe und Vorschläge öffnen"}
+            aria-pressed={coachOpen}
+            disabled={!coachVisible}
+            className={`voxel-press relative flex h-9 items-center justify-center gap-1.5 border-2 px-3 text-[12px] font-bold uppercase tracking-[0.08em] transition sm:h-auto sm:px-4 sm:py-2 ${
+              coachOpen
+                ? "voxel-bevel-gold border-[#ffd23f] bg-[#f5b800] text-[#0a0e14] hover:bg-[#ffd23f]"
+                : coachVisible
+                  ? "voxel-bevel-gold border-[#ffd23f] bg-[#f5b800] text-[#0a0e14] hover:bg-[#ffd23f]"
+                  : "border-[#33455c] bg-[#16202e] text-[#93a4bb] opacity-40 cursor-not-allowed"
+            }`}
+          >
+            {coachOpen ? <X aria-hidden className="h-4 w-4" strokeWidth={2.5} /> : <Lightbulb aria-hidden className="h-4 w-4" strokeWidth={2.5} />}
+            <span className="hidden sm:inline">{coachOpen ? "Hilfe" : "Hilfe"}</span>
+            {!coachOpen && coachVisible && coachBadge ? (
+              <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center border border-[#f5b800] bg-[#16202e] px-1 text-[10px] font-bold text-[#f5b800]">
+                {coachBadge}
+              </span>
+            ) : null}
+          </button>
+          {next ? (
+            <button
+              onClick={next.onClick}
+              disabled={next.disabled}
+              className="voxel-press voxel-bevel-gold flex h-9 items-center justify-center gap-1.5 border-2 border-[#ffd23f] bg-[#f5b800] px-4 text-[12px] font-bold uppercase tracking-[0.08em] text-[#0a0e14] transition hover:bg-[#ffd23f] disabled:cursor-not-allowed disabled:opacity-40 sm:h-auto sm:px-5 sm:py-2"
+            >
+              <span className="truncate">{next.label}</span>
+              <span aria-hidden>→</span>
+            </button>
+          ) : (
+            <span className="hidden w-9 sm:block" />
+          )}
+        </div>
       </div>
     </footer>
   );
@@ -444,6 +516,7 @@ export default function Notnagel() {
   const [tilesDone, setTilesDone] = useState(false);
   const [introButtonsDone, setIntroButtonsDone] = useState(false);
   const [coachReady, setCoachReady] = useState(false);
+  const [coachOpen, setCoachOpen] = useState(false);
 
   /** Reveal-Sequenz der Startseite: jeder Block gibt an den nächsten weiter. */
   const [seq, setSeq] = useState(0);
@@ -469,6 +542,7 @@ export default function Notnagel() {
   const audio = useNotnagelAudio();
   const [sweep, setSweep] = useState(0);
   const firstStep = useRef(true);
+
   useEffect(() => {
     if (firstStep.current) { firstStep.current = false; return; }
     setSweep((s) => s + 1);
@@ -485,6 +559,17 @@ export default function Notnagel() {
   const input: NotnagelInput = useMemo(() => ({ profile, processes, team, exercise }), [profile, processes, team, exercise]);
   const findings = useMemo(() => runQualityCheck(input), [input]);
   const score = useMemo(() => qualityScore(findings), [findings]);
+
+  /** Gemeinsame Props für alle StepNav-Instanzen (Footer-Controls). */
+  const navProps = {
+    soundOn: audio.enabled,
+    onToggleSound: () => { audio.play("click"); audio.toggle(); },
+    onReset: resetAll,
+    coachOpen,
+    onToggleCoach: () => { audio.play("click"); setCoachOpen((o) => !o); },
+    coachVisible: coachReady,
+    coachBadge: findings.filter((f) => f.severity !== "hinweis").length,
+  };
 
   // Entwurf lokal sichern
   const loaded = useRef(false);
@@ -702,13 +787,7 @@ export default function Notnagel() {
 
       <LevelSweep token={sweep} />
 
-      <HudBar
-        step={step}
-        steps={STEPS}
-        soundOn={audio.enabled}
-        onToggleSound={() => { audio.play("click"); audio.toggle(); }}
-        onReset={resetAll}
-      />
+      <HudBar step={step} steps={STEPS} />
 
       <main className="relative mx-auto flex w-full max-w-6xl flex-col px-4 pb-24 pt-6 sm:px-6 sm:pb-20 sm:pt-8 lg:min-h-0 lg:flex-1 lg:overflow-hidden lg:pb-20 lg:pt-5">
         {step > 0 && (
@@ -823,7 +902,7 @@ export default function Notnagel() {
             </div>
 
 
-            <StepNav onBack={() => setStep(0)} next={{ label: "Weiter zu den Prozessen →", onClick: () => setStep(2) }} />
+            <StepNav {...navProps} onBack={() => setStep(0)} next={{ label: "Weiter zu den Prozessen →", onClick: () => setStep(2) }} />
 
           </StepSection>
 
@@ -1070,7 +1149,7 @@ export default function Notnagel() {
               </div>
             </div>
 
-            <StepNav onBack={() => setStep(1)} next={{ label: "Weiter zum Notfallteam →", onClick: () => setStep(3), disabled: processes.length === 0, hint: processes.length === 0 ? "Mindestens ein Prozess nötig" : undefined }} />
+            <StepNav {...navProps} onBack={() => setStep(1)} next={{ label: "Weiter zum Notfallteam →", onClick: () => setStep(3), disabled: processes.length === 0, hint: processes.length === 0 ? "Mindestens ein Prozess nötig" : undefined }} />
           </StepSection>
         )}
 
@@ -1100,7 +1179,7 @@ export default function Notnagel() {
 
               <button onClick={() => setTeam([...team, { role: "", primary: "", deputy: "" }])} className="text-xs px-3 py-1.5 rounded border border-dashed border-[#3b4d66]">+ Rolle</button>
             </div>
-            <StepNav onBack={() => setStep(2)} next={{ label: "Weiter zur Übung →", onClick: () => setStep(4) }} />
+            <StepNav {...navProps} onBack={() => setStep(2)} next={{ label: "Weiter zur Übung →", onClick: () => setStep(4) }} />
           </StepSection>
         )}
 
@@ -1134,7 +1213,7 @@ export default function Notnagel() {
               <Field label="Teilnehmer"><input className={inputCls} value={exercise.participants} onChange={(e) => setExercise({ ...exercise, participants: e.target.value })} /></Field>
               <Field label="Übungsleitung"><input className={inputCls} value={exercise.facilitator} onChange={(e) => setExercise({ ...exercise, facilitator: e.target.value })} /></Field>
             </div>
-            <StepNav onBack={() => setStep(3)} next={{ label: "Zur Prüfung und Ausgabe →", onClick: () => setStep(5) }} />
+            <StepNav {...navProps} onBack={() => setStep(3)} next={{ label: "Zur Prüfung und Ausgabe →", onClick: () => setStep(5) }} />
           </StepSection>
         )}
 
@@ -1256,7 +1335,7 @@ export default function Notnagel() {
               )}
             </div>
 
-            <StepNav onBack={() => setStep(4)} />
+            <StepNav {...navProps} onBack={() => setStep(4)} />
           </StepSection>
 
         )}
@@ -1285,7 +1364,8 @@ export default function Notnagel() {
         topics={coachTopics}
         findings={findings}
         context={coachContext}
-        visible={coachReady}
+        open={coachOpen}
+        onOpenChange={setCoachOpen}
       />
     </div>
   );
