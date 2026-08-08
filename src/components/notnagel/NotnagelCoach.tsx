@@ -86,7 +86,7 @@ export default function NotnagelCoach({ guide, topics, findings, context, open, 
               <p className="text-[11px] uppercase tracking-widest text-[#bfeaf2]">Assistent</p>
               <p className="text-sm font-semibold">{guide.title}</p>
             </div>
-            <button onClick={() => setOpen(false)} className="text-[#bfeaf2] text-lg leading-none">✕</button>
+            <button onClick={() => onOpenChange(false)} className="text-[#bfeaf2] text-lg leading-none">✕</button>
           </div>
 
           <div className="p-4 space-y-4">
