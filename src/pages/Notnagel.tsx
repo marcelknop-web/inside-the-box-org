@@ -516,6 +516,7 @@ export default function Notnagel() {
   const [tilesDone, setTilesDone] = useState(false);
   const [introButtonsDone, setIntroButtonsDone] = useState(false);
   const [coachReady, setCoachReady] = useState(false);
+  const [coachOpen, setCoachOpen] = useState(false);
 
   /** Reveal-Sequenz der Startseite: jeder Block gibt an den nächsten weiter. */
   const [seq, setSeq] = useState(0);
