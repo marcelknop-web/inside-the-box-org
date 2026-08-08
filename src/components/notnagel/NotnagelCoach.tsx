@@ -35,14 +35,14 @@ interface Props {
   findings: Finding[];
   /** kompakter Kontext für die Vorschläge (Branche, Bereich, Prozesse …) */
   context: string;
-  /** Trigger wird erst eingeblendet, wenn die Seite vollständig aufgebaut ist. */
-  visible?: boolean;
+  /** Panel wird geöffnet/geschlossen von außen gesteuert. */
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 interface Suggestion { text: string; warum: string }
 
-export default function NotnagelCoach({ guide, topics, findings, context, visible = true }: Props) {
-  const [open, setOpen] = useState(false);
+export default function NotnagelCoach({ guide, topics, findings, context, open, onOpenChange }: Props) {
   const [topicId, setTopicId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
