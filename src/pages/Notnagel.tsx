@@ -409,7 +409,7 @@ function SeqBlock({
 
 
 
-const inputCls = "voxel-bevel w-full rounded-none border-2 border-[#33455c] bg-[#101823] px-3 py-2.5 text-sm text-[#e8eef7] placeholder:text-[#7c8ca3] transition focus:outline-none focus:border-[#f5b800] focus:ring-0";
+const inputCls = "voxel-bevel w-full rounded-none border-2 border-[#33455c] bg-[#101823] px-3 py-2.5 text-base text-[#e8eef7] placeholder:text-[#7c8ca3] transition focus:outline-none focus:border-[#f5b800] focus:ring-0 sm:text-sm";
 
 export default function Notnagel() {
   const [step, setStep] = useState(0);
