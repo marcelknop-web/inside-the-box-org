@@ -1082,13 +1082,23 @@ export default function Notnagel() {
             <Hint>Im Ernstfall zählt, wer entscheidet. Jede Rolle braucht eine Vertretung – sonst hängt der Plan an einer einzigen Person.</Hint>
             <div className="space-y-2">
               {team.map((t, i) => (
-                <div key={i} className="grid min-w-0 items-center gap-2 sm:grid-cols-[200px_1fr_1fr_auto]">
-                  <input className={inputCls} value={t.role} onChange={(e) => { const ts = [...team]; ts[i] = { ...t, role: e.target.value }; setTeam(ts); }} />
-                  <input className={inputCls} placeholder="Besetzung" value={t.primary} onChange={(e) => { const ts = [...team]; ts[i] = { ...t, primary: e.target.value }; setTeam(ts); }} />
-                  <input className={inputCls} placeholder="Vertretung" value={t.deputy} onChange={(e) => { const ts = [...team]; ts[i] = { ...t, deputy: e.target.value }; setTeam(ts); }} />
-                  <button onClick={() => setTeam(team.filter((_, j) => j !== i))} className="text-xs text-red-300">✕</button>
+                <div key={i} className="grid min-w-0 items-center gap-2 border border-[#1c2734] p-2.5 sm:grid-cols-[200px_1fr_1fr_auto] sm:border-0 sm:p-0">
+                  <label className="grid min-w-0 gap-1 sm:contents">
+                    <span className="text-[10px] uppercase tracking-wider text-[#93a4bb] sm:hidden">Rolle</span>
+                    <input className={inputCls} value={t.role} onChange={(e) => { const ts = [...team]; ts[i] = { ...t, role: e.target.value }; setTeam(ts); }} />
+                  </label>
+                  <label className="grid min-w-0 gap-1 sm:contents">
+                    <span className="text-[10px] uppercase tracking-wider text-[#93a4bb] sm:hidden">Besetzung</span>
+                    <input className={inputCls} placeholder="Besetzung" value={t.primary} onChange={(e) => { const ts = [...team]; ts[i] = { ...t, primary: e.target.value }; setTeam(ts); }} />
+                  </label>
+                  <label className="grid min-w-0 gap-1 sm:contents">
+                    <span className="text-[10px] uppercase tracking-wider text-[#93a4bb] sm:hidden">Vertretung</span>
+                    <input className={inputCls} placeholder="Vertretung" value={t.deputy} onChange={(e) => { const ts = [...team]; ts[i] = { ...t, deputy: e.target.value }; setTeam(ts); }} />
+                  </label>
+                  <button aria-label="Rolle entfernen" onClick={() => setTeam(team.filter((_, j) => j !== i))} className="justify-self-end text-xs text-red-300">✕ <span className="sm:hidden">entfernen</span></button>
                 </div>
               ))}
+
               <button onClick={() => setTeam([...team, { role: "", primary: "", deputy: "" }])} className="text-xs px-3 py-1.5 rounded border border-dashed border-[#3b4d66]">+ Rolle</button>
             </div>
             <StepNav onBack={() => setStep(2)} next={{ label: "Weiter zur Übung →", onClick: () => setStep(4) }} />
