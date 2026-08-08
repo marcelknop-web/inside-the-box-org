@@ -1003,24 +1003,34 @@ export default function Notnagel() {
                       </div>
                       <p className="text-[11px] text-[#93a4bb]">Ohne welche IT, Daten, Personen, Standorte oder Dienstleister läuft der Prozess nicht?</p>
                       {active.resources.map((r, i) => (
-                        <div key={i} className="grid min-w-0 items-center gap-2 sm:grid-cols-[150px_1fr_120px_auto_auto]">
-                          <select className={inputCls} value={r.kind} onChange={(e) => {
-                            const rs = [...active.resources]; rs[i] = { ...r, kind: e.target.value as ResourceEntry["kind"] }; updateProcess(active.id, { resources: rs });
-                          }}>{RESOURCE_KINDS.map((k) => <option key={k}>{k}</option>)}</select>
-                          <input className={inputCls} placeholder="Bezeichnung" value={r.description} onChange={(e) => {
-                            const rs = [...active.resources]; rs[i] = { ...r, description: e.target.value }; updateProcess(active.id, { resources: rs });
-                          }} />
-                          <select className={inputCls} value={r.criticality} onChange={(e) => {
-                            const rs = [...active.resources]; rs[i] = { ...r, criticality: e.target.value as ResourceEntry["criticality"] }; updateProcess(active.id, { resources: rs });
-                          }}><option value="hoch">hoch</option><option value="mittel">mittel</option><option value="niedrig">niedrig</option></select>
-                          <label className="text-[11px] text-[#b7c5d6] flex items-center gap-1 whitespace-nowrap">
-                            <input type="checkbox" checked={r.singlePointOfFailure} onChange={(e) => {
-                              const rs = [...active.resources]; rs[i] = { ...r, singlePointOfFailure: e.target.checked }; updateProcess(active.id, { resources: rs });
-                            }} /> nur einfach vorhanden
+                        <div key={i} className="grid min-w-0 items-center gap-2 border border-[#1c2734] p-2.5 sm:grid-cols-[150px_1fr_120px_auto_auto] sm:border-0 sm:p-0">
+                          <label className="grid gap-1 sm:contents">
+                            <span className="text-[10px] uppercase tracking-wider text-[#93a4bb] sm:hidden">Art</span>
+                            <select className={inputCls} value={r.kind} onChange={(e) => {
+                              const rs = [...active.resources]; rs[i] = { ...r, kind: e.target.value as ResourceEntry["kind"] }; updateProcess(active.id, { resources: rs });
+                            }}>{RESOURCE_KINDS.map((k) => <option key={k}>{k}</option>)}</select>
                           </label>
-                          <button onClick={() => updateProcess(active.id, { resources: active.resources.filter((_, j) => j !== i) })} className="text-xs text-red-300">✕</button>
+                          <label className="grid min-w-0 gap-1 sm:contents">
+                            <span className="text-[10px] uppercase tracking-wider text-[#93a4bb] sm:hidden">Bezeichnung</span>
+                            <textarea rows={2} className={`${inputCls} resize-y leading-relaxed`} placeholder="Bezeichnung" value={r.description} onChange={(e) => {
+                              const rs = [...active.resources]; rs[i] = { ...r, description: e.target.value }; updateProcess(active.id, { resources: rs });
+                            }} />
+                          </label>
+                          <label className="grid gap-1 sm:contents">
+                            <span className="text-[10px] uppercase tracking-wider text-[#93a4bb] sm:hidden">Kritikalität</span>
+                            <select className={inputCls} value={r.criticality} onChange={(e) => {
+                              const rs = [...active.resources]; rs[i] = { ...r, criticality: e.target.value as ResourceEntry["criticality"] }; updateProcess(active.id, { resources: rs });
+                            }}><option value="hoch">hoch</option><option value="mittel">mittel</option><option value="niedrig">niedrig</option></select>
+                          </label>
+                          <label className="flex items-start gap-2 text-[11px] leading-snug text-[#b7c5d6] sm:items-center sm:whitespace-nowrap">
+                            <input type="checkbox" className="mt-0.5 sm:mt-0" checked={r.singlePointOfFailure} onChange={(e) => {
+                              const rs = [...active.resources]; rs[i] = { ...r, singlePointOfFailure: e.target.checked }; updateProcess(active.id, { resources: rs });
+                            }} /> <span>nur einfach vorhanden</span>
+                          </label>
+                          <button aria-label="Ressource entfernen" onClick={() => updateProcess(active.id, { resources: active.resources.filter((_, j) => j !== i) })} className="justify-self-end text-xs text-red-300">✕ <span className="sm:hidden">entfernen</span></button>
                         </div>
                       ))}
+
                     </div>
 
                     {/* Notbetrieb */}
