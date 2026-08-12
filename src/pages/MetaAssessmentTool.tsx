@@ -2713,9 +2713,9 @@ const MetaAssessmentTool = () => {
         {showIntro && <HowItWorksModal u={u} onClose={closeIntro} />}
 
         <main className="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-          <header className="mb-6">
+          <header className="mb-5">
             <div className="flex items-start justify-between gap-3">
-              <div className="font-mono text-[10px] tracking-[0.3em] uppercase text-primary mb-2">{u.section}</div>
+              <div className="font-mono text-[10px] tracking-[0.3em] uppercase text-primary mb-1.5">{u.section}</div>
               <button
                 onClick={() => setShowIntro(true)}
                 className="flex-shrink-0 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors border border-border rounded-md px-2 py-1"
@@ -2723,10 +2723,10 @@ const MetaAssessmentTool = () => {
                 <Sparkles size={12} /> {u.archTitle}
               </button>
             </div>
-            <h1 className="font-mono text-base sm:text-lg md:text-xl text-foreground leading-tight">
+            <h1 className="font-mono text-sm sm:text-base md:text-lg text-foreground leading-tight">
               {phase === 'standard' ? u.headline : `${profile?.name} — ${tr(profile?.fullName, lang)}`}
             </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-2 max-w-2xl leading-relaxed">{u.sub}</p>
+            <p className="text-xs text-muted-foreground mt-1.5 max-w-2xl leading-relaxed">{u.sub}</p>
           </header>
 
           {/* Visual progress stepper */}
