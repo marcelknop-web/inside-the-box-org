@@ -4,6 +4,7 @@ import {
   ArrowRight, ArrowLeft, Loader2, Sparkles, ShieldCheck, Network, Car,
   CreditCard, Factory, Server, RotateCcw, Lock, AlertTriangle, CheckCircle2,
   Download, FileText, ClipboardList, Presentation, ExternalLink, ChevronRight, X,
+  Maximize2, Minimize2,
 } from 'lucide-react';
 import { generateMetaAssessmentPdf } from '@/utils/metaAssessmentReportPdf';
 import { generateWorkingPapersPdf } from '@/utils/workingPapersPdf';
@@ -2671,10 +2672,28 @@ function ChapterVisual({ ch }: { ch: { kind: string; data: any } }) {
 
 
 // ── Page ────────────────────────────────────────────────────────
+function useFullscreen() {
+  const [active, setActive] = useState(false);
+  useEffect(() => {
+    const onChange = () => setActive(Boolean(document.fullscreenElement));
+    document.addEventListener('fullscreenchange', onChange);
+    return () => document.removeEventListener('fullscreenchange', onChange);
+  }, []);
+  const toggle = useCallback(() => {
+    if (document.fullscreenElement) {
+      void document.exitFullscreen().catch(() => { /* ignore */ });
+    } else {
+      void document.documentElement.requestFullscreen?.().catch(() => { /* ignore */ });
+    }
+  }, []);
+  return { active, toggle };
+}
+
 const MetaAssessmentTool = () => {
   // This platform is presented in English only, independent of the global UI language.
   const lang: Lang = 'en';
   const u = ui(lang);
+  const { active: fullscreen, toggle: toggleFullscreen } = useFullscreen();
   
 
   const [phase, setPhase] = useState<Phase>('standard');
@@ -2716,12 +2735,23 @@ const MetaAssessmentTool = () => {
           <header className="mb-5">
             <div className="flex items-start justify-between gap-3">
               <div className="font-mono text-[10px] tracking-[0.3em] uppercase text-primary mb-1.5">{u.section}</div>
-              <button
-                onClick={() => setShowIntro(true)}
-                className="flex-shrink-0 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors border border-border rounded-md px-2 py-1"
-              >
-                <Sparkles size={12} /> {u.archTitle}
-              </button>
+              <div className="flex-shrink-0 flex items-center gap-2">
+                <button
+                  onClick={() => setShowIntro(true)}
+                  className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors border border-border rounded-md px-2 py-1"
+                >
+                  <Sparkles size={12} /> {u.archTitle}
+                </button>
+                <button
+                  onClick={toggleFullscreen}
+                  aria-label={fullscreen ? 'Exit full screen' : 'Full screen'}
+                  title={fullscreen ? 'Exit full screen' : 'Full screen'}
+                  className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors border border-border rounded-md px-2 py-1"
+                >
+                  {fullscreen ? <Minimize2 size={12} /> : <Maximize2 size={12} />}
+                  <span className="hidden sm:inline">{fullscreen ? 'Exit' : 'Full screen'}</span>
+                </button>
+              </div>
             </div>
             <h1 className="font-mono text-sm sm:text-base md:text-lg text-foreground leading-tight">
               {phase === 'standard' ? u.headline : `${profile?.name} — ${tr(profile?.fullName, lang)}`}
