@@ -2672,6 +2672,23 @@ function ChapterVisual({ ch }: { ch: { kind: string; data: any } }) {
 
 
 // ── Page ────────────────────────────────────────────────────────
+function useFullscreen() {
+  const [active, setActive] = useState(false);
+  useEffect(() => {
+    const onChange = () => setActive(Boolean(document.fullscreenElement));
+    document.addEventListener('fullscreenchange', onChange);
+    return () => document.removeEventListener('fullscreenchange', onChange);
+  }, []);
+  const toggle = useCallback(() => {
+    if (document.fullscreenElement) {
+      void document.exitFullscreen().catch(() => { /* ignore */ });
+    } else {
+      void document.documentElement.requestFullscreen?.().catch(() => { /* ignore */ });
+    }
+  }, []);
+  return { active, toggle };
+}
+
 const MetaAssessmentTool = () => {
   // This platform is presented in English only, independent of the global UI language.
   const lang: Lang = 'en';
