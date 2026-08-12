@@ -760,7 +760,7 @@ function FieldView({ field, value, onChange, lang, answers, setVal }: {
 function FieldLabel({ field, lang }: { field: IntakeField; lang: Lang }) {
   const copy = ui(lang);
   return (
-    <label className="block text-base sm:text-lg font-semibold text-foreground uppercase tracking-wide mb-3">
+    <label className="block text-lg sm:text-xl font-semibold text-foreground uppercase tracking-wide mb-4">
       {tr(field.label, lang)}
       {field.required && <span className="ml-2 align-middle inline-flex items-center rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary tracking-wider">{copy.required}</span>}
       {field.help && <span className="block normal-case font-normal text-xs mt-1 text-muted-foreground">{tr(field.help, lang)}</span>}
