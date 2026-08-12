@@ -562,7 +562,17 @@ export class PdfDoc {
     this.doc.setFont(this.headFont, 'bold');
     this.doc.setFontSize(7.5);
     this.doc.setTextColor(...C.mid);
-    this.doc.text(label, LAYOUT.LEFT + indent + 3, this.y);
+    // Clip the label so a long label can never run into the value column.
+    let labelText = label;
+    const maxLabelW = labelW - 4;
+    if (this.doc.getTextWidth(labelText) > maxLabelW) {
+      while (labelText.length > 1 && this.doc.getTextWidth(`${labelText}…`) > maxLabelW) {
+        labelText = labelText.slice(0, -1);
+      }
+      labelText = `${labelText.trimEnd()}…`;
+    }
+    this.doc.text(labelText, LAYOUT.LEFT + indent + 3, this.y);
+
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(8.5);
     this.doc.setTextColor(...C.dark);
