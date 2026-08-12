@@ -83,14 +83,14 @@ function extractPercents(md: string): { raw: string; value: number; isInteger: b
 }
 
 /** Extracts every CMMI level token (L1–L5).
- *  Risk-likelihood tokens ("L2 × I4 (8)") use the same "L<n>" notation but are
+ *  Risk-likelihood tokens ("L2 x I4 (8)") use the same "L<n>" notation but are
  *  NOT CMMI levels, so we strip risk tuples before matching to avoid false
  *  positives. We also ignore "L" tokens directly followed by a risk operator
- *  (e.g. "L3 ×") as a defensive fallback. */
+ *  (e.g. "L3 x") as a defensive fallback. */
 function extractLevels(md: string): { raw: string; value: number; isInteger: boolean }[] {
-  const cleaned = md.replace(/L\s?\d+\s*[×x]\s*I\s?\d+\s*\(\d+\)/g, ' ');
+  const cleaned = md.replace(/L\s?\d+\s*[xx]\s*I\s?\d+\s*\(\d+\)/g, ' ');
   const out: { raw: string; value: number; isInteger: boolean }[] = [];
-  const re = /\bL\s?(\d+(?:\.\d+)?)\b(?!\s*[×x]\s*I)/g;
+  const re = /\bL\s?(\d+(?:\.\d+)?)\b(?!\s*[xx]\s*I)/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(cleaned))) {
     const value = parseFloat(m[1]);
@@ -99,10 +99,10 @@ function extractLevels(md: string): { raw: string; value: number; isInteger: boo
   return out;
 }
 
-/** Extracts risk tuples "L<l> × I<i> (<score>)". */
+/** Extracts risk tuples "L<l> x I<i> (<score>)". */
 function extractRiskTuples(md: string): { raw: string; l: number; i: number; score: number }[] {
   const out: { raw: string; l: number; i: number; score: number }[] = [];
-  const re = /L\s?(\d+)\s*[×x]\s*I\s?(\d+)\s*\((\d+)\)/g;
+  const re = /L\s?(\d+)\s*[xx]\s*I\s?(\d+)\s*\((\d+)\)/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(md))) {
     out.push({ raw: m[0], l: parseInt(m[1], 10), i: parseInt(m[2], 10), score: parseInt(m[3], 10) });
@@ -163,13 +163,13 @@ export function validateSlideMetrics(type: PresentationType, input: Presentation
       });
     }
 
-    // ── 4. Risk tuples: score must equal likelihood × impact ──
+    // ── 4. Risk tuples: score must equal likelihood x impact ──
     const tuples = extractRiskTuples(md);
     if (tuples.length > 0) {
       const wrong = tuples.filter((r) => r.l * r.i !== r.score || r.l < 1 || r.l > 5 || r.i < 1 || r.i > 5);
       checks.push({
         id: `${catKey}-risk`, category: catKey,
-        label: t('Risiko-Scores = Eintritt × Auswirkung', 'Risk scores = likelihood × impact', 'Scores de risque = probabilité × impact'),
+        label: t('Risiko-Scores = Eintritt x Auswirkung', 'Risk scores = likelihood x impact', 'Scores de risque = probabilité x impact'),
         detail: wrong.length
           ? `${t('Falsch berechnet', 'Wrong calculation', 'Calcul erroné')}: ${wrong.map((r) => r.raw).join(', ')}`
           : `${tuples.length} ${t('Scores korrekt', 'scores correct', 'scores corrects')}`,

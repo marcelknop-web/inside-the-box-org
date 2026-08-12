@@ -15,7 +15,7 @@ export const IACS_E26_PROFILE: StandardProfile = {
   available: true,
   fullName: {
     de: 'IACS UR E26 — Cyber-Resilienz von Schiffen',
-    en: 'IACS UR E26 — Cyber Resilience of Ships',
+    en: 'IACS UR E26 — Cyber Résilience of Ships',
     fr: 'IACS UR E26 — Cyber-résilience des navires',
   },
   regulation: {
@@ -53,7 +53,7 @@ export const IACS_E26_PROFILE: StandardProfile = {
           id: 'role',
           type: 'single',
           required: true,
-          label: { de: 'Rolle im Lebenszyklus', en: 'Role in the lifecycle', fr: 'Rôle dans le cycle de vie' },
+          label: { de: 'Rolle im Lebenszyklus', en: 'Rôle in the lifecycle', fr: 'Rôle dans le cycle de vie' },
           options: [
             { id: 'owner', icon: '🛳️', label: { de: 'Reederei / Eigner', en: 'Owner / operator', fr: 'Armateur / exploitant' }, desc: { de: 'Betrieb & Instandhaltung', en: 'Operation & maintenance', fr: 'Exploitation & maintenance' } },
             { id: 'yard', icon: '🏗️', label: { de: 'Werft', en: 'Shipyard', fr: 'Chantier naval' }, desc: { de: 'Bau & Integration', en: 'Build & integration', fr: 'Construction & intégration' } },
@@ -145,7 +145,7 @@ export const IACS_E26_PROFILE: StandardProfile = {
           options: [
             { id: 'inventory', label: { de: 'CBS-Inventar & Asset-Verzeichnis', en: 'CBS inventory & asset register', fr: 'Inventaire CBS & registre des actifs' } },
             { id: 'riskassess', label: { de: 'Cyber-Risikobeurteilung des Schiffes', en: 'Ship cyber risk assessment', fr: 'Appréciation des cyber-risques du navire' } },
-            { id: 'securityplan', label: { de: 'Ship Cyber Resilience Framework / Plan', en: 'Ship cyber resilience framework / plan', fr: 'Cadre / plan de cyber-résilience du navire' } },
+            { id: 'securityplan', label: { de: 'Ship Cyber Résilience Framework / Plan', en: 'Ship cyber resilience framework / plan', fr: 'Cadre / plan de cyber-résilience du navire' } },
             { id: 'segmentation', label: { de: 'Netzwerksegmentierung (Zonen & Conduits)', en: 'Network segmentation (zones & conduits)', fr: 'Segmentation réseau (zones & conduits)' } },
             { id: 'access', label: { de: 'Zugriffssteuerung & Authentisierung', en: 'Access control & authentication', fr: "Contrôle d'accès & authentification" } },
             { id: 'wireless', label: { de: 'Absicherung Wireless & Remote-Zugänge', en: 'Securing wireless & remote access', fr: 'Sécurisation sans fil & accès distant' } },
@@ -172,8 +172,8 @@ export const IACS_E26_PROFILE: StandardProfile = {
   ],
   maturity: { enabled: true, target: 4 },
   requirements: [
-    { id: 'E26-G1', article: 'UR E26 §3', categoryId: 'govern', weight: 2, mandatory: true, rule: { requiresAll: ['measures:securityplan'], requiresAny: ['roles:cyberlead'], riskLikelihood: 4, riskImpact: 4 }, owner: { de: 'Reederei / Werft', en: 'Owner / yard', fr: 'Armateur / chantier' }, name: { de: 'Ship Cyber Resilience Framework & Verantwortlichkeiten', en: 'Ship cyber resilience framework & responsibilities', fr: 'Cadre de cyber-résilience du navire & responsabilités' }, criteria: [
-      { de: 'Ship-wide Cyber-Resilience-Framework dokumentiert; Rollen von Eigner, Werft und Lieferanten geregelt', en: 'Ship-wide cyber resilience framework documented; owner, yard and supplier roles defined', fr: 'Cadre de cyber-résilience documenté ; rôles armateur, chantier et fournisseurs définis' },
+    { id: 'E26-G1', article: 'UR E26 §3', categoryId: 'govern', weight: 2, mandatory: true, rule: { requiresAll: ['measures:securityplan'], requiresAny: ['roles:cyberlead'], riskLikelihood: 4, riskImpact: 4 }, owner: { de: 'Reederei / Werft', en: 'Owner / yard', fr: 'Armateur / chantier' }, name: { de: 'Ship Cyber Résilience Framework & Verantwortlichkeiten', en: 'Ship cyber resilience framework & responsibilities', fr: 'Cadre de cyber-résilience du navire & responsabilités' }, criteria: [
+      { de: 'Ship-wide Cyber-Résilience-Framework dokumentiert; Rollen von Eigner, Werft und Lieferanten geregelt', en: 'Ship-wide cyber resilience framework documented; owner, yard and supplier roles defined', fr: 'Cadre de cyber-résilience documenté ; rôles armateur, chantier et fournisseurs définis' },
     ] },
     { id: 'E26-G2', article: 'UR E26 §3', categoryId: 'govern', mandatory: true, rule: { requiresAll: ['measures:sms'], requiresAny: ['roles:sms', 'roles:training'], riskLikelihood: 3, riskImpact: 3 }, owner: { de: 'Reederei', en: 'Owner', fr: 'Armateur' }, name: { de: 'Verankerung im Sicherheitsmanagement & Crew-Awareness', en: 'Embedding in safety management & crew awareness', fr: 'Ancrage dans la gestion de la sécurité & sensibilisation' } },
     { id: 'E26-ID1', article: 'UR E26 §4 Identify', categoryId: 'identify', weight: 2, mandatory: true, rule: { requiresAll: ['measures:inventory'], riskLikelihood: 4, riskImpact: 4 }, owner: { de: 'Systemintegrator', en: 'System integrator', fr: 'Intégrateur système' }, name: { de: 'CBS-Inventar & Asset-Identifikation', en: 'CBS inventory & asset identification', fr: 'Inventaire CBS & identification des actifs' } },
@@ -215,7 +215,7 @@ export const IACS_E26_PROFILE: StandardProfile = {
       id: 'mature',
       label: { de: 'Klassen-Review — auditreif', en: 'Class review — audit-ready', fr: 'Revue de classe — prêt pour l\'audit' },
       description: {
-        de: 'Neubau mit nahezu vollständigem Cyber-Resilience-Framework und verifizierten Maßnahmen.',
+        de: 'Neubau mit nahezu vollständigem Cyber-Résilience-Framework und verifizierten Maßnahmen.',
         en: 'Newbuild with a near-complete cyber resilience framework and verified measures.',
         fr: 'Navire neuf avec cadre de cyber-résilience quasi complet et mesures vérifiées.',
       },
@@ -276,7 +276,7 @@ export const IACS_E26_PROFILE: StandardProfile = {
       id: 'early',
       label: { de: 'Frühe Entwurfsphase', en: 'Early design stage', fr: 'Phase de conception initiale' },
       description: {
-        de: 'Entwurfsphase ohne formalisiertes Cyber-Resilience-Framework, viele Lücken.',
+        de: 'Entwurfsphase ohne formalisiertes Cyber-Résilience-Framework, viele Lücken.',
         en: 'Design stage with no formalised cyber resilience framework and many gaps.',
         fr: 'Phase de conception sans cadre de cyber-résilience formalisé, nombreuses lacunes.',
       },
@@ -295,4 +295,71 @@ export const IACS_E26_PROFILE: StandardProfile = {
       },
     },
   ],
+
+  // ── Scope, applicability & claim delimitation ──────────────────
+  scope: {
+    applicability: (a) => {
+      const phase = a.phase as string | undefined;
+      const role = a.role as string | undefined;
+      if (phase === 'design' || phase === 'construction' || phase === 'trials') {
+        return {
+          verdict: 'applicable' as const,
+          rationale: {
+            de: 'Newbuild-Projekt in Entwurf/Bau/Erprobung: UR E26 gilt für Schiffe mit Bauvertrag ab 1. Juli 2024 und adressiert das Schiff als integriertes CBS-Netz.',
+            en: 'Newbuild in design/construction/trials: UR E26 applies to vessels contracted on or after 1 July 2024 and addresses the vessel as an integrated CBS network.',
+            fr: "Navire neuf en conception/construction/essais : l'UR E26 s'applique aux navires commandés à partir du 1er juillet 2024 et traite le navire comme un réseau CBS intégré.",
+          },
+        };
+      }
+      if (phase === 'operation') {
+        return {
+          verdict: 'conditional' as const,
+          rationale: {
+            de: 'Schiff in Betrieb: UR E26 ist verbindlich nur bei Bauvertrag ab 1. Juli 2024. Fuer ältere Einheiten wird die Bewertung als freiwillige Readiness-Baseline gefuehrt.',
+            en: 'Vessel in operation: UR E26 is mandatory only where the construction contract is dated on or after 1 July 2024. For earlier units this assessment is a voluntary readiness baseline.',
+            fr: "Navire en exploitation : l'UR E26 est obligatoire uniquement si le contrat de construction est daté du 1er juillet 2024 ou apres. Pour les unités antérieures, il s'agit d'une base de préparation volontaire.",
+          },
+        };
+      }
+      return {
+        verdict: 'undetermined' as const,
+        rationale: {
+          de: 'Projektphase und Vertragsdatum nicht eindeutig erfasst; Anwendbarkeit ist vor Klassenbefassung zu bestaetigen.' + (role ? '' : ''),
+          en: 'Project phase and contract date not clearly recorded; applicability must be confirmed before engaging class.',
+          fr: "Phase du projet et daté du contrat non clairement saisies ; l'applicabilité doit etre confirmée avant de solliciter la société de classification.",
+        },
+      };
+    },
+    statements: (a) => {
+      const out: { label: any; value: string; note?: any }[] = [];
+      out.push({
+        label: { de: 'Bewertungsobjekt', en: 'Assessment subject', fr: "Objet de l'évaluation" },
+        value: (a.entityName as string) || '—',
+      });
+      out.push({
+        label: { de: 'Rolle im Projekt', en: 'Rôle in the project', fr: 'Rôle dans le projet' },
+        value: String(a.role ?? '—'),
+      });
+      out.push({
+        label: { de: 'Projektphase', en: 'Project phase', fr: 'Phase du projet' },
+        value: String(a.phase ?? '—'),
+      });
+      out.push({
+        label: { de: 'CBS-Umfang (Systemgruppen)', en: 'CBS scope (system groups)', fr: 'Périmètre CBS (groupes de systèmes)' },
+        value: Array.isArray(a.systems) && a.systems.length ? (a.systems as string[]).join(', ') : '—',
+        note: { de: 'Nur die genannten Systemgruppen sind Gegenstand der Readiness-Aussage.', en: 'Only the listed system groups are covered by the readiness statement.', fr: 'Seuls les groupes de systèmes listés sont couverts par la déclaration de préparation.' },
+      });
+      return out;
+    },
+    claims: [
+      { de: 'Readiness des Schiffes gegenueber den bewerteten UR E26-Anforderungen auf Basis der erfassten Angaben.', en: 'Vessel readiness against the assessed UR E26 requirements, based on the recorded answers.', fr: "Préparation du navire au regard des exigences UR E26 évaluées, sur la base des réponses saisies." },
+      { de: 'Priorisierte Lücken mit Maßnahmen, Nachweisbedarf und Verantwortlichkeiten.', en: 'Prioritised gaps with actions, evidence needs and ownership.', fr: 'Lacunes priorisées avec actions, besoins de preuve et responsabilités.' },
+    ],
+    limitations: [
+      { de: 'Keine Klassenfreigabe, kein Cyber-Résilience-Zertifikat und keine Flaggenstaatsbestaetigung.', en: 'No class approval, cyber resilience certificate or flag-state confirmation.', fr: "Aucune approbation de classe, certificat de cyber-résilience ou confirmation de l'État du pavillon." },
+      { de: 'Keine Aussage zu UR E27 (Einzelsysteme/Ausrüstung) — dafür ist ein E27-Assessment je CBS erforderlich.', en: 'No statement about UR E27 (individual systems/equipment) — that requires a separate E27 assessment per CBS.', fr: "Aucune déclaration sur l'UR E27 (systèmes/équipements individuels) — une évaluation E27 par CBS est requise." },
+      { de: 'Keine Aussage zu IMO 2021/ISM, NIS2 oder ISPS; Verweise darauf sind kontextuell, nicht bewertend.', en: 'No statement about IMO 2021/ISM, NIS2 or ISPS; references to them are contextual, not evaluative.', fr: 'Aucune déclaration sur IMO 2021/ISM, NIS2 ou ISPS ; les references sont contextuelles, non évaluatives.' },
+      { de: 'Nachweise wurden nicht unabhängig verifiziert, soweit nicht ausdruecklich als geprüft gekennzeichnet.', en: 'Evidence was not independently verified unless explicitly marked as verified.', fr: 'Les preuves ne sont pas vérifiées indépendamment sauf mention explicite.' },
+    ],
+  },
 };

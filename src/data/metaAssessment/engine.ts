@@ -12,7 +12,8 @@ import type {
   RoadmapPhase, QualityResult, QualityIssue, EvidenceSummary, EvidenceItem,
   EvidenceType, EvidenceStrength, MaturityResult, MaturityLevel, ComputedAssessment,
   CmmiLevel, CmmiCategoryMatch, CmmiControlMatch, CmmiMatching,
-  IntakeAnswers,
+  IntakeAnswers, ReqStatus, VerificationLevel, ScopeAssessment, ApplicabilityVerdict,
+
 } from './types';
 import { tr } from './types';
 
@@ -217,7 +218,7 @@ export const READINESS_LABEL: Record<ReadinessLevel, L> = {
 export const readinessLabel = (r: ReadinessLevel, lang: Lang) => t(READINESS_LABEL[r], lang);
 
 // ════════════════════════════════════════════════════════════════
-// RISK ENGINE  (Risk = Likelihood × Impact, 1–5 scale)
+// RISK ENGINE  (Risk = Likelihood x Impact, 1–5 scale)
 // ════════════════════════════════════════════════════════════════
 export function ratingOf(score: number): RiskRating {
   if (score >= 20) return 'critical';
@@ -273,6 +274,39 @@ function priorityFor(f: AssessedRequirement): Priority {
   return 'low';
 }
 
+/**
+ * Turns each non-passing control into an executable action: deliverable,
+ * acceptance criterion, verification method, owner, window and dependency.
+ * Wording stays deterministic — the AI never authors these actions.
+ */
+const DELIVERABLE: Record<Priority, L> = {
+  critical: { de: 'Umgesetzte Maßnahme inkl. dokumentiertem Nachweis', en: 'Implemented control plus documented evidence', fr: 'Mesure mise en œuvre avec preuve documentée' },
+  high: { de: 'Dokumentierte Regelung und Umsetzungsnachweis', en: 'Documented rule and implementation record', fr: 'Règle documentée et preuve de mise en œuvre' },
+  medium: { de: 'Aktualisierte Dokumentation und Umsetzungsplan', en: 'Updated documentation and implementation plan', fr: 'Documentation actualisée et plan de mise en œuvre' },
+  low: { de: 'Überprüfte und freigegebene Dokumentation', en: 'Reviewed and approved documentation', fr: 'Documentation revue et approuvée' },
+};
+
+const VERIFICATION_METHOD: Record<Priority, L> = {
+  critical: { de: 'Wirksamkeitstest plus Nachweisprüfung', en: 'Effectiveness test plus evidence review', fr: "Test d'efficacité et revue des preuves" },
+  high: { de: 'Nachweisprüfung durch unabhängige Rolle', en: 'Evidence review by an independent role', fr: 'Revue des preuves par un rôle indépendant' },
+  medium: { de: 'Dokumentenprüfung', en: 'Document review', fr: 'Revue documentaire' },
+  low: { de: 'Selbstbewertung mit Stichprobe', en: 'Self-assessment with sampling', fr: 'Auto-évaluation avec échantillonnage' },
+};
+
+const ACCEPTANCE: Record<ReqStatus | 'other', L> = {
+  fail: { de: 'Anforderung ist umgesetzt und der Nachweis liegt geprüft vor.', en: 'Requirement is implemented and the evidence has been reviewed.', fr: "L'exigence est mise en œuvre et la preuve a été revue." },
+  partial: { de: 'Die offene Teilanforderung ist geschlossen und nachweisbar belegt.', en: 'The open part of the requirement is closed and evidenced.', fr: "La partie ouverte de l'exigence est close et documentée." },
+  pass: { de: 'Nachweis bleibt aktuell und wird periodisch geprüft.', en: 'Evidence stays current and is reviewed periodically.', fr: 'La preuve reste à jour et est revue périodiquement.' },
+  other: { de: 'Nachweis liegt vor.', en: 'Evidence available.', fr: 'Preuve disponible.' },
+};
+
+const DUE_WINDOW: Record<Priority, L> = {
+  critical: { de: 'Fällig innerhalb 0–3 Monate', en: 'Due within 0–3 months', fr: 'Échéance 0–3 mois' },
+  high: { de: 'Fällig innerhalb 0–3 Monate', en: 'Due within 0–3 months', fr: 'Échéance 0–3 mois' },
+  medium: { de: 'Fällig innerhalb 3–6 Monate', en: 'Due within 3–6 months', fr: 'Échéance 3–6 mois' },
+  low: { de: 'Fällig innerhalb 6–12 Monate', en: 'Due within 6–12 months', fr: 'Échéance 6–12 mois' },
+};
+
 export function buildRecommendations(
   profile: StandardProfile,
   findings: AssessedRequirement[],
@@ -298,9 +332,25 @@ export function buildRecommendations(
       owner: meta?.owner ? tr(meta.owner, lang) : defaultOwner,
       relatedControl: f.id,
       relatedControlName: meta ? tr(meta.name, lang) : f.name,
+      deliverable: t(DELIVERABLE[priority], lang),
+      acceptanceCriteria: t(ACCEPTANCE[f.status] ?? ACCEPTANCE.other, lang),
+      verificationMethod: t(VERIFICATION_METHOD[priority], lang),
+      dueWindow: t(DUE_WINDOW[priority], lang),
     });
   }
-  return recs.sort((a, b) => PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority]);
+  const sorted = recs.sort((a, b) => PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority]);
+
+  // Sequencing: an action inherits the highest-priority action of the same
+  // control category as its prerequisite, so the roadmap reads as a chain
+  // rather than an unordered list.
+  const catOf = (id: string) => metaById.get(id)?.categoryId ?? 'general';
+  const firstOfCat = new Map<string, string>();
+  for (const r of sorted) {
+    const cat = catOf(r.relatedControl);
+    if (!firstOfCat.has(cat)) { firstOfCat.set(cat, r.id); continue; }
+    r.dependsOn = [firstOfCat.get(cat)!];
+  }
+  return sorted;
 }
 
 export function buildRoadmap(recs: Recommendation[]): RoadmapBucket[] {
@@ -310,6 +360,7 @@ export function buildRoadmap(recs: Recommendation[]): RoadmapBucket[] {
   for (const r of recs) buckets[phaseOf(r.priority)].push(r);
   return (['0-3', '3-6', '6-12'] as RoadmapPhase[]).map((phase) => ({ phase, items: buckets[phase] }));
 }
+
 
 // ════════════════════════════════════════════════════════════════
 // EVIDENCE ENGINE  (display only — never affects scoring)
@@ -332,6 +383,29 @@ function classifyEvidence(text: string): { type: EvidenceType; strength: Evidenc
   return { type, strength };
 }
 
+/**
+ * Verification level: how far the evidence has actually been substantiated.
+ * Keeping this separate from "strength" prevents a self-declared statement
+ * from reading like an independently verified artefact.
+ */
+function verificationOf(type: EvidenceType): VerificationLevel {
+  if (type === 'audit_report') return 'verified';
+  if (type === 'policy' || type === 'procedure' || type === 'document' || type === 'log') return 'documented';
+  return 'declared';
+}
+
+const VERIFICATION_NEED: Record<VerificationLevel, L> = {
+  declared: { de: 'Dokument oder Aufzeichnung anfordern, die die Aussage belegt.', en: 'Request a document or record substantiating the statement.', fr: 'Demander un document ou un enregistrement étayant la déclaration.' },
+  documented: { de: 'Wirksamkeit durch Test oder unabhängige Prüfung bestätigen.', en: 'Confirm effectiveness through testing or independent review.', fr: "Confirmer l'efficacité par un test ou une revue indépendante." },
+  verified: { de: 'Aktualität des Prüfnachweises periodisch bestätigen.', en: 'Periodically confirm the verification record is still current.', fr: 'Confirmer périodiquement que la preuve reste à jour.' },
+};
+
+export const VERIFICATION_LABEL: Record<VerificationLevel, L> = {
+  declared: { de: 'Selbstauskunft', en: 'Self-declared', fr: 'Auto-déclaré' },
+  documented: { de: 'Dokumentiert', en: 'Documented', fr: 'Documenté' },
+  verified: { de: 'Unabhängig geprüft', en: 'Independently verified', fr: 'Vérifié indépendamment' },
+};
+
 export function buildEvidence(
   profile: StandardProfile,
   findings: AssessedRequirement[],
@@ -341,17 +415,24 @@ export function buildEvidence(
   const items: EvidenceItem[] = [];
   const missing: string[] = [];
   const byStrength: Record<EvidenceStrength, number> = { low: 0, medium: 0, high: 0, very_high: 0 };
+  const byVerification: Record<VerificationLevel, number> = { declared: 0, documented: 0, verified: 0 };
 
   for (const f of findings) {
     const text = (f.evidence || '').trim();
     const name = metaById.get(f.id) ? tr(metaById.get(f.id)!.name, lang) : f.name;
     if (!text) { missing.push(f.id); continue; }
     const { type, strength } = classifyEvidence(text);
+    const verification = verificationOf(type);
     byStrength[strength]++;
-    items.push({ controlId: f.id, controlName: name, type, strength, summary: text });
+    byVerification[verification]++;
+    items.push({
+      controlId: f.id, controlName: name, type, strength, summary: text,
+      verification, verificationNeed: t(VERIFICATION_NEED[verification], lang),
+    });
   }
-  return { items, missing, byStrength };
+  return { items, missing, byStrength, byVerification };
 }
+
 
 export const EVIDENCE_TYPE_LABEL: Record<EvidenceType, L> = {
   statement: { de: 'Aussage', en: 'Statement', fr: 'Déclaration' },
@@ -689,6 +770,51 @@ export function computeAttentionIndex(
 }
 
 // ════════════════════════════════════════════════════════════════
+// SCOPE, APPLICABILITY & CLAIM DELIMITATION
+// ════════════════════════════════════════════════════════════════
+const VERDICT_TEXT: Record<ApplicabilityVerdict, L> = {
+  applicable: { de: 'Anwendbar', en: 'Applicable', fr: 'Applicable' },
+  conditional: { de: 'Bedingt anwendbar', en: 'Conditionally applicable', fr: 'Applicable sous conditions' },
+  'not-applicable': { de: 'Nicht anwendbar', en: 'Not applicable', fr: 'Non applicable' },
+  undetermined: { de: 'Nicht bestimmt', en: 'Undetermined', fr: 'Non déterminé' },
+};
+
+const DEFAULT_CLAIMS: L[] = [
+  { de: 'Readiness gegenüber den bewerteten Anforderungen auf Basis der erfassten Angaben.', en: 'Readiness against the assessed requirements, based on the recorded answers.', fr: 'Préparation au regard des exigences évaluées, sur la base des réponses saisies.' },
+  { de: 'Priorisierte Lücken samt Maßnahmen und Nachweisbedarf.', en: 'Prioritised gaps with actions and evidence needs.', fr: 'Lacunes priorisées avec actions et besoins de preuve.' },
+];
+
+const DEFAULT_LIMITATIONS: L[] = [
+  { de: 'Keine Zertifizierung, Klassenfreigabe oder behördliche Bestätigung.', en: 'No certification, class approval or regulatory confirmation.', fr: "Aucune certification, approbation de classe ou confirmation réglementaire." },
+  { de: 'Keine Aussage zu anderen Regelwerken, die nicht Teil des Umfangs sind.', en: 'No statement about other frameworks outside this scope.', fr: 'Aucune déclaration sur d’autres référentiels hors périmètre.' },
+  { de: 'Nachweise wurden nicht unabhängig verifiziert, soweit nicht als geprüft gekennzeichnet.', en: 'Evidence was not independently verified unless marked as verified.', fr: 'Les preuves ne sont pas vérifiées indépendamment sauf mention contraire.' },
+];
+
+export function computeScope(
+  profile: StandardProfile,
+  answers: IntakeAnswers,
+  lang: Lang,
+): ScopeAssessment {
+  const cfg = profile.scope;
+  const app = cfg?.applicability?.(answers);
+  const verdict: ApplicabilityVerdict = app?.verdict ?? 'undetermined';
+  return {
+    verdict,
+    verdictLabel: t(VERDICT_TEXT[verdict], lang),
+    rationale: app ? tr(app.rationale, lang) : t({
+      de: 'Anwendbarkeit aus den erfassten Angaben nicht abschließend bestimmbar; Umfang wie unten dokumentiert.',
+      en: 'Applicability could not be determined conclusively from the recorded answers; scope as documented below.',
+      fr: "L'applicabilité n'a pu être déterminée de façon concluante ; périmètre tel que documenté ci-dessous.",
+    }, lang),
+    statements: (cfg?.statements?.(answers) ?? []).map((s) => ({
+      label: tr(s.label, lang), value: s.value, note: s.note ? tr(s.note, lang) : undefined,
+    })),
+    claims: (cfg?.claims ?? DEFAULT_CLAIMS).map((c) => tr(c as Tri, lang)),
+    limitations: (cfg?.limitations ?? DEFAULT_LIMITATIONS).map((c) => tr(c as Tri, lang)),
+  };
+}
+
+// ════════════════════════════════════════════════════════════════
 // ORCHESTRATOR
 // ════════════════════════════════════════════════════════════════
 export function computeAssessment(
@@ -696,6 +822,7 @@ export function computeAssessment(
   result: AssessmentResult,
   findings: AssessedRequirement[],
   lang: Lang,
+  answers: IntakeAnswers = {},
 ): ComputedAssessment {
   const score = computeScore(profile, findings, lang);
   const risks = enrichRisks(result);
@@ -707,8 +834,10 @@ export function computeAssessment(
   const cmmi = computeCmmi(profile, score, findings, lang);
   const auditReadiness = computeAuditReadiness(profile, findings, score, evidence, lang);
   const attentionIndex = computeAttentionIndex(profile, findings, score, risks, lang);
-  return { score, risks, recommendations, roadmap, quality, evidence, maturity, cmmi, auditReadiness, attentionIndex };
+  const scope = computeScope(profile, answers, lang);
+  return { score, risks, recommendations, roadmap, quality, evidence, maturity, cmmi, auditReadiness, attentionIndex, scope };
 }
+
 
 // ════════════════════════════════════════════════════════════════
 // LAYER 1 PIPELINE — answers in, deterministic result out
@@ -728,7 +857,7 @@ export function assess(
   const findings = deriveFindings(profile, answers, lang);
   const risks = deriveRisks(profile, findings, lang);
   const result: AssessmentResult = { requirements: findings, risks, summary: '' };
-  const computed = computeAssessment(profile, result, findings, lang);
+  const computed = computeAssessment(profile, result, findings, lang, answers);
   return { findings, result, computed };
 }
 
