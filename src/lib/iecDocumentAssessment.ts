@@ -29,6 +29,14 @@ export interface AssessmentContext {
   protocols?: string[];
   measures?: string[];
   knownIssues?: string;
+  /** UR E22 system category (I/II/III) — drives the applicable requirement depth. */
+  cbsCategory?: string;
+  /** Whether the CBS is connected to an untrusted network (conditional requirements). */
+  untrustedNetwork?: string;
+  /** Documentation package items reported as available. */
+  documentsAvailable?: string[];
+  /** Documentation package items reported as missing. */
+  documentsMissing?: string[];
 }
 
 export type AssessmentBasis = 'declared' | 'document' | 'declared_document' | 'none';
