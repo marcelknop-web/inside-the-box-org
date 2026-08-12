@@ -218,7 +218,7 @@ export const READINESS_LABEL: Record<ReadinessLevel, L> = {
 export const readinessLabel = (r: ReadinessLevel, lang: Lang) => t(READINESS_LABEL[r], lang);
 
 // ════════════════════════════════════════════════════════════════
-// RISK ENGINE  (Risk = Likelihood × Impact, 1–5 scale)
+// RISK ENGINE  (Risk = Likelihood x Impact, 1–5 scale)
 // ════════════════════════════════════════════════════════════════
 export function ratingOf(score: number): RiskRating {
   if (score >= 20) return 'critical';

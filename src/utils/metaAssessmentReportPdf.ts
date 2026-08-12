@@ -137,9 +137,9 @@ const T: Record<string, Record<Lang, string>> = {
     fr: "Une ligne par exigence : verdict, niveau de verification de la preuve et action associee. Le detail des preuves figure en partie B.",
   },
   riskIntro: {
-    de: 'Die folgenden Risiken wurden deterministisch aus den festgestellten Lücken abgeleitet (Eintrittswahrscheinlichkeit × Auswirkung).',
-    en: 'The following risks were derived deterministically from the identified gaps (likelihood × impact).',
-    fr: 'Les risques suivants ont été dérivés des lacunes identifiées (probabilité × impact).',
+    de: 'Die folgenden Risiken wurden deterministisch aus den festgestellten Lücken abgeleitet (Eintrittswahrscheinlichkeit x Auswirkung).',
+    en: 'The following risks were derived deterministically from the identified gaps (likelihood x impact).',
+    fr: 'Les risques suivants ont été dérivés des lacunes identifiées (probabilité x impact).',
   },
   riskDist: { de: 'Risikoverteilung', en: 'Risk Distribution', fr: 'Répartition des risques' },
   heatmap: { de: 'Risiko-Heatmap', en: 'Risk Heatmap', fr: 'Carte thermique des risques' },
@@ -730,7 +730,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
       pdf.checkSpace(16);
       pdf.statusBadge(r.rating === 'low' ? 'pass' : r.rating === 'medium' ? 'partial' : 'fail');
       pdf.y += 5;
-      pdf.metaLine(`${r.id} · ${r.name}  (${t('impact', lang)} ${r.impact} × ${t('likelihood', lang)} ${r.likelihood} = ${r.score})`);
+      pdf.metaLine(`${r.id} · ${r.name}  (${t('impact', lang)} ${r.impact} x ${t('likelihood', lang)} ${r.likelihood} = ${r.score})`);
       pdf.bodyText(`Business consequence: ${businessImpactFor(`${r.category} ${r.name}`)}`);
     });
   }
@@ -1092,20 +1092,20 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
 
   pdf.heading('Readiness score', 2);
   pdf.bulletItem('Readiness % = weighted average of control scores, where each control carries its defined weight (default 1).');
-  pdf.bulletItem('Formula: sum(controlScore × weight) ÷ sum(weight), rounded to the nearest integer.');
-  pdf.bulletItem('Bands: Strong ≥ 80%, Substantial ≥ 60%, Developing ≥ 35%, Limited < 35%.');
+  pdf.bulletItem('Formula: sum(controlScore x weight) / sum(weight), rounded to the nearest integer.');
+  pdf.bulletItem('Bands: Strong >= 80%, Substantial >= 60%, Developing >= 35%, Limited < 35%.');
 
   pdf.heading('Audit readiness dimensions', 2);
-  pdf.fieldInline('Documentation', 'Controls backed by documented evidence (policy/procedure/document/audit report) ÷ total controls.');
+  pdf.fieldInline('Documentation', 'Controls backed by documented evidence (policy/procedure/document/audit report) / total controls.');
   pdf.fieldInline('Operational', 'The weighted compliance score — effectiveness of implemented controls.');
   pdf.fieldInline('Governance', 'Average score of governance-related categories; overall score when no such category exists.');
-  pdf.fieldInline('Evidence', 'Coverage weighted by evidence strength (Low 25, Medium 50, High 75, Very high 100) ÷ total controls.');
+  pdf.fieldInline('Evidence', 'Coverage weighted by evidence strength (Low 25, Medium 50, High 75, Very high 100) / total controls.');
   pdf.metaLine('Overall audit readiness = mean of the four dimension percentages.');
 
   pdf.heading('Risk scoring', 2);
-  pdf.bulletItem('One risk is derived per non-passing control. Risk score = Likelihood × Impact (1–5 scale).');
+  pdf.bulletItem('One risk is derived per non-passing control. Risk score = Likelihood x Impact (1–5 scale).');
   pdf.bulletItem('Default likelihood: 4 for a Gap, 3 for a Partial; impact defaults to 3 and can be tuned per control.');
-  pdf.bulletItem('Ratings: Critical ≥ 20, High ≥ 13, Medium ≥ 6, Low < 6.');
+  pdf.bulletItem('Ratings: Critical >= 20, High >= 13, Medium >= 6, Low < 6.');
 
 
   pdf.save(`${profile.id}-assessment-${entityName.replace(/[^a-z0-9]/gi, '_').slice(0, 30)}.pdf`);

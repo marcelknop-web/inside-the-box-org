@@ -194,10 +194,10 @@ function cardControlOverview(input: PresentationInput): Card {
 
 function cardRiskLandscape(input: PresentationInput): Card {
   const top = [...input.computed.risks].sort((a, b) => b.score - a.score).slice(0, 5);
-  const items = top.map((r) => `**${cap(r.rating)} · ${r.name}** — L${r.likelihood} × I${r.impact} (${r.score})`);
+  const items = top.map((r) => `**${cap(r.rating)} · ${r.name}** — L${r.likelihood} x I${r.impact} (${r.score})`);
   return {
     headline: 'Risk Landscape',
-    visual: '5×5 risk matrix / heatmap plotting each top risk by likelihood and impact',
+    visual: '5x5 risk matrix / heatmap plotting each top risk by likelihood and impact',
     md: ['# Risk Landscape', bullets(items, 5)].join('\n\n'),
   };
 }
@@ -263,7 +263,7 @@ function cardManagementDecisions(input: PresentationInput): Card {
     : computed.recommendations.filter((r) => r.priority === 'critical' || r.priority === 'high').slice(0, 4).map((r) => r.title);
   return {
     headline: 'Management Decisions Required',
-    visual: 'Decision dashboard: action × owner × funding × priority',
+    visual: 'Decision dashboard: action x owner x funding x priority',
     md: ['# Management Decisions Required',
       '**Immediate decisions**', bullets(immediate, 4),
       '**Resourcing & ownership**', bullets([
@@ -551,7 +551,7 @@ const EXECUTIVE_TONE =
 const VISUAL_TONE =
   'VISUAL EXECUTIVE MODE. Produce a visually compelling executive presentation — NOT a report-style or text-heavy slide deck. ' +
   'Visual first, text second: an executive must grasp each slide in seconds and the key messages in under 5 minutes without reading a report. ' +
-  'For every slide, render the data as a visual structure — executive scorecards, gauge charts, KPI dashboards, control-coverage charts, risk heatmaps / 5×5 matrices, cause-and-effect (fishbone) diagrams, theme / relationship maps, portfolio (value vs complexity) matrices, roadmap timelines, maturity / radar diagrams and decision dashboards — instead of paragraphs. ' +
+  'For every slide, render the data as a visual structure — executive scorecards, gauge charts, KPI dashboards, control-coverage charts, risk heatmaps / 5x5 matrices, cause-and-effect (fishbone) diagrams, theme / relationship maps, portfolio (value vs complexity) matrices, roadmap timelines, maturity / radar diagrams and decision dashboards — instead of paragraphs. ' +
   'Hard limits: max 5 bullets per slide, ~10 words per bullet, NO long paragraphs, NO dense bullet lists, NO large narrative blocks. ' +
   'Style it like a deliverable from an internal-audit function, a Big-Four consulting firm, a cybersecurity advisory practice or a virtual-CISO engagement — board, audit-committee and risk-committee ready. ' +
   'Preserve every fact, figure, percentage and finding exactly as provided — never invent data, findings or risks. The deck must be presentation-ready with no manual editing.';

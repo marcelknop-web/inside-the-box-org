@@ -256,7 +256,7 @@ export function buildWorkingPapers(
     // Generated risk traceability.
     const riskId = riskIdByReq.get(f.id) ?? null;
     const enriched = riskId ? riskById.get(riskId) : undefined;
-    const riskFormula = enriched ? `Likelihood ${enriched.likelihood} × Impact ${enriched.impact}` : null;
+    const riskFormula = enriched ? `Likelihood ${enriched.likelihood} x Impact ${enriched.impact}` : null;
     const riskScore = enriched ? enriched.score : null;
     const riskRatingLabel = enriched ? trL(RISK_RATING_LABEL[enriched.rating], lang) : null;
 
