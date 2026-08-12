@@ -881,10 +881,10 @@ function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
 
       {firstInStep && (
         <>
-          <div className="text-base font-bold text-foreground font-mono">{tr(step.title, lang)}</div>
-          {step.subtitle && <div className="text-sm text-muted-foreground mt-0.5 mb-3">{tr(step.subtitle, lang)}</div>}
+          <div className="text-sm sm:text-base font-bold text-foreground font-mono">{tr(step.title, lang)}</div>
+          {step.subtitle && <div className="text-xs text-muted-foreground mt-0.5 mb-2">{tr(step.subtitle, lang)}</div>}
           {step.info && (
-            <div className="border border-primary/20 bg-primary/10 rounded-lg px-4 py-3 text-sm text-foreground mb-4">💡 {tr(step.info, lang)}</div>
+            <div className="border border-primary/20 bg-primary/10 rounded-lg px-3 py-2 text-xs text-foreground mb-3">💡 {tr(step.info, lang)}</div>
           )}
         </>
       )}
