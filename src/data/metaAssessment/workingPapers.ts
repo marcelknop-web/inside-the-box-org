@@ -7,7 +7,7 @@
 // requirement are all reconstructed here — never invented by the AI.
 //
 // This is the foundation for internal-audit, compliance and readiness
-// working papers: Single Assessment → Single Result Model → Multiple Views.
+// working papers: Single Assessment -> Single Result Model -> Multiple Views.
 
 import type {
   Lang, StandardProfile, IntakeAnswers, AssessmentResult, ComputedAssessment,
@@ -115,7 +115,7 @@ const DEFAULT_ASSESSOR = 'Inside the Box (rule-based assessment engine)';
 function buildFieldIndex(profile: StandardProfile, lang: Lang) {
   const fieldLabel = new Map<string, string>();
   const fieldType = new Map<string, string>();
-  const optionLabel = new Map<string, string>(); // "fieldId:optionId" → label
+  const optionLabel = new Map<string, string>(); // "fieldId:optionId" -> label
   for (const step of profile.intake) {
     for (const f of step.fields) {
       fieldLabel.set(f.id, tr(f.label, lang));
@@ -152,21 +152,21 @@ function ruleLogic(
   };
   if (!hasRule) {
     return [{
-      de: 'Keine deterministische Regel definiert → konservativ als Lücke bewertet (kein Nachweis zur Bestätigung).',
-      en: 'No deterministic rule defined → conservatively assessed as Gap (no evidence to confirm).',
-      fr: 'Aucune règle déterministe définie → évalué prudemment comme Lacune (aucune preuve de confirmation).',
+      de: 'Keine deterministische Regel definiert -> konservativ als Lücke bewertet (kein Nachweis zur Bestätigung).',
+      en: 'No deterministic rule defined -> conservatively assessed as Gap (no evidence to confirm).',
+      fr: 'Aucune règle déterministe définie -> évalué prudemment comme Lacune (aucune preuve de confirmation).',
     }[lang]];
   }
   const lines: string[] = [];
   if (requiresAll.length) {
-    lines.push(`IF ${requiresAll.map(lbl).join(' AND ')} → Pass`);
+    lines.push(`IF ${requiresAll.map(lbl).join(' AND ')} -> Pass`);
   }
   if (requiresAny.length) {
-    lines.push(`IF ANY OF [ ${requiresAny.map(lbl).join(' , ')} ] → Partial`);
+    lines.push(`IF ANY OF [ ${requiresAny.map(lbl).join(' , ')} ] -> Partial`);
   } else if (requiresAll.length) {
-    lines.push(`IF SOME OF [ ${requiresAll.map(lbl).join(' , ')} ] → Partial`);
+    lines.push(`IF SOME OF [ ${requiresAll.map(lbl).join(' , ')} ] -> Partial`);
   }
-  lines.push('ELSE → Gap');
+  lines.push('ELSE -> Gap');
   return lines;
 }
 
@@ -209,7 +209,7 @@ export function buildWorkingPapers(
   const metaById = new Map(profile.requirements.map((r) => [r.id, r]));
   const riskById = new Map(computed.risks.map((r) => [r.id, r]));
 
-  // Re-derive the deterministic finding → risk mapping (R1, R2 … assigned in
+  // Re-derive the deterministic finding -> risk mapping (R1, R2 … assigned in
   // finding order to every non-pass requirement — mirrors deriveRisks()).
   const riskIdByReq = new Map<string, string>();
   let riskN = 0;
