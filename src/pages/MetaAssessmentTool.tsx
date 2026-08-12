@@ -832,15 +832,6 @@ function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
         <span className="text-xs text-muted-foreground flex-shrink-0 font-mono">{q + 1}/{questions.length}</span>
       </div>
 
-      {q === 0 && hasScenarios && (
-        <button
-          onClick={() => setTestCaseOpen(true)}
-          className="flex items-center gap-1.5 text-xs font-mono uppercase tracking-wide text-primary hover:text-primary/80 border border-primary/20 bg-primary/[0.04] hover:bg-primary/[0.08] rounded-lg px-3 py-2 mb-5 transition-colors"
-        >
-          <Sparkles size={13} /> {u.testCases}
-        </button>
-      )}
-
       {testCaseOpen && hasScenarios && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/85 backdrop-blur-sm p-4" role="dialog" aria-modal="true">
           <div className="w-full max-w-lg bg-background border border-primary/30 rounded-xl shadow-2xl p-6 space-y-4">
