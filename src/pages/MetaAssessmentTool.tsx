@@ -2693,6 +2693,7 @@ const MetaAssessmentTool = () => {
   // This platform is presented in English only, independent of the global UI language.
   const lang: Lang = 'en';
   const u = ui(lang);
+  const { active: fullscreen, toggle: toggleFullscreen } = useFullscreen();
   
 
   const [phase, setPhase] = useState<Phase>('standard');
