@@ -53,7 +53,7 @@ export const IACS_E26_PROFILE: StandardProfile = {
           id: 'role',
           type: 'single',
           required: true,
-          label: { de: 'Rolle im Lebenszyklus', en: 'Rôle in the lifecycle', fr: 'Rôle dans le cycle de vie' },
+          label: { de: 'Rolle im Lebenszyklus', en: 'Role in the lifecycle', fr: 'Rôle dans le cycle de vie' },
           options: [
             { id: 'owner', icon: '🛳️', label: { de: 'Reederei / Eigner', en: 'Owner / operator', fr: 'Armateur / exploitant' }, desc: { de: 'Betrieb & Instandhaltung', en: 'Operation & maintenance', fr: 'Exploitation & maintenance' } },
             { id: 'yard', icon: '🏗️', label: { de: 'Werft', en: 'Shipyard', fr: 'Chantier naval' }, desc: { de: 'Bau & Integration', en: 'Build & integration', fr: 'Construction & intégration' } },
@@ -337,7 +337,7 @@ export const IACS_E26_PROFILE: StandardProfile = {
         value: (a.entityName as string) || '—',
       });
       out.push({
-        label: { de: 'Rolle im Projekt', en: 'Rôle in the project', fr: 'Rôle dans le projet' },
+        label: { de: 'Rolle im Projekt', en: 'Role in the project', fr: 'Rôle dans le projet' },
         value: String(a.role ?? '—'),
       });
       out.push({
