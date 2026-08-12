@@ -741,12 +741,14 @@ function FieldView({ field, value, onChange, lang, answers, setVal }: {
           const sel = field.type === 'single' ? value === o.id : arr.includes(o.id);
           return (
             <button key={o.id} onClick={() => toggle(o.id)}
-              className={`border rounded-lg px-3 py-2 text-sm flex items-start gap-2 text-left transition-all ${
-                sel ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40'
+              className={`border rounded-lg px-3.5 py-3 text-[15px] flex items-start gap-2.5 text-left transition-all ${
+                sel
+                  ? 'border-primary bg-primary/10 text-foreground shadow-[0_0_0_1px_hsl(var(--primary)/0.35)]'
+                  : 'border-border bg-card/70 text-muted-foreground hover:border-primary/50 hover:bg-card hover:text-foreground'
               }`}>
               {o.icon && <span className="mt-0.5 flex-shrink-0">{o.icon}</span>}
               <div className="min-w-0 flex-1">
-                <div className="font-medium break-words">{tr(o.label, lang)}</div>
+                <div className="font-medium break-words leading-snug">{tr(o.label, lang)}</div>
                 {o.desc && <div className="text-xs opacity-70 mt-0.5 break-words">{tr(o.desc, lang)}</div>}
               </div>
               {sel && <span className="ml-auto text-xs text-primary">✓</span>}
