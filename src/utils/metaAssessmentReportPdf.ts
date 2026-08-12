@@ -284,9 +284,12 @@ function drawGanttChart(pdf: any, computed: ComputedAssessment, lang: Lang): voi
     const label = m === 0 ? '0' : `${m}`;
     d.text(label, mx(m), pdf.y, { align: 'center' });
   });
+  // Axis unit label sits above the tick row so it can never collide with the
+  // right-most month tick.
   d.setFontSize(5.5);
-  d.text(t('months', lang).toUpperCase(), LAYOUT.RIGHT, pdf.y, { align: 'right' });
+  d.text(t('months', lang).toUpperCase(), LAYOUT.RIGHT, pdf.y - 4, { align: 'right' });
   pdf.y += 2;
+
 
   const gridTop = pdf.y;
   const gridBottom = pdf.y + lanes.length * rowH;
