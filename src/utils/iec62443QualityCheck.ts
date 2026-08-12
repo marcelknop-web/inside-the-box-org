@@ -3,7 +3,7 @@
  * Based on IACS UR E27 requirement categories
  */
 import type { IecThreat, IecReq, IecIntakeData } from '@/data/iec62443Data';
-import { threatId } from '@/data/iec62443Data';
+import { threatId, reqTier, computeReadiness, vesselApplicability } from '@/data/iec62443Data';
 
 export interface QaCheck {
   id: string;
@@ -189,6 +189,97 @@ export function runQualityCheck(
       ? `${nmea.map(threatId).join(', ')} ${t('mit zu niedrigem Impact', 'with too low impact', 'avec impact trop bas')}`
       : t('Korrekt', 'Correct', 'Correct'),
     passed: nmea.length === 0, severity: 'critical',
+  });
+
+  // ═══ F. E27 SCOPE & READINESS PRÜFUNG ═══
+  const d = _intakeData;
+  const app = vesselApplicability(d?.vessel);
+  checks.push({
+    id: 'F1', category: 'consistency',
+    label: t('E27-Anwendbarkeit deklariert', 'E27 applicability declared', 'Applicabilité E27 déclarée'),
+    detail: app.rationale,
+    passed: app.verdict !== 'undetermined', severity: 'major',
+  });
+
+  const cat = d?.cbs?.category;
+  checks.push({
+    id: 'F2', category: 'technical',
+    label: t('UR E22 Systemkategorie zugewiesen', 'UR E22 system category assigned', 'Catégorie de système UR E22 attribuée'),
+    detail: cat && cat !== 'undetermined'
+      ? `Category ${cat}${d?.cbs?.categoryBasis ? ' — basis documented' : ' — basis not documented'}`
+      : t('Keine Kategorie zugewiesen', 'No category assigned', 'Aucune catégorie attribuée'),
+    passed: !!cat && cat !== 'undetermined', severity: 'critical',
+  });
+
+  const utn = d?.untrustedNetwork;
+  const utnReqs = reqs.filter(r => reqTier(r) === 'utn');
+  checks.push({
+    id: 'F3', category: 'consistency',
+    label: t('Untrusted-Network-Status geklärt', 'Untrusted network status resolved', 'Statut réseau non fiable clarifié'),
+    detail: utn === 'yes'
+      ? `${utnReqs.length} ${t('bedingte Anforderungen in Scope', 'conditional requirements in scope', 'exigences conditionnelles dans le périmètre')}`
+      : utn === 'no'
+        ? t('Bedingte Anforderungen ausgeschlossen', 'Conditional requirements excluded', 'Exigences conditionnelles exclues')
+        : t('Nicht deklariert — Scope unbestimmt', 'Not declared — scope undetermined', 'Non déclaré — périmètre indéterminé'),
+    passed: utn === 'yes' || utn === 'no', severity: 'critical',
+  });
+  checks.push({
+    id: 'F4', category: 'consistency',
+    label: t('Bedingte Anforderungen konsistent zum Scope', 'Conditional requirements consistent with scope', 'Exigences conditionnelles cohérentes'),
+    detail: utn === 'no' && utnReqs.length > 0
+      ? `${utnReqs.map(r => r.id).join(', ')} ${t('trotz ausgeschlossener Untrusted-Verbindung enthalten', 'included although no untrusted connection is declared', 'inclus malgré absence de connexion non fiable')}`
+      : t('Konsistent', 'Consistent', 'Cohérent'),
+    passed: !(utn === 'no' && utnReqs.length > 0), severity: 'major',
+  });
+
+  const readiness = computeReadiness(reqs, d);
+  checks.push({
+    id: 'F5', category: 'evidence',
+    label: t('Dokumentationspaket vollständig', 'Documentation package complete', 'Dossier documentaire complet'),
+    detail: readiness.docGaps.length > 0
+      ? `${readiness.docsAvailable}/${readiness.docsTotal} — ${t('fehlt', 'missing', 'manquant')}: ${readiness.docGaps.join('; ')}`
+      : `${readiness.docsAvailable}/${readiness.docsTotal}`,
+    passed: readiness.docGaps.length === 0, severity: 'major',
+  });
+
+  const grades = d?.evidenceGrades || {};
+  const caps = d?.capabilities || {};
+  const claimedOnly = Object.keys(caps).filter(id => caps[id] === 'implemented' && (!grades[id] || grades[id] === 'none' || grades[id] === 'claimed'));
+  checks.push({
+    id: 'F6', category: 'evidence',
+    label: t('Umgesetzte Anforderungen mit Nachweis belegt', 'Implemented requirements backed by evidence', 'Exigences mises en œuvre étayées'),
+    detail: claimedOnly.length > 0
+      ? `${claimedOnly.join(', ')} ${t('nur behauptet, kein Nachweis', 'claimed only, no evidence', 'seulement déclaré, sans preuve')}`
+      : t('Alle belegt', 'All evidenced', 'Toutes étayées'),
+    passed: claimedOnly.length === 0, severity: 'major',
+  });
+
+  const compensated = Object.keys(caps).filter(id => caps[id] === 'compensated' || caps[id] === 'na');
+  const missingJustification = compensated.filter(id => !(d?.compensating || {})[id]?.trim());
+  checks.push({
+    id: 'F7', category: 'consistency',
+    label: t('Kompensierende Maßnahmen / N/A begründet', 'Compensating measures / N/A justified', 'Mesures compensatoires / N/A justifiées'),
+    detail: missingJustification.length > 0
+      ? `${missingJustification.join(', ')} ${t('ohne Begründung', 'without justification', 'sans justification')}`
+      : t('Alle begründet', 'All justified', 'Toutes justifiées'),
+    passed: missingJustification.length === 0, severity: 'critical',
+  });
+
+  const assetCount = (d?.assets || []).length + Object.values(d?.assetCounts || {}).reduce((a, b) => a + (Number(b) || 0), 0);
+  checks.push({
+    id: 'F8', category: 'technical',
+    label: t('Asset-Inventar vorhanden', 'Asset inventory present', 'Inventaire des actifs présent'),
+    detail: assetCount > 0 ? `${assetCount} ${t('Assets erfasst', 'assets recorded', 'actifs enregistrés')}` : t('Kein Inventar erfasst', 'No inventory recorded', 'Aucun inventaire'),
+    passed: assetCount > 0, severity: 'major',
+  });
+
+  checks.push({
+    id: 'F9', category: 'technical',
+    label: t('Topologie dokumentiert', 'Topology documented', 'Topologie documentée'),
+    detail: d?.topology === 'both' ? t('Physisch und logisch', 'Physical and logical', 'Physique et logique')
+      : d?.topology === 'physical' || d?.topology === 'logical' ? t('Nur teilweise dokumentiert', 'Only partially documented', 'Partiellement documentée')
+      : t('Nicht dokumentiert', 'Not documented', 'Non documentée'),
+    passed: d?.topology === 'both', severity: 'minor',
   });
 
   // ─── Result ───

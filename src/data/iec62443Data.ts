@@ -211,6 +211,55 @@ export interface IecFile {
   extractError?: string;
 }
 
+// ── E27 scope & readiness model ─────────────────────────────
+// E27 applies to the *system/equipment* level (CBS supplied to a vessel);
+// E26 applies to the *vessel* level (integration of CBS into the ship).
+export type E27Scope = 'E27' | 'E26';
+
+export type VesselApplicability = 'mandatory' | 'non_mandatory' | 'voluntary' | 'undetermined';
+export type CbsCategory = 'I' | 'II' | 'III' | 'undetermined';
+export type ThreeState = 'yes' | 'no' | 'unknown';
+export type DocState = 'available' | 'partial' | 'missing' | 'na';
+export type EvidenceGrade = 'none' | 'claimed' | 'documented' | 'verified';
+export type CapabilityState = 'implemented' | 'partial' | 'not_implemented' | 'compensated' | 'na' | 'unknown';
+
+export interface VesselContext {
+  vesselType: string;          // container, tanker, cruise, …
+  newbuild: ThreeState;        // contracted for construction on/after 1 Jan 2024
+  contractDate: string;        // ISO-ish free text
+  classSociety: string;
+  flag: string;
+  e26InScope: ThreeState;      // vessel-level UR E26 also in scope?
+}
+
+export interface CbsScope {
+  cbsFunction: string;         // functional description of the CBS
+  category: CbsCategory;       // UR E22 system category I / II / III
+  categoryBasis: string;       // why this category was assigned
+  cbsInScope: ThreeState;      // is the CBS itself in E27 scope?
+  supplierTypeApproval: 'approved' | 'in_progress' | 'none' | 'unknown';
+}
+
+export interface AssetRow {
+  id: string;
+  name: string;
+  vendor: string;
+  fwVersion: string;
+  zone: string;
+  interfaces: string;
+  criticality: 'high' | 'medium' | 'low' | '';
+}
+
+export interface SupplyChain {
+  manufacturer: string;
+  integrator: string;
+  shipyard: string;
+  subcontractors: string;
+  e27Declaration: DocState;    // supplier declaration of conformity to E27
+  iec62443Cert: DocState;      // 62443-4-1 / 4-2 certification
+  securityGuidelines: DocState; // secure config / hardening guidelines supplied
+}
+
 export interface IecIntakeData {
   facilityName: string;
   systemTypes: string[];
@@ -225,14 +274,253 @@ export interface IecIntakeData {
   files: IecFile[];
   // UR E26 only: assessment depth / product tier (rapid 15 · extended 35 · deepdive 35 + per-CBS matrix).
   assessmentType?: 'rapid' | 'extended' | 'deepdive';
+  // ── E27 readiness engine (all optional so existing drafts stay valid) ──
+  depth?: 1 | 2 | 3;                              // 1 quick intake · 2 detailed · 3 evidence & docs
+  vessel?: VesselContext;
+  cbs?: CbsScope;
+  assets?: AssetRow[];
+  assetCounts?: Record<string, string>;            // inventory counts per asset class
+  connectivity?: string[];                         // external interfaces present
+  untrustedNetwork?: ThreeState;                   // triggers the conditional UTN requirements
+  topology?: 'physical' | 'logical' | 'both' | 'none' | '';
+  boundaries?: string;                             // zone/conduit boundary description
+  remoteAccessTypes?: string[];
+  remoteAccessControls?: Record<string, boolean>;
+  capabilities?: Record<string, CapabilityState>;  // per requirement id
+  evidenceGrades?: Record<string, EvidenceGrade>;  // per requirement id
+  compensating?: Record<string, string>;           // per requirement id — compensating measure
+  docPackage?: Record<string, DocState>;           // documentation package items
+  supplyChain?: SupplyChain;
 }
+
+export const EMPTY_VESSEL: VesselContext = {
+  vesselType: '', newbuild: 'unknown', contractDate: '', classSociety: '', flag: '', e26InScope: 'unknown',
+};
+
+export const EMPTY_CBS: CbsScope = {
+  cbsFunction: '', category: 'undetermined', categoryBasis: '', cbsInScope: 'unknown', supplierTypeApproval: 'unknown',
+};
+
+export const EMPTY_SUPPLY_CHAIN: SupplyChain = {
+  manufacturer: '', integrator: '', shipyard: '', subcontractors: '',
+  e27Declaration: 'missing', iec62443Cert: 'missing', securityGuidelines: 'missing',
+};
 
 export const EMPTY_INTAKE: IecIntakeData = {
   facilityName: '', systemTypes: [], securityLevel: '',
   description: '', zones: [], protocols: [],
   roles: [], customRole: '',
   measures: {}, knownIssues: '', files: [],
+  depth: 1,
+  vessel: { ...EMPTY_VESSEL },
+  cbs: { ...EMPTY_CBS },
+  assets: [], assetCounts: {},
+  connectivity: [], untrustedNetwork: 'unknown', topology: '', boundaries: '',
+  remoteAccessTypes: [], remoteAccessControls: {},
+  capabilities: {}, evidenceGrades: {}, compensating: {},
+  docPackage: {}, supplyChain: { ...EMPTY_SUPPLY_CHAIN },
 };
+
+// ── Option catalogues for the E27 readiness phases ───────────
+
+export const VESSEL_TYPES = [
+  'Container Vessel', 'Bulk Carrier', 'Tanker', 'Cruise / Passenger', 'RoRo / Ferry',
+  'Offshore / OSV', 'Gas Carrier (LNG/LPG)', 'General Cargo', 'Other',
+] as const;
+
+export const CBS_CATEGORY_OPTS: { id: CbsCategory; label: string; desc: string }[] = [
+  { id: 'I', label: 'Category I', desc: 'Failure will not lead to dangerous situations for human safety, safety of the vessel or threat to the environment' },
+  { id: 'II', label: 'Category II', desc: 'Failure could eventually lead to dangerous situations for human safety, safety of the vessel or threat to the environment' },
+  { id: 'III', label: 'Category III', desc: 'Failure could immediately lead to dangerous situations for human safety, safety of the vessel or threat to the environment' },
+  { id: 'undetermined', label: 'Not yet determined', desc: 'UR E22 category still to be assigned by the supplier or class society' },
+];
+
+export const ASSET_CLASSES = [
+  { id: 'controllers', label: 'Controllers / PLCs' },
+  { id: 'hmi', label: 'HMI / Workstations' },
+  { id: 'servers', label: 'Servers / Gateways' },
+  { id: 'network', label: 'Switches / Routers / Firewalls' },
+  { id: 'sensors', label: 'Sensors / Field devices' },
+  { id: 'wireless', label: 'Wireless access points' },
+] as const;
+
+export const CONNECTIVITY_OPTS = [
+  { id: 'shore_vsat', label: 'Shore link (VSAT / LTE)' },
+  { id: 'vendor_remote', label: 'Vendor remote access' },
+  { id: 'crew_wifi', label: 'Crew / passenger Wi-Fi' },
+  { id: 'usb', label: 'Removable media (USB)' },
+  { id: 'wireless_ot', label: 'Wireless OT links' },
+  { id: 'shore_office', label: 'Shore office / fleet management integration' },
+  { id: 'none', label: 'Standalone — no external interface' },
+] as const;
+
+export const REMOTE_ACCESS_TYPES = [
+  { id: 'vendor', label: 'Vendor / OEM support access' },
+  { id: 'fleet', label: 'Fleet operations centre access' },
+  { id: 'crew_admin', label: 'On-board administrator access' },
+  { id: 'none', label: 'No remote access' },
+] as const;
+
+export const REMOTE_ACCESS_CONTROLS = [
+  { id: 'mfa', label: 'Multifactor authentication enforced' },
+  { id: 'approval', label: 'Explicit per-session approval by the master / responsible officer' },
+  { id: 'jumphost', label: 'Access through a controlled jump host / DMZ' },
+  { id: 'logging', label: 'Session logging and recording' },
+  { id: 'timeout', label: 'Session termination / timeout enforced' },
+  { id: 'disable', label: 'Interface can be physically or logically disabled' },
+] as const;
+
+export const DOC_PACKAGE_ITEMS = [
+  { id: 'inventory', label: 'CBS asset & software inventory', ref: 'E27 §4.1' },
+  { id: 'topology', label: 'Network topology diagram (physical & logical)', ref: 'E27 §4.2' },
+  { id: 'zones', label: 'Zones & conduits description', ref: 'E27 §4.2' },
+  { id: 'sec_capabilities', label: 'Description of implemented security capabilities', ref: 'E27 §4.3' },
+  { id: 'test_proc', label: 'Test procedure for security capabilities', ref: 'E27 §5' },
+  { id: 'test_report', label: 'Test report / factory acceptance evidence', ref: 'E27 §5' },
+  { id: 'maintenance', label: 'Maintenance & patch management plan', ref: 'E27 §4.4' },
+  { id: 'hardening', label: 'Secure configuration / hardening guidelines', ref: 'E27 §4.3' },
+  { id: 'recovery', label: 'Backup & recovery instructions', ref: 'E27 §4.4' },
+  { id: 'remote', label: 'Remote access procedure', ref: 'E27 §4.3' },
+  { id: 'declaration', label: 'Supplier declaration of conformity to UR E27', ref: 'E27 §3' },
+] as const;
+
+export const DOC_STATE_LABELS: Record<DocState, string> = {
+  available: 'Available', partial: 'Partial / draft', missing: 'Missing', na: 'Not applicable',
+};
+
+export const EVIDENCE_GRADES: { id: EvidenceGrade; label: string; desc: string }[] = [
+  { id: 'none', label: 'No evidence', desc: 'Nothing available yet' },
+  { id: 'claimed', label: 'Claimed', desc: 'Stated by the supplier or crew, not written down' },
+  { id: 'documented', label: 'Documented', desc: 'Described in a document that exists and was reviewed' },
+  { id: 'verified', label: 'Verified', desc: 'Demonstrated or tested — test record available' },
+];
+
+export const CAPABILITY_LABELS: Record<CapabilityState, string> = {
+  implemented: 'Implemented',
+  partial: 'Partially implemented',
+  not_implemented: 'Not implemented',
+  compensated: 'Compensating measure',
+  na: 'Not applicable',
+  unknown: 'Not assessed',
+};
+
+// ── Applicability logic ─────────────────────────────────────
+
+/**
+ * UR E27 Rev.1 is mandatory for CBS on vessels contracted for construction on
+ * or after 1 January 2024. Everything else is either voluntary (existing
+ * tonnage, retrofit) or cannot be judged from the given information.
+ */
+export function vesselApplicability(v?: VesselContext): { verdict: VesselApplicability; rationale: string } {
+  if (!v || v.newbuild === 'unknown') {
+    return { verdict: 'undetermined', rationale: 'The construction contract date was not declared — mandatory applicability of UR E27 Rev.1 cannot be confirmed.' };
+  }
+  if (v.newbuild === 'yes') {
+    return { verdict: 'mandatory', rationale: 'The vessel is contracted for construction on or after 1 January 2024, so UR E27 applies as a mandatory class requirement to the CBS supplied.' };
+  }
+  return { verdict: 'voluntary', rationale: 'The vessel predates the UR E27 Rev.1 application date. E27 is used here as a voluntary benchmark; no mandatory class obligation is implied.' };
+}
+
+/** UR E22 categories II and III trigger the full E27 requirement set. */
+export function categoryApplicability(c?: CbsCategory): { mandatoryFull: boolean; note: string } {
+  if (c === 'II' || c === 'III') {
+    return { mandatoryFull: true, note: `UR E22 Category ${c} — the full E27 requirement set applies to this CBS.` };
+  }
+  if (c === 'I') {
+    return { mandatoryFull: false, note: 'UR E22 Category I — a reduced requirement set may be accepted; the category assignment must be documented and agreed with the class society.' };
+  }
+  return { mandatoryFull: false, note: 'UR E22 category not yet assigned — the applicable requirement depth cannot be fixed until the category is confirmed.' };
+}
+
+export type ReqTier = 'core' | 'utn';
+
+/** Requirements E27-31 … E27-41 (and the UTN-* set) are conditional on the CBS being connected to an untrusted network. */
+export function reqTier(r: IecReq): ReqTier {
+  if (r.id.startsWith('UTN')) return 'utn';
+  const m = r.article.match(/E27-(\d+)/);
+  return m && Number(m[1]) >= 31 ? 'utn' : 'core';
+}
+
+/** Filters the catalogue to the requirements that actually apply to the declared scope. */
+export function applicableReqs(reqs: IecReq[], d?: IecIntakeData): IecReq[] {
+  const utn = d?.untrustedNetwork;
+  if (utn === 'no') return reqs.filter(r => reqTier(r) === 'core');
+  return reqs;
+}
+
+export interface ReadinessResult {
+  pct: number;
+  applicable: number;
+  implemented: number;
+  partial: number;
+  missing: number;
+  compensated: number;
+  unassessed: number;
+  evidenceVerified: number;
+  evidenceClaimed: number;
+  docsAvailable: number;
+  docsTotal: number;
+  docGaps: string[];
+  label: string;
+}
+
+/**
+ * E27 readiness — deliberately NOT called "compliance". Compliance against a
+ * class Unified Requirement can only be stated by the class society; this tool
+ * reports how ready the CBS documentation and capabilities are for that review.
+ */
+export function computeReadiness(reqs: IecReq[], d?: IecIntakeData): ReadinessResult {
+  const caps = d?.capabilities || {};
+  const grades = d?.evidenceGrades || {};
+  const scoped = applicableReqs(reqs, d);
+
+  let implemented = 0, partial = 0, missing = 0, compensated = 0, unassessed = 0, na = 0;
+  let score = 0, weight = 0;
+
+  scoped.forEach(r => {
+    const explicit = caps[r.id];
+    // Fall back to the assessed status when the user has not answered explicitly.
+    const state: CapabilityState = explicit
+      ? explicit
+      : r.status === 'pass' ? 'implemented' : r.status === 'partial' ? 'partial' : 'not_implemented';
+    if (state === 'na') { na += 1; return; }
+    weight += 1;
+    if (state === 'implemented') { implemented += 1; score += 1; }
+    else if (state === 'compensated') { compensated += 1; score += 0.75; }
+    else if (state === 'partial') { partial += 1; score += 0.5; }
+    else if (state === 'unknown') { unassessed += 1; }
+    else { missing += 1; }
+
+    // Evidence discount: an implemented capability without documented evidence
+    // is not audit-ready and must not score full marks.
+    const g = grades[r.id];
+    if (state === 'implemented' && (!g || g === 'none' || g === 'claimed')) score -= 0.25;
+  });
+
+  const evidenceVerified = Object.values(grades).filter(g => g === 'verified').length;
+  const evidenceClaimed = Object.values(grades).filter(g => g === 'claimed').length;
+
+  const docs = d?.docPackage || {};
+  const relevant = DOC_PACKAGE_ITEMS.filter(i => docs[i.id] !== 'na');
+  const docsAvailable = relevant.filter(i => docs[i.id] === 'available').length;
+  const docGaps = relevant.filter(i => !docs[i.id] || docs[i.id] === 'missing').map(i => i.label);
+
+  const capPct = weight > 0 ? Math.max(0, score / weight) : 0;
+  const docPct = relevant.length > 0 ? docsAvailable / relevant.length : 0;
+  const pct = Math.round((capPct * 0.7 + docPct * 0.3) * 100);
+
+  const label = pct >= 85 ? 'Ready for class review'
+    : pct >= 60 ? 'Substantially ready — gaps to close'
+    : pct >= 35 ? 'Partially ready — significant work outstanding'
+    : 'Not ready — foundational work required';
+
+  return {
+    pct, applicable: weight, implemented, partial, missing, compensated, unassessed,
+    evidenceVerified, evidenceClaimed,
+    docsAvailable, docsTotal: relevant.length, docGaps, label,
+  };
+}
+
 
 // ── Demo Threats (14 threats — maritime context) ────────────
 

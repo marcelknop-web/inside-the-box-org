@@ -19,7 +19,15 @@ import {
   DEMO_SCENARIOS,
   verdictFromStatus, VERDICT_LABELS, VERDICT_STYLES, originalRatingLabel, type IecVerdict,
   type IecThreat, type IecReq, type IecIntakeData, type MeasureEntry, EMPTY_INTAKE,
+  EMPTY_VESSEL, EMPTY_CBS, EMPTY_SUPPLY_CHAIN,
+  applicableReqs, computeReadiness, reqTier, vesselApplicability, categoryApplicability,
+  CBS_CATEGORY_OPTS, CAPABILITY_LABELS,
 } from '@/data/iec62443Data';
+import {
+  LevelTag, E27ScopePhase, E27CbsExtras, E27InventoryPhase, E27ArchitectureExtras,
+  E27AccessPhase, E27SupplyChainPhase, E27CapabilitiesPhase, E27EvidencePhase,
+} from '@/components/iec/E27Phases';
+
 import { extractDocumentText } from '@/lib/documentExtraction';
 import { assessDocuments, type ReqAssessment, type ReviewSummaryResult } from '@/lib/iecDocumentAssessment';
 import { loadLocalDraft, saveLocalDraft, clearLocalDraft, sanitizeDraftFiles, saveCloudDraft, loadCloudDraft } from '@/lib/intakeDraft';
@@ -125,7 +133,8 @@ function CriteriaBlock({ criteria }: { criteria: string[] }) {
 
 // ── Intake Wizard ───────────────────────────────────────────────
 
-const INTAKE_STEPS = 6;
+const INTAKE_STEPS = 9;
+const LAST_SUB = INTAKE_STEPS - 1; // scope summary
 
 function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
   const { t } = useLanguage();
@@ -251,10 +260,15 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
 
 
   const canNext = useMemo(() => [
-    d.facilityName.trim().length > 0 && d.systemTypes.length > 0,
-    true, true, true,
-    d.roles.length > 0,
-    true, true,
+    true,                                                                 // 0 scope
+    d.facilityName.trim().length > 0 && d.systemTypes.length > 0,          // 1 CBS identification
+    true,                                                                 // 2 inventory
+    true,                                                                 // 3 architecture
+    true,                                                                 // 4 access
+    d.roles.length > 0,                                                   // 5 roles & supply chain
+    true,                                                                 // 6 capabilities
+    true,                                                                 // 7 evidence & docs
+    true,                                                                 // 8 summary
   ], [d.facilityName, d.systemTypes.length, d.roles.length]);
 
   const scenarioRef = useRef(Math.floor(Math.random() * DEMO_SCENARIOS.length));
@@ -265,13 +279,14 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
     }
     const scenario = DEMO_SCENARIOS[scenarioRef.current];
     switch (sub) {
-      case 0: setD(prev => ({ ...prev, facilityName: scenario.facility.name, systemTypes: scenario.facility.types })); break;
-      case 1: setD(prev => ({ ...prev, securityLevel: scenario.securityLevel })); break;
-      case 2: setD(prev => ({ ...prev, description: scenario.description, zones: scenario.zones })); break;
-      case 3: setD(prev => ({ ...prev, protocols: scenario.protocols })); break;
-      case 4: setD(prev => ({ ...prev, roles: scenario.roles })); break;
-      case 5: setD(prev => ({ ...prev, measures: scenario.measures, knownIssues: scenario.knownIssues })); break;
-      case 6: setD(prev => ({ ...prev, files: scenario.files.map((f) => ({ ...f, id: crypto.randomUUID() })) })); break;
+      case 0: setD(prev => ({ ...prev, vessel: { ...(prev.vessel || EMPTY_VESSEL), vesselType: 'Container Vessel', newbuild: 'yes', contractDate: '2024-03-01', classSociety: 'DNV', flag: 'Liberia', e26InScope: 'yes' } })); break;
+      case 1: setD(prev => ({ ...prev, facilityName: scenario.facility.name, systemTypes: scenario.facility.types, securityLevel: scenario.securityLevel, cbs: { ...(prev.cbs || EMPTY_CBS), cbsInScope: 'yes', category: 'II', cbsFunction: scenario.description.slice(0, 160), categoryBasis: 'Failure analysis of the delivered function, agreed with class in design review', supplierTypeApproval: 'in_progress' } })); break;
+      case 2: setD(prev => ({ ...prev, assetCounts: { controllers: '6', hmi: '4', servers: '2', network: '5', sensors: '18', wireless: '1' } })); break;
+      case 3: setD(prev => ({ ...prev, description: scenario.description, zones: scenario.zones, protocols: scenario.protocols, connectivity: ['shore_vsat', 'vendor_remote', 'usb'], topology: 'physical', boundaries: 'Single conduit from the CBS zone to the ship LAN through a firewall with a whitelisted protocol set.' })); break;
+      case 4: setD(prev => ({ ...prev, untrustedNetwork: 'yes', remoteAccessTypes: ['vendor', 'fleet'], remoteAccessControls: { logging: true, jumphost: true } })); break;
+      case 5: setD(prev => ({ ...prev, roles: scenario.roles, supplyChain: { ...(prev.supplyChain || EMPTY_SUPPLY_CHAIN), manufacturer: 'Kongsberg Maritime', integrator: 'Yard Automation Dept.', shipyard: 'Hyundai Mipo', e27Declaration: 'partial', securityGuidelines: 'available' } })); break;
+      case 6: setD(prev => ({ ...prev, measures: scenario.measures, knownIssues: scenario.knownIssues })); break;
+      case 7: setD(prev => ({ ...prev, files: scenario.files.map((f) => ({ ...f, id: crypto.randomUUID() })), docPackage: { inventory: 'available', topology: 'partial', zones: 'partial', sec_capabilities: 'available', test_proc: 'missing', test_report: 'missing', maintenance: 'partial', hardening: 'available', recovery: 'partial', remote: 'missing', declaration: 'partial' } })); break;
     }
   }, [sub]);
 
@@ -281,15 +296,27 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
   }
   prevSubRef.current = sub;
 
-  const isSummary = sub === 7;
+  const isSummary = sub === LAST_SUB;
+
 
   let stepContent: React.ReactNode;
   switch (sub) {
     case 0:
       stepContent = (
         <StaggerReveal resetKey="intake-0" stagger={300}>
-          <SubStepHeader current={0} total={INTAKE_STEPS} title="Identify System / Equipment" subtitle="Which on-board CBS is being assessed?" />
-          <InfoBox icon="🚢" color="blue">IACS UR E27 defines requirements for the cyber resilience of individual on-board systems and equipment (Computer Based Systems — CBS), based on the IEC 62443 system requirements (SR). It targets the system/equipment level supplied to the vessel. Identify the specific CBS under assessment.</InfoBox>
+          <SubStepHeader current={0} total={INTAKE_STEPS} title="Applicability & Scope" subtitle="Does UR E27 apply, and at which level?" />
+          <LevelTag level={1} />
+          <InfoBox icon="🚢" color="blue">IACS UR E27 applies to the <strong>system and equipment level</strong> — the Computer Based System (CBS) as supplied to a vessel. The vessel-level integration is covered by UR E26. Both use the IEC 62443 requirement structure, but the responsible party differs: E27 sits with the supplier, E26 with the yard and owner.</InfoBox>
+          <E27ScopePhase d={d} setD={setD} />
+        </StaggerReveal>
+      );
+      break;
+    case 1:
+      stepContent = (
+        <StaggerReveal resetKey="intake-1" stagger={300}>
+          <SubStepHeader current={1} total={INTAKE_STEPS} title="CBS Identification & Category" subtitle="Which system is assessed, and how critical is it?" />
+          <LevelTag level={1} />
+          <InfoBox icon="🧩" color="blue">The UR E22 system category (I / II / III) is the decisive input for the applicable requirement depth. It must be assigned before the requirement set can be fixed.</InfoBox>
           <div>
             <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Vessel Name / CBS Designation</label>
             <input className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none" placeholder="e.g. MV Northern Spirit — Integrated Bridge System" value={d.facilityName} onChange={e => setField('facilityName', e.target.value)} />
@@ -300,26 +327,22 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
               {systemTypes.map(st => <Chip key={st.id} label={st.label} icon={st.icon} desc={st.desc} selected={d.systemTypes.includes(st.id)} onClick={() => toggleArray('systemTypes', st.id)} />)}
             </div>
           </div>
-        </StaggerReveal>
-      );
-      break;
-    case 1:
-      stepContent = (
-        <StaggerReveal resetKey="intake-1" stagger={300}>
-          <SubStepHeader current={1} total={INTAKE_STEPS} title="Target Security Level (SL-T)" subtitle="What protection level is required?" />
-          <InfoBox icon="📘" title="Security Levels per E27/IEC 62443" color="blue">Security Levels define the required protection grade against different threat scenarios — from opportunistic attackers (SL 1) to state-sponsored actors (SL 4).</InfoBox>
-          <div className="space-y-2">
-            {securityLevels.map(sl => (
-              <button key={sl.id} onClick={() => setField('securityLevel', sl.id)} className={`w-full text-left border-2 rounded-xl px-4 py-3 transition-all ${d.securityLevel === sl.id ? sl.color + ' shadow' : 'border-border bg-card hover:border-muted-foreground/30'}`}>
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="font-semibold text-sm text-foreground">{sl.label}</div>
-                    <div className="text-sm text-muted-foreground mt-0.5">{sl.desc}</div>
+          <E27CbsExtras d={d} setD={setD} />
+          <div>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Target Security Level (SL-T)</label>
+            <div className="space-y-2">
+              {securityLevels.map(sl => (
+                <button key={sl.id} onClick={() => setField('securityLevel', sl.id)} className={`w-full text-left border-2 rounded-xl px-4 py-3 transition-all ${d.securityLevel === sl.id ? sl.color + ' shadow' : 'border-border bg-card hover:border-muted-foreground/30'}`}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="font-semibold text-sm text-foreground">{sl.label}</div>
+                      <div className="text-sm text-muted-foreground mt-0.5">{sl.desc}</div>
+                    </div>
+                    {d.securityLevel === sl.id && <span className="text-lg mt-0.5 flex-shrink-0 text-primary">✓</span>}
                   </div>
-                  {d.securityLevel === sl.id && <span className="text-lg mt-0.5 flex-shrink-0 text-primary">✓</span>}
-                </div>
-              </button>
-            ))}
+                </button>
+              ))}
+            </div>
           </div>
         </StaggerReveal>
       );
@@ -327,8 +350,19 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
     case 2:
       stepContent = (
         <StaggerReveal resetKey="intake-2" stagger={300}>
-          <SubStepHeader current={2} total={INTAKE_STEPS} title="On-Board Network Zones" subtitle="Which network zones are present on board?" />
-          <InfoBox icon="💡" color="blue">IACS UR E27 defines security zones on board. Segmentation between bridge, engine room, crew IT, and shore connections is essential for cyber resilience.</InfoBox>
+          <SubStepHeader current={2} total={INTAKE_STEPS} title="Asset & Software Inventory" subtitle="What exactly makes up the CBS?" />
+          <LevelTag level={1} />
+          <InfoBox icon="📇" color="blue">UR E27 expects an inventory of the CBS components including hardware, software and firmware versions. Without it, patch management and vulnerability handling cannot be evidenced.</InfoBox>
+          <E27InventoryPhase d={d} setD={setD} />
+        </StaggerReveal>
+      );
+      break;
+    case 3:
+      stepContent = (
+        <StaggerReveal resetKey="intake-3" stagger={300}>
+          <SubStepHeader current={3} total={INTAKE_STEPS} title="Architecture, Zones & Interfaces" subtitle="How is the CBS connected and separated?" />
+          <LevelTag level={1} />
+          <InfoBox icon="🗺️" color="blue">Zones, conduits and topology documentation define the boundary of the assessment. Zone information also feeds the vessel-level UR E26 view where that is in scope.</InfoBox>
           <div>
             <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">System Description</label>
             <textarea rows={4} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="e.g. Integrated bridge system with ECDIS, Radar/ARPA, AIS, Engine Control System..." value={d.description} onChange={e => setField('description', e.target.value)} />
@@ -341,32 +375,39 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
               ))}
             </div>
           </div>
-        </StaggerReveal>
-      );
-      break;
-    case 3:
-      stepContent = (
-        <StaggerReveal resetKey="intake-3" stagger={300}>
-          <SubStepHeader current={3} total={INTAKE_STEPS} title="Protocols and Interfaces" subtitle="Which communication protocols are used on board?" />
-          <InfoBox icon="💡" color="blue">The protocol selection significantly influences the threat landscape. Maritime protocols such as NMEA offer no native authentication or encryption.</InfoBox>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {PROTOCOL_OPTS.map(o => (
-              <button key={o.label} onClick={() => toggleArray('protocols', o.label)} className={`border rounded-lg px-3 py-2 text-sm text-left flex items-center gap-2 transition-all ${d.protocols.includes(o.label) ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>
-                <span>{o.icon}</span><span className="flex-1">{o.label}</span>{d.protocols.includes(o.label) && <span className="text-xs text-primary">✓</span>}
-              </button>
-            ))}
+          <div>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Protocols and Interfaces</label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {PROTOCOL_OPTS.map(o => (
+                <button key={o.label} onClick={() => toggleArray('protocols', o.label)} className={`border rounded-lg px-3 py-2 text-sm text-left flex items-center gap-2 transition-all ${d.protocols.includes(o.label) ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>
+                  <span>{o.icon}</span><span className="flex-1">{o.label}</span>{d.protocols.includes(o.label) && <span className="text-xs text-primary">✓</span>}
+                </button>
+              ))}
+            </div>
           </div>
           {d.protocols.some(p => p.includes('NMEA') || p.includes('Serial')) && (
             <InfoBox icon="⚠️" color="amber">NMEA and serial protocols offer no native authentication or encryption. Compensating measures (network segmentation, gateways) are required per UR E27.</InfoBox>
           )}
+          <E27ArchitectureExtras d={d} setD={setD} />
         </StaggerReveal>
       );
       break;
     case 4:
       stepContent = (
         <StaggerReveal resetKey="intake-4" stagger={300}>
-          <SubStepHeader current={4} total={INTAKE_STEPS} title="Roles and Responsibilities" subtitle="Who is responsible for cyber resilience on board?" />
-          <InfoBox icon="💡" color="blue">IACS UR E27 requires clearly defined roles for cyber risk management on board and ashore.</InfoBox>
+          <SubStepHeader current={4} total={INTAKE_STEPS} title="Access & Untrusted Networks" subtitle="Who reaches the CBS, and from where?" />
+          <LevelTag level={1} />
+          <InfoBox icon="🔐" color="blue">Whether the CBS is connected to an untrusted network decides whether the conditional requirements (E27 items 31–41) apply — this single answer changes the applicable requirement set.</InfoBox>
+          <E27AccessPhase d={d} setD={setD} />
+        </StaggerReveal>
+      );
+      break;
+    case 5:
+      stepContent = (
+        <StaggerReveal resetKey="intake-5" stagger={300}>
+          <SubStepHeader current={5} total={INTAKE_STEPS} title="Roles & Supply Chain" subtitle="Who is accountable, and who supplies what?" />
+          <LevelTag level={2} />
+          <InfoBox icon="🤝" color="blue">UR E27 responsibilities are split across supplier, integrator, yard and owner. Naming them makes the requirement ownership auditable.</InfoBox>
           <div>
             <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Common Roles</label>
             <div className="flex flex-wrap gap-2">
@@ -392,10 +433,12 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
               </div>
             </div>
           )}
+          <E27SupplyChainPhase d={d} setD={setD} />
         </StaggerReveal>
       );
       break;
-    case 5: {
+
+    case 6: {
       const toggleMeasure = (id: string) => {
         setD(prev => {
           const existing = prev.measures[id];
@@ -424,9 +467,11 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
       };
 
       stepContent = (
-        <StaggerReveal resetKey="intake-5" stagger={300}>
-          <SubStepHeader current={5} total={INTAKE_STEPS} title="Existing Security Measures" subtitle="What is already implemented on board?" />
-          <InfoBox icon="💡" color="blue">The maturity assessment shows the implementation status of existing security measures on board.</InfoBox>
+        <StaggerReveal resetKey="intake-6" stagger={300}>
+          <SubStepHeader current={6} total={INTAKE_STEPS} title="Security Capabilities" subtitle="Which E27 capabilities are implemented on this CBS?" />
+          <LevelTag level={2} />
+          <InfoBox icon="🛡️" color="blue">Status per requirement drives the readiness score. Where a requirement cannot be met as written, record a compensating measure instead of leaving it open — that is how class expects gaps to be handled.</InfoBox>
+
           {securityCategories.map(cat => (
             <div key={cat}>
               <div className="text-xs font-semibold text-muted-foreground/60 uppercase tracking-wide mb-2">{cat}</div>
@@ -467,14 +512,20 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
             <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Known Vulnerabilities</label>
             <textarea rows={3} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="e.g. Flat network, shared accounts, NMEA unprotected, USB ports open..." value={d.knownIssues} onChange={e => setField('knownIssues', e.target.value)} />
           </div>
+          <E27CapabilitiesPhase d={d} setD={setD} reqs={IEC_REQS} />
         </StaggerReveal>
+
       );
       break;
     }
-    case 6:
+    case 7:
       stepContent = (
-        <StaggerReveal resetKey="intake-6" stagger={300}>
-          <SubStepHeader current={5} total={INTAKE_STEPS} title="Documentation" subtitle="Upload existing documents (optional)" />
+        <StaggerReveal resetKey="intake-7" stagger={300}>
+          <SubStepHeader current={7} total={INTAKE_STEPS} title="Evidence & Documentation Package" subtitle="What can actually be shown to a surveyor?" />
+          <LevelTag level={3} />
+          <InfoBox icon="📚" color="blue">UR E27 is assessed on deliverables: inventory, topology, capability description, test procedure and report, maintenance plan. A capability that cannot be evidenced counts as a gap.</InfoBox>
+          <E27EvidencePhase d={d} setD={setD} reqs={IEC_REQS} />
+
           <InfoBox icon="💡" color="blue">Network topology diagrams, CBS inventories, and risk assessments increase evidence quality.</InfoBox>
           <div className="grid grid-cols-1 gap-2">
             {attachTypes.map(at => (
@@ -552,17 +603,45 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
 
       );
       break;
-    case 7:
+    case 8:
       stepContent = (
-        <StaggerReveal resetKey="intake-7" stagger={250}>
-          <SubStepHeader current={5} total={INTAKE_STEPS} title="Summary" subtitle="Review your inputs before starting the assessment." />
+        <StaggerReveal resetKey="intake-8" stagger={250}>
+          <SubStepHeader current={8} total={INTAKE_STEPS} title="Scope Summary" subtitle="Review the declared scope before the readiness assessment starts." />
+
+          {(() => {
+            const app = vesselApplicability(d.vessel);
+            const cat = categoryApplicability(d.cbs?.category);
+            const scoped = applicableReqs(IEC_REQS, d);
+            return (
+              <div className="space-y-2 mb-3">
+                <div className={`border rounded-lg px-3 py-2 text-sm ${app.verdict === 'mandatory' ? 'bg-destructive/5 border-destructive/20' : app.verdict === 'undetermined' ? 'bg-yellow-500/5 border-yellow-500/20' : 'bg-primary/5 border-primary/20'}`}>
+                  <span className="font-semibold text-foreground">E27 applicability: </span>
+                  <span className="text-muted-foreground">{app.rationale}</span>
+                </div>
+                <div className="border border-border rounded-lg px-3 py-2 text-sm bg-secondary/40">
+                  <span className="font-semibold text-foreground">Requirement set: </span>
+                  <span className="text-muted-foreground">
+                    {scoped.length} requirements in scope — {scoped.filter(r => reqTier(r) === 'core').length} core
+                    {scoped.some(r => reqTier(r) === 'utn') ? ` plus ${scoped.filter(r => reqTier(r) === 'utn').length} conditional (untrusted network)` : ' (conditional untrusted-network set excluded)'}. {cat.note}
+                  </span>
+                </div>
+              </div>
+            );
+          })()}
           {[
             { label: 'Vessel/System', val: d.facilityName || '—' },
+            { label: 'Vessel Type', val: d.vessel?.vesselType || '—' },
+            { label: 'Class Society', val: d.vessel?.classSociety || '—' },
             { label: 'CBS Types', val: d.systemTypes.map(id => systemTypes.find(st => st.id === id)?.label).join(', ') || '—' },
+            { label: 'E22 Category', val: CBS_CATEGORY_OPTS.find(c => c.id === (d.cbs?.category || 'undetermined'))?.label || '—' },
             { label: 'Security Level', val: securityLevels.find(sl => sl.id === d.securityLevel)?.label || '—' },
+            { label: 'Untrusted Network', val: d.untrustedNetwork === 'yes' ? 'Connected' : d.untrustedNetwork === 'no' ? 'Not connected' : 'Not declared' },
             { label: 'Zones', val: d.zones.map(id => zoneConduits.find(zc => zc.id === id)?.label).join(', ') || '—' },
             { label: 'Protocols', val: d.protocols.join(', ') || '—' },
             { label: 'Roles', val: d.roles.join(', ') || '—' },
+            { label: 'Assets listed', val: `${(d.assets || []).length} detailed · ${Object.values(d.assetCounts || {}).reduce((a, b) => a + (Number(b) || 0), 0)} counted` },
+            { label: 'Capabilities set', val: `${Object.keys(d.capabilities || {}).length} of ${applicableReqs(IEC_REQS, d).length} answered` },
+            { label: 'Doc package', val: `${Object.values(d.docPackage || {}).filter(v => v === 'available').length} available` },
             { label: 'Measures', val: Object.keys(d.measures).length > 0 ? `${Object.keys(d.measures).length} selected` : 'None' },
             { label: 'Documents', val: d.files.length > 0 ? `${d.files.length} files` : 'None' },
           ].map(({ label, val }) => (
@@ -571,6 +650,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
               <span className="text-foreground font-medium break-words min-w-0">{val}</span>
             </div>
           ))}
+
           {d.knownIssues && (
             <div className="flex flex-col sm:flex-row gap-1 sm:gap-3 text-sm border-b border-border/50 pb-2">
               <span className="text-muted-foreground sm:w-36 flex-shrink-0 text-xs sm:text-sm">Known Issues</span>
@@ -616,11 +696,11 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
       <div className="flex items-center justify-between mt-6 pt-4 border-t border-border/50">
         <div className="flex items-center gap-2">
           {sub > 0 && <Button variant="outline" onClick={() => setSub(sub - 1)}>Back</Button>}
-          {sub <= 6 && <Button variant="ghost" size="sm" onClick={handleDemo} className="text-xs text-muted-foreground">Demo</Button>}
+          {sub < LAST_SUB && <Button variant="ghost" size="sm" onClick={handleDemo} className="text-xs text-muted-foreground">Demo</Button>}
         </div>
-        {sub < 7 ? (
+        {sub < LAST_SUB ? (
           <Button onClick={() => setSub(sub + 1)} disabled={!canNext[sub]} className="font-semibold">
-            {sub === 6 ? 'Review Summary' : 'Next'}
+            {sub === LAST_SUB - 1 ? 'Review Scope' : 'Next'}
           </Button>
         ) : (
           <div className="flex items-center gap-3">
@@ -1008,8 +1088,77 @@ function ReportView({ intakeData, threats, reqs, reviewSummary }: { intakeData: 
         </div>
       </div>
 
+      {/* 0. E27 Readiness */}
+      {(() => {
+        const readiness = computeReadiness(localReqs, intakeData);
+        const app = vesselApplicability(intakeData.vessel);
+        const cat = categoryApplicability(intakeData.cbs?.category);
+        const barColor = readiness.pct >= 85 ? 'bg-green-500' : readiness.pct >= 60 ? 'bg-yellow-500' : readiness.pct >= 35 ? 'bg-orange-500' : 'bg-destructive';
+        return (
+          <SectionCard title="E27 Readiness" icon="📶">
+            <div className="flex flex-col sm:flex-row sm:items-end gap-4 mb-4">
+              <div>
+                <div className="text-4xl font-bold font-mono text-foreground">{readiness.pct}%</div>
+                <div className="text-xs text-muted-foreground mt-0.5">{readiness.label}</div>
+              </div>
+              <div className="flex-1 w-full">
+                <div className="h-3 w-full rounded-full bg-secondary overflow-hidden">
+                  <div className={`h-full rounded-full ${barColor}`} style={{ width: `${readiness.pct}%` }} />
+                </div>
+                <div className="text-[11px] text-muted-foreground mt-1.5">
+                  Readiness combines capability status (70%) with the completeness of the E27 documentation package (30%). It is not a compliance statement — conformity with a class Unified Requirement can only be confirmed by the classification society.
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+              {[
+                { label: CAPABILITY_LABELS.implemented, val: readiness.implemented },
+                { label: CAPABILITY_LABELS.partial, val: readiness.partial },
+                { label: CAPABILITY_LABELS.compensated, val: readiness.compensated },
+                { label: CAPABILITY_LABELS.not_implemented, val: readiness.missing },
+              ].map(k => (
+                <div key={k.label} className="border border-border rounded-lg p-3 text-center bg-secondary/30">
+                  <div className="text-xl font-bold font-mono text-foreground">{k.val}</div>
+                  <div className="text-[11px] text-muted-foreground mt-0.5">{k.label}</div>
+                </div>
+              ))}
+            </div>
+            <div className="space-y-2 text-xs">
+              <div className="border border-border rounded-lg px-3 py-2">
+                <span className="font-semibold text-foreground">Applicability: </span>
+                <span className="text-muted-foreground">{app.rationale} {cat.note}</span>
+              </div>
+              <div className="border border-border rounded-lg px-3 py-2">
+                <span className="font-semibold text-foreground">Requirement set: </span>
+                <span className="text-muted-foreground">
+                  {localReqs.length} in scope — {localReqs.filter(r => reqTier(r) === 'core').length} core
+                  {localReqs.some(r => reqTier(r) === 'utn')
+                    ? `, ${localReqs.filter(r => reqTier(r) === 'utn').length} conditional for untrusted-network connections`
+                    : '; conditional untrusted-network requirements excluded on the declared architecture'}.
+                </span>
+              </div>
+              <div className="border border-border rounded-lg px-3 py-2">
+                <span className="font-semibold text-foreground">Evidence: </span>
+                <span className="text-muted-foreground">
+                  {readiness.evidenceVerified} verified, {readiness.evidenceClaimed} claimed only — claimed capabilities are scored down because they cannot be shown to a surveyor.
+                </span>
+              </div>
+              {readiness.docGaps.length > 0 && (
+                <div className="bg-destructive/5 border border-destructive/20 rounded-lg px-3 py-2">
+                  <div className="font-semibold text-foreground mb-1">Documentation gaps ({readiness.docsAvailable}/{readiness.docsTotal} available)</div>
+                  <ul className="list-disc list-inside space-y-0.5 text-muted-foreground">
+                    {readiness.docGaps.map(g => <li key={g}>{g}</li>)}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </SectionCard>
+        );
+      })()}
+
       {/* 1. Executive Summary */}
       <SectionCard title="Executive Summary" icon="📌">
+
         <p className="text-sm text-foreground leading-relaxed mb-4">
           {reviewSummary?.coreFinding || `This applicability review evaluated ${localReqs.length} IACS UR E27 controls against the declared scope of ${intakeData.facilityName}. ${counts.applicable} controls are fully applicable, ${counts.partial} are partially applicable, and ${counts.na} are not applicable to this architecture.`}
         </p>
@@ -1178,7 +1327,7 @@ function ReportView({ intakeData, threats, reqs, reviewSummary }: { intakeData: 
 
 // ── Main ──────────────────────────────────────────────────────
 
-const MAIN_STEPS = ['Data Collection', 'Threat Landscape', 'Risk Matrix', 'E27 Mapping', 'Report & Export'];
+const MAIN_STEPS = ['Scope & Intake', 'Threat Landscape', 'Risk Matrix', 'E27 Requirements', 'Readiness Report'];
 
 const Iec62443ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
   const [step, setStepRaw] = useState(0);
@@ -1223,7 +1372,7 @@ const Iec62443ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
         });
       const result = await assessDocuments(
         'E27',
-        IEC_REQS.map(r => ({ id: r.id, article: r.article, name: r.name, criteria: r.criteria })),
+        applicableReqs(IEC_REQS, data).map(r => ({ id: r.id, article: r.article, name: r.name, criteria: r.criteria })),
         readableDocs.map(f => ({ name: f.name, type: f.type, text: f.text || '' })),
         lang,
         {
@@ -1235,6 +1384,10 @@ const Iec62443ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
           protocols: data.protocols,
           measures,
           knownIssues: data.knownIssues,
+          cbsCategory: data.cbs?.category,
+          untrustedNetwork: data.untrustedNetwork,
+          documentsAvailable: Object.entries(data.docPackage || {}).filter(([, v]) => v === 'available').map(([k]) => k),
+          documentsMissing: Object.entries(data.docPackage || {}).filter(([, v]) => !v || v === 'missing').map(([k]) => k),
         },
       );
       setDocAssessments(result.assessments);
@@ -1251,7 +1404,11 @@ const Iec62443ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
   }, [setStep]);
 
   const effectiveReqs = useMemo<IecReq[]>(() => {
-    if (!docAssessments) return IEC_REQS;
+    // Only the requirements that actually apply to the declared scope: the
+    // conditional untrusted-network set (E27 items 31-41) drops out when the
+    // CBS has no untrusted connection.
+    const scoped = applicableReqs(IEC_REQS, intakeData);
+    if (!docAssessments) return scoped;
     const byId = new Map(docAssessments.map(a => [a.id, a]));
     const basisLabel: Record<string, string> = {
       declared: 'Self-declared (intake)',
@@ -1259,7 +1416,7 @@ const Iec62443ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
       declared_document: 'Self-declared & document-verified',
       none: '',
     };
-    return IEC_REQS.map(r => {
+    return scoped.map(r => {
       const a = byId.get(r.id);
       if (!a) return r;
       const label = basisLabel[a.basis] || '';
@@ -1279,7 +1436,7 @@ const Iec62443ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
         residualScopeNote: a.residualScopeNote || r.residualScopeNote,
       };
     });
-  }, [docAssessments]);
+  }, [docAssessments, intakeData]);
 
 
   const reset = useCallback(() => { setStep(0); setIntakeData(EMPTY_INTAKE); setDocAssessments(null); setReviewSummary(null); setDocsAnalyzed([]); }, [setStep]);
