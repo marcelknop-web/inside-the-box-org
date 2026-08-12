@@ -410,6 +410,11 @@ function buildRootCauseClusters(
 }
 
 
+/** Truncate to a fixed column width with an ellipsis so mono tables stay aligned. */
+function clip(text: string, max: number): string {
+  return text.length <= max ? text : `${text.slice(0, max - 1).trimEnd()}…`;
+}
+
 export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<void> {
   const { profile, result, computed, answers, entityName, insights, reportMeta, includeWorkingPapers, workingPapers, auditorNotes, executiveBrief } = data;
   // The report is produced in English only, independent of the UI language.
