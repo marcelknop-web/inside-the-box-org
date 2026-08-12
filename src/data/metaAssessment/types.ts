@@ -151,7 +151,36 @@ export interface StandardProfile {
   demoAnswers?: IntakeAnswers;
   /** selectable test cases offered on the first intake step */
   demoScenarios?: DemoScenario[];
+  /** scope, applicability and claim delimitation (report front matter) */
+  scope?: ScopeConfig;
 }
+
+// ── Scope, applicability & claim delimitation ───────────────────
+
+/** Whether the standard applies to the assessed subject at all. */
+export type ApplicabilityVerdict = 'applicable' | 'conditional' | 'not-applicable' | 'undetermined';
+
+export interface ScopeConfig {
+  /** what this assessment legitimately supports as a claim */
+  claims: Tri[];
+  /** what it explicitly does NOT claim (delimitation, e.g. other regulations) */
+  limitations: Tri[];
+  /** derives the applicability verdict from the intake answers */
+  applicability?: (answers: IntakeAnswers) => { verdict: ApplicabilityVerdict; rationale: Tri };
+  /** scope facts surfaced prominently (e.g. vessel date, CBS categories) */
+  statements?: (answers: IntakeAnswers) => { label: Tri; value: string; note?: Tri }[];
+}
+
+/** Resolved (language-applied) scope block used by UI, PDF and JSON export. */
+export interface ScopeAssessment {
+  verdict: ApplicabilityVerdict;
+  verdictLabel: string;
+  rationale: string;
+  statements: { label: string; value: string; note?: string }[];
+  claims: string[];
+  limitations: string[];
+}
+
 
 /**
  * A named, selectable test case for an assessment. Selecting one pre-fills the
@@ -243,6 +272,17 @@ export interface Recommendation {
   owner: string;
   relatedControl: string;
   relatedControlName: string;
+  /** ── Action model (turns advice into an executable action) ── */
+  /** what has to exist when the action is finished */
+  deliverable?: string;
+  /** objective, testable completion criterion */
+  acceptanceCriteria?: string;
+  /** how completion is verified (document review, test, audit) */
+  verificationMethod?: string;
+  /** prerequisite action ids (sequencing) */
+  dependsOn?: string[];
+  /** target window, aligned with the roadmap phase */
+  dueWindow?: string;
 }
 
 export type RoadmapPhase = '0-3' | '3-6' | '6-12';
@@ -258,12 +298,23 @@ export type EvidenceType =
 
 export type EvidenceStrength = 'low' | 'medium' | 'high' | 'very_high';
 
+/**
+ * How far the evidence has been substantiated.
+ * - declared  : self-declared statement, unverified
+ * - documented: a document exists and was referenced
+ * - verified   : independently reviewed / audited artefact
+ */
+export type VerificationLevel = 'declared' | 'documented' | 'verified';
+
 export interface EvidenceItem {
   controlId: string;
   controlName: string;
   type: EvidenceType;
   strength: EvidenceStrength;
   summary: string;
+  verification: VerificationLevel;
+  /** what a verifier should ask for to raise the verification level */
+  verificationNeed?: string;
 }
 
 export interface EvidenceSummary {
@@ -271,7 +322,9 @@ export interface EvidenceSummary {
   /** control ids with no evidence */
   missing: string[];
   byStrength: Record<EvidenceStrength, number>;
+  byVerification: Record<VerificationLevel, number>;
 }
+
 
 export type QualitySeverity = 'critical' | 'warning';
 
@@ -406,6 +459,9 @@ export interface ComputedAssessment {
   auditReadiness: AuditReadiness;
   /** deterministic management attention index for the executive summary */
   attentionIndex: ManagementAttentionIndex;
+  /** resolved scope, applicability verdict and claim delimitation */
+  scope: ScopeAssessment;
+
 }
 
 // ── Layer 2/3: AI Insight Engine output (explanatory, never scoring) ──

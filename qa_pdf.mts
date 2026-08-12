@@ -1,0 +1,12 @@
+import { writeFileSync } from 'fs';
+import mod from 'jspdf';
+const J:any = (mod as any).jsPDF ?? mod;
+J.API.save = function(name:string){ writeFileSync('/tmp/qa/'+name, Buffer.from(this.output('arraybuffer'))); return this; };
+const { IACS_E27_PROFILE: iacsE27Profile } = await import('/dev-server/src/data/metaAssessment/iacsE27Profile.ts');
+const { assess } = await import('/dev-server/src/data/metaAssessment/engine.ts');
+const { generateMetaAssessmentPdf } = await import('/dev-server/src/utils/metaAssessmentReportPdf.ts');
+const answers = iacsE27Profile.demoAnswers ?? {};
+const { result, computed, findings } = assess(iacsE27Profile as any, answers, 'en');
+result.summary = 'Demo readiness assessment for QA rendering.';
+await generateMetaAssessmentPdf({ profile: iacsE27Profile as any, result, computed, answers, entityName: 'MV Demo Carrier', insights: null, reportMeta: { assessmentId: 'QA-1', title: 'UR E27 Readiness Assessment', reportVersion: '1.0', generatedAt: new Date().toISOString(), assessmentEngineVersion: 'det-1', aiInsightEngineVersion: 'n/a' } as any, includeWorkingPapers: true } as any);
+console.log('findings', findings.length);

@@ -16,7 +16,7 @@ export const IACS_E27_PROFILE: StandardProfile = {
   available: true,
   fullName: {
     de: 'IACS UR E27 — Cyber-Resilienz von Bordsystemen & -ausrüstung',
-    en: 'IACS UR E27 — Cyber Resilience of On-board Systems & Equipment',
+    en: 'IACS UR E27 — Cyber Résilience of On-board Systems & Equipment',
     fr: 'IACS UR E27 — Cyber-résilience des systèmes & équipements de bord',
   },
   regulation: {
@@ -285,4 +285,62 @@ export const IACS_E27_PROFILE: StandardProfile = {
       },
     },
   ],
+
+  // ── Scope, applicability & claim delimitation ──────────────────
+  scope: {
+    applicability: (a) => {
+      const cat = a.category as string | undefined;
+      if (cat === 'cat2' || cat === 'cat3') {
+        return {
+          verdict: 'applicable' as const,
+          rationale: {
+            de: 'CBS der E22-Kategorie ' + (cat === 'cat3' ? 'III (sicherheitskritisch)' : 'II (Effizienz/Komfort)') + ': UR E27 ist auf dieses System anzuwenden; die geforderten Capabilities richten sich nach Kategorie und Ziel-Security-Level.',
+            en: 'CBS of E22 category ' + (cat === 'cat3' ? 'III (safety-critical)' : 'II (efficiency/comfort)') + ': UR E27 applies to this system; the required capabilities follow from the category and the target security level.',
+            fr: "CBS de catégorie E22 " + (cat === 'cat3' ? 'III (critique pour la sécurité)' : 'II (efficacité/confort)') + " : l'UR E27 s'applique ; les capacités requises découlent de la catégorie et du niveau de sécurité cible.",
+          },
+        };
+      }
+      if (cat === 'cat1') {
+        return {
+          verdict: 'conditional' as const,
+          rationale: {
+            de: 'CBS der E22-Kategorie I (geringe Auswirkung): mehrere E27-Anforderungen sind bedingt und entfallen ggf. Die Bewertung dient als Readiness-Baseline mit reduziertem Pflichtumfang.',
+            en: 'CBS of E22 category I (low impact): several E27 requirements are conditional and may not apply. This assessment serves as a readiness baseline with a reduced mandatory set.',
+            fr: "CBS de catégorie E22 I (impact faible) : plusieurs exigences E27 sont conditionnelles et peuvent ne pas s'appliquer. Cette evaluation sert de base de préparation avec un périmètre obligatoire réduit.",
+          },
+        };
+      }
+      return {
+        verdict: 'undetermined' as const,
+        rationale: {
+          de: 'Systemkategorie nach E22 nicht erfasst; der Pflichtumfang der E27-Anforderungen ist damit nicht abschließend bestimmbar.',
+          en: 'E22 system category not recorded; the mandatory set of E27 requirements can therefore not be determined conclusively.',
+          fr: "Catégorie de systeme selon E22 non saisie ; le périmètre obligatoire des exigences E27 ne peut donc pas etre détermine de façon concluante.",
+        },
+      };
+    },
+    statements: (a) => [
+      { label: { de: 'Bewertetes CBS / Lieferant', en: 'Assessed CBS / supplier', fr: 'CBS evalue / fournisseur' }, value: (a.entityName as string) || '—' },
+      { label: { de: 'Rolle', en: 'Role', fr: 'Rôle' }, value: String(a.role ?? '—') },
+      {
+        label: { de: 'E22-Systemkategorie', en: 'E22 system category', fr: 'Catégorie de systeme E22' },
+        value: a.category === 'cat3' ? 'III' : a.category === 'cat2' ? 'II' : a.category === 'cat1' ? 'I' : '—',
+        note: { de: 'Die Kategorie bestimmt, welche E27-Anforderungen verpflichtend und welche bedingt sind.', en: 'The category determines which E27 requirements are mandatory and which are conditional.', fr: 'La catégorie détermine quelles exigences E27 sont obligatoires ou conditionnelles.' },
+      },
+      {
+        label: { de: 'Ziel-Security-Level', en: 'Target security level', fr: 'Niveau de sécurité cible' },
+        value: String(a.securityLevel ?? '—').toUpperCase().replace('SL', 'SL '),
+      },
+    ],
+    claims: [
+      { de: 'Readiness des einzelnen CBS gegenueber den bewerteten UR E27-Capabilities auf Basis der erfassten Angaben.', en: 'Readiness of the individual CBS against the assessed UR E27 capabilities, based on the recorded answers.', fr: 'Préparation du CBS au regard des capacités UR E27 évaluées, sur la base des réponses saisies.' },
+      { de: 'Priorisierte Capability- und Dokumentationsluecken mit Nachweisbedarf.', en: 'Prioritised capability and documentation gaps with evidence needs.', fr: 'Lacunes de capacités et de documentation priorisées avec besoins de preuve.' },
+    ],
+    limitations: [
+      { de: 'Keine Typzulassung, kein Klassenzertifikat und keine Bestaetigung eines Security-Levels durch eine Klassifikationsgesellschaft.', en: 'No type approval, class certificate or security-level confirmation by a classification society.', fr: "Aucune approbation de type, certificat de classe ou confirmation de niveau de sécurité par une société de classification." },
+      { de: 'Keine Aussage zur Schiffs-Ebene nach UR E26 — dafür ist ein separates E26-Assessment erforderlich.', en: 'No statement about the vessel level under UR E26 — that requires a separate E26 assessment.', fr: "Aucune déclaration sur le niveau navire selon l'UR E26 — une évaluation E26 distincte est requise." },
+      { de: 'Keine Aussage zu IEC 62443-Zertifizierung, IMO 2021/ISM, NIS2 oder ISPS; Verweise sind kontextuell.', en: 'No statement about IEC 62443 certification, IMO 2021/ISM, NIS2 or ISPS; references are contextual.', fr: 'Aucune déclaration sur la certification IEC 62443, IMO 2021/ISM, NIS2 ou ISPS ; les references sont contextuelles.' },
+      { de: 'Nachweise wurden nicht unabhängig verifiziert, soweit nicht ausdruecklich als geprüft gekennzeichnet.', en: 'Evidence was not independently verified unless explicitly marked as verified.', fr: 'Les preuves ne sont pas vérifiées indépendamment sauf mention explicite.' },
+    ],
+  },
 };
