@@ -758,10 +758,12 @@ function FieldView({ field, value, onChange, lang, answers, setVal }: {
 }
 
 function FieldLabel({ field, lang }: { field: IntakeField; lang: Lang }) {
+  const copy = ui(lang);
   return (
-    <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-      {tr(field.label, lang)}{field.required && <span className="text-primary"> *</span>}
-      {field.help && <span className="block normal-case font-normal text-[11px] mt-0.5 opacity-70">{tr(field.help, lang)}</span>}
+    <label className="block text-lg sm:text-xl font-semibold text-foreground uppercase tracking-wide mb-4">
+      {tr(field.label, lang)}
+      {field.required && <span className="ml-2 align-middle inline-flex items-center rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary tracking-wider">{copy.required}</span>}
+      {field.help && <span className="block normal-case font-normal text-xs mt-1 text-muted-foreground">{tr(field.help, lang)}</span>}
     </label>
   );
 }
@@ -881,10 +883,10 @@ function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
 
       {firstInStep && (
         <>
-          <div className="text-base font-bold text-foreground font-mono">{tr(step.title, lang)}</div>
-          {step.subtitle && <div className="text-sm text-muted-foreground mt-0.5 mb-3">{tr(step.subtitle, lang)}</div>}
+          <div className="text-sm sm:text-base font-bold text-foreground font-mono">{tr(step.title, lang)}</div>
+          {step.subtitle && <div className="text-xs text-muted-foreground mt-0.5 mb-2">{tr(step.subtitle, lang)}</div>}
           {step.info && (
-            <div className="border border-primary/20 bg-primary/10 rounded-lg px-4 py-3 text-sm text-foreground mb-4">💡 {tr(step.info, lang)}</div>
+            <div className="border border-primary/20 bg-primary/10 rounded-lg px-3 py-2 text-xs text-foreground mb-3">💡 {tr(step.info, lang)}</div>
           )}
         </>
       )}
@@ -2711,20 +2713,20 @@ const MetaAssessmentTool = () => {
         {showIntro && <HowItWorksModal u={u} onClose={closeIntro} />}
 
         <main className="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-          <header className="mb-8">
+          <header className="mb-5">
             <div className="flex items-start justify-between gap-3">
-              <div className="font-mono text-[11px] tracking-[0.3em] uppercase text-primary mb-3">{u.section}</div>
+              <div className="font-mono text-[10px] tracking-[0.3em] uppercase text-primary mb-1.5">{u.section}</div>
               <button
                 onClick={() => setShowIntro(true)}
-                className="flex-shrink-0 inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors border border-border rounded-md px-2.5 py-1"
+                className="flex-shrink-0 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors border border-border rounded-md px-2 py-1"
               >
                 <Sparkles size={12} /> {u.archTitle}
               </button>
             </div>
-            <h1 className="font-mono text-2xl sm:text-3xl md:text-4xl text-foreground leading-tight">
+            <h1 className="font-mono text-sm sm:text-base md:text-lg text-foreground leading-tight">
               {phase === 'standard' ? u.headline : `${profile?.name} — ${tr(profile?.fullName, lang)}`}
             </h1>
-            <p className="text-sm sm:text-base text-muted-foreground mt-3 max-w-2xl leading-relaxed">{u.sub}</p>
+            <p className="text-xs text-muted-foreground mt-1.5 max-w-2xl leading-relaxed">{u.sub}</p>
           </header>
 
           {/* Visual progress stepper */}
