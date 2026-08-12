@@ -741,12 +741,14 @@ function FieldView({ field, value, onChange, lang, answers, setVal }: {
           const sel = field.type === 'single' ? value === o.id : arr.includes(o.id);
           return (
             <button key={o.id} onClick={() => toggle(o.id)}
-              className={`border rounded-lg px-3 py-2 text-sm flex items-start gap-2 text-left transition-all ${
-                sel ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40'
+              className={`border rounded-lg px-3.5 py-3 text-[15px] flex items-start gap-2.5 text-left transition-all ${
+                sel
+                  ? 'border-primary bg-primary/10 text-foreground shadow-[0_0_0_1px_hsl(var(--primary)/0.35)]'
+                  : 'border-border bg-card/70 text-muted-foreground hover:border-primary/50 hover:bg-card hover:text-foreground'
               }`}>
               {o.icon && <span className="mt-0.5 flex-shrink-0">{o.icon}</span>}
               <div className="min-w-0 flex-1">
-                <div className="font-medium break-words">{tr(o.label, lang)}</div>
+                <div className="font-medium break-words leading-snug">{tr(o.label, lang)}</div>
                 {o.desc && <div className="text-xs opacity-70 mt-0.5 break-words">{tr(o.desc, lang)}</div>}
               </div>
               {sel && <span className="ml-auto text-xs text-primary">✓</span>}
@@ -761,10 +763,12 @@ function FieldView({ field, value, onChange, lang, answers, setVal }: {
 function FieldLabel({ field, lang }: { field: IntakeField; lang: Lang }) {
   const copy = ui(lang);
   return (
-    <label className="block text-lg sm:text-xl font-semibold text-foreground uppercase tracking-wide mb-4">
-      {tr(field.label, lang)}
-      {field.required && <span className="ml-2 align-middle inline-flex items-center rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary tracking-wider">{copy.required}</span>}
-      {field.help && <span className="block normal-case font-normal text-xs mt-1 text-muted-foreground">{tr(field.help, lang)}</span>}
+    <label className="block mb-5 pl-3 border-l-2 border-primary">
+      <span className="block text-xl sm:text-2xl font-semibold text-foreground uppercase tracking-wide leading-tight">
+        {tr(field.label, lang)}
+        {field.required && <span className="ml-2 align-middle inline-flex items-center rounded bg-primary/15 px-1.5 py-0.5 text-[10px] font-bold text-primary tracking-wider">{copy.required}</span>}
+      </span>
+      {field.help && <span className="block normal-case font-normal text-xs mt-1.5 text-muted-foreground">{tr(field.help, lang)}</span>}
     </label>
   );
 }
@@ -875,17 +879,18 @@ function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
 
       {firstInStep && (
         <>
-          <div className="text-sm sm:text-base font-bold text-foreground font-mono">{tr(step.title, lang)}</div>
-          {step.subtitle && <div className="text-xs text-muted-foreground mt-0.5 mb-2">{tr(step.subtitle, lang)}</div>}
+          <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">{tr(step.title, lang)}</div>
+          {step.subtitle && <div className="text-xs text-muted-foreground/80 mt-0.5 mb-2">{tr(step.subtitle, lang)}</div>}
           {step.info && (
-            <div className="border border-primary/20 bg-primary/10 rounded-lg px-3 py-2 text-xs text-foreground mb-3">💡 {tr(step.info, lang)}</div>
+            <div className="border border-primary/15 bg-primary/[0.06] rounded-lg px-3 py-2 text-xs text-muted-foreground mb-3">💡 {tr(step.info, lang)}</div>
           )}
         </>
       )}
 
-      <div className="space-y-5">
+      <div className="mt-1 rounded-xl border border-primary/25 bg-card/40 p-4 sm:p-6 shadow-[0_18px_45px_-28px_hsl(var(--primary)/0.45)]">
         <FieldView key={field.id} field={field} value={answers[field.id]} onChange={(v) => setVal(field.id, v)} lang={lang} answers={answers} setVal={setVal} />
       </div>
+
 
       <div className="flex justify-between items-center pt-6 mt-auto border-t border-border/40">
         <div className="flex items-center gap-2">
