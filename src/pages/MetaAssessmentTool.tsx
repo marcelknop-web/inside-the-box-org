@@ -879,17 +879,18 @@ function IntakeWizard({ profile, lang, initial, onFinish, onBack }: {
 
       {firstInStep && (
         <>
-          <div className="text-sm sm:text-base font-bold text-foreground font-mono">{tr(step.title, lang)}</div>
-          {step.subtitle && <div className="text-xs text-muted-foreground mt-0.5 mb-2">{tr(step.subtitle, lang)}</div>}
+          <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">{tr(step.title, lang)}</div>
+          {step.subtitle && <div className="text-xs text-muted-foreground/80 mt-0.5 mb-2">{tr(step.subtitle, lang)}</div>}
           {step.info && (
-            <div className="border border-primary/20 bg-primary/10 rounded-lg px-3 py-2 text-xs text-foreground mb-3">💡 {tr(step.info, lang)}</div>
+            <div className="border border-primary/15 bg-primary/[0.06] rounded-lg px-3 py-2 text-xs text-muted-foreground mb-3">💡 {tr(step.info, lang)}</div>
           )}
         </>
       )}
 
-      <div className="space-y-5">
+      <div className="mt-1 rounded-xl border border-primary/25 bg-card/40 p-4 sm:p-6 shadow-[0_18px_45px_-28px_hsl(var(--primary)/0.45)]">
         <FieldView key={field.id} field={field} value={answers[field.id]} onChange={(v) => setVal(field.id, v)} lang={lang} answers={answers} setVal={setVal} />
       </div>
+
 
       <div className="flex justify-between items-center pt-6 mt-auto border-t border-border/40">
         <div className="flex items-center gap-2">
