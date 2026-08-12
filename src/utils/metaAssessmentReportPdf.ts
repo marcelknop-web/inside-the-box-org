@@ -205,9 +205,9 @@ const T: Record<string, Record<Lang, string>> = {
     fr: 'Each item below is labelled FACT (deterministic assessment logic), INSIGHT (AI interpretation) or RECOMMENDATION (AI advisory). Confidence ratings apply only to AI interpretations, never to deterministic findings.',
   },
   disclaimer: {
-    de: 'Dieser Bericht stellt keine formale Zertifizierung dar und ersetzt nicht die Bewertung durch eine anerkannte Prüfstelle. Die Konformitätsbewertung beruht auf den im Intake gemachten Angaben.',
-    en: 'This report does not constitute a formal certification and does not replace assessment by a recognised authority. The compliance assessment is based on the information provided during intake.',
-    fr: "Ce rapport ne constitue pas une certification formelle et ne remplace pas l'évaluation par un organisme reconnu. L'évaluation de conformité repose sur les informations fournies lors de l'admission.",
+    de: 'Dieser Bericht ist eine Readiness-Bewertung, keine Zertifizierung und keine Klassenentscheidung. Er ersetzt nicht die Bewertung durch eine anerkannte Prüfstelle. Grundlage sind die im Intake gemachten Angaben; Nachweise gelten als Selbstauskunft, sofern nicht ausdrücklich als verifiziert gekennzeichnet.',
+    en: 'This report is a readiness assessment, not a certification and not a class decision. It does not replace assessment by a recognised authority. It is based on the information provided during intake; evidence is treated as self-declared unless explicitly marked as verified.',
+    fr: "Ce rapport est une évaluation de préparation, ni une certification ni une décision de classification. Il ne remplace pas l'évaluation par un organisme reconnu. Il repose sur les informations fournies ; les preuves sont considérées comme déclaratives sauf mention explicite de vérification.",
   },
 
   rootCauseSummary: { de: 'Executive Root Causes', en: 'Executive Root Causes', fr: 'Executive Root Causes' },
