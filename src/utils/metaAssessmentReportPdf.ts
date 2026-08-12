@@ -804,7 +804,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     // former "Control Objective" block (which repeated exactly that) is gone.
     pdf.heading(`8.${i + 1}  ${r.id} — ${r.name}${r.article ? `  (${r.article})` : ''}`, 3);
     pdf.statusBadge(r.status);
-    pdf.y += 4;
+    pdf.y += 6;
 
     const question = wpRec?.assessmentQuestion?.trim();
     // Only print the assessment question when it adds information beyond
