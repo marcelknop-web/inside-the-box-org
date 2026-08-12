@@ -105,7 +105,7 @@
 
     /* Muted: bg-3 / hover */
     --muted: 216 34% 16%;           /* #1a2535 */
-    --muted-foreground: 214 38% 78%; /* heller für bessere Lesbarkeit */
+    --muted-foreground: 214 22% 50%;  /* dezenter, damit Primär-Inhalte stärker führen */
 
     /* Accent: Gold (same as primary) */
     --accent: 45 100% 48%;
