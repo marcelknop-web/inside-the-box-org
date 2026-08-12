@@ -115,7 +115,7 @@ const T: Record<string, Record<Lang, string>> = {
   },
   principlesIntro: {
     de: 'Die Bewertung folgt einem revisionssicheren, dreistufigen Modell: Die Konformitätsentscheidung (erfüllt / teilweise / Lücke) wird ausschließlich regelbasiert aus den Intake-Antworten abgeleitet. Keine Feststellung wird von der KI erfunden. Risiken werden deterministisch aus den Lücken abgeleitet. Die KI wird ausschließlich für die erklärende Analyseebene eingesetzt.',
-    en: 'The assessment follows an audit-safe, three-layer model: the compliance decision (pass / partial / gap) is derived strictly from the intake answers by deterministic rules. No finding is invented by the AI. Risks are derived deterministically from the gaps. The AI is used solely for the explanatory analysis layer.',
+    en: 'The assessment follows an audit-safe, three-layer model: the requirement verdict (pass / partial / gap) is derived strictly from the intake answers by deterministic rules. No finding is invented by the AI. Risks are derived deterministically from the gaps. The AI is used solely for the explanatory analysis layer.',
     fr: "L'évaluation suit un modèle vérifiable à trois niveaux : la décision de conformité (conforme / partiel / lacune) est dérivée strictement des réponses par des règles déterministes. Aucune constatation n'est inventée par l'IA. Les risques sont dérivés des lacunes. L'IA sert uniquement à la couche d'analyse explicative.",
   },
   findingsIntro: {
@@ -663,7 +663,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   const VERIF_SHORT: Record<string, string> = { declared: 'Declared', documented: 'Documented', verified: 'Verified' };
 
   pdf.dataTableHeader(
-    `${t('colId', lang).padEnd(9)}${t('colRef', lang).padEnd(12)}${t('colTopic', lang).padEnd(30)}${t('colCat', lang).padEnd(16)}${t('colVerdict', lang).padEnd(10)}${t('colEvidence', lang).padEnd(12)}${t('colAction', lang)}`
+    `${t('colId', lang).padEnd(9)}${t('colRef', lang).padEnd(12)}${t('colTopic', lang).padEnd(34)}${t('colCat', lang).padEnd(13)}${t('colVerdict', lang).padEnd(9)}${t('colEvidence', lang).padEnd(11)}${t('colAction', lang)}`
   );
   merged.forEach((r) => {
     const meta = reqMetaById.get(r.id);
@@ -671,7 +671,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     const evi = evByControl.get(r.id);
     const act = actionByControl.get(r.id);
     pdf.dataTableRow(
-      `${r.id.slice(0, 8).padEnd(9)}${(r.article || '—').slice(0, 10).padEnd(12)}${(r.name || '').slice(0, 28).padEnd(30)}${cat.slice(0, 14).padEnd(16)}${VERDICT_LABEL[r.status][lang].padEnd(10)}${(evi ? VERIF_SHORT[evi.verification] : 'None').padEnd(12)}${act ? act.id : '—'}`
+      `${r.id.slice(0, 8).padEnd(9)}${(r.article || '—').slice(0, 10).padEnd(12)}${clip(r.name || '', 32).padEnd(34)}${clip(cat, 11).padEnd(13)}${VERDICT_LABEL[r.status][lang].padEnd(9)}${(evi ? VERIF_SHORT[evi.verification] : 'None').padEnd(11)}${act ? act.id : '—'}`
     );
   });
   pdf.y += 2;
@@ -685,6 +685,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     open.forEach((r) => {
       pdf.checkSpace(16);
       pdf.statusBadge(r.status);
+      pdf.y += 5;
       pdf.metaLine(`${r.id}${r.article ? ` · ${r.article}` : ''} — ${r.name}`);
       if (r.gap) pdf.bodyText(`${t('gap', lang)}: ${r.gap}`);
       const act = actionByControl.get(r.id);
@@ -720,6 +721,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     [...risks].sort((a, b) => b.score - a.score).forEach((r) => {
       pdf.checkSpace(16);
       pdf.statusBadge(r.rating === 'low' ? 'pass' : r.rating === 'medium' ? 'partial' : 'fail');
+      pdf.y += 5;
       pdf.metaLine(`${r.id} · ${r.name}  (${t('impact', lang)} ${r.impact} × ${t('likelihood', lang)} ${r.likelihood} = ${r.score})`);
       pdf.bodyText(`Business consequence: ${businessImpactFor(`${r.category} ${r.name}`)}`);
     });
