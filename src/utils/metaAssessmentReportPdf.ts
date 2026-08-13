@@ -715,6 +715,18 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     pdf.introText(
       `The ${openTotal} open finding${openTotal === 1 ? '' : 's'} concentrate in ${clusters.length} root-cause theme${clusters.length === 1 ? '' : 's'}. Resolving these themes addresses the majority of individual gaps.`,
     );
+    // Cause concentration at a glance: bar length = affected requirements,
+    // dark share = outright gaps, light share = partially met.
+    pdf.rootCauseBars(
+      clusters.slice(0, 6).map((c, i) => ({
+        label: c.rootCause,
+        ids: c.controlIds,
+        fail: c.fail,
+        partial: c.partial,
+      })),
+      { title: 'Cause concentration', affected: t('affectedControls', lang) },
+    );
+    pdf.metaLine('Bar length shows how many requirements a cause affects; the darker share are gaps, the lighter share partially met requirements.');
     clusters.slice(0, 6).forEach((c, i) => {
       pdf.checkSpace(20);
       pdf.heading(`RC${i + 1}  ${c.rootCause}`, 3);
@@ -725,6 +737,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
       pdf.sectionLabel(t('businessImpactCol', lang));
       pdf.bodyText(c.businessImpact);
     });
+
   } else {
     pdf.bodyParagraph('No open findings were recorded, so no root cause analysis is required.');
   }
