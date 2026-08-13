@@ -689,10 +689,10 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   pdf.fieldInline(t('attentionIndex', lang), `${attentionLabel(att.level, lang)}  (Critical ${att.counts.critical} · High ${att.counts.high} · Medium ${att.counts.medium} · Low ${att.counts.low})`);
   pdf.distributionBar(
     [
-      { label: `${t('critical', lang)} (${att.counts.critical})`, value: att.counts.critical, color: [180, 45, 45] },
-      { label: `${t('high', lang)} (${att.counts.high})`, value: att.counts.high, color: [220, 120, 30] },
-      { label: `${t('medium', lang)} (${att.counts.medium})`, value: att.counts.medium, color: [200, 170, 40] },
-      { label: `${t('low', lang)} (${att.counts.low})`, value: att.counts.low, color: [34, 120, 70] },
+      { label: `${t('critical', lang)} (${att.counts.critical})`, value: att.counts.critical, color: [180, 45, 45] as [number, number, number] },
+      { label: `${t('high', lang)} (${att.counts.high})`, value: att.counts.high, color: [220, 120, 30] as [number, number, number] },
+      { label: `${t('medium', lang)} (${att.counts.medium})`, value: att.counts.medium, color: [200, 170, 40] as [number, number, number] },
+      { label: `${t('low', lang)} (${att.counts.low})`, value: att.counts.low, color: [34, 120, 70] as [number, number, number] },
     ].filter((s) => s.value > 0),
   );
   if (att.drivers.length) {
@@ -724,7 +724,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
       { label: 'Verified', value: bv.verified ?? 0 },
       { label: 'Documented', value: bv.documented ?? 0 },
       { label: 'Declared', value: bv.declared ?? 0 },
-      { label: 'No evidence', value: computed.evidence.missing.length, color: [180, 45, 45] },
+      { label: 'No evidence', value: computed.evidence.missing.length, color: [180, 45, 45] as [number, number, number] },
     ].filter((s) => s.value > 0),
     'Evidence substantiation',
   );
