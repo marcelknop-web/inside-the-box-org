@@ -590,7 +590,22 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   pdf.introText(t('scopeIntro', lang));
 
   pdf.heading(t('scopeVerdict', lang), 2);
-  pdf.fieldInline(t('scopeVerdict', lang), scope.verdictLabel);
+  // Applicability as a decision path: the criteria that were evaluated, in
+  // order, ending in the scope verdict.
+  if (scope.statements.length) {
+    pdf.decisionPath(
+      scope.statements.slice(0, 6).map((s) => ({ label: s.label, value: s.value })),
+      {
+        label: scope.verdictLabel,
+        tone: /not applicable|nicht anwendbar|non applicable/i.test(scope.verdictLabel)
+          ? 'partial'
+          : 'pass',
+      },
+      'Applicability determination',
+    );
+  } else {
+    pdf.fieldInline(t('scopeVerdict', lang), scope.verdictLabel);
+  }
   pdf.bodyText(scope.rationale);
 
   if (scope.statements.length) {
@@ -600,6 +615,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
       if (s.note) { pdf.y += 1; pdf.metaLine(s.note); pdf.y += 1.5; }
     });
   }
+
 
   pdf.heading(t('scopeClaims', lang), 2);
   scope.claims.forEach((c) => pdf.bulletItem(c));
