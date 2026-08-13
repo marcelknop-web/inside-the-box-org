@@ -779,7 +779,14 @@ export class PdfDoc {
   dataTableHeader(text: string): void {
     this.checkSpace(8);
     this.doc.setFont(this.dataFont, 'bold');
+    // Fit the monospace grid to the text column: shrink the font instead of
+    // letting padded columns run past the right margin.
     this.doc.setFontSize(LAYOUT.DATA_SIZE);
+    const w = this.doc.getTextWidth(text);
+    this.dataTableSize = w > LAYOUT.WIDTH
+      ? Math.max(5, Math.floor((LAYOUT.DATA_SIZE * LAYOUT.WIDTH / w) * 10) / 10)
+      : LAYOUT.DATA_SIZE;
+    this.doc.setFontSize(this.dataTableSize);
     this.doc.setTextColor(...C.mid);
     this.doc.text(text, LAYOUT.LEFT, this.y);
     this.y += 2;
@@ -793,11 +800,14 @@ export class PdfDoc {
   dataTableRow(text: string): void {
     this.checkSpace(5);
     this.doc.setFont(this.dataFont, 'normal');
-    this.doc.setFontSize(LAYOUT.DATA_SIZE);
+    this.doc.setFontSize(this.dataTableSize);
     this.doc.setTextColor(...C.dark);
-    this.doc.text(text, LAYOUT.LEFT, this.y);
+    // Column widths are set by the header; clip only as a last resort so a
+    // single over-long cell can never bleed into the margin.
+    this.doc.text(this.fitText(text, LAYOUT.WIDTH), LAYOUT.LEFT, this.y);
     this.y += 3.8;
   }
+
 
   /** Measures table with column headers */
   measuresTable(
