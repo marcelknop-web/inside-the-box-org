@@ -513,12 +513,12 @@ export class PdfDoc {
   field(label: string, value: string): void {
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
-    const valLines = this.doc.splitTextToSize(value, LAYOUT.WIDTH - 3);
+    const valLines = this.wrap(value, LAYOUT.WIDTH - 3);
     const labelH = 5;
-    const textH = valLines.length * LAYOUT.BODY_LEADING;
-    this.checkSpace(labelH + textH + 6);
+    // Keep label with at least its first two value lines.
+    this.checkSpace(labelH + Math.min(valLines.length, 2) * LAYOUT.BODY_LEADING + 4);
 
-    const blockY = this.y - 2.4;
+    let blockY = this.y - 2.4;
 
     // Label
     this.doc.setFont(this.headFont, 'bold');
@@ -527,21 +527,29 @@ export class PdfDoc {
     this.doc.text(label.toUpperCase(), LAYOUT.LEFT + 3, this.y + 1);
     this.y += labelH;
 
-    // Value
-    this.doc.setFont(this.bodyFont, 'normal');
-    this.doc.setFontSize(LAYOUT.BODY_SIZE);
-    this.doc.setTextColor(...C.dark);
+    // Value — paginated line by line; the accent keyline is drawn per page
+    // segment so it never runs past the text or off the page.
+    const flushKeyline = () => {
+      this.doc.setFillColor(...C.accent);
+      this.doc.rect(LAYOUT.LEFT, blockY, 0.7, Math.max(4, this.y - blockY - 1), 'F');
+    };
     for (const line of valLines) {
+      if (this.y + LAYOUT.BODY_LEADING > LAYOUT.BOTTOM) {
+        flushKeyline();
+        this.newPage();
+        blockY = this.y - 2.4;
+      }
+      this.doc.setFont(this.bodyFont, 'normal');
+      this.doc.setFontSize(LAYOUT.BODY_SIZE);
+      this.doc.setTextColor(...C.dark);
       this.doc.text(line, LAYOUT.LEFT + 3, this.y);
       this.y += LAYOUT.BODY_LEADING;
     }
-
-    // Slim accent keyline instead of a filled panel
-    this.doc.setFillColor(...C.accent);
-    this.doc.rect(LAYOUT.LEFT, blockY, 0.7, Math.max(4, this.y - blockY - 1), 'F');
+    flushKeyline();
 
     this.y += 4;
   }
+
 
 
   /** Inline label: value on same line — table-like rows separated by hairline rules */
