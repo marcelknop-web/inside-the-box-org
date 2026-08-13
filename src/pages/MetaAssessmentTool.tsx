@@ -12,6 +12,7 @@ import { buildReportMeta, validateConsistency, ORIGIN, REPORT_TITLE } from '@/da
 import { buildPresentationContent, type PresentationType } from '@/data/metaAssessment/presentationContent';
 import { validateSlideMetrics } from '@/data/metaAssessment/slideValidation';
 import QualityCheckPanel from '@/components/QualityCheckPanel';
+import { ReadinessGauge, VerdictBreakdown, CategoryBars, DistributionStrip } from '@/components/gapzero/ReadinessVisuals';
 import { LucideIcon } from 'lucide-react';
 import { SiteChrome } from '@/components/SiteChrome';
 import { PasswordGate } from '@/components/PasswordGate';
@@ -1980,7 +1981,7 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
       {/* Readiness per requirement area */}
       {(() => {
         const rows = (profile.categories ?? []).map((c) => {
-          const inCat = merged.filter((r) => reqMetaById.get(r.id)?.categoryId === c.id);
+          const inCat = merged.filter((r) => profile.requirements.find((q) => q.id === r.id)?.categoryId === c.id);
           return {
             label: tr(c.name, lang),
             pass: inCat.filter((r) => r.status === 'pass').length,
