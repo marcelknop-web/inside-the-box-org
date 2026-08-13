@@ -855,15 +855,16 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     pdf.bodyText(ev.missing.join(', '));
   }
 
-  // ── 9 AI Analysis (explanatory) ─────────────────────────────
+  // ── 10 AI Analysis (explanatory, not assurance-relevant) ─────
   if (insights) {
     pdf.newPage();
-    pdf.heading(t('sec9', lang), 1);
-    pdf.addBookmark(t('sec9', lang), 1);
+    pdf.heading(t('sec10', lang), 1);
+    pdf.addBookmark(t('sec10', lang), 1);
 
     pdf.metaLine(ORIGIN.insight);
     pdf.introText(t('aiNote', lang));
     pdf.bodyParagraph(t('labelLegend', lang));
+    pdf.metaLine('The AI cause hypotheses are presented alongside the deterministic causes in chapter 5 and are not repeated here.');
 
     if (insights.executiveNarrative) {
       pdf.sectionLabel(t('execNarrative', lang));
@@ -887,15 +888,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
       list(t('managementFocus', lang), ei.managementFocus);
     }
 
-    if (insights.rootCauses?.length) {
-      pdf.heading(t('aiHypotheses', lang), 2);
-      pdf.metaLine(`INSIGHT — AI interpretation · Confidence: ${confLabel(insights.confidence?.rootCauses)}`);
-      pdf.introText('These are AI-inferred cause hypotheses. The deterministic root-cause themes in Part A, section 1 remain the authoritative reading of the findings.');
-      insights.rootCauses.forEach((rc) => {
-        pdf.bulletItem(`${rc.symptom} → ${rc.cause} [Confidence: ${confLabel(rc.confidence)}]`);
-        if (rc.validationActivities?.length) pdf.metaLine(`Recommended validation: ${rc.validationActivities.join('; ')}`);
-      });
-    }
+
     if (insights.gapClusters?.length) {
       pdf.heading(t('gapClusters', lang), 2);
       pdf.metaLine('INSIGHT — AI interpretation');
