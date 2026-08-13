@@ -284,6 +284,7 @@ export class PdfDoc {
 
   // Running-header tracking: which chapter (level-1) and topic (level-2)
   // is active on each page, so finalize() can stamp the right header text.
+  private dataTableSize = LAYOUT.DATA_SIZE;
   private chapterMarks: { page: number; text: string }[] = [];
   private sectionMarks: { page: number; text: string }[] = [];
 
@@ -447,14 +448,22 @@ export class PdfDoc {
     this.doc.setFontSize(8.2);
     this.doc.setTextColor(...C.mid);
     this.doc.setFont(this.bodyFont, 'italic');
-    const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH);
-    this.checkSpace(lines.length * 3.6 + 5);
-    this.doc.text(lines, LAYOUT.LEFT, this.y);
-    this.y += lines.length * 3.6 + 6;
+    const lines = this.wrap(text, LAYOUT.WIDTH);
+    const lh = 3.6;
+    for (const line of lines) {
+      this.checkSpace(lh + 1);
+      this.doc.setFontSize(8.2);
+      this.doc.setFont(this.bodyFont, 'italic');
+      this.doc.setTextColor(...C.mid);
+      this.doc.text(line, LAYOUT.LEFT, this.y);
+      this.y += lh;
+    }
+    this.y += 6;
     this.doc.setTextColor(...C.dark);
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
   }
+
 
   bodyText(text: string, indent = 0): void {
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
@@ -505,12 +514,12 @@ export class PdfDoc {
   field(label: string, value: string): void {
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
-    const valLines = this.doc.splitTextToSize(value, LAYOUT.WIDTH - 3);
+    const valLines = this.wrap(value, LAYOUT.WIDTH - 3);
     const labelH = 5;
-    const textH = valLines.length * LAYOUT.BODY_LEADING;
-    this.checkSpace(labelH + textH + 6);
+    // Keep label with at least its first two value lines.
+    this.checkSpace(labelH + Math.min(valLines.length, 2) * LAYOUT.BODY_LEADING + 4);
 
-    const blockY = this.y - 2.4;
+    let blockY = this.y - 2.4;
 
     // Label
     this.doc.setFont(this.headFont, 'bold');
@@ -519,21 +528,29 @@ export class PdfDoc {
     this.doc.text(label.toUpperCase(), LAYOUT.LEFT + 3, this.y + 1);
     this.y += labelH;
 
-    // Value
-    this.doc.setFont(this.bodyFont, 'normal');
-    this.doc.setFontSize(LAYOUT.BODY_SIZE);
-    this.doc.setTextColor(...C.dark);
+    // Value — paginated line by line; the accent keyline is drawn per page
+    // segment so it never runs past the text or off the page.
+    const flushKeyline = () => {
+      this.doc.setFillColor(...C.accent);
+      this.doc.rect(LAYOUT.LEFT, blockY, 0.7, Math.max(4, this.y - blockY - 1), 'F');
+    };
     for (const line of valLines) {
+      if (this.y + LAYOUT.BODY_LEADING > LAYOUT.BOTTOM) {
+        flushKeyline();
+        this.newPage();
+        blockY = this.y - 2.4;
+      }
+      this.doc.setFont(this.bodyFont, 'normal');
+      this.doc.setFontSize(LAYOUT.BODY_SIZE);
+      this.doc.setTextColor(...C.dark);
       this.doc.text(line, LAYOUT.LEFT + 3, this.y);
       this.y += LAYOUT.BODY_LEADING;
     }
-
-    // Slim accent keyline instead of a filled panel
-    this.doc.setFillColor(...C.accent);
-    this.doc.rect(LAYOUT.LEFT, blockY, 0.7, Math.max(4, this.y - blockY - 1), 'F');
+    flushKeyline();
 
     this.y += 4;
   }
+
 
 
   /** Inline label: value on same line — table-like rows separated by hairline rules */
@@ -542,18 +559,20 @@ export class PdfDoc {
     // tab stop — professional, table-like alignment across all fields.
     const FIELD_LABEL_COL = 44;   // label column incl. gutter
     const FIELD_GUTTER = 5;       // guaranteed whitespace between label and value
+    const FIELD_RIGHT_INSET = 2;  // keep values off the right margin
     const labelW = FIELD_LABEL_COL - FIELD_GUTTER;
     const valX = LAYOUT.LEFT + indent + FIELD_LABEL_COL;
 
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(8.5);
-    const valLines = this.doc.splitTextToSize(value, LAYOUT.RIGHT - valX);
+    const valLines = this.wrap(value, LAYOUT.RIGHT - valX - FIELD_RIGHT_INSET);
+
     const valLineH = 3.8;
 
     // Wrap (never clip) the label inside its own column.
     this.doc.setFont(this.headFont, 'bold');
     this.doc.setFontSize(7.5);
-    const labelLines = this.doc.splitTextToSize(label, labelW);
+    const labelLines = this.wrap(label, labelW);
     const labelLineH = 3.4;
 
     const lineH = Math.max(valLines.length * valLineH, labelLines.length * labelLineH, 4.4);
@@ -597,18 +616,23 @@ export class PdfDoc {
     this.doc.setFont(this.bodyFont, 'normal');
     const markerGap = 3.8;
     const textX = LAYOUT.LEFT + indent + markerGap;
-    const lines = this.doc.splitTextToSize(text, LAYOUT.RIGHT - textX);
-    this.checkSpace(lines.length * LAYOUT.BODY_LEADING + 2);
+    const lines = this.wrap(text, LAYOUT.RIGHT - textX);
+    // Keep the marker with at least the first two lines of its item.
+    this.checkSpace(Math.min(lines.length, 2) * LAYOUT.BODY_LEADING + 2);
     this.doc.setTextColor(...C.accent);
     this.doc.setFontSize(6.5);
     this.doc.text('\u2013', LAYOUT.LEFT + indent, this.y);
-    this.doc.setFontSize(LAYOUT.BODY_SIZE);
-    this.doc.setTextColor(...C.dark);
-    for (let i = 0; i < lines.length; i++) {
-      this.doc.text(lines[i], textX, this.y + i * LAYOUT.BODY_LEADING);
+    for (const line of lines) {
+      if (this.y + LAYOUT.BODY_LEADING > LAYOUT.BOTTOM) this.newPage();
+      this.doc.setFontSize(LAYOUT.BODY_SIZE);
+      this.doc.setFont(this.bodyFont, 'normal');
+      this.doc.setTextColor(...C.dark);
+      this.doc.text(line, textX, this.y);
+      this.y += LAYOUT.BODY_LEADING;
     }
-    this.y += lines.length * LAYOUT.BODY_LEADING + 1.6;
+    this.y += 1.6;
   }
+
 
 
   /* ── Structural Elements ─────────────────────────────────── */
@@ -617,7 +641,7 @@ export class PdfDoc {
   verdictBox(text: string): void {
     this.doc.setFontSize(9.5);
     this.doc.setFont(this.headFont, 'bold');
-    const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH - 20);
+    const lines = this.wrap(text, LAYOUT.WIDTH - 20);
     const lineH = 4.8;
     const boxH = Math.max(18, lines.length * lineH + 12);
     this.checkSpace(boxH + 4);
@@ -661,12 +685,15 @@ export class PdfDoc {
       this.doc.setFont(this.headFont, 'bold');
       this.doc.setFontSize(16);
       this.doc.setTextColor(...C.navy);
-      this.doc.text(val, x + kpiW / 2, this.y + 11, { align: 'center' });
+      this.doc.text(this.fitText(val, kpiW - 6), x + kpiW / 2, this.y + 11, { align: 'center' });
 
       this.doc.setFont(this.headFont, 'normal');
       this.doc.setFontSize(6);
       this.doc.setTextColor(...C.mid);
-      this.doc.text(label, x + kpiW / 2, this.y + 17.5, { align: 'center' });
+      const labelLines = this.wrap(label, kpiW - 4).slice(0, 2);
+      labelLines.forEach((ln, li) => {
+        this.doc.text(ln, x + kpiW / 2, this.y + 17 + li * 2.6, { align: 'center' });
+      });
     });
     this.y += cardH + 6;
     this.doc.setTextColor(...C.dark);
@@ -695,23 +722,28 @@ export class PdfDoc {
 
   /** Small meta text (category, severity, references) */
   metaLine(text: string): void {
+    const metaLineH = 3;
     this.doc.setFontSize(6.5);
     this.doc.setFont(this.headFont, 'normal');
-    this.doc.setTextColor(...C.light);
-    const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH);
-    const metaLineH = 3;
-    for (let i = 0; i < lines.length; i++) {
-      this.doc.text(lines[i], LAYOUT.LEFT, this.y + i * metaLineH);
+    const lines = this.wrap(text, LAYOUT.WIDTH);
+    for (const line of lines) {
+      this.checkSpace(metaLineH + 1);
+      this.doc.setFontSize(6.5);
+      this.doc.setFont(this.headFont, 'normal');
+      this.doc.setTextColor(...C.light);
+      this.doc.text(line, LAYOUT.LEFT, this.y);
+      this.y += metaLineH;
     }
-    this.y += lines.length * metaLineH + 2;
+    this.y += 2;
     this.doc.setTextColor(...C.dark);
   }
+
 
   /** Score bar with refined background panel */
   scoreBar(text: string): void {
     this.doc.setFont(this.headFont, 'bold');
     this.doc.setFontSize(8);
-    const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH - 16);
+    const lines = this.wrap(text, LAYOUT.WIDTH - 16);
     const scoreLineH = 4;
     const barH = Math.max(12, lines.length * scoreLineH + 8);
     this.checkSpace(barH + 6);
@@ -753,7 +785,14 @@ export class PdfDoc {
   dataTableHeader(text: string): void {
     this.checkSpace(8);
     this.doc.setFont(this.dataFont, 'bold');
+    // Fit the monospace grid to the text column: shrink the font instead of
+    // letting padded columns run past the right margin.
     this.doc.setFontSize(LAYOUT.DATA_SIZE);
+    const w = this.doc.getTextWidth(text);
+    this.dataTableSize = w > LAYOUT.WIDTH
+      ? Math.max(5, Math.floor((LAYOUT.DATA_SIZE * LAYOUT.WIDTH / w) * 10) / 10)
+      : LAYOUT.DATA_SIZE;
+    this.doc.setFontSize(this.dataTableSize);
     this.doc.setTextColor(...C.mid);
     this.doc.text(text, LAYOUT.LEFT, this.y);
     this.y += 2;
@@ -767,11 +806,14 @@ export class PdfDoc {
   dataTableRow(text: string): void {
     this.checkSpace(5);
     this.doc.setFont(this.dataFont, 'normal');
-    this.doc.setFontSize(LAYOUT.DATA_SIZE);
+    this.doc.setFontSize(this.dataTableSize);
     this.doc.setTextColor(...C.dark);
-    this.doc.text(text, LAYOUT.LEFT, this.y);
+    // Column widths are set by the header; clip only as a last resort so a
+    // single over-long cell can never bleed into the margin.
+    this.doc.text(this.fitText(text, LAYOUT.WIDTH), LAYOUT.LEFT, this.y);
     this.y += 3.8;
   }
+
 
   /** Measures table with column headers */
   measuresTable(
@@ -1218,14 +1260,18 @@ export class PdfDoc {
   complianceBar(pass: number, partial: number, fail: number, labels: { pass: string; partial: string; fail: string; title: string }): void {
     const total = pass + partial + fail;
     if (total === 0) return;
-    this.checkSpace(28);
+    this.checkSpace(30);
+    // Breathing room so the title never collides with a preceding
+    // section label and its accent underline.
+    this.y += 2.5;
 
     // Title
     this.doc.setFont(this.headFont, 'bold');
     this.doc.setFontSize(8);
     this.doc.setTextColor(...C.navy);
-    this.doc.text(labels.title.toUpperCase(), LAYOUT.LEFT, this.y);
-    this.y += 5;
+    this.doc.text(this.fitText(labels.title.toUpperCase(), LAYOUT.WIDTH), LAYOUT.LEFT, this.y);
+    this.y += 5.5;
+
 
     const barW = LAYOUT.WIDTH;
     const barH = 8;
@@ -1510,7 +1556,33 @@ export class PdfDoc {
   }
 
   /** Truncate text with an ellipsis so it fits within maxWidth (mm). */
+  /**
+   * Wrap text to a column width, hard-breaking single tokens (IDs, URLs,
+   * long identifiers) that are wider than the column so nothing is ever
+   * clipped at the right margin.
+   */
+  private wrap(text: string, maxWidth: number): string[] {
+    const src = String(text ?? '');
+    if (!src.trim()) return [''];
+    const w = Math.max(8, maxWidth);
+    const parts: string[] = [];
+    for (const token of src.split(/(\s+)/)) {
+      if (!token) continue;
+      if (!token.trim() || this.doc.getTextWidth(token) <= w) { parts.push(token); continue; }
+      let cur = '';
+      for (const ch of token) {
+        if (cur && this.doc.getTextWidth(cur + ch) > w) { parts.push(cur, ' '); cur = ch; }
+        else cur += ch;
+      }
+      if (cur) parts.push(cur);
+    }
+    const out = this.doc.splitTextToSize(parts.join(''), w) as string[];
+    return out.length ? out : [''];
+  }
+
+  /** Truncate text with an ellipsis so it fits within maxWidth (mm). */
   private fitText(text: string, maxWidth: number): string {
+
     if (!text) return '';
     if (this.doc.getTextWidth(text) <= maxWidth) return text;
     let t = text;
