@@ -33,7 +33,8 @@ export function renderWorkingPapers(pdf: PdfDoc, wp: WorkingPapers, opts?: { sec
     pdf.heading(`${sp ? sp : ''}${i + 1}.  ${r.requirementId} — ${r.name}`, 3);
     pdf.metaLine(`Article: ${r.article || '—'}  ·  Rule ID: ${r.ruleId}`);
     pdf.statusBadge(r.deterministicResult);
-    pdf.y += 4;
+    pdf.y += 8;
+
 
     pdf.sectionLabel('Control Objective');
     pdf.bodyText(`${r.name}${r.article ? `  (${r.article})` : ''}`);
