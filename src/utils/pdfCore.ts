@@ -1883,10 +1883,12 @@ export class PdfDoc {
   ): void {
     if (!points.length) return;
     const axisGutter = 14;
-    // Fill the text column so the plot does not float in white space.
-    const cell = Math.min(38, (LAYOUT.WIDTH - axisGutter) / 3);
+    // Fill the text column, but keep the plot flat enough to read at a glance.
+    const cell = (LAYOUT.WIDTH - axisGutter) / 3;
+    const cellH = 24;
     const gridW = cell * 3;
-    this.checkSpace(gridW + 30);
+    const gridH = cellH * 3;
+    this.checkSpace(gridH + 30);
     this.sectionLabel(labels.title);
     // Centre the plot inside the text column, leaving a gutter for the y axis.
     const gridLeft = LAYOUT.LEFT + axisGutter;
@@ -1895,19 +1897,19 @@ export class PdfDoc {
     for (let ex = 0; ex < 3; ex++) {
       for (let iy = 0; iy < 3; iy++) {
         const x = gridLeft + ex * cell;
-        const y = gridTop + (2 - iy) * cell;
+        const y = gridTop + (2 - iy) * cellH;
         const quick = ex === 0 && iy === 2; // low effort, high effect
         this.doc.setFillColor(...(quick ? [237, 244, 238] as [number, number, number] : C.bg));
-        this.doc.rect(x, y, cell, cell, 'F');
+        this.doc.rect(x, y, cell, cellH, 'F');
         this.doc.setDrawColor(...C.rule);
         this.doc.setLineWidth(0.12);
-        this.doc.rect(x, y, cell, cell, 'S');
+        this.doc.rect(x, y, cell, cellH, 'S');
       }
     }
     // Outer frame, slightly stronger than the internal hairlines.
     this.doc.setDrawColor(...C.mid);
     this.doc.setLineWidth(0.25);
-    this.doc.rect(gridLeft, gridTop, gridW, gridW, 'S');
+    this.doc.rect(gridLeft, gridTop, gridW, gridH, 'S');
 
     // Plot points, spreading them inside their cell
     const perCell: Record<string, number> = {};
@@ -1915,8 +1917,8 @@ export class PdfDoc {
       const key = `${p.effort}-${p.impact}`;
       const n = perCell[key] ?? 0;
       perCell[key] = n + 1;
-      const cx = gridLeft + (p.effort - 1) * cell + 6 + (n % 4) * 6;
-      const cy = gridTop + (3 - p.impact) * cell + 7 + Math.floor(n / 4) * 7;
+      const cx = gridLeft + (p.effort - 1) * cell + 6 + (n % 6) * 6.4;
+      const cy = gridTop + (3 - p.impact) * cellH + 7 + Math.floor(n / 6) * 7;
       this.doc.setFillColor(...C.navy);
       this.doc.circle(cx, cy, 2.6, 'F');
       this.doc.setFont(this.dataFont, 'bold');
@@ -1929,19 +1931,19 @@ export class PdfDoc {
     this.doc.setFont(this.headFont, 'normal');
     this.doc.setFontSize(6);
     this.doc.setTextColor(...C.mid);
-    this.doc.text(labels.low, gridLeft + cell / 2, gridTop + gridW + 5, { align: 'center' });
-    this.doc.text(labels.high, gridLeft + gridW - cell / 2, gridTop + gridW + 5, { align: 'center' });
-    this.doc.text(labels.high, gridLeft - 3, gridTop + cell / 2, { angle: 90, align: 'center' });
-    this.doc.text(labels.low, gridLeft - 3, gridTop + gridW - cell / 2, { angle: 90, align: 'center' });
+    this.doc.text(labels.low, gridLeft + cell / 2, gridTop + gridH + 5, { align: 'center' });
+    this.doc.text(labels.high, gridLeft + gridW - cell / 2, gridTop + gridH + 5, { align: 'center' });
+    this.doc.text(labels.high, gridLeft - 3.5, gridTop + cellH / 2, { angle: 90, align: 'center' });
+    this.doc.text(labels.low, gridLeft - 3.5, gridTop + gridH - cellH / 2, { angle: 90, align: 'center' });
 
     // Axis titles
     this.doc.setFont(this.headFont, 'bold');
     this.doc.setFontSize(6.4);
     this.doc.setTextColor(...C.navy);
-    this.doc.text(labels.effort.toUpperCase(), gridLeft + gridW / 2, gridTop + gridW + 10.5, { align: 'center' });
-    this.doc.text(labels.impact.toUpperCase(), gridLeft - 9, gridTop + gridW / 2, { angle: 90, align: 'center' });
+    this.doc.text(labels.effort.toUpperCase(), gridLeft + gridW / 2, gridTop + gridH + 10.5, { align: 'center' });
+    this.doc.text(labels.impact.toUpperCase(), gridLeft - 9.5, gridTop + gridH / 2, { angle: 90, align: 'center' });
 
-    this.y = gridTop + gridW + 16;
+    this.y = gridTop + gridH + 16;
 
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
