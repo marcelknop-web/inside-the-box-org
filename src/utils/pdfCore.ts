@@ -1882,13 +1882,14 @@ export class PdfDoc {
     labels: { title: string; effort: string; impact: string; low: string; high: string }
   ): void {
     if (!points.length) return;
-    const cell = 30;
+    const axisGutter = 14;
+    // Fill the text column so the plot does not float in white space.
+    const cell = Math.min(38, (LAYOUT.WIDTH - axisGutter) / 3);
     const gridW = cell * 3;
-    const axisGutter = 15;
     this.checkSpace(gridW + 30);
     this.sectionLabel(labels.title);
     // Centre the plot inside the text column, leaving a gutter for the y axis.
-    const gridLeft = LAYOUT.LEFT + axisGutter + Math.max(0, (LAYOUT.WIDTH - axisGutter - gridW) / 2);
+    const gridLeft = LAYOUT.LEFT + axisGutter;
     const gridTop = this.y + 3;
 
     for (let ex = 0; ex < 3; ex++) {
