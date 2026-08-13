@@ -1554,7 +1554,8 @@ export class PdfDoc {
    * Replaces prose that only restates numbers already computed.
    */
   chapterHeaderBar(num: string, title: string, figures: [string, string][] = []): void {
-    const h = 15;
+    const hasTitle = !!title.trim();
+    const h = hasTitle ? 15 : 13;
     this.checkSpace(h + 6);
     const top = this.y;
     this.doc.setFillColor(...C.bg);
@@ -1562,34 +1563,40 @@ export class PdfDoc {
     this.doc.setFillColor(...C.navy);
     this.doc.rect(LAYOUT.LEFT, top, 1.4, h, 'F');
 
-    this.doc.setFont(this.dataFont, 'bold');
-    this.doc.setFontSize(7);
-    this.doc.setTextColor(...C.accent);
-    this.doc.text(num, LAYOUT.LEFT + 5, top + 6);
+    let figLeft = LAYOUT.LEFT;
+    let figW = LAYOUT.WIDTH;
 
-    this.doc.setFont(this.headFont, 'bold');
-    this.doc.setFontSize(9);
-    this.doc.setTextColor(...C.navy);
-    const figW = figures.length ? Math.min(66, figures.length * 22) : 0;
-    this.doc.text(this.fitText(title.toUpperCase(), LAYOUT.WIDTH - 10 - figW), LAYOUT.LEFT + 5, top + 11);
+    if (hasTitle) {
+      this.doc.setFont(this.dataFont, 'bold');
+      this.doc.setFontSize(7);
+      this.doc.setTextColor(...C.accent);
+      this.doc.text(num, LAYOUT.LEFT + 5, top + 6);
+
+      this.doc.setFont(this.headFont, 'bold');
+      this.doc.setFontSize(9);
+      this.doc.setTextColor(...C.navy);
+      figW = figures.length ? Math.min(66, figures.length * 22) : 0;
+      figLeft = LAYOUT.RIGHT - figW;
+      this.doc.text(this.fitText(title.toUpperCase(), LAYOUT.WIDTH - 10 - figW), LAYOUT.LEFT + 5, top + 11);
+    }
 
     if (figures.length) {
       const colW = figW / figures.length;
       figures.forEach(([val, lbl], i) => {
-        const cx = LAYOUT.RIGHT - figW + i * colW + colW / 2;
+        const cx = figLeft + i * colW + colW / 2;
         if (i > 0) {
           this.doc.setDrawColor(...C.rule);
           this.doc.setLineWidth(0.15);
-          this.doc.line(LAYOUT.RIGHT - figW + i * colW, top + 3, LAYOUT.RIGHT - figW + i * colW, top + h - 3);
+          this.doc.line(figLeft + i * colW, top + 3, figLeft + i * colW, top + h - 3);
         }
         this.doc.setFont(this.dataFont, 'bold');
-        this.doc.setFontSize(10);
+        this.doc.setFontSize(hasTitle ? 10 : 12);
         this.doc.setTextColor(...C.navy);
-        this.doc.text(this.fitText(val, colW - 3), cx, top + 7.5, { align: 'center' });
+        this.doc.text(this.fitText(val, colW - 3), cx, top + (hasTitle ? 7.5 : 7.6), { align: 'center' });
         this.doc.setFont(this.headFont, 'normal');
-        this.doc.setFontSize(5.6);
+        this.doc.setFontSize(hasTitle ? 5.6 : 6);
         this.doc.setTextColor(...C.mid);
-        this.doc.text(this.fitText(lbl.toUpperCase(), colW - 2), cx, top + 11.6, { align: 'center' });
+        this.doc.text(this.fitText(lbl.toUpperCase(), colW - 2), cx, top + (hasTitle ? 11.6 : 11.4), { align: 'center' });
       });
     }
 
@@ -1597,6 +1604,7 @@ export class PdfDoc {
     this.doc.setLineWidth(0.15);
     this.doc.line(LAYOUT.LEFT, top + h, LAYOUT.RIGHT, top + h);
     this.y = top + h + 6;
+
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
     this.doc.setTextColor(...C.dark);
