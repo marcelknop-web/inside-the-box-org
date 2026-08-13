@@ -594,26 +594,26 @@ export class PdfDoc {
     this.y += 7;
   }
 
-  bulletItem(text: string, indent = 6): void {
+  bulletItem(text: string, indent = 4): void {
+    // Typeset as a proper hanging-indent list item: no background tint,
+    // a single small marker, and every wrapped line aligned to the text column.
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
     this.doc.setFont(this.bodyFont, 'normal');
-    const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH - indent - 8);
-    const itemH = lines.length * LAYOUT.BODY_LEADING + 4;
-    this.checkSpace(itemH + 2);
-    // Subtle background for each bullet
-    this.doc.setFillColor(252, 252, 253);
-    this.doc.roundedRect(LAYOUT.LEFT + indent - 1, this.y - 2.5, LAYOUT.WIDTH - indent + 1, itemH, 0.6, 0.6, 'F');
+    const markerGap = 3.8;
+    const textX = LAYOUT.LEFT + indent + markerGap;
+    const lines = this.doc.splitTextToSize(text, LAYOUT.RIGHT - textX);
+    this.checkSpace(lines.length * LAYOUT.BODY_LEADING + 2);
     this.doc.setTextColor(...C.accent);
-    this.doc.setFontSize(5.5);
-    this.doc.text('▸', LAYOUT.LEFT + indent + 1, this.y);
+    this.doc.setFontSize(6.5);
+    this.doc.text('\u2013', LAYOUT.LEFT + indent, this.y);
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
     this.doc.setTextColor(...C.dark);
-    const bulletTextX = LAYOUT.LEFT + indent + 5;
     for (let i = 0; i < lines.length; i++) {
-      this.doc.text(lines[i], bulletTextX, this.y + i * LAYOUT.BODY_LEADING);
+      this.doc.text(lines[i], textX, this.y + i * LAYOUT.BODY_LEADING);
     }
-    this.y += lines.length * LAYOUT.BODY_LEADING + 2.5;
+    this.y += lines.length * LAYOUT.BODY_LEADING + 1.6;
   }
+
 
   /* ── Structural Elements ─────────────────────────────────── */
 
