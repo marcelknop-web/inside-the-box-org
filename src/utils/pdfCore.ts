@@ -540,29 +540,31 @@ export class PdfDoc {
   fieldInline(label: string, value: string, indent = 0): void {
     // Fixed value column so every label/value pair aligns to a consistent
     // tab stop — professional, table-like alignment across all fields.
-    const FIELD_LABEL_COL = 44;
-    const labelW = FIELD_LABEL_COL;
+    const FIELD_LABEL_COL = 44;   // label column incl. gutter
+    const FIELD_GUTTER = 5;       // guaranteed whitespace between label and value
+    const labelW = FIELD_LABEL_COL - FIELD_GUTTER;
+    const valX = LAYOUT.LEFT + indent + FIELD_LABEL_COL;
+
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(8.5);
-    const valX = LAYOUT.LEFT + indent + labelW;
     const valLines = this.doc.splitTextToSize(value, LAYOUT.RIGHT - valX);
     const valLineH = 3.8;
-    const lineH = Math.max(valLines.length * valLineH, 4.4);
+
+    // Wrap (never clip) the label inside its own column.
+    this.doc.setFont(this.headFont, 'bold');
+    this.doc.setFontSize(7.5);
+    const labelLines = this.doc.splitTextToSize(label, labelW);
+    const labelLineH = 3.4;
+
+    const lineH = Math.max(valLines.length * valLineH, labelLines.length * labelLineH, 4.4);
     this.checkSpace(lineH + 4);
 
     this.doc.setFont(this.headFont, 'bold');
     this.doc.setFontSize(7.5);
     this.doc.setTextColor(...C.mid);
-    // Clip the label so a long label can never run into the value column.
-    let labelText = label;
-    const maxLabelW = labelW - 4;
-    if (this.doc.getTextWidth(labelText) > maxLabelW) {
-      while (labelText.length > 1 && this.doc.getTextWidth(`${labelText}…`) > maxLabelW) {
-        labelText = labelText.slice(0, -1);
-      }
-      labelText = `${labelText.trimEnd()}…`;
+    for (let i = 0; i < labelLines.length; i++) {
+      this.doc.text(labelLines[i], LAYOUT.LEFT + indent, this.y + i * labelLineH);
     }
-    this.doc.text(labelText, LAYOUT.LEFT + indent, this.y);
 
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(8.5);
