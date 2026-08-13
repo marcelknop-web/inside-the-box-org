@@ -613,18 +613,23 @@ export class PdfDoc {
     this.doc.setFont(this.bodyFont, 'normal');
     const markerGap = 3.8;
     const textX = LAYOUT.LEFT + indent + markerGap;
-    const lines = this.doc.splitTextToSize(text, LAYOUT.RIGHT - textX);
-    this.checkSpace(lines.length * LAYOUT.BODY_LEADING + 2);
+    const lines = this.wrap(text, LAYOUT.RIGHT - textX);
+    // Keep the marker with at least the first two lines of its item.
+    this.checkSpace(Math.min(lines.length, 2) * LAYOUT.BODY_LEADING + 2);
     this.doc.setTextColor(...C.accent);
     this.doc.setFontSize(6.5);
     this.doc.text('\u2013', LAYOUT.LEFT + indent, this.y);
-    this.doc.setFontSize(LAYOUT.BODY_SIZE);
-    this.doc.setTextColor(...C.dark);
-    for (let i = 0; i < lines.length; i++) {
-      this.doc.text(lines[i], textX, this.y + i * LAYOUT.BODY_LEADING);
+    for (const line of lines) {
+      if (this.y + LAYOUT.BODY_LEADING > LAYOUT.BOTTOM) this.newPage();
+      this.doc.setFontSize(LAYOUT.BODY_SIZE);
+      this.doc.setFont(this.bodyFont, 'normal');
+      this.doc.setTextColor(...C.dark);
+      this.doc.text(line, textX, this.y);
+      this.y += LAYOUT.BODY_LEADING;
     }
-    this.y += lines.length * LAYOUT.BODY_LEADING + 1.6;
+    this.y += 1.6;
   }
+
 
 
   /* ── Structural Elements ─────────────────────────────────── */
