@@ -560,56 +560,28 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     title: t('verdictOverview', lang),
   });
 
-  // ── Applicability up front (a reader must know what was in scope) ──
+  // Canonical deterministic inputs — rendered once, each in its own chapter.
   const scope = computed.scope;
-  pdf.heading(t('scopeVerdict', lang), 2);
-  pdf.metaLine(ORIGIN.assessment);
-  pdf.fieldInline(t('scopeVerdict', lang), scope.verdictLabel);
-  pdf.bodyText(scope.rationale);
-  scope.statements.slice(0, 4).forEach((s) => pdf.fieldInline(s.label, s.value));
-
-  // ── Management Attention Index (deterministic) ──────────────
   const att = computed.attentionIndex;
-  pdf.heading(t('attentionIndex', lang), 2);
-  pdf.metaLine(ORIGIN.assessment);
-  pdf.fieldInline(t('attentionIndex', lang), `${attentionLabel(att.level, lang)}  (Critical ${att.counts.critical} · High ${att.counts.high} · Medium ${att.counts.medium} · Low ${att.counts.low})`);
-  if (att.drivers.length) {
-    pdf.sectionLabel(t('attentionDrivers', lang));
-    att.drivers.forEach((d) => pdf.bulletItem(d));
-  }
-
-  // ── Audit Readiness dimensions (deterministic) ──────────────
   const ar = computed.auditReadiness;
-  pdf.heading(t('auditReadiness', lang), 2);
-  pdf.metaLine(ORIGIN.assessment);
-  pdf.fieldInline(`${t('readiness', lang)} (overall)`, `${readinessRatingLabel(ar.overall, lang)} · ${ar.overallPct}%`);
-  ar.dimensions.forEach((d) => {
-    pdf.fieldInline(d.label, `${readinessRatingLabel(d.rating, lang)} · ${d.pct}%`);
-    pdf.y += 1;
-    pdf.metaLine(d.basis);
-    pdf.y += 1.5;
-  });
-
-  // ── Deterministic root causes (clustering of the open findings) ──
-  // Deliberately labelled as deterministic so it can never be confused
-  // with the AI hypotheses in Part B.
   const clusters = buildRootCauseClusters(profile, merged, lang);
-  if (clusters.length) {
-    const open = fail + partial;
-    pdf.heading(t('detFindings', lang), 2);
-    pdf.metaLine(`${ORIGIN.assessment} — derived from the findings, not AI-generated`);
-    pdf.introText(
-      `The ${open} open finding${open === 1 ? '' : 's'} concentrate in ${clusters.length} root-cause theme${clusters.length === 1 ? '' : 's'}. Resolving these themes addresses the majority of individual gaps.`,
-    );
-    clusters.slice(0, 6).forEach((c, i) => {
-      pdf.checkSpace(20);
-      pdf.heading(`RC${i + 1}  ${c.rootCause}`, 3);
-      pdf.fieldInline(t('affectedControls', lang), c.controlIds.join(', '));
-      pdf.fieldInline(t('belowConformity', lang), `${c.controlIds.length}  (${c.fail} gap${c.fail === 1 ? '' : 's'}, ${c.partial} partial)`);
-      pdf.sectionLabel(t('businessImpactCol', lang));
-      pdf.bodyText(c.businessImpact);
-    });
-  }
+  // Requirement id -> root-cause theme id (RC1, RC2 …), used to make the
+  // finding -> cause -> action chain visible in chapters 5 and 7.
+  const rcIdByControl = new Map<string, string>();
+  clusters.forEach((c, i) => c.controlIds.forEach((id) => rcIdByControl.set(id, `RC${i + 1}`)));
+
+  // ── Overall opinion — the single management statement of this report ──
+  const openTotal = fail + partial;
+  pdf.heading(t('overallOpinion', lang), 2);
+  pdf.metaLine(ORIGIN.assessment);
+  pdf.bodyParagraph(
+    `On the basis of the recorded answers and the evidence referenced in them, ${entityName} reaches a readiness level of ${pct}% against ${profile.name} within the scope set out in chapter 2. ${pass} of ${merged.length} requirements are met, ${partial} are partially met and ${fail} show a gap. Management attention is rated ${attentionLabel(att.level, lang)}; audit readiness stands at ${ar.overallPct}% (${readinessRatingLabel(ar.overall, lang)}).`
+    + (openTotal
+      ? ` The ${openTotal} open position${openTotal === 1 ? '' : 's'} concentrate${openTotal === 1 ? 's' : ''} in ${clusters.length} root cause${clusters.length === 1 ? '' : 's'}; addressing those causes closes the majority of the individual findings.`
+      : ' No open positions remain within this scope.'),
+  );
+  pdf.metaLine('How to read this report: chapter 2 fixes the scope, chapter 3 the method, chapter 4 states the findings, chapter 5 their causes, chapter 6 the resulting risk, chapter 7 the actions and chapter 8 the conclusion. Part B holds the requirement-level evidence for each statement made here.');
+
 
   // ── 2 Scope, Applicability and Claims ───────────────────────
   pdf.newPage();
