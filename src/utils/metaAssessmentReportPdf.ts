@@ -485,20 +485,19 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   // ── Executive Brief — concise ~2-page management summary ─────
   if (executiveBrief) {
     pdf.newPage();
-    pdf.heading(t('sec1', lang), 1);
+    pdf.chapterHeaderBar('1', t('sec1', lang), [
+      [`${pct}%`, t('readiness', lang)],
+      [String(fail + partial), 'open positions'],
+      [String(merged.length), 'requirements'],
+    ]);
     if (result.summary) pdf.bodyParagraph(result.summary);
 
-    pdf.kpiRow([
-      [`${pct}%`, t('readiness', lang)],
-      [String(pass), t('passed', lang)],
-      [String(partial), t('partial', lang)],
-      [String(fail), t('gaps', lang)],
-    ]);
-
-    pdf.sectionLabel(t('distribution', lang));
-    pdf.complianceBar(pass, partial, fail, {
-      pass: t('passed', lang), partial: t('partial', lang), fail: t('gaps', lang),
-      title: t('verdictOverview', lang),
+    pdf.readinessPanel(pct, { pass, partial, fail }, {
+      title: t('readiness', lang),
+      pass: t('passed', lang),
+      partial: t('partial', lang),
+      fail: t('gaps', lang),
+      caption: 'Readiness is a preparedness indicator derived from the recorded answers, not a conformity statement.',
     });
 
     // Executive Root Causes — the heart of the brief.
@@ -509,11 +508,18 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
       pdf.introText(
         `The ${open} open finding${open === 1 ? '' : 's'} concentrate in ${briefClusters.length} root-cause theme${briefClusters.length === 1 ? '' : 's'}. Resolving these themes addresses the majority of individual gaps.`,
       );
+      pdf.rootCauseBars(
+        briefClusters.slice(0, 5).map((c) => ({
+          label: c.rootCause,
+          ids: c.controlIds,
+          fail: c.fail,
+          partial: c.partial,
+        })),
+        { affected: t('affectedControls', lang) },
+      );
       briefClusters.slice(0, 5).forEach((c, i) => {
         pdf.checkSpace(20);
         pdf.heading(`RC${i + 1}  ${c.rootCause}`, 3);
-        pdf.fieldInline(t('affectedControls', lang), c.controlIds.join(', '));
-        pdf.fieldInline(t('belowConformity', lang), `${c.controlIds.length}  (${c.fail} gap${c.fail === 1 ? '' : 's'}, ${c.partial} partial)`);
         pdf.bodyText(c.businessImpact);
       });
     }
@@ -525,6 +531,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
       pdf.heading('Top Priorities', 2);
       topActions.slice(0, 6).forEach((a) => pdf.bulletItem(a));
     }
+
 
     pdf.bodyParagraph(t('disclaimer', lang));
     pdf.save(`${profile.id}-executive-brief-${entityName.replace(/[^a-z0-9]/gi, '_').slice(0, 30)}.pdf`);
