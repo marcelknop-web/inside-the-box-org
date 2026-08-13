@@ -1570,8 +1570,8 @@ export class PdfDoc {
     this.doc.setFont(this.headFont, 'bold');
     this.doc.setFontSize(9);
     this.doc.setTextColor(...C.navy);
-    const figW = figures.length ? Math.min(78, figures.length * 26) : 0;
-    this.doc.text(this.fitText(title.toUpperCase(), LAYOUT.WIDTH - 12 - figW), LAYOUT.LEFT + 5, top + 11);
+    const figW = figures.length ? Math.min(66, figures.length * 22) : 0;
+    this.doc.text(this.fitText(title.toUpperCase(), LAYOUT.WIDTH - 10 - figW), LAYOUT.LEFT + 5, top + 11);
 
     if (figures.length) {
       const colW = figW / figures.length;
@@ -1985,7 +1985,7 @@ export class PdfDoc {
     if (title) this.sectionLabel(title);
     const rowH = 12;
     this.checkSpace(steps.length * rowH + 18);
-    const boxW = LAYOUT.WIDTH - 34;
+    const boxW = LAYOUT.WIDTH;
     steps.forEach((s, i) => {
       const y = this.y;
       this.doc.setDrawColor(...C.rule);
@@ -2004,7 +2004,7 @@ export class PdfDoc {
       // connector
       this.doc.setDrawColor(...C.rule);
       this.doc.setLineWidth(0.3);
-      if (i < steps.length - 1) this.doc.line(LAYOUT.LEFT + 6, y + rowH - 3, LAYOUT.LEFT + 6, y + rowH);
+      if (i < steps.length - 1) this.doc.line(LAYOUT.LEFT + 8, y + rowH - 3, LAYOUT.LEFT + 8, y + rowH);
       this.y = y + rowH;
     });
     // Verdict
@@ -2015,7 +2015,7 @@ export class PdfDoc {
     this.doc.rect(LAYOUT.LEFT, vy, 2, 9, 'F');
     this.doc.setDrawColor(...col);
     this.doc.setLineWidth(0.2);
-    this.doc.rect(LAYOUT.LEFT, vy, LAYOUT.WIDTH - 34, 9, 'S');
+    this.doc.rect(LAYOUT.LEFT, vy, LAYOUT.WIDTH, 9, 'S');
     this.doc.setFont(this.dataFont, 'bold');
     this.doc.setFontSize(7.4);
     this.doc.setTextColor(...col);
@@ -2023,7 +2023,7 @@ export class PdfDoc {
     this.doc.setFont(this.headFont, 'bold');
     this.doc.setFontSize(8);
     this.doc.setTextColor(...C.navy);
-    this.doc.text(this.fitText(verdict.label, LAYOUT.WIDTH - 48), LAYOUT.LEFT + 10, vy + 6);
+    this.doc.text(this.fitText(verdict.label, LAYOUT.WIDTH - 14), LAYOUT.LEFT + 10, vy + 6);
     this.y = vy + 15;
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
