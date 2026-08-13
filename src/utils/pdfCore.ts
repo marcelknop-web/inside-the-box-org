@@ -447,14 +447,22 @@ export class PdfDoc {
     this.doc.setFontSize(8.2);
     this.doc.setTextColor(...C.mid);
     this.doc.setFont(this.bodyFont, 'italic');
-    const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH);
-    this.checkSpace(lines.length * 3.6 + 5);
-    this.doc.text(lines, LAYOUT.LEFT, this.y);
-    this.y += lines.length * 3.6 + 6;
+    const lines = this.wrap(text, LAYOUT.WIDTH);
+    const lh = 3.6;
+    for (const line of lines) {
+      this.checkSpace(lh + 1);
+      this.doc.setFontSize(8.2);
+      this.doc.setFont(this.bodyFont, 'italic');
+      this.doc.setTextColor(...C.mid);
+      this.doc.text(line, LAYOUT.LEFT, this.y);
+      this.y += lh;
+    }
+    this.y += 6;
     this.doc.setTextColor(...C.dark);
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
   }
+
 
   bodyText(text: string, indent = 0): void {
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
