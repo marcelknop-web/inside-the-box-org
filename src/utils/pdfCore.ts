@@ -764,7 +764,8 @@ export class PdfDoc {
 
   /** Section label (small uppercase) with accent underline */
   sectionLabel(text: string): void {
-    this.checkSpace(10);
+    // Keep the label with at least the first line of the block it introduces.
+    this.checkSpace(16);
     this.doc.setFont(this.headFont, 'bold');
     this.doc.setFontSize(7);
     this.doc.setTextColor(...C.accent);
