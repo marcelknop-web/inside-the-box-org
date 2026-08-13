@@ -1543,6 +1543,494 @@ export class PdfDoc {
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
   }
 
+
+
+  /* ── Auditor-grade data visuals ─────────────────────────────
+     Quiet, hairline graphics that replace repeated prose. All of them are
+     page-break aware and never encode information through colour alone.   */
+
+  /**
+   * Chapter header bar: chapter number, title and up to three key figures.
+   * Replaces prose that only restates numbers already computed.
+   */
+  chapterHeaderBar(num: string, title: string, figures: [string, string][] = []): void {
+    const h = 15;
+    this.checkSpace(h + 6);
+    const top = this.y;
+    this.doc.setFillColor(...C.bg);
+    this.doc.rect(LAYOUT.LEFT, top, LAYOUT.WIDTH, h, 'F');
+    this.doc.setFillColor(...C.navy);
+    this.doc.rect(LAYOUT.LEFT, top, 1.4, h, 'F');
+
+    this.doc.setFont(this.dataFont, 'bold');
+    this.doc.setFontSize(7);
+    this.doc.setTextColor(...C.accent);
+    this.doc.text(num, LAYOUT.LEFT + 5, top + 6);
+
+    this.doc.setFont(this.headFont, 'bold');
+    this.doc.setFontSize(9);
+    this.doc.setTextColor(...C.navy);
+    const figW = figures.length ? Math.min(66, figures.length * 22) : 0;
+    this.doc.text(this.fitText(title.toUpperCase(), LAYOUT.WIDTH - 10 - figW), LAYOUT.LEFT + 5, top + 11);
+
+    if (figures.length) {
+      const colW = figW / figures.length;
+      figures.forEach(([val, lbl], i) => {
+        const cx = LAYOUT.RIGHT - figW + i * colW + colW / 2;
+        if (i > 0) {
+          this.doc.setDrawColor(...C.rule);
+          this.doc.setLineWidth(0.15);
+          this.doc.line(LAYOUT.RIGHT - figW + i * colW, top + 3, LAYOUT.RIGHT - figW + i * colW, top + h - 3);
+        }
+        this.doc.setFont(this.dataFont, 'bold');
+        this.doc.setFontSize(10);
+        this.doc.setTextColor(...C.navy);
+        this.doc.text(this.fitText(val, colW - 3), cx, top + 7.5, { align: 'center' });
+        this.doc.setFont(this.headFont, 'normal');
+        this.doc.setFontSize(5.6);
+        this.doc.setTextColor(...C.mid);
+        this.doc.text(this.fitText(lbl.toUpperCase(), colW - 2), cx, top + 11.6, { align: 'center' });
+      });
+    }
+
+    this.doc.setDrawColor(...C.rule);
+    this.doc.setLineWidth(0.15);
+    this.doc.line(LAYOUT.LEFT, top + h, LAYOUT.RIGHT, top + h);
+    this.y = top + h + 6;
+    this.doc.setFont(this.bodyFont, 'normal');
+    this.doc.setFontSize(LAYOUT.BODY_SIZE);
+    this.doc.setTextColor(...C.dark);
+  }
+
+  /**
+   * Readiness panel: semicircular gauge plus a compact pass/partial/gap
+   * breakdown, side by side. `pct` is 0-100.
+   */
+  readinessPanel(
+    pct: number,
+    counts: { pass: number; partial: number; fail: number },
+    labels: { title: string; pass: string; partial: string; fail: string; caption?: string }
+  ): void {
+    const h = 46;
+    this.checkSpace(h + 8);
+    const top = this.y;
+    const total = counts.pass + counts.partial + counts.fail || 1;
+
+    this.doc.setDrawColor(...C.rule);
+    this.doc.setLineWidth(0.15);
+    this.doc.rect(LAYOUT.LEFT, top, LAYOUT.WIDTH, h, 'S');
+
+    // Gauge (left third)
+    const gx = LAYOUT.LEFT + 30;
+    const gy = top + 32;
+    const r = 20;
+    const seg = 60;
+    for (let i = 0; i < seg; i++) {
+      const a0 = Math.PI - (i / seg) * Math.PI;
+      const a1 = Math.PI - ((i + 1) / seg) * Math.PI;
+      const filled = (i / seg) * 100 <= Math.max(0, Math.min(100, pct));
+      const col: [number, number, number] = filled
+        ? (pct >= 70 ? C.pass : pct >= 40 ? C.partial : C.fail)
+        : [225, 228, 232];
+      this.doc.setDrawColor(...col);
+      this.doc.setLineWidth(3.4);
+      const steps = 4;
+      for (let s = 0; s < steps; s++) {
+        const b0 = a0 + (a1 - a0) * (s / steps);
+        const b1 = a0 + (a1 - a0) * ((s + 1) / steps);
+        this.doc.line(gx + r * Math.cos(b0), gy - r * Math.sin(b0), gx + r * Math.cos(b1), gy - r * Math.sin(b1));
+      }
+    }
+    this.doc.setFont(this.dataFont, 'bold');
+    this.doc.setFontSize(17);
+    this.doc.setTextColor(...C.navy);
+    this.doc.text(`${Math.round(pct)}%`, gx, gy - 3, { align: 'center' });
+    this.doc.setFont(this.headFont, 'normal');
+    this.doc.setFontSize(5.8);
+    this.doc.setTextColor(...C.mid);
+    this.doc.text(labels.title.toUpperCase(), gx, gy + 3, { align: 'center' });
+    this.doc.setFontSize(5.2);
+    this.doc.text('0', gx - r, gy + 4, { align: 'center' });
+    this.doc.text('100', gx + r, gy + 4, { align: 'center' });
+
+    // Divider
+    this.doc.setDrawColor(...C.rule);
+    this.doc.setLineWidth(0.15);
+    this.doc.line(LAYOUT.LEFT + 60, top + 5, LAYOUT.LEFT + 60, top + h - 5);
+
+    // Breakdown rows (right)
+    const rows: [string, number, [number, number, number], string][] = [
+      [labels.pass, counts.pass, C.pass, '+'],
+      [labels.partial, counts.partial, C.partial, '~'],
+      [labels.fail, counts.fail, C.fail, '!'],
+    ];
+    const bx = LAYOUT.LEFT + 68;
+    const barX = bx + 34;
+    const barMax = LAYOUT.RIGHT - barX - 16;
+    rows.forEach(([lbl, n, col, glyph], i) => {
+      const ry = top + 12 + i * 11;
+      this.doc.setFont(this.dataFont, 'bold');
+      this.doc.setFontSize(7);
+      this.doc.setTextColor(...col);
+      this.doc.text(glyph, bx, ry);
+      this.doc.setFont(this.headFont, 'normal');
+      this.doc.setFontSize(7.2);
+      this.doc.setTextColor(...C.dark);
+      this.doc.text(this.fitText(lbl, 28), bx + 4, ry);
+      const w = (n / total) * barMax;
+      this.doc.setFillColor(232, 234, 238);
+      this.doc.rect(barX, ry - 3, barMax, 3.6, 'F');
+      if (w > 0) {
+        this.doc.setFillColor(...col);
+        this.doc.rect(barX, ry - 3, Math.max(w, 0.8), 3.6, 'F');
+      }
+      this.doc.setFont(this.dataFont, 'bold');
+      this.doc.setFontSize(7.2);
+      this.doc.setTextColor(...C.navy);
+      this.doc.text(String(n), LAYOUT.RIGHT - 3, ry, { align: 'right' });
+    });
+
+    this.y = top + h + 3;
+    if (labels.caption) this.metaLine(labels.caption);
+    else this.y += 3;
+    this.doc.setTextColor(...C.dark);
+  }
+
+  /**
+   * Small multiples: one mini pass/partial/gap bar per category, two per row.
+   * Gives a scan-level read of where readiness concentrates.
+   */
+  categoryBars(
+    rows: { label: string; pass: number; partial: number; fail: number }[],
+    title?: string
+  ): void {
+    if (!rows.length) return;
+    if (title) this.sectionLabel(title);
+    const colW = (LAYOUT.WIDTH - 8) / 2;
+    const rowH = 11;
+    rows.forEach((r, i) => {
+      const col = i % 2;
+      if (col === 0) this.checkSpace(rowH + 2);
+      const x = LAYOUT.LEFT + col * (colW + 8);
+      const y = this.y;
+      const total = r.pass + r.partial + r.fail || 1;
+      this.doc.setFont(this.headFont, 'normal');
+      this.doc.setFontSize(6.4);
+      this.doc.setTextColor(...C.dark);
+      this.doc.text(this.fitText(r.label, colW - 16), x, y);
+      this.doc.setFont(this.dataFont, 'normal');
+      this.doc.setFontSize(6.2);
+      this.doc.setTextColor(...C.mid);
+      this.doc.text(`${r.pass}/${total}`, x + colW, y, { align: 'right' });
+      const bw = colW;
+      let bx = x;
+      const barY = y + 1.6;
+      this.doc.setFillColor(232, 234, 238);
+      this.doc.rect(x, barY, bw, 2.8, 'F');
+      ([[r.pass, C.pass], [r.partial, C.partial], [r.fail, C.fail]] as [number, [number, number, number]][])
+        .forEach(([n, c]) => {
+          const w = (n / total) * bw;
+          if (w <= 0) return;
+          this.doc.setFillColor(...c);
+          this.doc.rect(bx, barY, w, 2.8, 'F');
+          bx += w;
+        });
+      if (col === 1 || i === rows.length - 1) this.y += rowH;
+    });
+    this.y += 2;
+    this.doc.setTextColor(...C.dark);
+  }
+
+  /**
+   * Root-cause clusters: proportional bar for the number of affected
+   * requirements plus the requirement IDs as chips.
+   */
+  rootCauseBars(
+    clusters: { label: string; ids: string[]; fail: number; partial: number }[],
+    labels: { title?: string; affected: string }
+  ): void {
+    if (!clusters.length) return;
+    if (labels.title) this.sectionLabel(labels.title);
+    const max = Math.max(...clusters.map((c) => c.ids.length), 1);
+    const barX = LAYOUT.LEFT + 92;
+    const barMax = LAYOUT.WIDTH - 100;
+
+    clusters.forEach((c, i) => {
+      this.checkSpace(16);
+      const y = this.y;
+      this.doc.setFont(this.dataFont, 'bold');
+      this.doc.setFontSize(6.4);
+      this.doc.setTextColor(...C.accent);
+      this.doc.text(`RC${i + 1}`, LAYOUT.LEFT, y);
+      this.doc.setFont(this.headFont, 'bold');
+      this.doc.setFontSize(7.2);
+      this.doc.setTextColor(...C.navy);
+      this.doc.text(this.fitText(c.label, 78), LAYOUT.LEFT + 10, y);
+
+      const w = (c.ids.length / max) * barMax;
+      this.doc.setFillColor(232, 234, 238);
+      this.doc.rect(barX, y - 3, barMax, 4, 'F');
+      const failW = c.ids.length ? (c.fail / c.ids.length) * w : 0;
+      if (w > 0) {
+        this.doc.setFillColor(...C.partial);
+        this.doc.rect(barX, y - 3, w, 4, 'F');
+        if (failW > 0) {
+          this.doc.setFillColor(...C.fail);
+          this.doc.rect(barX, y - 3, failW, 4, 'F');
+        }
+      }
+      this.doc.setFont(this.dataFont, 'bold');
+      this.doc.setFontSize(6.6);
+      this.doc.setTextColor(...C.navy);
+      this.doc.text(`${c.ids.length}`, LAYOUT.RIGHT, y, { align: 'right' });
+
+      // Requirement chips
+      this.y = y + 4;
+      this.doc.setFont(this.dataFont, 'normal');
+      this.doc.setFontSize(5.8);
+      let cx = LAYOUT.LEFT + 10;
+      for (const id of c.ids.slice(0, 22)) {
+        const w2 = this.doc.getTextWidth(id) + 3;
+        if (cx + w2 > LAYOUT.RIGHT) { cx = LAYOUT.LEFT + 10; this.y += 5; this.checkSpace(6); }
+        this.doc.setDrawColor(...C.rule);
+        this.doc.setLineWidth(0.12);
+        this.doc.rect(cx, this.y - 2.7, w2, 3.8, 'S');
+        this.doc.setTextColor(...C.mid);
+        this.doc.text(id, cx + 1.5, this.y);
+        cx += w2 + 1.6;
+      }
+      if (c.ids.length > 22) {
+        this.doc.setTextColor(...C.light);
+        this.doc.text(`+${c.ids.length - 22}`, cx + 1, this.y);
+      }
+      this.y += 7;
+      this.doc.setDrawColor(...C.rule);
+      this.doc.setLineWidth(0.1);
+      this.doc.line(LAYOUT.LEFT, this.y - 3, LAYOUT.RIGHT, this.y - 3);
+    });
+    this.doc.setFont(this.bodyFont, 'normal');
+    this.doc.setFontSize(LAYOUT.BODY_SIZE);
+    this.doc.setTextColor(...C.dark);
+    this.y += 1;
+  }
+
+  /**
+   * Ranked list with proportional score bars — replaces prose lists of
+   * "top" items (risks, gaps) with a scannable ranking.
+   */
+  rankedBars(
+    rows: { label: string; value: number; note?: string; tone?: 'pass' | 'partial' | 'fail' }[],
+    labels: { title?: string; unit?: string }
+  ): void {
+    if (!rows.length) return;
+    if (labels.title) this.sectionLabel(labels.title);
+    const max = Math.max(...rows.map((r) => r.value), 1);
+    const barX = LAYOUT.LEFT + 96;
+    const barMax = LAYOUT.WIDTH - 106;
+    rows.forEach((r, i) => {
+      this.checkSpace(r.note ? 12 : 8);
+      const y = this.y;
+      const col: [number, number, number] = r.tone === 'pass' ? C.pass : r.tone === 'partial' ? C.partial : C.fail;
+      this.doc.setFont(this.dataFont, 'normal');
+      this.doc.setFontSize(6.2);
+      this.doc.setTextColor(...C.light);
+      this.doc.text(String(i + 1).padStart(2, '0'), LAYOUT.LEFT, y);
+      this.doc.setFont(this.headFont, 'normal');
+      this.doc.setFontSize(7.2);
+      this.doc.setTextColor(...C.dark);
+      this.doc.text(this.fitText(r.label, 84), LAYOUT.LEFT + 8, y);
+      const w = (r.value / max) * barMax;
+      this.doc.setFillColor(232, 234, 238);
+      this.doc.rect(barX, y - 3, barMax, 3.6, 'F');
+      if (w > 0) {
+        this.doc.setFillColor(...col);
+        this.doc.rect(barX, y - 3, Math.max(w, 0.8), 3.6, 'F');
+      }
+      this.doc.setFont(this.dataFont, 'bold');
+      this.doc.setFontSize(6.8);
+      this.doc.setTextColor(...C.navy);
+      this.doc.text(`${r.value}${labels.unit ?? ''}`, LAYOUT.RIGHT, y, { align: 'right' });
+      this.y = y + 4.6;
+      if (r.note) {
+        this.doc.setFont(this.headFont, 'normal');
+        this.doc.setFontSize(6.2);
+        this.doc.setTextColor(...C.mid);
+        this.doc.text(this.fitText(r.note, LAYOUT.WIDTH - 8), LAYOUT.LEFT + 8, this.y);
+        this.y += 4;
+      }
+    });
+    this.y += 2;
+    this.doc.setFont(this.bodyFont, 'normal');
+    this.doc.setFontSize(LAYOUT.BODY_SIZE);
+    this.doc.setTextColor(...C.dark);
+  }
+
+  /**
+   * Effort × impact matrix for remediation actions. Points are plotted with
+   * their action index so the reader can trace each dot back to the list.
+   */
+  effortImpactMatrix(
+    points: { id: string; effort: 1 | 2 | 3; impact: 1 | 2 | 3 }[],
+    labels: { title: string; effort: string; impact: string; low: string; high: string }
+  ): void {
+    if (!points.length) return;
+    const cell = 26;
+    const gridW = cell * 3;
+    this.checkSpace(gridW + 26);
+    this.sectionLabel(labels.title);
+    const gridLeft = LAYOUT.LEFT + 16;
+    const gridTop = this.y + 2;
+
+    for (let ex = 0; ex < 3; ex++) {
+      for (let iy = 0; iy < 3; iy++) {
+        const x = gridLeft + ex * cell;
+        const y = gridTop + (2 - iy) * cell;
+        const quick = ex === 0 && iy >= 1;
+        this.doc.setFillColor(...(quick ? [239, 245, 240] as [number, number, number] : C.bg));
+        this.doc.rect(x, y, cell, cell, 'F');
+        this.doc.setDrawColor(...C.rule);
+        this.doc.setLineWidth(0.12);
+        this.doc.rect(x, y, cell, cell, 'S');
+      }
+    }
+
+    // Plot points, spreading them inside their cell
+    const perCell: Record<string, number> = {};
+    for (const p of points) {
+      const key = `${p.effort}-${p.impact}`;
+      const n = perCell[key] ?? 0;
+      perCell[key] = n + 1;
+      const cx = gridLeft + (p.effort - 1) * cell + 5 + (n % 4) * 5.4;
+      const cy = gridTop + (3 - p.impact) * cell + 6 + Math.floor(n / 4) * 6;
+      this.doc.setFillColor(...C.navy);
+      this.doc.circle(cx, cy, 2.4, 'F');
+      this.doc.setFont(this.dataFont, 'bold');
+      this.doc.setFontSize(4.8);
+      this.doc.setTextColor(...C.white);
+      this.doc.text(p.id, cx, cy + 1.4, { align: 'center' });
+    }
+
+    // Axes
+    this.doc.setFont(this.headFont, 'normal');
+    this.doc.setFontSize(6);
+    this.doc.setTextColor(...C.mid);
+    this.doc.text(labels.low, gridLeft + cell / 2, gridTop + gridW + 4, { align: 'center' });
+    this.doc.text(labels.high, gridLeft + gridW - cell / 2, gridTop + gridW + 4, { align: 'center' });
+    this.doc.setFont(this.headFont, 'bold');
+    this.doc.setFontSize(6.4);
+    this.doc.setTextColor(...C.navy);
+    this.doc.text(labels.effort.toUpperCase(), gridLeft + gridW / 2, gridTop + gridW + 9, { align: 'center' });
+    this.doc.text(labels.impact.toUpperCase(), gridLeft - 6, gridTop + gridW / 2, { angle: 90, align: 'center' });
+
+    this.y = gridTop + gridW + 14;
+    this.doc.setFont(this.bodyFont, 'normal');
+    this.doc.setFontSize(LAYOUT.BODY_SIZE);
+    this.doc.setTextColor(...C.dark);
+  }
+
+  /**
+   * Generic labelled distribution bar (e.g. evidence grading) with a legend
+   * under the bar. Segments carry both colour and a text label.
+   */
+  distributionBar(segments: { label: string; value: number; color?: [number, number, number] }[], title?: string): void {
+    const total = segments.reduce((s, x) => s + x.value, 0);
+    if (!total) return;
+    this.checkSpace(24);
+    if (title) this.sectionLabel(title);
+    const palette: [number, number, number][] = [C.pass, C.accent, C.partial, C.fail, C.mid];
+    const barY = this.y;
+    const barH = 7;
+    let x = LAYOUT.LEFT;
+    this.doc.setFillColor(232, 234, 238);
+    this.doc.rect(LAYOUT.LEFT, barY, LAYOUT.WIDTH, barH, 'F');
+    segments.forEach((s, i) => {
+      const w = (s.value / total) * LAYOUT.WIDTH;
+      if (w <= 0) return;
+      this.doc.setFillColor(...(s.color ?? palette[i % palette.length]));
+      this.doc.rect(x, barY, w, barH, 'F');
+      if (w > 14) {
+        this.doc.setFont(this.dataFont, 'bold');
+        this.doc.setFontSize(6);
+        this.doc.setTextColor(...C.white);
+        this.doc.text(`${Math.round((s.value / total) * 100)}%`, x + w / 2, barY + 4.6, { align: 'center' });
+      }
+      x += w;
+    });
+    this.y = barY + barH + 4;
+    let lx = LAYOUT.LEFT;
+    segments.forEach((s, i) => {
+      const txt = `${s.label} (${s.value})`;
+      this.doc.setFontSize(6.2);
+      const w = this.doc.getTextWidth(txt) + 10;
+      if (lx + w > LAYOUT.RIGHT) { lx = LAYOUT.LEFT; this.y += 4.4; this.checkSpace(6); }
+      this.doc.setFillColor(...(s.color ?? palette[i % palette.length]));
+      this.doc.rect(lx, this.y - 2.4, 2.8, 2.8, 'F');
+      this.doc.setFont(this.headFont, 'normal');
+      this.doc.setTextColor(...C.dark);
+      this.doc.text(txt, lx + 4.2, this.y);
+      lx += w;
+    });
+    this.y += 6;
+    this.doc.setFont(this.bodyFont, 'normal');
+    this.doc.setFontSize(LAYOUT.BODY_SIZE);
+    this.doc.setTextColor(...C.dark);
+  }
+
+  /**
+   * Decision path graphic: sequential boxes ending in a verdict box.
+   * Used to show applicability determination instead of a field list.
+   */
+  decisionPath(steps: { label: string; value: string }[], verdict: { label: string; tone: 'pass' | 'partial' | 'fail' }, title?: string): void {
+    if (!steps.length) return;
+    if (title) this.sectionLabel(title);
+    const rowH = 12;
+    this.checkSpace(steps.length * rowH + 18);
+    const boxW = LAYOUT.WIDTH;
+    steps.forEach((s, i) => {
+      const y = this.y;
+      this.doc.setDrawColor(...C.rule);
+      this.doc.setLineWidth(0.15);
+      this.doc.rect(LAYOUT.LEFT, y, boxW, rowH - 3, 'S');
+      this.doc.setFillColor(...C.bg);
+      this.doc.rect(LAYOUT.LEFT, y, 1.2, rowH - 3, 'F');
+      this.doc.setFont(this.headFont, 'normal');
+      this.doc.setFontSize(6);
+      this.doc.setTextColor(...C.mid);
+      this.doc.text(this.fitText(s.label.toUpperCase(), boxW - 8), LAYOUT.LEFT + 4, y + 3.6);
+      this.doc.setFont(this.headFont, 'bold');
+      this.doc.setFontSize(7.4);
+      this.doc.setTextColor(...C.navy);
+      this.doc.text(this.fitText(s.value, boxW - 8), LAYOUT.LEFT + 4, y + 7.6);
+      // connector
+      this.doc.setDrawColor(...C.rule);
+      this.doc.setLineWidth(0.3);
+      if (i < steps.length - 1) this.doc.line(LAYOUT.LEFT + 8, y + rowH - 3, LAYOUT.LEFT + 8, y + rowH);
+      this.y = y + rowH;
+    });
+    // Verdict
+    const col: [number, number, number] = verdict.tone === 'pass' ? C.pass : verdict.tone === 'partial' ? C.partial : C.fail;
+    const glyph = verdict.tone === 'pass' ? '+' : verdict.tone === 'partial' ? '~' : '!';
+    const vy = this.y + 1;
+    this.doc.setFillColor(...col);
+    this.doc.rect(LAYOUT.LEFT, vy, 2, 9, 'F');
+    this.doc.setDrawColor(...col);
+    this.doc.setLineWidth(0.2);
+    this.doc.rect(LAYOUT.LEFT, vy, LAYOUT.WIDTH, 9, 'S');
+    this.doc.setFont(this.dataFont, 'bold');
+    this.doc.setFontSize(7.4);
+    this.doc.setTextColor(...col);
+    this.doc.text(glyph, LAYOUT.LEFT + 5, vy + 6);
+    this.doc.setFont(this.headFont, 'bold');
+    this.doc.setFontSize(8);
+    this.doc.setTextColor(...C.navy);
+    this.doc.text(this.fitText(verdict.label, LAYOUT.WIDTH - 14), LAYOUT.LEFT + 10, vy + 6);
+    this.y = vy + 15;
+    this.doc.setFont(this.bodyFont, 'normal');
+    this.doc.setFontSize(LAYOUT.BODY_SIZE);
+    this.doc.setTextColor(...C.dark);
+  }
+
+
   /* ── Running header / footer (chapter & topic orientation) ── */
 
   /** Return the text of the last mark active on or before `page`. */

@@ -12,6 +12,7 @@ import { buildReportMeta, validateConsistency, ORIGIN, REPORT_TITLE } from '@/da
 import { buildPresentationContent, type PresentationType } from '@/data/metaAssessment/presentationContent';
 import { validateSlideMetrics } from '@/data/metaAssessment/slideValidation';
 import QualityCheckPanel from '@/components/QualityCheckPanel';
+import { ReadinessGauge, VerdictBreakdown, CategoryBars, DistributionStrip } from '@/components/gapzero/ReadinessVisuals';
 import { LucideIcon } from 'lucide-react';
 import { SiteChrome } from '@/components/SiteChrome';
 import { PasswordGate } from '@/components/PasswordGate';
@@ -1954,20 +1955,49 @@ function Report({ profile, lang, result, computed, answers, onRestart }: {
       </div>
 
 
-      {/* Readiness + stats */}
-      <div className="grid sm:grid-cols-4 gap-3">
-        <div className="bg-background/40 border border-primary/15 rounded-lg p-4 text-center">
-          <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold font-mono">{u.readiness}</div>
-          <div className={`text-4xl font-bold font-mono mt-1 ${pct >= 70 ? 'text-green-500' : pct >= 40 ? 'text-yellow-500' : 'text-destructive'}`}>{pct}%</div>
-          <div className="text-[11px] text-muted-foreground mt-0.5">{merged.length} {u.checked}</div>
+      {/* Readiness head — gauge, verdict breakdown and evidence substantiation */}
+      <div className="bg-background/40 border border-primary/15 rounded-lg p-5">
+        <div className="grid lg:grid-cols-[190px_1fr] gap-6 items-center">
+          <ReadinessGauge pct={pct} label={u.readiness} sub={`${merged.length} ${u.checked}`} />
+          <VerdictBreakdown
+            counts={{ pass, partial, fail }}
+            labels={{ pass: u.passed, partial: u.partial, fail: u.gaps }}
+          />
         </div>
-        {([[pass, u.passed, 'text-green-400'], [partial, u.partial, 'text-yellow-400'], [fail, u.gaps, 'text-destructive']] as [number, string, string][]).map(([n, l, c]) => (
-          <div key={l} className="bg-background/40 border border-primary/15 rounded-lg p-4 text-center">
-            <div className={`text-3xl font-bold font-mono ${c}`}>{n}</div>
-            <div className="text-[11px] text-muted-foreground mt-1">{l}</div>
-          </div>
-        ))}
+        <div className="mt-5 pt-5 border-t border-border">
+          <DistributionStrip
+            title="Evidence substantiation"
+            segments={[
+              { label: 'Verified', value: computed.evidence.byVerification.verified ?? 0, cls: 'bg-green-500' },
+              { label: 'Documented', value: computed.evidence.byVerification.documented ?? 0, cls: 'bg-primary' },
+              { label: 'Declared', value: computed.evidence.byVerification.declared ?? 0, cls: 'bg-yellow-500' },
+              { label: 'No evidence', value: computed.evidence.missing.length, cls: 'bg-destructive' },
+            ]}
+            hint="Declared statements and requirements without evidence carry no independent substantiation."
+          />
+        </div>
       </div>
+
+      {/* Readiness per requirement area */}
+      {(() => {
+        const rows = (profile.categories ?? []).map((c) => {
+          const inCat = merged.filter((r) => profile.requirements.find((q) => q.id === r.id)?.categoryId === c.id);
+          return {
+            label: tr(c.name, lang),
+            pass: inCat.filter((r) => r.status === 'pass').length,
+            partial: inCat.filter((r) => r.status === 'partial').length,
+            fail: inCat.filter((r) => r.status === 'fail').length,
+          };
+        }).filter((r) => r.pass + r.partial + r.fail > 0);
+        return (
+          <CategoryBars
+            rows={rows}
+            title="Readiness by requirement area"
+            hint="Met (green), partially met (amber), gap (red). The figure right of each label counts met requirements against the area total."
+          />
+        );
+      })()}
+
 
       {/* Management attention index + audit readiness (deterministic) */}
       <div className="grid lg:grid-cols-2 gap-3">

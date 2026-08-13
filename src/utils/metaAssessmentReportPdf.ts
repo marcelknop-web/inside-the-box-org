@@ -485,20 +485,19 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   // ── Executive Brief — concise ~2-page management summary ─────
   if (executiveBrief) {
     pdf.newPage();
-    pdf.heading(t('sec1', lang), 1);
+    pdf.chapterHeaderBar('1', t('sec1', lang), [
+      [`${pct}%`, t('readiness', lang)],
+      [String(fail + partial), 'open positions'],
+      [String(merged.length), 'requirements'],
+    ]);
     if (result.summary) pdf.bodyParagraph(result.summary);
 
-    pdf.kpiRow([
-      [`${pct}%`, t('readiness', lang)],
-      [String(pass), t('passed', lang)],
-      [String(partial), t('partial', lang)],
-      [String(fail), t('gaps', lang)],
-    ]);
-
-    pdf.sectionLabel(t('distribution', lang));
-    pdf.complianceBar(pass, partial, fail, {
-      pass: t('passed', lang), partial: t('partial', lang), fail: t('gaps', lang),
-      title: t('verdictOverview', lang),
+    pdf.readinessPanel(pct, { pass, partial, fail }, {
+      title: t('readiness', lang),
+      pass: t('passed', lang),
+      partial: t('partial', lang),
+      fail: t('gaps', lang),
+      caption: 'Readiness is a preparedness indicator derived from the recorded answers, not a conformity statement.',
     });
 
     // Executive Root Causes — the heart of the brief.
@@ -509,11 +508,18 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
       pdf.introText(
         `The ${open} open finding${open === 1 ? '' : 's'} concentrate in ${briefClusters.length} root-cause theme${briefClusters.length === 1 ? '' : 's'}. Resolving these themes addresses the majority of individual gaps.`,
       );
+      pdf.rootCauseBars(
+        briefClusters.slice(0, 5).map((c) => ({
+          label: c.rootCause,
+          ids: c.controlIds,
+          fail: c.fail,
+          partial: c.partial,
+        })),
+        { affected: t('affectedControls', lang) },
+      );
       briefClusters.slice(0, 5).forEach((c, i) => {
         pdf.checkSpace(20);
         pdf.heading(`RC${i + 1}  ${c.rootCause}`, 3);
-        pdf.fieldInline(t('affectedControls', lang), c.controlIds.join(', '));
-        pdf.fieldInline(t('belowConformity', lang), `${c.controlIds.length}  (${c.fail} gap${c.fail === 1 ? '' : 's'}, ${c.partial} partial)`);
         pdf.bodyText(c.businessImpact);
       });
     }
@@ -525,6 +531,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
       pdf.heading('Top Priorities', 2);
       topActions.slice(0, 6).forEach((a) => pdf.bulletItem(a));
     }
+
 
     pdf.bodyParagraph(t('disclaimer', lang));
     pdf.save(`${profile.id}-executive-brief-${entityName.replace(/[^a-z0-9]/gi, '_').slice(0, 30)}.pdf`);
@@ -544,21 +551,21 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   // ── 1 Executive Summary ─────────────────────────────────────
   pdf.heading(t('sec1', lang), 1);
   pdf.addBookmark(t('sec1', lang), 1);
+  pdf.chapterHeaderBar('1', t('sec1', lang), [
+    [`${pct}%`, t('readiness', lang)],
+    [String(fail + partial), 'open positions'],
+    [String(merged.length), 'requirements'],
+  ]);
   if (result.summary) pdf.bodyParagraph(result.summary);
 
-  pdf.kpiRow([
-    [`${pct}%`, t('readiness', lang)],
-    [String(pass), t('passed', lang)],
-    [String(partial), t('partial', lang)],
-    [String(fail), t('gaps', lang)],
-  ]);
-  pdf.metaLine('Readiness is a preparedness indicator derived from the recorded answers. It is not a conformity statement, certification or class decision.');
-
-  pdf.sectionLabel(t('distribution', lang));
-  pdf.complianceBar(pass, partial, fail, {
-    pass: t('passed', lang), partial: t('partial', lang), fail: t('gaps', lang),
-    title: t('verdictOverview', lang),
+  pdf.readinessPanel(pct, { pass, partial, fail }, {
+    title: t('readiness', lang),
+    pass: t('passed', lang),
+    partial: t('partial', lang),
+    fail: t('gaps', lang),
+    caption: 'Readiness is a preparedness indicator derived from the recorded answers. It is not a conformity statement, certification or class decision.',
   });
+
 
   // Canonical deterministic inputs — rendered once, each in its own chapter.
   const scope = computed.scope;
@@ -590,7 +597,22 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   pdf.introText(t('scopeIntro', lang));
 
   pdf.heading(t('scopeVerdict', lang), 2);
-  pdf.fieldInline(t('scopeVerdict', lang), scope.verdictLabel);
+  // Applicability as a decision path: the criteria that were evaluated, in
+  // order, ending in the scope verdict.
+  if (scope.statements.length) {
+    pdf.decisionPath(
+      scope.statements.slice(0, 6).map((s) => ({ label: s.label, value: s.value })),
+      {
+        label: scope.verdictLabel,
+        tone: /not applicable|nicht anwendbar|non applicable/i.test(scope.verdictLabel)
+          ? 'partial'
+          : 'pass',
+      },
+      'Applicability determination',
+    );
+  } else {
+    pdf.fieldInline(t('scopeVerdict', lang), scope.verdictLabel);
+  }
   pdf.bodyText(scope.rationale);
 
   if (scope.statements.length) {
@@ -600,6 +622,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
       if (s.note) { pdf.y += 1; pdf.metaLine(s.note); pdf.y += 1.5; }
     });
   }
+
 
   pdf.heading(t('scopeClaims', lang), 2);
   scope.claims.forEach((c) => pdf.bulletItem(c));
@@ -662,6 +685,23 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   pdf.y += 2;
   pdf.metaLine('Evidence column shows the verification level of the supporting evidence, not its quantity. Action column references the action in chapter 7.');
 
+  // Category profile — small multiples showing where readiness concentrates.
+  const catRows = (profile.categories ?? []).map((c) => {
+    const inCat = merged.filter((r) => reqMetaById.get(r.id)?.categoryId === c.id);
+    return {
+      label: tr(c.name, lang),
+      pass: inCat.filter((r) => r.status === 'pass').length,
+      partial: inCat.filter((r) => r.status === 'partial').length,
+      fail: inCat.filter((r) => r.status === 'fail').length,
+    };
+  }).filter((r) => r.pass + r.partial + r.fail > 0);
+  if (catRows.length > 1) {
+    pdf.categoryBars(catRows, 'Readiness by requirement area');
+    pdf.metaLine('Each bar is one requirement area: met (dark green), partially met (amber), gap (red). The figure right of each label counts met requirements against the area total.');
+  }
+
+
+
   // ── Requirement positions that need attention (gap / partial) ──
   const open = merged.filter((r) => r.status !== 'pass');
   if (open.length) {
@@ -687,6 +727,14 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   pdf.heading(`4.3  ${t('attentionIndex', lang)}`, 2);
   pdf.metaLine(ORIGIN.assessment);
   pdf.fieldInline(t('attentionIndex', lang), `${attentionLabel(att.level, lang)}  (Critical ${att.counts.critical} · High ${att.counts.high} · Medium ${att.counts.medium} · Low ${att.counts.low})`);
+  pdf.distributionBar(
+    [
+      { label: `${t('critical', lang)} (${att.counts.critical})`, value: att.counts.critical, color: [180, 45, 45] as [number, number, number] },
+      { label: `${t('high', lang)} (${att.counts.high})`, value: att.counts.high, color: [220, 120, 30] as [number, number, number] },
+      { label: `${t('medium', lang)} (${att.counts.medium})`, value: att.counts.medium, color: [200, 170, 40] as [number, number, number] },
+      { label: `${t('low', lang)} (${att.counts.low})`, value: att.counts.low, color: [34, 120, 70] as [number, number, number] },
+    ].filter((s) => s.value > 0),
+  );
   if (att.drivers.length) {
     pdf.sectionLabel(t('attentionDrivers', lang));
     att.drivers.forEach((d) => pdf.bulletItem(d));
@@ -695,12 +743,33 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   pdf.heading(`4.4  ${t('auditReadiness', lang)}`, 2);
   pdf.metaLine(ORIGIN.assessment);
   pdf.fieldInline(`${t('readiness', lang)} (overall)`, `${readinessRatingLabel(ar.overall, lang)} · ${ar.overallPct}%`);
-  ar.dimensions.forEach((d) => {
-    pdf.fieldInline(d.label, `${readinessRatingLabel(d.rating, lang)} · ${d.pct}%`);
-    pdf.y += 1;
-    pdf.metaLine(d.basis);
-    pdf.y += 1.5;
-  });
+  // Dimension profile as ranked bars — the weakest dimension is visible
+  // without reading every line.
+  pdf.rankedBars(
+    [...ar.dimensions]
+      .sort((a, b) => a.pct - b.pct)
+      .map((d) => ({
+        label: `${d.label} — ${readinessRatingLabel(d.rating, lang)}`,
+        value: d.pct,
+        note: d.basis,
+        tone: d.pct >= 70 ? ('pass' as const) : d.pct >= 40 ? ('partial' as const) : ('fail' as const),
+      })),
+    { title: 'Readiness by dimension (weakest first)', unit: '%' },
+  );
+
+  // Evidence substantiation — how far the recorded evidence is verified.
+  const bv = computed.evidence.byVerification;
+  pdf.distributionBar(
+    [
+      { label: 'Verified', value: bv.verified ?? 0 },
+      { label: 'Documented', value: bv.documented ?? 0 },
+      { label: 'Declared', value: bv.declared ?? 0 },
+      { label: 'No evidence', value: computed.evidence.missing.length, color: [180, 45, 45] as [number, number, number] },
+    ].filter((s) => s.value > 0),
+    'Evidence substantiation',
+  );
+  pdf.metaLine('Declared statements and requirements without evidence carry no independent substantiation and are the first candidates for evidence collection.');
+
 
   // ── 5 Root Cause Analysis ───────────────────────────────────
   // Deterministic causes first, AI hypotheses clearly separated afterwards.
@@ -715,6 +784,18 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     pdf.introText(
       `The ${openTotal} open finding${openTotal === 1 ? '' : 's'} concentrate in ${clusters.length} root-cause theme${clusters.length === 1 ? '' : 's'}. Resolving these themes addresses the majority of individual gaps.`,
     );
+    // Cause concentration at a glance: bar length = affected requirements,
+    // dark share = outright gaps, light share = partially met.
+    pdf.rootCauseBars(
+      clusters.slice(0, 6).map((c, i) => ({
+        label: c.rootCause,
+        ids: c.controlIds,
+        fail: c.fail,
+        partial: c.partial,
+      })),
+      { title: 'Cause concentration', affected: t('affectedControls', lang) },
+    );
+    pdf.metaLine('Bar length shows how many requirements a cause affects; the darker share are gaps, the lighter share partially met requirements.');
     clusters.slice(0, 6).forEach((c, i) => {
       pdf.checkSpace(20);
       pdf.heading(`RC${i + 1}  ${c.rootCause}`, 3);
@@ -725,6 +806,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
       pdf.sectionLabel(t('businessImpactCol', lang));
       pdf.bodyText(c.businessImpact);
     });
+
   } else {
     pdf.bodyParagraph('No open findings were recorded, so no root cause analysis is required.');
   }
@@ -783,6 +865,27 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     pdf.bodyParagraph(t('noRecs', lang));
   } else {
     pdf.metaLine('Each action states the deliverable, the acceptance criterion and how completion is verified, so it can be assigned and closed out.');
+
+    // Effort x impact placement — shows where quick wins sit before the
+    // action detail is read line by line.
+    const effortIdx = (e: string): 1 | 2 | 3 => (e === 'low' ? 1 : e === 'high' ? 3 : 2);
+    const impactIdx = (p: string): 1 | 2 | 3 => (p === 'critical' || p === 'high' ? 3 : p === 'medium' ? 2 : 1);
+    pdf.effortImpactMatrix(
+      computed.recommendations.map((rec) => ({
+        id: rec.id.replace(/[^0-9]/g, '') || rec.id.slice(-2),
+        effort: effortIdx(rec.effort),
+        impact: impactIdx(rec.priority),
+      })),
+      {
+        title: 'Action placement — effort versus effect',
+        effort: 'Implementation effort',
+        impact: 'Effect on readiness',
+        low: 'low',
+        high: 'high',
+      },
+    );
+    pdf.metaLine('Numbers refer to the action ids listed below. Actions in the upper-left field deliver the largest readiness effect for the lowest effort.');
+
     computed.recommendations.forEach((rec) => {
       pdf.checkSpace(30);
       pdf.heading(`${rec.id}  ${rec.title}`, 3);
@@ -797,6 +900,12 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     });
 
     pdf.heading(t('roadmap', lang), 2);
+    pdf.distributionBar(
+      computed.roadmap
+        .filter((b) => b.items.length > 0)
+        .map((b) => ({ label: `${b.phase} ${t('months', lang)} (${b.items.length})`.replace(/\(\d+\)$/, ''), value: b.items.length })),
+      'Action load per phase',
+    );
     computed.roadmap.forEach((bucket) => {
       if (bucket.items.length === 0) return;
       pdf.sectionLabel(`${t('phase', lang)} ${bucket.phase} ${t('months', lang)}`);
@@ -805,6 +914,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
 
     drawGanttChart(pdf, computed, lang);
   }
+
 
 
   // ── 8 Conclusion and Recommendation (closes Part A) ──────────
