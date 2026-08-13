@@ -796,7 +796,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
       })),
       {
         title: 'Action placement — effort versus effect',
-        effort: t('effort', lang) || 'Effort',
+        effort: 'Implementation effort',
         impact: 'Effect on readiness',
         low: 'low',
         high: 'high',
