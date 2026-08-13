@@ -764,7 +764,8 @@ export class PdfDoc {
 
   /** Section label (small uppercase) with accent underline */
   sectionLabel(text: string): void {
-    this.checkSpace(10);
+    // Keep the label with at least the first line of the block it introduces.
+    this.checkSpace(16);
     this.doc.setFont(this.headFont, 'bold');
     this.doc.setFontSize(7);
     this.doc.setTextColor(...C.accent);
@@ -1554,7 +1555,8 @@ export class PdfDoc {
    * Replaces prose that only restates numbers already computed.
    */
   chapterHeaderBar(num: string, title: string, figures: [string, string][] = []): void {
-    const h = 15;
+    const hasTitle = !!title.trim();
+    const h = hasTitle ? 15 : 13;
     this.checkSpace(h + 6);
     const top = this.y;
     this.doc.setFillColor(...C.bg);
@@ -1562,34 +1564,40 @@ export class PdfDoc {
     this.doc.setFillColor(...C.navy);
     this.doc.rect(LAYOUT.LEFT, top, 1.4, h, 'F');
 
-    this.doc.setFont(this.dataFont, 'bold');
-    this.doc.setFontSize(7);
-    this.doc.setTextColor(...C.accent);
-    this.doc.text(num, LAYOUT.LEFT + 5, top + 6);
+    let figLeft = LAYOUT.LEFT;
+    let figW = LAYOUT.WIDTH;
 
-    this.doc.setFont(this.headFont, 'bold');
-    this.doc.setFontSize(9);
-    this.doc.setTextColor(...C.navy);
-    const figW = figures.length ? Math.min(66, figures.length * 22) : 0;
-    this.doc.text(this.fitText(title.toUpperCase(), LAYOUT.WIDTH - 10 - figW), LAYOUT.LEFT + 5, top + 11);
+    if (hasTitle) {
+      this.doc.setFont(this.dataFont, 'bold');
+      this.doc.setFontSize(7);
+      this.doc.setTextColor(...C.accent);
+      this.doc.text(num, LAYOUT.LEFT + 5, top + 6);
+
+      this.doc.setFont(this.headFont, 'bold');
+      this.doc.setFontSize(9);
+      this.doc.setTextColor(...C.navy);
+      figW = figures.length ? Math.min(66, figures.length * 22) : 0;
+      figLeft = LAYOUT.RIGHT - figW;
+      this.doc.text(this.fitText(title.toUpperCase(), LAYOUT.WIDTH - 10 - figW), LAYOUT.LEFT + 5, top + 11);
+    }
 
     if (figures.length) {
       const colW = figW / figures.length;
       figures.forEach(([val, lbl], i) => {
-        const cx = LAYOUT.RIGHT - figW + i * colW + colW / 2;
+        const cx = figLeft + i * colW + colW / 2;
         if (i > 0) {
           this.doc.setDrawColor(...C.rule);
           this.doc.setLineWidth(0.15);
-          this.doc.line(LAYOUT.RIGHT - figW + i * colW, top + 3, LAYOUT.RIGHT - figW + i * colW, top + h - 3);
+          this.doc.line(figLeft + i * colW, top + 3, figLeft + i * colW, top + h - 3);
         }
         this.doc.setFont(this.dataFont, 'bold');
-        this.doc.setFontSize(10);
+        this.doc.setFontSize(hasTitle ? 10 : 12);
         this.doc.setTextColor(...C.navy);
-        this.doc.text(this.fitText(val, colW - 3), cx, top + 7.5, { align: 'center' });
+        this.doc.text(this.fitText(val, colW - 3), cx, top + (hasTitle ? 7.5 : 7.6), { align: 'center' });
         this.doc.setFont(this.headFont, 'normal');
-        this.doc.setFontSize(5.6);
+        this.doc.setFontSize(hasTitle ? 5.6 : 6);
         this.doc.setTextColor(...C.mid);
-        this.doc.text(this.fitText(lbl.toUpperCase(), colW - 2), cx, top + 11.6, { align: 'center' });
+        this.doc.text(this.fitText(lbl.toUpperCase(), colW - 2), cx, top + (hasTitle ? 11.6 : 11.4), { align: 'center' });
       });
     }
 
@@ -1597,6 +1605,7 @@ export class PdfDoc {
     this.doc.setLineWidth(0.15);
     this.doc.line(LAYOUT.LEFT, top + h, LAYOUT.RIGHT, top + h);
     this.y = top + h + 6;
+
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
     this.doc.setTextColor(...C.dark);
@@ -1874,25 +1883,34 @@ export class PdfDoc {
     labels: { title: string; effort: string; impact: string; low: string; high: string }
   ): void {
     if (!points.length) return;
-    const cell = 26;
+    const axisGutter = 14;
+    // Fill the text column, but keep the plot flat enough to read at a glance.
+    const cell = (LAYOUT.WIDTH - axisGutter) / 3;
+    const cellH = 24;
     const gridW = cell * 3;
-    this.checkSpace(gridW + 26);
+    const gridH = cellH * 3;
+    this.checkSpace(gridH + 30);
     this.sectionLabel(labels.title);
-    const gridLeft = LAYOUT.LEFT + 16;
-    const gridTop = this.y + 2;
+    // Centre the plot inside the text column, leaving a gutter for the y axis.
+    const gridLeft = LAYOUT.LEFT + axisGutter;
+    const gridTop = this.y + 3;
 
     for (let ex = 0; ex < 3; ex++) {
       for (let iy = 0; iy < 3; iy++) {
         const x = gridLeft + ex * cell;
-        const y = gridTop + (2 - iy) * cell;
-        const quick = ex === 0 && iy >= 1;
-        this.doc.setFillColor(...(quick ? [239, 245, 240] as [number, number, number] : C.bg));
-        this.doc.rect(x, y, cell, cell, 'F');
+        const y = gridTop + (2 - iy) * cellH;
+        const quick = ex === 0 && iy === 2; // low effort, high effect
+        this.doc.setFillColor(...(quick ? [237, 244, 238] as [number, number, number] : C.bg));
+        this.doc.rect(x, y, cell, cellH, 'F');
         this.doc.setDrawColor(...C.rule);
         this.doc.setLineWidth(0.12);
-        this.doc.rect(x, y, cell, cell, 'S');
+        this.doc.rect(x, y, cell, cellH, 'S');
       }
     }
+    // Outer frame, slightly stronger than the internal hairlines.
+    this.doc.setDrawColor(...C.mid);
+    this.doc.setLineWidth(0.25);
+    this.doc.rect(gridLeft, gridTop, gridW, gridH, 'S');
 
     // Plot points, spreading them inside their cell
     const perCell: Record<string, number> = {};
@@ -1900,29 +1918,34 @@ export class PdfDoc {
       const key = `${p.effort}-${p.impact}`;
       const n = perCell[key] ?? 0;
       perCell[key] = n + 1;
-      const cx = gridLeft + (p.effort - 1) * cell + 5 + (n % 4) * 5.4;
-      const cy = gridTop + (3 - p.impact) * cell + 6 + Math.floor(n / 4) * 6;
+      const cx = gridLeft + (p.effort - 1) * cell + 6 + (n % 6) * 6.4;
+      const cy = gridTop + (3 - p.impact) * cellH + 7 + Math.floor(n / 6) * 7;
       this.doc.setFillColor(...C.navy);
-      this.doc.circle(cx, cy, 2.4, 'F');
+      this.doc.circle(cx, cy, 2.6, 'F');
       this.doc.setFont(this.dataFont, 'bold');
-      this.doc.setFontSize(4.8);
+      this.doc.setFontSize(5);
       this.doc.setTextColor(...C.white);
-      this.doc.text(p.id, cx, cy + 1.4, { align: 'center' });
+      this.doc.text(p.id, cx, cy + 1.5, { align: 'center' });
     }
 
-    // Axes
+    // Axis ticks: low / high on both axes, set clear of the frame.
     this.doc.setFont(this.headFont, 'normal');
     this.doc.setFontSize(6);
     this.doc.setTextColor(...C.mid);
-    this.doc.text(labels.low, gridLeft + cell / 2, gridTop + gridW + 4, { align: 'center' });
-    this.doc.text(labels.high, gridLeft + gridW - cell / 2, gridTop + gridW + 4, { align: 'center' });
+    this.doc.text(labels.low, gridLeft + cell / 2, gridTop + gridH + 5, { align: 'center' });
+    this.doc.text(labels.high, gridLeft + gridW - cell / 2, gridTop + gridH + 5, { align: 'center' });
+    this.doc.text(labels.high, gridLeft - 3.5, gridTop + cellH / 2, { angle: 90, align: 'center' });
+    this.doc.text(labels.low, gridLeft - 3.5, gridTop + gridH - cellH / 2, { angle: 90, align: 'center' });
+
+    // Axis titles
     this.doc.setFont(this.headFont, 'bold');
     this.doc.setFontSize(6.4);
     this.doc.setTextColor(...C.navy);
-    this.doc.text(labels.effort.toUpperCase(), gridLeft + gridW / 2, gridTop + gridW + 9, { align: 'center' });
-    this.doc.text(labels.impact.toUpperCase(), gridLeft - 6, gridTop + gridW / 2, { angle: 90, align: 'center' });
+    this.doc.text(labels.effort.toUpperCase(), gridLeft + gridW / 2, gridTop + gridH + 10.5, { align: 'center' });
+    this.doc.text(labels.impact.toUpperCase(), gridLeft - 9.5, gridTop + gridH / 2, { angle: 90, align: 'center' });
 
-    this.y = gridTop + gridW + 14;
+    this.y = gridTop + gridH + 16;
+
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
     this.doc.setTextColor(...C.dark);

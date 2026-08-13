@@ -485,7 +485,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   // ── Executive Brief — concise ~2-page management summary ─────
   if (executiveBrief) {
     pdf.newPage();
-    pdf.chapterHeaderBar('1', t('sec1', lang), [
+    pdf.chapterHeaderBar('', '', [
       [`${pct}%`, t('readiness', lang)],
       [String(fail + partial), 'open positions'],
       [String(merged.length), 'requirements'],
@@ -551,7 +551,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   // ── 1 Executive Summary ─────────────────────────────────────
   pdf.heading(t('sec1', lang), 1);
   pdf.addBookmark(t('sec1', lang), 1);
-  pdf.chapterHeaderBar('1', t('sec1', lang), [
+  pdf.chapterHeaderBar('', '', [
     [`${pct}%`, t('readiness', lang)],
     [String(fail + partial), 'open positions'],
     [String(merged.length), 'requirements'],
