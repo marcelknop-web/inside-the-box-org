@@ -563,13 +563,13 @@ export class PdfDoc {
 
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(8.5);
-    const valLines = this.doc.splitTextToSize(value, LAYOUT.RIGHT - valX);
+    const valLines = this.wrap(value, LAYOUT.RIGHT - valX);
     const valLineH = 3.8;
 
     // Wrap (never clip) the label inside its own column.
     this.doc.setFont(this.headFont, 'bold');
     this.doc.setFontSize(7.5);
-    const labelLines = this.doc.splitTextToSize(label, labelW);
+    const labelLines = this.wrap(label, labelW);
     const labelLineH = 3.4;
 
     const lineH = Math.max(valLines.length * valLineH, labelLines.length * labelLineH, 4.4);
@@ -716,23 +716,28 @@ export class PdfDoc {
 
   /** Small meta text (category, severity, references) */
   metaLine(text: string): void {
+    const metaLineH = 3;
     this.doc.setFontSize(6.5);
     this.doc.setFont(this.headFont, 'normal');
-    this.doc.setTextColor(...C.light);
-    const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH);
-    const metaLineH = 3;
-    for (let i = 0; i < lines.length; i++) {
-      this.doc.text(lines[i], LAYOUT.LEFT, this.y + i * metaLineH);
+    const lines = this.wrap(text, LAYOUT.WIDTH);
+    for (const line of lines) {
+      this.checkSpace(metaLineH + 1);
+      this.doc.setFontSize(6.5);
+      this.doc.setFont(this.headFont, 'normal');
+      this.doc.setTextColor(...C.light);
+      this.doc.text(line, LAYOUT.LEFT, this.y);
+      this.y += metaLineH;
     }
-    this.y += lines.length * metaLineH + 2;
+    this.y += 2;
     this.doc.setTextColor(...C.dark);
   }
+
 
   /** Score bar with refined background panel */
   scoreBar(text: string): void {
     this.doc.setFont(this.headFont, 'bold');
     this.doc.setFontSize(8);
-    const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH - 16);
+    const lines = this.wrap(text, LAYOUT.WIDTH - 16);
     const scoreLineH = 4;
     const barH = Math.max(12, lines.length * scoreLineH + 8);
     this.checkSpace(barH + 6);
