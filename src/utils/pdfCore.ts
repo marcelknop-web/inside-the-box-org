@@ -501,29 +501,22 @@ export class PdfDoc {
     this.y += 6;
   }
 
-  /** Two-line field: small label above, value below — styled with background panel */
+  /** Two-line field: small caps label above, value below — flush left, no tint */
   field(label: string, value: string): void {
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
-    const valLines = this.doc.splitTextToSize(value, LAYOUT.WIDTH - 12);
-    const labelH = 6;
+    const valLines = this.doc.splitTextToSize(value, LAYOUT.WIDTH - 3);
+    const labelH = 5;
     const textH = valLines.length * LAYOUT.BODY_LEADING;
-    const totalH = labelH + textH + 5;
-    this.checkSpace(totalH + 3);
+    this.checkSpace(labelH + textH + 6);
 
-    // Background panel
-    const panelY = this.y - 2;
-    this.doc.setFillColor(248, 249, 251);
-    this.doc.roundedRect(LAYOUT.LEFT, panelY, LAYOUT.WIDTH, totalH, 1, 1, 'F');
-    // Left accent bar
-    this.doc.setFillColor(...C.accent);
-    this.doc.rect(LAYOUT.LEFT, panelY, 1.2, totalH, 'F');
+    const blockY = this.y - 2.4;
 
     // Label
     this.doc.setFont(this.headFont, 'bold');
     this.doc.setFontSize(LAYOUT.LABEL_SIZE);
-    this.doc.setTextColor(...C.accent);
-    this.doc.text(label.toUpperCase(), LAYOUT.LEFT + 5, this.y + 1);
+    this.doc.setTextColor(...C.mid);
+    this.doc.text(label.toUpperCase(), LAYOUT.LEFT + 3, this.y + 1);
     this.y += labelH;
 
     // Value
@@ -531,14 +524,17 @@ export class PdfDoc {
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
     this.doc.setTextColor(...C.dark);
     for (const line of valLines) {
-      this.doc.text(line, LAYOUT.LEFT + 5, this.y);
+      this.doc.text(line, LAYOUT.LEFT + 3, this.y);
       this.y += LAYOUT.BODY_LEADING;
     }
 
-    // Ensure cursor is past panel bottom
-    const panelBottom = panelY + totalH;
-    this.y = Math.max(this.y + 2, panelBottom + 3);
+    // Slim accent keyline instead of a filled panel
+    this.doc.setFillColor(...C.accent);
+    this.doc.rect(LAYOUT.LEFT, blockY, 0.7, Math.max(4, this.y - blockY - 1), 'F');
+
+    this.y += 4;
   }
+
 
   /** Inline label: value on same line — with subtle background */
   fieldInline(label: string, value: string, indent = 0): void {
