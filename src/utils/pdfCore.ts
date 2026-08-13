@@ -554,10 +554,9 @@ export class PdfDoc {
     const totalH = lineH + 5;
     this.checkSpace(totalH + 2);
 
-    // Subtle alternating background
+    // No background tint — rows are separated by a hairline rule only.
     const panelY = this.y - 2.5;
-    this.doc.setFillColor(250, 251, 252);
-    this.doc.roundedRect(LAYOUT.LEFT + indent, panelY, LAYOUT.WIDTH - indent, totalH, 0.8, 0.8, 'F');
+
 
     this.doc.setFont(this.headFont, 'bold');
     this.doc.setFontSize(7.5);
