@@ -36,9 +36,6 @@ export function renderWorkingPapers(pdf: PdfDoc, wp: WorkingPapers, opts?: { sec
     pdf.y += 8;
 
 
-    pdf.sectionLabel('Control Objective');
-    pdf.bodyText(`${r.name}${r.article ? `  (${r.article})` : ''}`);
-
     pdf.sectionLabel('Assessment Question');
     pdf.bodyText(r.assessmentQuestion);
 
