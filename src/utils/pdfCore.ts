@@ -1541,6 +1541,9 @@ export class PdfDoc {
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setTextColor(...C.dark);
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
+  }
+
+
 
   /* ── Auditor-grade data visuals ─────────────────────────────
      Quiet, hairline graphics that replace repeated prose. All of them are
