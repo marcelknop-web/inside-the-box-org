@@ -630,10 +630,10 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   pdf.bulletItem('Evidence was classified by type and verification level; unverified statements are marked as self-declared.');
   pdf.bulletItem('AI generated explanatory insights and hypotheses only; it never created, modified or overrode a verdict, risk or evidence record.');
 
-  // ── 4 Requirement-level Readiness Matrix ────────────────────
-  // The matrix is the analytical core of Part A: one line per requirement
-  // with verdict, evidence verification level and the owning action, so a
-  // reader never has to page into the evidence pack to see the position.
+  // ── 4 Findings ──────────────────────────────────────────────
+  // The findings chapter carries the full position: the requirement matrix,
+  // the positions requiring attention and the two deterministic indices that
+  // characterise them (management attention, audit readiness).
   pdf.newPage();
   pdf.heading(t('sec4', lang), 1);
   pdf.addBookmark(t('sec4', lang), 1);
@@ -646,6 +646,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   const actionByControl = new Map(computed.recommendations.map((rec) => [rec.relatedControl, rec]));
   const VERIF_SHORT: Record<string, string> = { declared: 'Declared', documented: 'Documented', verified: 'Verified' };
 
+  pdf.heading('4.1  Readiness matrix', 2);
   pdf.dataTableHeader(
     `${t('colId', lang).padEnd(9)}${t('colRef', lang).padEnd(12)}${t('colTopic', lang).padEnd(34)}${t('colCat', lang).padEnd(13)}${t('colVerdict', lang).padEnd(9)}${t('colEvidence', lang).padEnd(11)}${t('colAction', lang)}`
   );
@@ -659,30 +660,91 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     );
   });
   pdf.y += 2;
-  pdf.metaLine('Evidence column shows the verification level of the supporting evidence, not its quantity. Action column references the action in section 6.');
+  pdf.metaLine('Evidence column shows the verification level of the supporting evidence, not its quantity. Action column references the action in chapter 7.');
 
   // ── Requirement positions that need attention (gap / partial) ──
   const open = merged.filter((r) => r.status !== 'pass');
   if (open.length) {
-    pdf.heading('Positions requiring attention', 2);
-    pdf.introText('Every non-passing requirement in one line: what is missing and which action closes it. Full evidence detail is in Part B.');
+    pdf.heading('4.2  Positions requiring attention', 2);
+    pdf.introText('Each non-passing requirement is stated as observation, assessment and consequence: what was found, how it was rated, which cause it belongs to and which action closes it. Full evidence detail is in Part B.');
     open.forEach((r) => {
       pdf.checkSpace(16);
       pdf.statusBadge(r.status);
       pdf.y += 5;
       pdf.metaLine(`${r.id}${r.article ? ` · ${r.article}` : ''} — ${r.name}`);
       if (r.gap) pdf.bodyText(`${t('gap', lang)}: ${r.gap}`);
+      const rc = rcIdByControl.get(r.id);
       const act = actionByControl.get(r.id);
-      if (act) pdf.metaLine(`${t('colAction', lang)}: ${act.id} · ${PRIORITY_LABEL[act.priority][lang]} · ${act.dueWindow ?? act.duration}`);
+      const trail = [
+        rc ? `Cause: ${rc} (chapter 5)` : null,
+        act ? `${t('colAction', lang)}: ${act.id} · ${PRIORITY_LABEL[act.priority][lang]} · ${act.dueWindow ?? act.duration}` : null,
+      ].filter(Boolean).join('  ·  ');
+      if (trail) pdf.metaLine(trail);
     });
   }
 
-  // ── 5 Risk Landscape ────────────────────────────────────────
+  // ── Deterministic indices characterising the findings ────────
+  pdf.heading(`4.3  ${t('attentionIndex', lang)}`, 2);
+  pdf.metaLine(ORIGIN.assessment);
+  pdf.fieldInline(t('attentionIndex', lang), `${attentionLabel(att.level, lang)}  (Critical ${att.counts.critical} · High ${att.counts.high} · Medium ${att.counts.medium} · Low ${att.counts.low})`);
+  if (att.drivers.length) {
+    pdf.sectionLabel(t('attentionDrivers', lang));
+    att.drivers.forEach((d) => pdf.bulletItem(d));
+  }
+
+  pdf.heading(`4.4  ${t('auditReadiness', lang)}`, 2);
+  pdf.metaLine(ORIGIN.assessment);
+  pdf.fieldInline(`${t('readiness', lang)} (overall)`, `${readinessRatingLabel(ar.overall, lang)} · ${ar.overallPct}%`);
+  ar.dimensions.forEach((d) => {
+    pdf.fieldInline(d.label, `${readinessRatingLabel(d.rating, lang)} · ${d.pct}%`);
+    pdf.y += 1;
+    pdf.metaLine(d.basis);
+    pdf.y += 1.5;
+  });
+
+  // ── 5 Root Cause Analysis ───────────────────────────────────
+  // Deterministic causes first, AI hypotheses clearly separated afterwards.
   pdf.newPage();
   pdf.heading(t('sec5', lang), 1);
   pdf.addBookmark(t('sec5', lang), 1);
+  pdf.introText('This chapter explains why the findings in chapter 4 occur. The causes are derived from the findings themselves; any AI-inferred hypothesis is marked as such and carries no assurance weight.');
+
+  if (clusters.length) {
+    pdf.heading(`5.1  ${t('detFindings', lang)}`, 2);
+    pdf.metaLine(`${ORIGIN.assessment} — derived from the findings, not AI-generated`);
+    pdf.introText(
+      `The ${openTotal} open finding${openTotal === 1 ? '' : 's'} concentrate in ${clusters.length} root-cause theme${clusters.length === 1 ? '' : 's'}. Resolving these themes addresses the majority of individual gaps.`,
+    );
+    clusters.slice(0, 6).forEach((c, i) => {
+      pdf.checkSpace(20);
+      pdf.heading(`RC${i + 1}  ${c.rootCause}`, 3);
+      pdf.fieldInline(t('affectedControls', lang), c.controlIds.join(', '));
+      pdf.fieldInline(t('belowConformity', lang), `${c.controlIds.length}  (${c.fail} gap${c.fail === 1 ? '' : 's'}, ${c.partial} partial)`);
+      const rcActions = [...new Set(c.controlIds.map((id) => actionByControl.get(id)?.id).filter(Boolean))];
+      if (rcActions.length) pdf.fieldInline(t('actionPlan', lang), `${rcActions.join(', ')}  (chapter 7)`);
+      pdf.sectionLabel(t('businessImpactCol', lang));
+      pdf.bodyText(c.businessImpact);
+    });
+  } else {
+    pdf.bodyParagraph('No open findings were recorded, so no root cause analysis is required.');
+  }
+
+  if (insights?.rootCauses?.length) {
+    pdf.heading(`5.2  ${t('aiHypotheses', lang)}`, 2);
+    pdf.metaLine(`${ORIGIN.insight} · Confidence: ${confLabel(insights.confidence?.rootCauses)}`);
+    pdf.introText('These are AI-inferred cause hypotheses. The deterministic themes above remain the authoritative reading of the findings; the hypotheses require validation before being treated as fact.');
+    insights.rootCauses.forEach((rc) => {
+      pdf.bulletItem(`${rc.symptom} -> ${rc.cause} [Confidence: ${confLabel(rc.confidence)}]`);
+      if (rc.validationActivities?.length) pdf.metaLine(`Recommended validation: ${rc.validationActivities.join('; ')}`);
+    });
+  }
+
+  // ── 6 Risk Landscape ────────────────────────────────────────
+  pdf.newPage();
+  pdf.heading(t('sec6', lang), 1);
+  pdf.addBookmark(t('sec6', lang), 1);
   pdf.metaLine(ORIGIN.risk);
-  pdf.introText(t('riskIntro', lang));
+  pdf.introText(`${t('riskIntro', lang)} Each risk traces back to a non-passing requirement in chapter 4 and to the cause theme it belongs to in chapter 5.`);
 
   const risks = computed.risks;
   if (risks.length === 0) {
@@ -711,11 +773,11 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     });
   }
 
-  // ── 6 Action Plan and Roadmap ───────────────────────────────
+  // ── 7 Action Plan and Roadmap ───────────────────────────────
   pdf.newPage();
-  pdf.heading(t('sec6', lang), 1);
-  pdf.addBookmark(t('sec6', lang), 1);
-  pdf.introText(t('recsIntro', lang));
+  pdf.heading(t('sec7', lang), 1);
+  pdf.addBookmark(t('sec7', lang), 1);
+  pdf.introText(`${t('recsIntro', lang)} Every action names the requirement it closes and the cause theme it belongs to, so the chain finding -> cause -> action can be followed end to end.`);
 
   if (computed.recommendations.length === 0) {
     pdf.bodyParagraph(t('noRecs', lang));
@@ -724,7 +786,8 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     computed.recommendations.forEach((rec) => {
       pdf.checkSpace(30);
       pdf.heading(`${rec.id}  ${rec.title}`, 3);
-      pdf.metaLine(`${PRIORITY_LABEL[rec.priority][lang]} · ${rec.dueWindow ?? rec.duration} · ${rec.relatedControl}`);
+      const rc = rcIdByControl.get(rec.relatedControl);
+      pdf.metaLine(`${PRIORITY_LABEL[rec.priority][lang]} · ${rec.dueWindow ?? rec.duration} · ${rec.relatedControl}${rc ? ` · ${rc}` : ''}`);
       if (rec.deliverable) pdf.fieldInline(t('deliverable', lang), rec.deliverable);
       if (rec.acceptanceCriteria) pdf.fieldInline(t('acceptance', lang), rec.acceptanceCriteria);
       if (rec.verificationMethod) pdf.fieldInline(t('verificationMethod', lang), rec.verificationMethod);
@@ -742,6 +805,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
 
     drawGanttChart(pdf, computed, lang);
   }
+
 
   // ── 8 Conclusion and Recommendation (closes Part A) ──────────
   pdf.newPage();
