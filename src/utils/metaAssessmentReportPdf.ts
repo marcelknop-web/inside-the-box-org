@@ -544,21 +544,21 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   // ── 1 Executive Summary ─────────────────────────────────────
   pdf.heading(t('sec1', lang), 1);
   pdf.addBookmark(t('sec1', lang), 1);
+  pdf.chapterHeaderBar('1', t('sec1', lang), [
+    [`${pct}%`, t('readiness', lang)],
+    [String(fail + partial), 'open positions'],
+    [String(merged.length), 'requirements'],
+  ]);
   if (result.summary) pdf.bodyParagraph(result.summary);
 
-  pdf.kpiRow([
-    [`${pct}%`, t('readiness', lang)],
-    [String(pass), t('passed', lang)],
-    [String(partial), t('partial', lang)],
-    [String(fail), t('gaps', lang)],
-  ]);
-  pdf.metaLine('Readiness is a preparedness indicator derived from the recorded answers. It is not a conformity statement, certification or class decision.');
-
-  pdf.sectionLabel(t('distribution', lang));
-  pdf.complianceBar(pass, partial, fail, {
-    pass: t('passed', lang), partial: t('partial', lang), fail: t('gaps', lang),
-    title: t('verdictOverview', lang),
+  pdf.readinessPanel(pct, { pass, partial, fail }, {
+    title: t('readiness', lang),
+    pass: t('passed', lang),
+    partial: t('partial', lang),
+    fail: t('gaps', lang),
+    caption: 'Readiness is a preparedness indicator derived from the recorded answers. It is not a conformity statement, certification or class decision.',
   });
+
 
   // Canonical deterministic inputs — rendered once, each in its own chapter.
   const scope = computed.scope;
