@@ -461,13 +461,14 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     pdf.tableOfContents(t('toc', lang), [
       t('partA', lang),
       t('sec1', lang), t('sec2', lang), t('sec3', lang), t('sec4', lang),
-      t('sec5', lang), t('sec6', lang), t('sec7', lang),
+      t('sec5', lang), t('sec6', lang), t('sec7', lang), t('sec8', lang),
       t('partB', lang),
-      t('sec8', lang),
-      ...(insights ? [t('sec9', lang)] : []),
+      t('sec9', lang),
+      ...(insights ? [t('sec10', lang)] : []),
       ...(includeWorkingPapers ? [t('secWP', lang)] : []),
       t('secMethod', lang),
     ]);
+
 
   }
 
