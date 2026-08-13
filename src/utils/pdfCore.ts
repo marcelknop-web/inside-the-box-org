@@ -501,29 +501,22 @@ export class PdfDoc {
     this.y += 6;
   }
 
-  /** Two-line field: small label above, value below — styled with background panel */
+  /** Two-line field: small caps label above, value below — flush left, no tint */
   field(label: string, value: string): void {
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
-    const valLines = this.doc.splitTextToSize(value, LAYOUT.WIDTH - 12);
-    const labelH = 6;
+    const valLines = this.doc.splitTextToSize(value, LAYOUT.WIDTH - 3);
+    const labelH = 5;
     const textH = valLines.length * LAYOUT.BODY_LEADING;
-    const totalH = labelH + textH + 5;
-    this.checkSpace(totalH + 3);
+    this.checkSpace(labelH + textH + 6);
 
-    // Background panel
-    const panelY = this.y - 2;
-    this.doc.setFillColor(248, 249, 251);
-    this.doc.roundedRect(LAYOUT.LEFT, panelY, LAYOUT.WIDTH, totalH, 1, 1, 'F');
-    // Left accent bar
-    this.doc.setFillColor(...C.accent);
-    this.doc.rect(LAYOUT.LEFT, panelY, 1.2, totalH, 'F');
+    const blockY = this.y - 2.4;
 
     // Label
     this.doc.setFont(this.headFont, 'bold');
     this.doc.setFontSize(LAYOUT.LABEL_SIZE);
-    this.doc.setTextColor(...C.accent);
-    this.doc.text(label.toUpperCase(), LAYOUT.LEFT + 5, this.y + 1);
+    this.doc.setTextColor(...C.mid);
+    this.doc.text(label.toUpperCase(), LAYOUT.LEFT + 3, this.y + 1);
     this.y += labelH;
 
     // Value
@@ -531,33 +524,31 @@ export class PdfDoc {
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
     this.doc.setTextColor(...C.dark);
     for (const line of valLines) {
-      this.doc.text(line, LAYOUT.LEFT + 5, this.y);
+      this.doc.text(line, LAYOUT.LEFT + 3, this.y);
       this.y += LAYOUT.BODY_LEADING;
     }
 
-    // Ensure cursor is past panel bottom
-    const panelBottom = panelY + totalH;
-    this.y = Math.max(this.y + 2, panelBottom + 3);
+    // Slim accent keyline instead of a filled panel
+    this.doc.setFillColor(...C.accent);
+    this.doc.rect(LAYOUT.LEFT, blockY, 0.7, Math.max(4, this.y - blockY - 1), 'F');
+
+    this.y += 4;
   }
 
-  /** Inline label: value on same line — with subtle background */
+
+  /** Inline label: value on same line — table-like rows separated by hairline rules */
   fieldInline(label: string, value: string, indent = 0): void {
     // Fixed value column so every label/value pair aligns to a consistent
     // tab stop — professional, table-like alignment across all fields.
-    const FIELD_LABEL_COL = 46;
+    const FIELD_LABEL_COL = 44;
     const labelW = FIELD_LABEL_COL;
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(8.5);
-    const valLines = this.doc.splitTextToSize(value, LAYOUT.WIDTH - indent - labelW - 10);
+    const valX = LAYOUT.LEFT + indent + labelW;
+    const valLines = this.doc.splitTextToSize(value, LAYOUT.RIGHT - valX);
     const valLineH = 3.8;
-    const lineH = Math.max(valLines.length * valLineH, 4.5);
-    const totalH = lineH + 5;
-    this.checkSpace(totalH + 2);
-
-    // Subtle alternating background
-    const panelY = this.y - 2.5;
-    this.doc.setFillColor(250, 251, 252);
-    this.doc.roundedRect(LAYOUT.LEFT + indent, panelY, LAYOUT.WIDTH - indent, totalH, 0.8, 0.8, 'F');
+    const lineH = Math.max(valLines.length * valLineH, 4.4);
+    this.checkSpace(lineH + 4);
 
     this.doc.setFont(this.headFont, 'bold');
     this.doc.setFontSize(7.5);
@@ -571,20 +562,23 @@ export class PdfDoc {
       }
       labelText = `${labelText.trimEnd()}…`;
     }
-    this.doc.text(labelText, LAYOUT.LEFT + indent + 3, this.y);
+    this.doc.text(labelText, LAYOUT.LEFT + indent, this.y);
 
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(8.5);
     this.doc.setTextColor(...C.dark);
-    const valX = LAYOUT.LEFT + indent + labelW + 3;
     for (let i = 0; i < valLines.length; i++) {
       this.doc.text(valLines[i], valX, this.y + i * valLineH);
     }
 
-    // Ensure cursor is past panel bottom
-    const panelBottom = panelY + totalH;
-    this.y = Math.max(this.y + lineH + 2, panelBottom + 2);
+    this.y += lineH + 1.4;
+    // Hairline row separator
+    this.doc.setDrawColor(...C.rule);
+    this.doc.setLineWidth(0.06);
+    this.doc.line(LAYOUT.LEFT + indent, this.y, LAYOUT.RIGHT, this.y);
+    this.y += 2.6;
   }
+
 
   separator(): void {
     this.checkSpace(8);
@@ -594,26 +588,26 @@ export class PdfDoc {
     this.y += 7;
   }
 
-  bulletItem(text: string, indent = 6): void {
+  bulletItem(text: string, indent = 4): void {
+    // Typeset as a proper hanging-indent list item: no background tint,
+    // a single small marker, and every wrapped line aligned to the text column.
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
     this.doc.setFont(this.bodyFont, 'normal');
-    const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH - indent - 8);
-    const itemH = lines.length * LAYOUT.BODY_LEADING + 4;
-    this.checkSpace(itemH + 2);
-    // Subtle background for each bullet
-    this.doc.setFillColor(252, 252, 253);
-    this.doc.roundedRect(LAYOUT.LEFT + indent - 1, this.y - 2.5, LAYOUT.WIDTH - indent + 1, itemH, 0.6, 0.6, 'F');
+    const markerGap = 3.8;
+    const textX = LAYOUT.LEFT + indent + markerGap;
+    const lines = this.doc.splitTextToSize(text, LAYOUT.RIGHT - textX);
+    this.checkSpace(lines.length * LAYOUT.BODY_LEADING + 2);
     this.doc.setTextColor(...C.accent);
-    this.doc.setFontSize(5.5);
-    this.doc.text('▸', LAYOUT.LEFT + indent + 1, this.y);
+    this.doc.setFontSize(6.5);
+    this.doc.text('\u2013', LAYOUT.LEFT + indent, this.y);
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
     this.doc.setTextColor(...C.dark);
-    const bulletTextX = LAYOUT.LEFT + indent + 5;
     for (let i = 0; i < lines.length; i++) {
-      this.doc.text(lines[i], bulletTextX, this.y + i * LAYOUT.BODY_LEADING);
+      this.doc.text(lines[i], textX, this.y + i * LAYOUT.BODY_LEADING);
     }
-    this.y += lines.length * LAYOUT.BODY_LEADING + 2.5;
+    this.y += lines.length * LAYOUT.BODY_LEADING + 1.6;
   }
+
 
   /* ── Structural Elements ─────────────────────────────────── */
 
