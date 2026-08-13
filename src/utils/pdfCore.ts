@@ -1518,7 +1518,33 @@ export class PdfDoc {
   }
 
   /** Truncate text with an ellipsis so it fits within maxWidth (mm). */
+  /**
+   * Wrap text to a column width, hard-breaking single tokens (IDs, URLs,
+   * long identifiers) that are wider than the column so nothing is ever
+   * clipped at the right margin.
+   */
+  private wrap(text: string, maxWidth: number): string[] {
+    const src = String(text ?? '');
+    if (!src.trim()) return [''];
+    const w = Math.max(8, maxWidth);
+    const parts: string[] = [];
+    for (const token of src.split(/(\s+)/)) {
+      if (!token) continue;
+      if (!token.trim() || this.doc.getTextWidth(token) <= w) { parts.push(token); continue; }
+      let cur = '';
+      for (const ch of token) {
+        if (cur && this.doc.getTextWidth(cur + ch) > w) { parts.push(cur, ' '); cur = ch; }
+        else cur += ch;
+      }
+      if (cur) parts.push(cur);
+    }
+    const out = this.doc.splitTextToSize(parts.join(''), w) as string[];
+    return out.length ? out : [''];
+  }
+
+  /** Truncate text with an ellipsis so it fits within maxWidth (mm). */
   private fitText(text: string, maxWidth: number): string {
+
     if (!text) return '';
     if (this.doc.getTextWidth(text) <= maxWidth) return text;
     let t = text;
