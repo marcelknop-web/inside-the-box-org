@@ -1882,25 +1882,31 @@ export class PdfDoc {
     labels: { title: string; effort: string; impact: string; low: string; high: string }
   ): void {
     if (!points.length) return;
-    const cell = 26;
+    const cell = 30;
     const gridW = cell * 3;
-    this.checkSpace(gridW + 26);
+    const axisGutter = 15;
+    this.checkSpace(gridW + 30);
     this.sectionLabel(labels.title);
-    const gridLeft = LAYOUT.LEFT + 16;
-    const gridTop = this.y + 2;
+    // Centre the plot inside the text column, leaving a gutter for the y axis.
+    const gridLeft = LAYOUT.LEFT + axisGutter + Math.max(0, (LAYOUT.WIDTH - axisGutter - gridW) / 2);
+    const gridTop = this.y + 3;
 
     for (let ex = 0; ex < 3; ex++) {
       for (let iy = 0; iy < 3; iy++) {
         const x = gridLeft + ex * cell;
         const y = gridTop + (2 - iy) * cell;
-        const quick = ex === 0 && iy >= 1;
-        this.doc.setFillColor(...(quick ? [239, 245, 240] as [number, number, number] : C.bg));
+        const quick = ex === 0 && iy === 2; // low effort, high effect
+        this.doc.setFillColor(...(quick ? [237, 244, 238] as [number, number, number] : C.bg));
         this.doc.rect(x, y, cell, cell, 'F');
         this.doc.setDrawColor(...C.rule);
         this.doc.setLineWidth(0.12);
         this.doc.rect(x, y, cell, cell, 'S');
       }
     }
+    // Outer frame, slightly stronger than the internal hairlines.
+    this.doc.setDrawColor(...C.mid);
+    this.doc.setLineWidth(0.25);
+    this.doc.rect(gridLeft, gridTop, gridW, gridW, 'S');
 
     // Plot points, spreading them inside their cell
     const perCell: Record<string, number> = {};
@@ -1908,29 +1914,34 @@ export class PdfDoc {
       const key = `${p.effort}-${p.impact}`;
       const n = perCell[key] ?? 0;
       perCell[key] = n + 1;
-      const cx = gridLeft + (p.effort - 1) * cell + 5 + (n % 4) * 5.4;
-      const cy = gridTop + (3 - p.impact) * cell + 6 + Math.floor(n / 4) * 6;
+      const cx = gridLeft + (p.effort - 1) * cell + 6 + (n % 4) * 6;
+      const cy = gridTop + (3 - p.impact) * cell + 7 + Math.floor(n / 4) * 7;
       this.doc.setFillColor(...C.navy);
-      this.doc.circle(cx, cy, 2.4, 'F');
+      this.doc.circle(cx, cy, 2.6, 'F');
       this.doc.setFont(this.dataFont, 'bold');
-      this.doc.setFontSize(4.8);
+      this.doc.setFontSize(5);
       this.doc.setTextColor(...C.white);
-      this.doc.text(p.id, cx, cy + 1.4, { align: 'center' });
+      this.doc.text(p.id, cx, cy + 1.5, { align: 'center' });
     }
 
-    // Axes
+    // Axis ticks: low / high on both axes, set clear of the frame.
     this.doc.setFont(this.headFont, 'normal');
     this.doc.setFontSize(6);
     this.doc.setTextColor(...C.mid);
-    this.doc.text(labels.low, gridLeft + cell / 2, gridTop + gridW + 4, { align: 'center' });
-    this.doc.text(labels.high, gridLeft + gridW - cell / 2, gridTop + gridW + 4, { align: 'center' });
+    this.doc.text(labels.low, gridLeft + cell / 2, gridTop + gridW + 5, { align: 'center' });
+    this.doc.text(labels.high, gridLeft + gridW - cell / 2, gridTop + gridW + 5, { align: 'center' });
+    this.doc.text(labels.high, gridLeft - 3, gridTop + cell / 2, { angle: 90, align: 'center' });
+    this.doc.text(labels.low, gridLeft - 3, gridTop + gridW - cell / 2, { angle: 90, align: 'center' });
+
+    // Axis titles
     this.doc.setFont(this.headFont, 'bold');
     this.doc.setFontSize(6.4);
     this.doc.setTextColor(...C.navy);
-    this.doc.text(labels.effort.toUpperCase(), gridLeft + gridW / 2, gridTop + gridW + 9, { align: 'center' });
-    this.doc.text(labels.impact.toUpperCase(), gridLeft - 6, gridTop + gridW / 2, { angle: 90, align: 'center' });
+    this.doc.text(labels.effort.toUpperCase(), gridLeft + gridW / 2, gridTop + gridW + 10.5, { align: 'center' });
+    this.doc.text(labels.impact.toUpperCase(), gridLeft - 9, gridTop + gridW / 2, { angle: 90, align: 'center' });
 
-    this.y = gridTop + gridW + 14;
+    this.y = gridTop + gridW + 16;
+
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
     this.doc.setTextColor(...C.dark);
