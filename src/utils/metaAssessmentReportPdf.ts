@@ -783,7 +783,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     const wpRec = wpById.get(r.id);
     // The heading already carries requirement id, article and title, so the
     // former "Control Objective" block (which repeated exactly that) is gone.
-    pdf.heading(`8.${i + 1}  ${r.id} — ${r.name}${r.article ? `  (${r.article})` : ''}`, 3);
+    pdf.heading(`9.${i + 1}  ${r.id} — ${r.name}${r.article ? `  (${r.article})` : ''}`, 3);
     pdf.statusBadge(r.status);
     pdf.y += 6;
 
