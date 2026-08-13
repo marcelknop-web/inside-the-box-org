@@ -687,6 +687,14 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   pdf.heading(`4.3  ${t('attentionIndex', lang)}`, 2);
   pdf.metaLine(ORIGIN.assessment);
   pdf.fieldInline(t('attentionIndex', lang), `${attentionLabel(att.level, lang)}  (Critical ${att.counts.critical} · High ${att.counts.high} · Medium ${att.counts.medium} · Low ${att.counts.low})`);
+  pdf.distributionBar(
+    [
+      { label: `${t('critical', lang)} (${att.counts.critical})`, value: att.counts.critical, color: [180, 45, 45] },
+      { label: `${t('high', lang)} (${att.counts.high})`, value: att.counts.high, color: [220, 120, 30] },
+      { label: `${t('medium', lang)} (${att.counts.medium})`, value: att.counts.medium, color: [200, 170, 40] },
+      { label: `${t('low', lang)} (${att.counts.low})`, value: att.counts.low, color: [34, 120, 70] },
+    ].filter((s) => s.value > 0),
+  );
   if (att.drivers.length) {
     pdf.sectionLabel(t('attentionDrivers', lang));
     att.drivers.forEach((d) => pdf.bulletItem(d));
@@ -695,12 +703,33 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   pdf.heading(`4.4  ${t('auditReadiness', lang)}`, 2);
   pdf.metaLine(ORIGIN.assessment);
   pdf.fieldInline(`${t('readiness', lang)} (overall)`, `${readinessRatingLabel(ar.overall, lang)} · ${ar.overallPct}%`);
-  ar.dimensions.forEach((d) => {
-    pdf.fieldInline(d.label, `${readinessRatingLabel(d.rating, lang)} · ${d.pct}%`);
-    pdf.y += 1;
-    pdf.metaLine(d.basis);
-    pdf.y += 1.5;
-  });
+  // Dimension profile as ranked bars — the weakest dimension is visible
+  // without reading every line.
+  pdf.rankedBars(
+    [...ar.dimensions]
+      .sort((a, b) => a.pct - b.pct)
+      .map((d) => ({
+        label: `${d.label} — ${readinessRatingLabel(d.rating, lang)}`,
+        value: d.pct,
+        note: d.basis,
+        tone: d.pct >= 70 ? ('pass' as const) : d.pct >= 40 ? ('partial' as const) : ('fail' as const),
+      })),
+    { title: 'Readiness by dimension (weakest first)', unit: '%' },
+  );
+
+  // Evidence substantiation — how far the recorded evidence is verified.
+  const bv = computed.evidence.byVerification;
+  pdf.distributionBar(
+    [
+      { label: 'Verified', value: bv.verified ?? 0 },
+      { label: 'Documented', value: bv.documented ?? 0 },
+      { label: 'Declared', value: bv.declared ?? 0 },
+      { label: 'No evidence', value: computed.evidence.missing.length, color: [180, 45, 45] },
+    ].filter((s) => s.value > 0),
+    'Evidence substantiation',
+  );
+  pdf.metaLine('Declared statements and requirements without evidence carry no independent substantiation and are the first candidates for evidence collection.');
+
 
   // ── 5 Root Cause Analysis ───────────────────────────────────
   // Deterministic causes first, AI hypotheses clearly separated afterwards.
