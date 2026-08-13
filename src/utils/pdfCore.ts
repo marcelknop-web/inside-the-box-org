@@ -284,6 +284,7 @@ export class PdfDoc {
 
   // Running-header tracking: which chapter (level-1) and topic (level-2)
   // is active on each page, so finalize() can stamp the right header text.
+  private dataTableSize = LAYOUT.DATA_SIZE;
   private chapterMarks: { page: number; text: string }[] = [];
   private sectionMarks: { page: number; text: string }[] = [];
 
@@ -638,7 +639,7 @@ export class PdfDoc {
   verdictBox(text: string): void {
     this.doc.setFontSize(9.5);
     this.doc.setFont(this.headFont, 'bold');
-    const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH - 20);
+    const lines = this.wrap(text, LAYOUT.WIDTH - 20);
     const lineH = 4.8;
     const boxH = Math.max(18, lines.length * lineH + 12);
     this.checkSpace(boxH + 4);
@@ -682,12 +683,15 @@ export class PdfDoc {
       this.doc.setFont(this.headFont, 'bold');
       this.doc.setFontSize(16);
       this.doc.setTextColor(...C.navy);
-      this.doc.text(val, x + kpiW / 2, this.y + 11, { align: 'center' });
+      this.doc.text(this.fitText(val, kpiW - 6), x + kpiW / 2, this.y + 11, { align: 'center' });
 
       this.doc.setFont(this.headFont, 'normal');
       this.doc.setFontSize(6);
       this.doc.setTextColor(...C.mid);
-      this.doc.text(label, x + kpiW / 2, this.y + 17.5, { align: 'center' });
+      const labelLines = this.wrap(label, kpiW - 4).slice(0, 2);
+      labelLines.forEach((ln, li) => {
+        this.doc.text(ln, x + kpiW / 2, this.y + 17 + li * 2.6, { align: 'center' });
+      });
     });
     this.y += cardH + 6;
     this.doc.setTextColor(...C.dark);
