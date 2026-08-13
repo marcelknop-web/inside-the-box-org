@@ -536,23 +536,19 @@ export class PdfDoc {
   }
 
 
-  /** Inline label: value on same line — with subtle background */
+  /** Inline label: value on same line — table-like rows separated by hairline rules */
   fieldInline(label: string, value: string, indent = 0): void {
     // Fixed value column so every label/value pair aligns to a consistent
     // tab stop — professional, table-like alignment across all fields.
-    const FIELD_LABEL_COL = 46;
+    const FIELD_LABEL_COL = 44;
     const labelW = FIELD_LABEL_COL;
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(8.5);
-    const valLines = this.doc.splitTextToSize(value, LAYOUT.WIDTH - indent - labelW - 10);
+    const valX = LAYOUT.LEFT + indent + labelW;
+    const valLines = this.doc.splitTextToSize(value, LAYOUT.RIGHT - valX);
     const valLineH = 3.8;
-    const lineH = Math.max(valLines.length * valLineH, 4.5);
-    const totalH = lineH + 5;
-    this.checkSpace(totalH + 2);
-
-    // No background tint — rows are separated by a hairline rule only.
-    const panelY = this.y - 2.5;
-
+    const lineH = Math.max(valLines.length * valLineH, 4.4);
+    this.checkSpace(lineH + 4);
 
     this.doc.setFont(this.headFont, 'bold');
     this.doc.setFontSize(7.5);
@@ -566,20 +562,23 @@ export class PdfDoc {
       }
       labelText = `${labelText.trimEnd()}…`;
     }
-    this.doc.text(labelText, LAYOUT.LEFT + indent + 3, this.y);
+    this.doc.text(labelText, LAYOUT.LEFT + indent, this.y);
 
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(8.5);
     this.doc.setTextColor(...C.dark);
-    const valX = LAYOUT.LEFT + indent + labelW + 3;
     for (let i = 0; i < valLines.length; i++) {
       this.doc.text(valLines[i], valX, this.y + i * valLineH);
     }
 
-    // Ensure cursor is past panel bottom
-    const panelBottom = panelY + totalH;
-    this.y = Math.max(this.y + lineH + 2, panelBottom + 2);
+    this.y += lineH + 1.4;
+    // Hairline row separator
+    this.doc.setDrawColor(...C.rule);
+    this.doc.setLineWidth(0.06);
+    this.doc.line(LAYOUT.LEFT + indent, this.y, LAYOUT.RIGHT, this.y);
+    this.y += 2.6;
   }
+
 
   separator(): void {
     this.checkSpace(8);
