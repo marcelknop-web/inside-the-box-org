@@ -559,12 +559,14 @@ export class PdfDoc {
     // tab stop — professional, table-like alignment across all fields.
     const FIELD_LABEL_COL = 44;   // label column incl. gutter
     const FIELD_GUTTER = 5;       // guaranteed whitespace between label and value
+    const FIELD_RIGHT_INSET = 2;  // keep values off the right margin
     const labelW = FIELD_LABEL_COL - FIELD_GUTTER;
     const valX = LAYOUT.LEFT + indent + FIELD_LABEL_COL;
 
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(8.5);
-    const valLines = this.wrap(value, LAYOUT.RIGHT - valX);
+    const valLines = this.wrap(value, LAYOUT.RIGHT - valX - FIELD_RIGHT_INSET);
+
     const valLineH = 3.8;
 
     // Wrap (never clip) the label inside its own column.
@@ -1258,14 +1260,18 @@ export class PdfDoc {
   complianceBar(pass: number, partial: number, fail: number, labels: { pass: string; partial: string; fail: string; title: string }): void {
     const total = pass + partial + fail;
     if (total === 0) return;
-    this.checkSpace(28);
+    this.checkSpace(30);
+    // Breathing room so the title never collides with a preceding
+    // section label and its accent underline.
+    this.y += 2.5;
 
     // Title
     this.doc.setFont(this.headFont, 'bold');
     this.doc.setFontSize(8);
     this.doc.setTextColor(...C.navy);
-    this.doc.text(labels.title.toUpperCase(), LAYOUT.LEFT, this.y);
-    this.y += 5;
+    this.doc.text(this.fitText(labels.title.toUpperCase(), LAYOUT.WIDTH), LAYOUT.LEFT, this.y);
+    this.y += 5.5;
+
 
     const barW = LAYOUT.WIDTH;
     const barH = 8;
