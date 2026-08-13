@@ -783,6 +783,27 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     pdf.bodyParagraph(t('noRecs', lang));
   } else {
     pdf.metaLine('Each action states the deliverable, the acceptance criterion and how completion is verified, so it can be assigned and closed out.');
+
+    // Effort x impact placement — shows where quick wins sit before the
+    // action detail is read line by line.
+    const effortIdx = (e: string): 1 | 2 | 3 => (e === 'low' ? 1 : e === 'high' ? 3 : 2);
+    const impactIdx = (p: string): 1 | 2 | 3 => (p === 'critical' || p === 'high' ? 3 : p === 'medium' ? 2 : 1);
+    pdf.effortImpactMatrix(
+      computed.recommendations.map((rec) => ({
+        id: rec.id.replace(/[^0-9]/g, '') || rec.id.slice(-2),
+        effort: effortIdx(rec.effort),
+        impact: impactIdx(rec.priority),
+      })),
+      {
+        title: 'Action placement — effort versus effect',
+        effort: t('effort', lang) || 'Effort',
+        impact: 'Effect on readiness',
+        low: 'low',
+        high: 'high',
+      },
+    );
+    pdf.metaLine('Numbers refer to the action ids listed below. Actions in the upper-left field deliver the largest readiness effect for the lowest effort.');
+
     computed.recommendations.forEach((rec) => {
       pdf.checkSpace(30);
       pdf.heading(`${rec.id}  ${rec.title}`, 3);
@@ -797,6 +818,12 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     });
 
     pdf.heading(t('roadmap', lang), 2);
+    pdf.distributionBar(
+      computed.roadmap
+        .filter((b) => b.items.length > 0)
+        .map((b) => ({ label: `${b.phase} ${t('months', lang)} (${b.items.length})`.replace(/\(\d+\)$/, ''), value: b.items.length })),
+      'Action load per phase',
+    );
     computed.roadmap.forEach((bucket) => {
       if (bucket.items.length === 0) return;
       pdf.sectionLabel(`${t('phase', lang)} ${bucket.phase} ${t('months', lang)}`);
@@ -805,6 +832,7 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
 
     drawGanttChart(pdf, computed, lang);
   }
+
 
 
   // ── 8 Conclusion and Recommendation (closes Part A) ──────────
