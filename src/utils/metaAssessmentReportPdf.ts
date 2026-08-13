@@ -743,12 +743,16 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
     drawGanttChart(pdf, computed, lang);
   }
 
-  // ── 7 Conclusion (closes Part A) ────────────────────────────
+  // ── 8 Conclusion and Recommendation (closes Part A) ──────────
   pdf.newPage();
-  pdf.heading(t('sec7', lang), 1);
-  pdf.addBookmark(t('sec7', lang), 1);
+  pdf.heading(t('sec8', lang), 1);
+  pdf.addBookmark(t('sec8', lang), 1);
   pdf.verdictBox(result.summary || `${entityName}: ${pct}% readiness — ${pass} ${t('passed', lang)}, ${partial} ${t('partial', lang)}, ${fail} ${t('gaps', lang)}.`);
-  pdf.fieldInline(t('scopeVerdict', lang), scope.verdictLabel);
+  pdf.bodyParagraph(
+    openTotal
+      ? `Within the scope described in chapter 2 (${scope.verdictLabel}), readiness is assessed at ${pct}%. Reaching the next maturity level requires the ${computed.recommendations.length} action${computed.recommendations.length === 1 ? '' : 's'} in chapter 7 to be assigned to a named owner, completed within the stated window and evidenced in a form that a verifier can review — in particular the ${fail} requirement${fail === 1 ? '' : 's'} currently without any implementation.`
+      : `Within the scope described in chapter 2 (${scope.verdictLabel}), all assessed requirements are met. Maintaining this position requires the evidence base to be kept current and re-verified at defined intervals.`,
+  );
   pdf.bodyParagraph(t('disclaimer', lang));
   pdf.sectionLabel(t('scopeLimits', lang));
   scope.limitations.forEach((c) => pdf.bulletItem(c));
@@ -761,11 +765,12 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   pdf.addBookmark(t('partB', lang), 1);
   pdf.introText(t('partBIntro', lang));
 
-  // ── 8 Requirement-level Evidence and Verification ───────────
-  pdf.heading(t('sec8', lang), 1);
-  pdf.addBookmark(t('sec8', lang), 1);
+  // ── 9 Requirement-level Evidence and Verification ───────────
+  pdf.heading(t('sec9', lang), 1);
+  pdf.addBookmark(t('sec9', lang), 1);
   pdf.metaLine(ORIGIN.assessment);
   pdf.introText(t('findingsIntro', lang));
+
 
   // Single source of truth for the per-requirement structure: reuse the
   // working-paper records so every PDF type renders the same
