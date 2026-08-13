@@ -662,6 +662,23 @@ export async function generateMetaAssessmentPdf(data: MetaReportData): Promise<v
   pdf.y += 2;
   pdf.metaLine('Evidence column shows the verification level of the supporting evidence, not its quantity. Action column references the action in chapter 7.');
 
+  // Category profile — small multiples showing where readiness concentrates.
+  const catRows = (profile.categories ?? []).map((c) => {
+    const inCat = merged.filter((r) => reqMetaById.get(r.id)?.categoryId === c.id);
+    return {
+      label: tr(c.name, lang),
+      pass: inCat.filter((r) => r.status === 'pass').length,
+      partial: inCat.filter((r) => r.status === 'partial').length,
+      fail: inCat.filter((r) => r.status === 'fail').length,
+    };
+  }).filter((r) => r.pass + r.partial + r.fail > 0);
+  if (catRows.length > 1) {
+    pdf.categoryBars(catRows, 'Readiness by requirement area');
+    pdf.metaLine('Each bar is one requirement area: met (dark green), partially met (amber), gap (red). The figure right of each label counts met requirements against the area total.');
+  }
+
+
+
   // ── Requirement positions that need attention (gap / partial) ──
   const open = merged.filter((r) => r.status !== 'pass');
   if (open.length) {
