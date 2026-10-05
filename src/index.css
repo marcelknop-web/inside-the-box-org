@@ -664,7 +664,11 @@
 .topic-cube-back { transform: rotateY(180deg) translateZ(calc(var(--cube-size) / 2)); }
 .topic-cube-bottom { transform: rotateX(-90deg) translateZ(calc(var(--cube-size) / 2)); }
 .topic-cube-content { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px; transition: transform 720ms cubic-bezier(.2,.76,.22,1); }
+.topic-cube[data-active='crisis'] .topic-cube-front .topic-cube-content { transform: rotate(90deg); }
 .topic-cube[data-active='crisis'] .topic-cube-right .topic-cube-content { transform: rotate(-90deg); }
+.topic-cube[data-active='crisis'] .topic-cube-top .topic-cube-content { transform: rotate(180deg); }
+.topic-cube[data-active='exercise'] .topic-cube-front .topic-cube-content { transform: rotate(-90deg); }
+.topic-cube[data-active='exercise'] .topic-cube-right .topic-cube-content { transform: rotate(180deg); }
 .topic-cube[data-active='exercise'] .topic-cube-top .topic-cube-content { transform: rotate(90deg); }
 .topic-cube-label { max-width: 12ch; text-align: center; font-size: 1.35rem; font-weight: 600; line-height: 1.08; }
 .topic-cube-index { position: absolute; top: 12px; left: 14px; font-family: var(--font-mono); font-size: .65rem; }

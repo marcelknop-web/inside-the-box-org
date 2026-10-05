@@ -7,7 +7,7 @@
 
 # Direct acceptance follow-up
 
-- [ ] Rebuild the topic cube around one diagonal 120° rotation axis with upright active-face labels.
-- [ ] Keep DE/EN/FR visible and persistent on every public tool introduction.
-- [ ] Correct trilingual service copy and enforce one service-name H1 per marketing page.
-- [ ] Browser-check every discovered password-gated route and alias without creating data or publishing.
+- [x] Rebuild the topic cube around one diagonal 120° rotation axis with upright active-face labels.
+- [x] Keep DE/EN/FR visible and persistent on every public tool introduction.
+- [x] Correct trilingual service copy and enforce one service-name H1 per marketing page.
+- [x] Browser-check every discovered password-gated route and alias without creating data or publishing.
