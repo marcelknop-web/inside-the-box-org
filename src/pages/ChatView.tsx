@@ -36,7 +36,6 @@ const SocLife = lazy(() => import('./SocLife'));
 const OtSocLife = lazy(() => import('./OtSocLife'));
 const AiActReadinessTool = lazy(() => import('./AiActReadinessTool'));
 const WisconsinCardSort = lazy(() => import('./WisconsinCardSort'));
-const Syndicate = lazy(() => import('./Syndicate'));
 
 import { StaggerReveal } from '@/components/StaggerReveal';
 import GlitchText from '@/components/GlitchText';
@@ -59,7 +58,7 @@ import { SERVICE_DETAILS } from '@/data/serviceDetails';
 const AI_TOOL_ADDED_AT: Record<string, string> = {
   'soc-life': '2026-04-10',
   'ot-soc-life': '2026-04-24',
-  'syndicate-game': '2026-07-02',
+  'syndicate': '2026-07-02',
   'ernstfall': '2026-07-20',
 };
 
@@ -1487,7 +1486,7 @@ const ChatView = () => {
     'nis2-quiz', 'ciso-sim', 'threatdrop', 'trigger-triage', 'cyber-frogger',
     'elite-ship', 'cra-check', 'dora-compliance', 'nis2-compliance',
     'iacs-e27', 'iec62443', 'butterfly-lab', 'soc-life', 'ot-soc-life', 'system-check',
-    'ttx-readiness', 'enigma', 'itsm', 'itsm-dev', 'ai-act-readiness', 'wcst', 'syndicate-game',
+    'ttx-readiness', 'enigma', 'itsm', 'itsm-dev', 'ai-act-readiness', 'wcst',
   ]), []);
   const isToolPage = !!activeService && TOOL_SERVICES.has(activeService);
 
@@ -1935,8 +1934,6 @@ const ChatView = () => {
     ? <Suspense fallback={lazyFallback}><PasswordGate embedded storageKey="ai-act-readiness" label="EU AI Act Readiness Assessment"><AiActReadinessTool embedded /></PasswordGate></Suspense>
     : activeService === 'wcst'
     ? <Suspense fallback={lazyFallback}><WisconsinCardSort embedded /></Suspense>
-    : activeService === 'syndicate-game'
-    ? <Suspense fallback={lazyFallback}><Syndicate embedded /></Suspense>
     : activeService === 'system-check'
     ? <InlineSystemCheck t={t} />
     : activeService && contentMap[activeService] ? contentMap[activeService]() : null;
@@ -1982,7 +1979,7 @@ const ChatView = () => {
                 border, prominent close-X). Wraps the existing content stream
                 without changing any service rendering logic. */}
             <div className={`w-full mx-auto ${isMarketingService ? '' : isWorkspaceService ? 'px-4 -mt-1 sm:px-6 lg:px-0' : 'px-3 py-5 md:px-6 md:py-8 lg:px-10'} ${
-              activeService === 'soc-life' || activeService === 'ot-soc-life' || activeService === 'elite-ship' || activeService === 'butterfly-lab' || activeService === 'crisis-sim' || activeService === 'syndicate-game'
+              activeService === 'soc-life' || activeService === 'ot-soc-life' || activeService === 'elite-ship' || activeService === 'butterfly-lab' || activeService === 'crisis-sim'
                 ? 'max-w-[1700px]'
                 : 'max-w-5xl'
             }`}>

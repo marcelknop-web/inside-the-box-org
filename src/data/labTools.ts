@@ -45,7 +45,7 @@ export const LAB_GROUPS: { id: string; label: L; tools: LabTool[] }[] = [
       { slug: 'trigger-triage', titleKey: 'aiWorkflows.agentTriggerTriageTitle', descKey: 'aiWorkflows.agentTriggerTriageDesc', icon: Crosshair, wide: true },
       { slug: 'soc-life', titleKey: 'aiWorkflows.agentSocLifeTitle', descKey: 'aiWorkflows.agentSocLifeDesc', icon: Building2, wide: true },
       { slug: 'ot-soc-life', titleKey: 'aiWorkflows.agentOtSocLifeTitle', descKey: 'aiWorkflows.agentOtSocLifeDesc', icon: Factory, wide: true },
-      { slug: 'syndicate-game', titleKey: 'aiWorkflows.syndicateTitle', descKey: 'aiWorkflows.syndicateDesc', icon: Skull, wide: true },
+      { slug: 'syndicate', titleKey: 'aiWorkflows.syndicateTitle', descKey: 'aiWorkflows.syndicateDesc', icon: Skull },
     ],
   },
 ];
