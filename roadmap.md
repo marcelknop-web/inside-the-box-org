@@ -36,3 +36,10 @@
 - [x] Consolidate each service route into two initially closed disclosures.
 - [x] Shorten public tool introductions without changing protected access.
 - [x] Verify requested viewports, languages, cube states, service disclosures, tool access, and build.
+
+# Desktop composition and navigation orientation
+
+- [ ] Rebalance the desktop homepage so the topic selector and offer entry remain visible.
+- [ ] Replace Team and Contact drawers with normal public routes while preserving content.
+- [ ] Add consistent service breadcrumbs and deterministic topic return with focus restoration.
+- [ ] Verify desktop visual balance, three topic navigation loops, browser back, direct URLs, and mobile regression.
