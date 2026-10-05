@@ -44,17 +44,14 @@ export function ToolAccessIntro({ intro, language, login, withChrome = true }: P
     <>
       <PageMeta title={`${intro.name} — ${getLocalized(intro.eyebrow, language)}`} description={getLocalized(intro.problem, language)} canonicalPath={CANONICAL_ROUTES[intro.key]} />
       <main className="w-full overflow-x-clip">
-      <section className="mx-auto max-w-5xl px-4 pb-10 pt-8 sm:px-6 lg:px-0 lg:pt-10">
-        <div className="mb-6 flex min-h-11 items-center border-b border-border pb-3">
-          <a href="/#services" className="font-sans text-sm text-muted-foreground transition-colors hover:text-primary">← {language === 'de' ? 'Zur Themenauswahl' : language === 'fr' ? 'Retour aux thèmes' : 'Back to topics'}</a>
-        </div>
+      <section className="mx-auto max-w-5xl px-4 pb-10 sm:px-6 lg:px-0">
         <div className="flex flex-col gap-6 border-b border-border pb-8 sm:flex-row sm:items-start sm:justify-between">
           <div className="max-w-3xl">
-            <div className="mb-5 flex items-center gap-3 text-primary">
-              <span className="flex h-11 w-11 items-center justify-center border border-primary/35 bg-primary/5"><Icon className="h-5 w-5" aria-hidden="true" /></span>
+            <h1 className="text-3xl font-semibold leading-tight sm:text-4xl">{intro.name}</h1>
+            <div className="mt-4 flex items-center gap-3 text-primary">
+              <span className="flex h-8 w-8 items-center justify-center border border-primary/35 bg-primary/5"><Icon className="h-5 w-5" aria-hidden="true" /></span>
               <p className="font-mono text-[10px] uppercase tracking-[0.2em]">{getLocalized(intro.eyebrow, language)}</p>
             </div>
-            <h1 className="text-3xl font-semibold leading-tight sm:text-4xl">{intro.name}</h1>
             <p className="mt-4 max-w-2xl text-base leading-relaxed text-foreground/75">{getLocalized(intro.problem, language)}</p>
           </div>
           <Button variant="outline" className="rounded-none" onClick={() => document.getElementById('tool-login')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}>

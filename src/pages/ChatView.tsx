@@ -1986,7 +1986,7 @@ const ChatView = () => {
   );
 
   const serviceContent = activeService && SERVICE_DETAILS[activeService]
-    ? <ServiceDetailPage serviceId={activeService} />
+    ? <ServiceDetailPage key={activeService} serviceId={activeService} />
     : activeService === 'crisis-sim'
     ? <Suspense fallback={lazyFallback}><CyberCrisisSimulator embedded ref={crisisRef} /></Suspense>
     : activeService === 'dora-check'
@@ -2073,7 +2073,7 @@ const ChatView = () => {
                 Team / Contact drawers (bg-background/85, backdrop-blur, brand
                 border, prominent close-X). Wraps the existing content stream
                 without changing any service rendering logic. */}
-            <div className={`w-full mx-auto ${isMarketingService ? '' : isWorkspaceService ? 'px-4 pt-8 sm:px-6 lg:px-0 lg:pt-10' : 'px-3 py-5 md:px-6 md:py-8 lg:px-10'} ${
+            <div className={`w-full mx-auto ${isMarketingService ? '' : isWorkspaceService ? 'px-4 -mt-1 sm:px-6 lg:px-0' : 'px-3 py-5 md:px-6 md:py-8 lg:px-10'} ${
               activeService === 'soc-life' || activeService === 'ot-soc-life' || activeService === 'elite-ship' || activeService === 'butterfly-lab' || activeService === 'crisis-sim' || activeService === 'syndicate-game'
                 ? 'max-w-[1700px]'
                 : 'max-w-5xl'

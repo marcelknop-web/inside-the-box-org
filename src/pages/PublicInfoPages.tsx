@@ -29,25 +29,13 @@ const COPY = {
   },
 } as const;
 
-function Breadcrumb({ current }: { current: string }) {
-  const { language } = useLanguage();
-  const copy = COPY[language];
-  return (
-    <nav aria-label="Breadcrumb" className="mb-7 flex items-center gap-2 text-sm text-muted-foreground">
-      <Link to="/" className="rounded-sm transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{copy.home}</Link>
-      <span aria-hidden="true">/</span><span aria-current="page" className="text-foreground/80">{current}</span>
-    </nav>
-  );
-}
-
 export function TeamPage() {
   const { language, t } = useLanguage();
   const copy = COPY[language];
   return (
     <SiteChrome activeSection="team">
       <PageMeta title={copy.team} description={copy.teamLead} canonicalPath="/team" />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-20 pt-8 sm:px-6 lg:px-0 lg:pt-10">
-        <Breadcrumb current={copy.team} />
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-20 sm:px-6 lg:px-0">
         <header className="max-w-3xl border-b border-primary/20 pb-8">
           <h1 className="text-3xl font-semibold leading-tight sm:text-4xl lg:text-5xl">{copy.teamTitle}</h1>
           <p className="mt-4 text-base leading-relaxed text-foreground/70 sm:text-lg">{copy.teamLead}</p>
@@ -84,8 +72,7 @@ export function ContactPage() {
   return (
     <SiteChrome activeSection="contact">
       <PageMeta title={copy.contact} description={copy.contactLead} canonicalPath="/contact" />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-20 pt-8 sm:px-6 lg:px-0 lg:pt-10">
-        <Breadcrumb current={copy.contact} />
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-20 sm:px-6 lg:px-0">
         <header className="max-w-3xl border-b border-primary/20 pb-8">
           <h1 className="text-3xl font-semibold leading-tight sm:text-4xl lg:text-5xl">{copy.contactTitle}</h1>
           <p className="mt-4 text-base leading-relaxed text-foreground/70 sm:text-lg">{copy.contactLead}</p>
