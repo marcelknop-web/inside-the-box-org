@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigationType } from 'react-router-dom';
 import { BookOpen, ChevronDown, ChevronRight, Mail, Menu, Users, X } from 'lucide-react';
 import { HOME_KNOWLEDGE, HOME_TOPICS, type HomeLanguage, type HomeTopic } from '@/data/homeTopics';
@@ -174,7 +174,7 @@ export function PublicWorkspace({ children }: { children: ReactNode }) {
 
   // Forward: start at the content edge and focus the page heading. Back: restore.
   // Runs after child effects (e.g. ChatView's reset), so it has the last word.
-  useLayoutEffect(() => {
+  useEffect(() => {
     setMenuOpen(false);
     if (navType === 'POP') {
       const y = readScroll()[location.key];
