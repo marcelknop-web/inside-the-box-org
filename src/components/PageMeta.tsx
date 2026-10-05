@@ -40,12 +40,6 @@ export const PageMeta = ({ title, description, canonicalPath, ogImage }: PageMet
       <meta name="description" content={description} />
       <link rel="canonical" href={canonical} />
 
-      {/* hreflang for trilingual content (DE/EN/FR served on the same URL) */}
-      <link rel="alternate" hrefLang="en" href={canonical} />
-      <link rel="alternate" hrefLang="de" href={canonical} />
-      <link rel="alternate" hrefLang="fr" href={canonical} />
-      <link rel="alternate" hrefLang="x-default" href={canonical} />
-
       {/* Open Graph */}
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
