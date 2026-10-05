@@ -13,7 +13,7 @@ export function ReferencesPage() {
   const lang = language as HomeLanguage;
   const copy = REFERENCES_COPY[lang];
   // Group by curated main theme; further topics stay visible as tags.
-  const groups = HOME_TOPICS.map((topic) => ({ topic, items: CORE_REFERENCES.filter((r) => r.group === topic.id) })).filter((g) => g.items.length);
+  const groups = HOME_TOPICS.map((topic) => ({ topic, items: CORE_REFERENCES.filter((r) => (r.group ?? r.topics[0]) === topic.id) })).filter((g) => g.items.length);
 
   return (
     <SiteChrome>
