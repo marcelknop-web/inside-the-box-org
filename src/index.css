@@ -706,7 +706,6 @@
 .topic-cube-index { position: absolute; top: 12px; left: 14px; font-family: var(--font-mono); font-size: .65rem; }
 .topic-cube-floor { position: absolute; width: min(84%, 430px); height: 58%; bottom: 16px; transform: rotateX(62deg); border: 1px solid hsl(var(--primary) / .045); background-image: linear-gradient(hsl(var(--primary) / .045) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary) / .045) 1px, transparent 1px); background-size: 34px 34px; mask-image: radial-gradient(ellipse, black 12%, transparent 70%); }
 .topic-cube-shadow { position: absolute; width: 58%; height: 52px; bottom: 58px; border-radius: 50%; background: radial-gradient(ellipse, hsl(var(--background) / .9), transparent 70%); filter: blur(9px); }
-.topic-cube-hint { position: absolute; bottom: 8px; max-width: 90%; text-align: center; font-family: var(--font-mono); font-size: .65rem; line-height: 1.5; color: hsl(var(--muted-foreground)); }
 
 @media (max-width: 767px) {
   .home-hero { min-height: auto; grid-template-columns: 1fr; padding: 1.25rem 1rem 1.5rem; gap: 1.25rem; }
@@ -717,7 +716,6 @@
   .topic-cube-stage { --cube-size: 150px; height: 252px; }
   .topic-cube-floor { bottom: 0; height: 48%; }
   .topic-cube-shadow { bottom: 18px; }
-  .topic-cube-hint { display: none; }
 }
 @media (max-width: 390px) {
   .topic-cube-stage { --cube-size: 138px; height: 232px; }

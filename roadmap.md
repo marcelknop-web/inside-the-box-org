@@ -43,3 +43,4 @@
 - [x] Replace Team and Contact drawers with normal public routes while preserving content.
 - [x] Add consistent service breadcrumbs and deterministic topic return with focus restoration.
 - [x] Verify desktop visual balance, three topic navigation loops, browser back, direct URLs, and mobile regression.
+- [x] Remove the desktop-visible cube usage note, keeping it screen-reader-only in DE/EN/FR.
