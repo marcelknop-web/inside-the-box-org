@@ -2751,8 +2751,8 @@ const MetaAssessmentTool = () => {
 
   return (
     <SiteChrome>
-      <PasswordGate storageKey="assessment-tools" label="GapZero">
-        <PageMeta title="GapZero — AI-Powered Internal Audit & Compliance Readiness — Inside the Box" description="GapZero turns any standard into an audit-ready assessment: rule-based compliance with an AI insight & advisory layer — intake, assessment, AI insights and board-ready reporting." />
+      <PageMeta title="GapZero — AI-Powered Internal Audit & Compliance Readiness" description="GapZero turns any standard into an audit-ready assessment: rule-based compliance with an AI insight and advisory layer." canonicalPath="/gapzero" />
+      <PasswordGate embedded storageKey="assessment-tools" label="GapZero">
         <Helmet><meta name="robots" content="noindex,nofollow" /></Helmet>
 
         {showIntro && <HowItWorksModal u={u} onClose={closeIntro} />}

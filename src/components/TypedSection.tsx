@@ -83,9 +83,9 @@ const TypedSection = ({
 
 
   return (
-    <div className="space-y-5 md:space-y-3">
-      <div className="rounded-2xl px-5 py-4 text-base font-sans leading-relaxed tracking-wide text-foreground">
-        <h1 className="text-primary text-xl font-bold font-mono mb-3">
+    <div className="space-y-5 md:space-y-6">
+      <div className="border-b border-primary/20 bg-background/55 px-0 pb-6 pt-1 text-base font-sans leading-relaxed text-foreground backdrop-blur-sm">
+        <h1 className="max-w-3xl text-3xl font-semibold leading-tight text-foreground sm:text-4xl">
           {immediate ? title : <Typewriter key={sectionKey} text={title} mode={mode} charDelay={charDelay} onDone={() => setTitleDone(true)} />}
         </h1>
         {intro && introVisible && (
@@ -96,7 +96,7 @@ const TypedSection = ({
               transition: suppressIntro ? 'none' : 'opacity 200ms ease-out',
             }}
           >
-            {immediate ? <div className="text-primary">{intro}</div> : <IntroTypewriter intro={intro} mode={mode} charDelay={charDelay} sectionKey={sectionKey} onDone={() => setIntroDone(true)} />}
+            {immediate ? <div className="mt-4 max-w-2xl text-base leading-relaxed text-foreground/70">{intro}</div> : <IntroTypewriter intro={intro} mode={mode} charDelay={charDelay} sectionKey={sectionKey} onDone={() => setIntroDone(true)} />}
           </div>
         )}
       </div>
@@ -128,7 +128,7 @@ const IntroTypewriter = ({ intro, mode, charDelay, sectionKey, onDone }: { intro
   const text = extractText(intro);
 
   return (
-    <p className="text-primary">
+    <p className="mt-4 max-w-2xl text-base leading-relaxed text-foreground/70">
       <Typewriter key={`${sectionKey}-intro`} text={text} mode={mode} charDelay={charDelay} onDone={onDone} />
     </p>
   );

@@ -183,11 +183,12 @@ const AssessmentTools = () => {
 
   return (
     <SiteChrome>
-      <PasswordGate storageKey="assessment-tools" label="Assessment Tools">
       <PageMeta
         title="Assessment Tools — Inside the Box"
         description="Zentraler Einstieg zu allen Assessment- und Compliance-Tools: NIS-2, DORA, IEC 62443, IACS UR E26/E27, TISAX, PCI-DSS, EU AI Act und mehr."
+        canonicalPath="/assessment-tools"
       />
+      <PasswordGate embedded storageKey="assessment-tools" label="Assessment Tools">
       <Helmet>
         <meta name="robots" content="noindex,nofollow" />
       </Helmet>
