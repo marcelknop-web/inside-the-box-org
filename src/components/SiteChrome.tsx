@@ -62,7 +62,9 @@ const ChromeFrame = ({
   const [drawer, setDrawer] = useState<'imprint' | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const lang = language as 'en' | 'de' | 'fr';
-  const inWorkspace = Boolean(workspace) || isWorkspacePath(location.pathname);
+  const isHome = location.pathname === '/';
+  // Homepage shares the desktop frame (sidebar) but keeps its own mobile hero.
+  const inWorkspace = Boolean(workspace) || isWorkspacePath(location.pathname) || isHome;
   const headerRef = useRef<HTMLElement>(null);
   useEffect(() => {
     const el = headerRef.current;
@@ -95,14 +97,14 @@ const ChromeFrame = ({
 
   const slug = location.pathname.replace(/^\/+|\/+$/g, '');
   const isServicePage = Boolean(SERVICE_DETAILS[slug]) && !['publications','ki-lab','ai-workflows'].includes(slug);
-  const isKnowledgePage = ['/publications','/ki-lab','/ai-workflows'].includes(location.pathname) || Boolean(framedToolForPath(location.pathname)) || (inWorkspace && !isServicePage && !['/team','/contact','/references'].includes(location.pathname));
+  const isKnowledgePage = ['/publications','/ki-lab','/ai-workflows'].includes(location.pathname) || Boolean(framedToolForPath(location.pathname)) || (inWorkspace && !isHome && !isServicePage && !['/team','/contact','/references'].includes(location.pathname));
   const isCurrent = (section: NonNullable<typeof activeSection>) => activeSection === section || (section === 'knowledge' && isKnowledgePage) || (section === 'services' && isServicePage) || (section === 'team' && location.pathname === '/team') || (section === 'contact' && location.pathname === '/contact');
   const navClass = (section: NonNullable<typeof activeSection>) => `font-mono text-[10px] tracking-[0.08em] transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:text-[11px] ${isCurrent(section) ? 'text-primary' : 'text-muted-foreground'}`;
 
   return (
     <div className="technical-grid min-h-screen w-full overflow-x-clip text-foreground flex flex-col">
       {/* Top bar */}
-      <header ref={headerRef} className={`border-b border-primary/10 ${inWorkspace ? 'sticky top-0 z-40 bg-background/95 backdrop-blur' : ''}`}>
+      <header ref={headerRef} className={`border-b border-primary/10 ${isHome ? 'lg:sticky lg:top-0 lg:z-40 lg:bg-background/95 lg:backdrop-blur' : inWorkspace ? 'sticky top-0 z-40 bg-background/95 backdrop-blur' : ''}`}>
         <div className={`mx-auto grid ${inWorkspace ? 'max-w-7xl lg:px-9' : 'max-w-6xl'} grid-cols-[1fr_auto] items-center gap-2 px-4 py-2 sm:flex sm:flex-wrap sm:justify-between sm:gap-3 sm:px-6 sm:py-5`}>
           <button
             onClick={handleBrand}
@@ -159,7 +161,7 @@ const ChromeFrame = ({
           bottom on short pages (e.g. hero), keeping a consistent footer
           baseline across the homepage and all sub-pages. */}
       <ChromeContext.Provider value={true}>
-        <div className="flex-1 flex flex-col">{inWorkspace ? <PublicWorkspace>{children}</PublicWorkspace> : children}</div>
+        <div className="flex-1 flex flex-col">{inWorkspace ? <PublicWorkspace home={isHome}>{children}</PublicWorkspace> : children}</div>
       </ChromeContext.Provider>
 
       {/* Footer

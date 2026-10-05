@@ -186,7 +186,7 @@ const currentLabels = (pathname: string, lang: HomeLanguage, t: (k: string) => s
   return { area: topic?.shortTitle[lang] ?? copy.areas, page };
 };
 
-export function PublicWorkspace({ children }: { children: ReactNode }) {
+export function PublicWorkspace({ children, home = false }: { children: ReactNode; home?: boolean }) {
   const { language, t } = useLanguage();
   const lang = language as HomeLanguage;
   const copy = COPY[lang];
@@ -198,6 +198,7 @@ export function PublicWorkspace({ children }: { children: ReactNode }) {
 
   // Remember scroll per history entry so Back restores context.
   useEffect(() => {
+    if (home) return;
     let frame = 0;
     const onScroll = () => {
       cancelAnimationFrame(frame);
@@ -209,12 +210,13 @@ export function PublicWorkspace({ children }: { children: ReactNode }) {
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => { cancelAnimationFrame(frame); window.removeEventListener('scroll', onScroll); };
-  }, [location.key]);
+  }, [location.key, home]);
 
   // Forward: start at the content edge and focus the page heading. Back: restore.
   // Runs after child effects (e.g. ChatView's reset), so it has the last word.
   useEffect(() => {
     setMenuOpen(false);
+    if (home) return;
     if (navType === 'POP' && !first.current) {
       const y = readScroll()[location.key];
       if (typeof y === 'number') {
@@ -237,18 +239,19 @@ export function PublicWorkspace({ children }: { children: ReactNode }) {
       }
     }
     first.current = false;
-  }, [location.key, navType]);
+  }, [location.key, navType, home]);
 
   const { area, page } = currentLabels(location.pathname, lang, t);
   const labTool = framedToolForPath(location.pathname);
+  // Wide canvases keep the desktop navigation; they only get a wider frame.
   const wide = Boolean(labTool?.wide);
   const detail = SERVICE_DETAILS[location.pathname.replace(/^\/+|\/+$/g, '')];
   const serviceTitle = detail ? t(detail.titleKey) : undefined;
 
   return (
-    <div className={`public-workspace mx-auto w-full flex-1 ${wide ? 'max-w-[1700px]' : 'max-w-7xl lg:grid lg:grid-cols-[248px_minmax(0,1fr)] lg:gap-10 lg:px-6'}`}>
+    <div className={`public-workspace mx-auto w-full flex-1 lg:grid lg:grid-cols-[248px_minmax(0,1fr)] lg:gap-10 lg:px-6 ${wide ? 'max-w-[1700px]' : 'max-w-7xl'}`}>
       {/* Mobile / tablet orientation bar */}
-      <div className={`sticky top-[var(--site-header-h)] z-30 border-b border-border bg-background/95 backdrop-blur ${wide ? '' : 'lg:hidden'}`}>
+      <div className={`sticky top-[var(--site-header-h)] z-30 border-b border-border bg-background/95 backdrop-blur lg:hidden ${home ? 'hidden' : ''}`}>
         <div className="flex min-h-12 items-center gap-3 px-4 sm:px-6">
           <p className="min-w-0 flex-1 truncate text-sm">
             <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-primary">{area}</span>
@@ -267,15 +270,15 @@ export function PublicWorkspace({ children }: { children: ReactNode }) {
       </div>
 
       {/* Desktop sticky navigation */}
-      <aside className={wide ? 'hidden' : 'hidden lg:block'}>
+      <aside className="hidden lg:block">
         <nav aria-label={copy.nav} className="sticky top-[calc(var(--site-header-h)+2.5rem)] mt-10 max-h-[calc(100vh-var(--site-header-h)-3.5rem)] overflow-y-auto pb-6 pr-1">
           <NavList lang={lang} pathname={location.pathname} />
         </nav>
       </aside>
 
       <div ref={contentRef} className="workspace-content min-w-0">
-        <div className={wide ? 'px-4 sm:px-6' : 'px-4 sm:px-6 lg:px-0'}><IntroSlot lang={lang} pathname={location.pathname} pageLabel={serviceTitle ?? page} />
-          {labTool && <LabHeading title={page} contentRef={contentRef} />}</div>
+        {!home && <div className="px-4 sm:px-6 lg:px-0"><IntroSlot lang={lang} pathname={location.pathname} pageLabel={serviceTitle ?? page} />
+          {labTool && <LabHeading title={page} contentRef={contentRef} />}</div>}
         {children}
       </div>
     </div>
