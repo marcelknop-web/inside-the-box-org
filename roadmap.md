@@ -39,7 +39,7 @@
 
 # Desktop composition and navigation orientation
 
-- [ ] Rebalance the desktop homepage so the topic selector and offer entry remain visible.
-- [ ] Replace Team and Contact drawers with normal public routes while preserving content.
-- [ ] Add consistent service breadcrumbs and deterministic topic return with focus restoration.
-- [ ] Verify desktop visual balance, three topic navigation loops, browser back, direct URLs, and mobile regression.
+- [x] Rebalance the desktop homepage so the topic selector and offer entry remain visible.
+- [x] Replace Team and Contact drawers with normal public routes while preserving content.
+- [x] Add consistent service breadcrumbs and deterministic topic return with focus restoration.
+- [x] Verify desktop visual balance, three topic navigation loops, browser back, direct URLs, and mobile regression.
