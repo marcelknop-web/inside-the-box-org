@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
-import { PublicFrame } from "@/components/SiteChrome";
+import { PublicFrame, SiteChrome } from "@/components/SiteChrome";
 import { HelmetProvider } from "react-helmet-async";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { RouteSkeleton } from "@/components/RouteSkeleton";
@@ -71,18 +71,7 @@ const App = () => (
               {/* Standalone tools (not part of the Journey, kept for direct/admin access) */}
               <Route path="/ttx-admin" element={<Suspense fallback={<RouteSkeleton />}><TtxAdmin /></Suspense>} />
               <Route path="/ai-usage" element={<Suspense fallback={<RouteSkeleton />}><AiUsage /></Suspense>} />
-              <Route path="/itsm" element={<Suspense fallback={<RouteSkeleton />}><ItsmTool /></Suspense>} />
-              <Route path="/itsm-dev" element={<Suspense fallback={<RouteSkeleton />}><ItsmDevTool /></Suspense>} />
-              <Route path="/ttx-readiness" element={<Suspense fallback={<RouteSkeleton />}><TtxReadinessPage /></Suspense>} />
-              <Route path="/enigma" element={<Suspense fallback={<RouteSkeleton />}><Enigma /></Suspense>} />
-              <Route path="/bockbaer-bot" element={<Suspense fallback={<RouteSkeleton />}><BaerbockBot /></Suspense>} />
-              <Route path="/sks-quiz" element={<Suspense fallback={<RouteSkeleton />}><SksNavigationQuiz /></Suspense>} />
-              <Route path="/nordstern" element={<Suspense fallback={<RouteSkeleton />}><Nordstern /></Suspense>} />
-              <Route path="/sitemap" element={<Suspense fallback={<RouteSkeleton />}><Sitemap /></Suspense>} />
               <Route path="/datenschutz-tools" element={<Suspense fallback={<RouteSkeleton />}><PrivacyDataflow /></Suspense>} />
-              <Route path="/iacs-ur26" element={<Suspense fallback={<RouteSkeleton />}><PasswordGate storageKey="iec62443-ur26" label="IACS UR E26 Compliance Tool"><Iec62443Ur26ComplianceTool /></PasswordGate></Suspense>} />
-              <Route path="/iacs-ur27" element={<Suspense fallback={<RouteSkeleton />}><PasswordGate storageKey="iec62443" label="IACS UR E27 Compliance Tool"><Iec62443ComplianceTool /></PasswordGate></Suspense>} />
-              <Route path="/blind-spot" element={<Suspense fallback={<RouteSkeleton />}><BlindSpotSimulator /></Suspense>} />
               <Route path="/assessment-tools" element={<Suspense fallback={<RouteSkeleton />}><AssessmentTools /></Suspense>} />
               <Route path="/tools" element={<Suspense fallback={<RouteSkeleton />}><AssessmentTools /></Suspense>} />
               <Route path="/gapzero" element={<Suspense fallback={<RouteSkeleton />}><MetaAssessmentTool /></Suspense>} />
@@ -90,14 +79,28 @@ const App = () => (
               <Route path="/gapzeo" element={<Suspense fallback={<RouteSkeleton />}><MetaAssessmentTool /></Suspense>} />
               <Route path="/meta-assessment" element={<Suspense fallback={<RouteSkeleton />}><MetaAssessmentTool /></Suspense>} />
               <Route path="/syndicate" element={<Suspense fallback={<RouteSkeleton />}><Syndicate /></Suspense>} />
-              <Route path="/starfighter" element={<Suspense fallback={<RouteSkeleton />}><Starfighter /></Suspense>} />
-              <Route path="/ernstlfall" element={<Suspense fallback={<RouteSkeleton />}><PasswordGate storageKey="ernstlfall" label="ERNSTLFALL"><Ernstfall /></PasswordGate></Suspense>} />
               <Route path="/ernstfall" element={<Navigate to="/ernstlfall" replace />} />
-              <Route path="/notnagel" element={<Suspense fallback={<RouteSkeleton />}><Notnagel /></Suspense>} />
-              <Route path="/marsec" element={<Suspense fallback={<RouteSkeleton />}><PasswordGate storageKey="ernstlfall" label="MarSec Studio"><MarSec /></PasswordGate></Suspense>} />
 
               {/* Catch-all: every Journey service id (nis2-dora, virtual-ciso, …) renders ChatView */}
-              <Route path="*" element={<NotFound />} />
+              {/* Standalone public pages share the workspace frame (Syndicate stays full screen). */}
+              <Route element={<SiteChrome workspace><Outlet /></SiteChrome>}>
+                <Route path="/itsm" element={<Suspense fallback={<RouteSkeleton />}><ItsmTool /></Suspense>} />
+                <Route path="/itsm-dev" element={<Suspense fallback={<RouteSkeleton />}><ItsmDevTool /></Suspense>} />
+                <Route path="/ttx-readiness" element={<Suspense fallback={<RouteSkeleton />}><TtxReadinessPage /></Suspense>} />
+                <Route path="/enigma" element={<Suspense fallback={<RouteSkeleton />}><Enigma /></Suspense>} />
+                <Route path="/bockbaer-bot" element={<Suspense fallback={<RouteSkeleton />}><BaerbockBot /></Suspense>} />
+                <Route path="/sks-quiz" element={<Suspense fallback={<RouteSkeleton />}><SksNavigationQuiz /></Suspense>} />
+                <Route path="/nordstern" element={<Suspense fallback={<RouteSkeleton />}><Nordstern /></Suspense>} />
+                <Route path="/sitemap" element={<Suspense fallback={<RouteSkeleton />}><Sitemap /></Suspense>} />
+                <Route path="/iacs-ur26" element={<Suspense fallback={<RouteSkeleton />}><PasswordGate storageKey="iec62443-ur26" label="IACS UR E26 Compliance Tool"><Iec62443Ur26ComplianceTool /></PasswordGate></Suspense>} />
+                <Route path="/iacs-ur27" element={<Suspense fallback={<RouteSkeleton />}><PasswordGate storageKey="iec62443" label="IACS UR E27 Compliance Tool"><Iec62443ComplianceTool /></PasswordGate></Suspense>} />
+                <Route path="/blind-spot" element={<Suspense fallback={<RouteSkeleton />}><BlindSpotSimulator /></Suspense>} />
+                <Route path="/starfighter" element={<Suspense fallback={<RouteSkeleton />}><Starfighter /></Suspense>} />
+                <Route path="/ernstlfall" element={<Suspense fallback={<RouteSkeleton />}><PasswordGate storageKey="ernstlfall" label="ERNSTLFALL"><Ernstfall /></PasswordGate></Suspense>} />
+                <Route path="/notnagel" element={<Suspense fallback={<RouteSkeleton />}><Notnagel /></Suspense>} />
+                <Route path="/marsec" element={<Suspense fallback={<RouteSkeleton />}><PasswordGate storageKey="ernstlfall" label="MarSec Studio"><MarSec /></PasswordGate></Suspense>} />
+                <Route path="*" element={<NotFound />} />
+              </Route>
             </Routes>
             <ScrollToTopFab />
           </BrowserRouter>
