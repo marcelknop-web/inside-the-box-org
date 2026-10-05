@@ -182,7 +182,7 @@ const AssessmentTools = () => {
     : 'Download build guide';
 
   return (
-    <SiteChrome>
+    <SiteChrome workspace>
       <PageMeta
         title="Assessment Tools — Inside the Box"
         description="Zentraler Einstieg zu allen Assessment- und Compliance-Tools: NIS-2, DORA, IEC 62443, IACS UR E26/E27, TISAX, PCI-DSS, EU AI Act und mehr."
@@ -193,7 +193,7 @@ const AssessmentTools = () => {
         <meta name="robots" content="noindex,nofollow" />
       </Helmet>
 
-      <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
+      <main className="flex-1 w-full px-4 sm:px-6 lg:px-0 pb-14">
         <header className="mb-10 sm:mb-14">
           <div className="font-mono text-[11px] tracking-[0.3em] uppercase text-primary mb-3">
             {sectionLabel}

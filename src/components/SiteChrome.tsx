@@ -5,6 +5,8 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { GeometricSymbol } from '@/components/GeometricSymbol';
 import { PublicWorkspace, isWorkspacePath } from '@/components/PublicWorkspace';
+import { SERVICE_DETAILS } from '@/data/serviceDetails';
+import { framedToolForPath } from '@/data/labTools';
 
 const ChromeContext = createContext(false);
 
@@ -91,7 +93,10 @@ const ChromeFrame = ({
     navigate('/');
   };
 
-  const isCurrent = (section: NonNullable<typeof activeSection>) => activeSection === section || (section === 'knowledge' && ['/publications','/ki-lab'].includes(location.pathname)) || (section === 'services' && inWorkspace && !['/publications','/ki-lab','/team','/contact','/references'].includes(location.pathname)) || (section === 'team' && location.pathname === '/team') || (section === 'contact' && location.pathname === '/contact');
+  const slug = location.pathname.replace(/^\/+|\/+$/g, '');
+  const isServicePage = Boolean(SERVICE_DETAILS[slug]);
+  const isKnowledgePage = ['/publications','/ki-lab','/ai-workflows'].includes(location.pathname) || Boolean(framedToolForPath(location.pathname)) || (inWorkspace && !isServicePage && !['/team','/contact','/references'].includes(location.pathname));
+  const isCurrent = (section: NonNullable<typeof activeSection>) => activeSection === section || (section === 'knowledge' && isKnowledgePage) || (section === 'services' && isServicePage) || (section === 'team' && location.pathname === '/team') || (section === 'contact' && location.pathname === '/contact');
   const navClass = (section: NonNullable<typeof activeSection>) => `font-mono text-[10px] tracking-[0.08em] transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:text-[11px] ${isCurrent(section) ? 'text-primary' : 'text-muted-foreground'}`;
 
   return (

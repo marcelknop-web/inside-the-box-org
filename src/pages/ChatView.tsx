@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, ReactNode, useCallback, useMemo, lazy, Suspense } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { LAB_GROUPS, framedToolForPath } from '@/data/labTools';
 
 import { supabase } from '@/integrations/supabase/client';
 import { Send, Plus, MessageCircle, Shield, Target, BookOpen, AlertTriangle, Eye, Flame, Swords, Calendar, FileText, UserCheck, ChevronLeft, Menu, ShieldCheck, Search, Settings, Award, RotateCcw, Network, CreditCard, CheckCircle, FileCheck, Car, BarChart, RefreshCw, GraduationCap, ClipboardList, Zap, Crown, Users, Gamepad2, Monitor, Crosshair, CheckSquare, Mic, Radio, Video, Mail, Server, Bug, AlertCircle, MessageSquare, Building2, Plane, Landmark, Scale, Wifi, XCircle, HelpCircle, Loader2, X, Linkedin, Play, TrendingDown, Rocket, Fingerprint, Factory, Sparkles, Brain, Skull } from 'lucide-react';
@@ -942,159 +943,63 @@ const useServiceContent = () => {
     ),
     'ki-lab': () => (
       <TypedSection title={t('kiLab.title')} mode="fade" charDelay={4} pause={120} stagger={90} intro={<p>{t('kiLab.intro')}</p>} loadingSkeleton={<ToolGridSkeleton />}>
-        <Block className="bg-card/40 rounded-xl">
-          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('kiLab.introDetail')}</p>
-        </Block>
-
-        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
-          <SubTitle variant="highlight">{t('aiWorkflows.tryAgentsTitle')}</SubTitle>
-          <p className="text-foreground text-sm md:text-[15px] mb-3">{t('aiWorkflows.tryAgentsDesc')}</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            {/* — Flagship: Krisensimulator — */}
-            <button onClick={() => setActive('crisis-sim')} className="sm:col-span-2 flex items-start gap-3 p-3.5 rounded-lg border border-highlight/40 bg-highlight/10 hover:bg-highlight/15 hover:border-highlight/60 transition-electric text-left">
-              <AlertTriangle size={20} className="text-highlight mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-highlight font-semibold font-mono text-sm">{t('crisisSim.sidebarLabel')}</p>
-                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentCrisisDesc')}</p>
-              </div>
-            </button>
-            {/* — Regulierungs-Checks — */}
-            <button onClick={() => setActive('dora-check')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
-              <Landmark size={20} className="text-highlight mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentDoraTitle')}</p>
-                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentDoraDesc')}</p>
-              </div>
-            </button>
-            <button onClick={() => setActive('tisax-check')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
-              <Car size={20} className="text-highlight mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentTisaxTitle')}</p>
-                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentTisaxDesc')}</p>
-              </div>
-            </button>
-            <button onClick={() => setActive('pci-check')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
-              <CreditCard size={20} className="text-highlight mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentPciTitle')}</p>
-                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentPciDesc')}</p>
-              </div>
-            </button>
-            {/* — Planung & Priorisierung — */}
-            <button onClick={() => setActive('ttx-check')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
-              <ClipboardList size={20} className="text-highlight mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentTtxTitle')}</p>
-                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentTtxDesc')}</p>
-              </div>
-            </button>
-            {/* — Lern-Simulationen — */}
-            <button onClick={() => setActive('nis2-quiz')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
-              <Scale size={20} className="text-highlight mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentNis2QuizTitle')}</p>
-                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentNis2QuizDesc')}</p>
-              </div>
-            </button>
-            <button onClick={() => setActive('ciso-sim')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
-              <TrendingDown size={20} className="text-highlight mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentCisoTitle')}</p>
-                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentCisoDesc')}</p>
-              </div>
-            </button>
-            <button onClick={() => setActive('threatdrop')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
-              <Shield size={20} className="text-highlight mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentThreatDropTitle')}</p>
-                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentThreatDropDesc')}</p>
-              </div>
-            </button>
-            {/* — Arcade — */}
-            <button onClick={() => setActive('trigger-triage')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
-              <Crosshair size={20} className="text-highlight mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentTriggerTriageTitle')}</p>
-                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentTriggerTriageDesc')}</p>
-              </div>
-            </button>
-            <button onClick={() => setActive('soc-life')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
-              <Building2 size={20} className="text-highlight mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-highlight font-semibold font-mono text-sm flex items-center gap-2 flex-wrap">
-                  {t('aiWorkflows.agentSocLifeTitle')}
-                  {AI_TOOL_ADDED_AT['soc-life'] && <NewDateBadge addedAt={AI_TOOL_ADDED_AT['soc-life']} />}
-                </p>
-                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentSocLifeDesc')}</p>
-              </div>
-            </button>
-            <button onClick={() => setActive('ot-soc-life')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
-              <Factory size={20} className="text-highlight mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-highlight font-semibold font-mono text-sm flex items-center gap-2 flex-wrap">
-                  {t('aiWorkflows.agentOtSocLifeTitle')}
-                  {AI_TOOL_ADDED_AT['ot-soc-life'] && <NewDateBadge addedAt={AI_TOOL_ADDED_AT['ot-soc-life']} />}
-                </p>
-                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentOtSocLifeDesc')}</p>
-              </div>
-            </button>
-            {/* — Media — */}
-            <button onClick={() => setYtDialogOpen(true)} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
-              <Play size={20} className="text-highlight mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentYtTitle')}</p>
-                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentYtDesc')}</p>
-              </div>
-            </button>
-            {/* — ERNSTLFALL: TTX Generator — nur per Direktlink /ernstfall — */}
-            {/* — Arcade: Strategie-Spiel — */}
-            <button onClick={() => setActive('syndicate-game')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
-              <Skull size={20} className="text-highlight mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-highlight font-semibold font-mono text-sm flex items-center gap-2 flex-wrap">
-                  {t('aiWorkflows.syndicateTitle')}
-                  {AI_TOOL_ADDED_AT['syndicate-game'] && <NewDateBadge addedAt={AI_TOOL_ADDED_AT['syndicate-game']} />}
-                </p>
-                <p className="text-foreground/80 text-xs">{t('aiWorkflows.syndicateDesc')}</p>
-              </div>
-            </button>
+        <p className="max-w-3xl text-sm leading-relaxed text-foreground/80 md:text-[15px]">{t('kiLab.introDetail')}</p>
+        {LAB_GROUPS.map((group) => (
+          <section key={group.id} aria-labelledby={`lab-${group.id}`} className="mt-8">
+            <h2 id={`lab-${group.id}`} className="mb-3 font-mono text-[11px] uppercase tracking-[0.2em] text-primary">{group.label[language as 'de' | 'en' | 'fr']}</h2>
+            <ul className="grid gap-px border border-border bg-border sm:grid-cols-2">
+              {group.tools.map((tool) => {
+                const Icon = tool.icon;
+                const title = t(tool.titleKey);
+                const body = (
+                  <>
+                    <Icon className="mt-0.5 h-5 w-5 shrink-0 text-primary" strokeWidth={1.7} aria-hidden="true" />
+                    <span className="min-w-0 flex-1">
+                      <span className="flex flex-wrap items-center gap-2 text-base font-semibold leading-snug text-foreground">
+                        {title}
+                        {tool.slug && AI_TOOL_ADDED_AT[tool.slug] && <NewDateBadge addedAt={AI_TOOL_ADDED_AT[tool.slug]} />}
+                      </span>
+                      <span className="mt-1 block text-sm leading-relaxed text-foreground/70">{t(tool.descKey)}</span>
+                      <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">{tool.slug ? (language === 'de' ? 'Starten' : language === 'fr' ? 'Lancer' : 'Start') : (language === 'de' ? 'Abspielen' : language === 'fr' ? 'Lire' : 'Play')}<span aria-hidden="true">→</span></span>
+                    </span>
+                  </>
+                );
+                const cls = 'flex h-full w-full items-start gap-3 bg-card/90 p-5 text-left transition-colors hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring';
+                return (
+                  <li key={tool.titleKey} className="min-w-0">
+                    {tool.slug
+                      ? <Link to={`/${tool.slug}`} className={cls} aria-label={`${title} – ${language === 'de' ? 'starten' : language === 'fr' ? 'lancer' : 'start'}`}>{body}</Link>
+                      : <button type="button" onClick={() => setYtDialogOpen(true)} className={cls} aria-label={`${title} – ${language === 'de' ? 'abspielen' : language === 'fr' ? 'lire' : 'play'}`}>{body}</button>}
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        ))}
+        <Dialog open={ytDialogOpen} onOpenChange={setYtDialogOpen}>
+          <DialogContent className="sm:max-w-[720px] p-0 bg-background border-primary/30">
+            <DialogTitle className="sr-only">{t('aiWorkflows.agentYtTitle')}</DialogTitle>
+            <div className="aspect-video w-full">
+              {ytDialogOpen && (
+                <iframe
+                  className="w-full h-full"
+                  src="https://www.youtube.com/embed/T8cfqFS77es?autoplay=1"
+                  title="Realistische Einspieler in Krisenstabsübungen"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+        <section className="mt-10 border-t border-primary/25 bg-card/75 px-5 py-6 sm:px-7">
+          <p className="font-semibold text-foreground">{t('kiLab.ctaTitle')}</p>
+          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-foreground/75">{t('kiLab.ctaDesc')}</p>
+          <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-semibold">
+            <Link to="/ai-workflows" className="text-primary hover:underline">{t('kiLab.ctaButton')}</Link>
+            <Link to="/contact" className="text-primary hover:underline">{t('kiLab.ctaContact')}</Link>
           </div>
-          <Dialog open={ytDialogOpen} onOpenChange={setYtDialogOpen}>
-            <DialogContent className="sm:max-w-[720px] p-0 bg-background border-highlight/30">
-              <DialogTitle className="sr-only">{t('aiWorkflows.agentYtTitle')}</DialogTitle>
-              <div className="aspect-video w-full">
-                {ytDialogOpen && (
-                  <iframe
-                    className="w-full h-full rounded-lg"
-                    src="https://www.youtube.com/embed/T8cfqFS77es?autoplay=1"
-                    title="Realistische Einspieler in Krisenstabsübungen"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                )}
-              </div>
-            </DialogContent>
-          </Dialog>
-        </Block>
-
-        <Block className="bg-card/40 rounded-xl">
-          <p className="text-highlight font-mono font-bold text-sm">{t('kiLab.ctaTitle')}</p>
-          <p className="text-foreground/80 text-sm font-sans mt-1">{t('kiLab.ctaDesc')}</p>
-          <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
-            <button
-              onClick={() => setActive('ai-workflows')}
-              className="inline-flex items-center gap-2 text-highlight font-mono font-bold text-sm hover:text-primary transition-electric cursor-pointer bg-transparent border-none p-0"
-            >
-              {t('kiLab.ctaButton')}
-            </button>
-            <button
-              onClick={() => setActive('contact')}
-              className="inline-flex items-center gap-2 text-primary font-mono font-bold text-sm hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"
-            >
-              {t('kiLab.ctaContact')}
-            </button>
-          </div>
-        </Block>
+        </section>
         <VisitCounter />
       </TypedSection>
     ),
@@ -2050,7 +1955,7 @@ const ChatView = () => {
   // Per-route SEO metadata (short titles, 50-160 char descriptions).
   const serviceSeo = getServiceSeo(
     activeService,
-    sidebarGroups.flatMap(g => g.items).find(i => i.id === activeService)?.label,
+    sidebarGroups.flatMap(g => g.items).find(i => i.id === activeService)?.label ?? (() => { const f = framedToolForPath(`/${activeService}`); return f ? (f.titleKey ? t(f.titleKey) : f.title?.[language as 'de' | 'en' | 'fr']) : undefined; })(),
     language,
   );
   const canonicalPath = activeService === 'iacs-e27' ? '/iec62443' : activeService ? `/${activeService}` : '/';
@@ -2058,7 +1963,7 @@ const ChatView = () => {
   if (activeService) {
     const isMarketingService = Boolean(SERVICE_DETAILS[activeService]);
     // ki-lab sits in the public workspace: no sheet header/close-X, workspace padding.
-    const isWorkspaceService = isMarketingService || activeService === 'ki-lab';
+    const isWorkspaceService = isMarketingService || activeService === 'ki-lab' || Boolean(framedToolForPath(`/${activeService}`));
     // Resolve current service label for the sheet header (falls back to nav.contact label etc.)
     const activeServiceLabel =
       sidebarGroups.flatMap(g => g.items).find(i => i.id === activeService)?.label ?? '';

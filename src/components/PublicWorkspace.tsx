@@ -1,10 +1,11 @@
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { ReactNode, RefObject, useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigationType } from 'react-router-dom';
 import { Award, BookOpen, ChevronDown, ChevronRight, Mail, Menu, Users, X } from 'lucide-react';
 import { REFERENCES_COPY } from '@/data/references';
 import { HOME_KNOWLEDGE, HOME_TOPICS, type HomeLanguage, type HomeTopic } from '@/data/homeTopics';
 import { SERVICE_DETAILS } from '@/data/serviceDetails';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { framedToolForPath } from '@/data/labTools';
 
 /**
  * Stable public workspace: sticky left navigation (desktop) or compact sticky
@@ -23,7 +24,7 @@ const KNOWLEDGE_PATHS = HOME_KNOWLEDGE.map((k) => k.href);
 /** Public paths that always render inside the workspace. */
 export const isWorkspacePath = (pathname: string) => {
   const slug = pathname.replace(/^\/+|\/+$/g, '');
-  return Boolean(SERVICE_DETAILS[slug]) || KNOWLEDGE_PATHS.includes(pathname) || pathname === '/team' || pathname === '/contact' || pathname === '/references';
+  return Boolean(SERVICE_DETAILS[slug]) || KNOWLEDGE_PATHS.includes(pathname) || pathname === '/team' || pathname === '/contact' || pathname === '/references' || Boolean(framedToolForPath(pathname));
 };
 
 const topicLinks = (topic: HomeTopic) => {
@@ -33,7 +34,7 @@ const topicLinks = (topic: HomeTopic) => {
 };
 
 const topicForPath = (pathname: string): HomeTopic['id'] | null => {
-  if (KNOWLEDGE_PATHS.includes(pathname)) return null;
+  if (KNOWLEDGE_PATHS.includes(pathname) || framedToolForPath(pathname)) return null;
   const slug = pathname.replace(/^\/+|\/+$/g, '');
   const detail = SERVICE_DETAILS[slug];
   if (detail) return detail.topic;
@@ -133,7 +134,7 @@ function NavList({ lang, pathname, onNavigate }: { lang: HomeLanguage; pathname:
         <ul className="space-y-0.5">
           {areaLinks.map(({ href, label, icon: Icon }) => (
             <li key={href}>
-              <Link to={href} onClick={onNavigate} aria-current={pathname === href ? 'page' : undefined} className={itemClass(pathname === href)}>
+              <Link to={href} onClick={onNavigate} aria-current={pathname === href ? 'page' : href === '/ki-lab' && framedToolForPath(pathname)?.back === '/ki-lab' ? 'true' : undefined} className={itemClass(pathname === href || (href === '/ki-lab' && framedToolForPath(pathname)?.back === '/ki-lab'))}>
                 <Icon className="h-4 w-4 shrink-0" strokeWidth={1.7} aria-hidden="true" /><span>{label}</span>
               </Link>
             </li>
@@ -145,9 +146,9 @@ function NavList({ lang, pathname, onNavigate }: { lang: HomeLanguage; pathname:
 }
 
 const SLOT = {
-  de: { home: 'Start', back: 'Zur Themenübersicht' },
-  en: { home: 'Home', back: 'Topic overview' },
-  fr: { home: 'Accueil', back: 'Vue du thème' },
+  de: { home: 'Start', back: 'Zur Themenübersicht', lab: 'KI-Lab', labBack: 'Zurück zum KI-Lab', tools: 'Assessment Tools', toolsBack: 'Zurück zu den Assessment Tools' },
+  en: { home: 'Home', back: 'Topic overview', lab: 'AI lab', labBack: 'Back to AI lab', tools: 'Assessment tools', toolsBack: 'Back to assessment tools' },
+  fr: { home: 'Accueil', back: 'Vue du thème', lab: 'Laboratoire IA', labBack: 'Retour au laboratoire IA', tools: 'Outils d’évaluation', toolsBack: 'Retour aux outils d’évaluation' },
 };
 
 /** One compact intro slot for every workspace page: breadcrumb + optional topic return. */
@@ -156,24 +157,31 @@ function IntroSlot({ lang, pathname, pageLabel }: { lang: HomeLanguage; pathname
   const topic = HOME_TOPICS.find((t) => t.id === topicForPath(pathname));
   const crumb = 'rounded-sm transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
   const remember = () => topic && sessionStorage.setItem('overview:topic', topic.id);
+  const framed = framedToolForPath(pathname);
+  const parent = framed ? (framed.back === '/ki-lab' ? { href: '/ki-lab', label: slot.lab, back: slot.labBack } : { href: '/assessment-tools', label: slot.tools, back: slot.toolsBack }) : null;
   return (
     <div className="workspace-slot flex h-11 items-center justify-between gap-4 mb-5 mt-5 text-xs text-muted-foreground lg:mb-6 lg:mt-8">
       <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-2 overflow-hidden whitespace-nowrap">
         <Link to="/" className={crumb}>{slot.home}</Link>
         {topic && <><span aria-hidden="true" className="hidden sm:inline">/</span><Link to="/#services" onClick={remember} className={`hidden shrink-0 sm:inline ${crumb}`}>{topic.title[lang]}</Link></>}
+        {parent && <><span aria-hidden="true">/</span><Link to={parent.href} className={`shrink-0 ${crumb}`}>{parent.label}</Link></>}
         {pageLabel && <><span aria-hidden="true">/</span><span aria-current="page" className="truncate text-foreground/75">{pageLabel}</span></>}
       </nav>
+      {parent && <Link to={parent.href} className={`inline-flex min-h-11 shrink-0 items-center gap-1.5 whitespace-nowrap font-semibold text-foreground/80 ${crumb}`}><span aria-hidden="true">←</span>{parent.back}</Link>}
       {topic && <Link to="/#services" onClick={remember} aria-label={slot.back} className={`inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap ${crumb}`}><span aria-hidden="true">←</span><span className="hidden sm:inline">{slot.back}</span></Link>}
     </div>
   );
 }
 
-const currentLabels = (pathname: string, lang: HomeLanguage) => {
+const currentLabels = (pathname: string, lang: HomeLanguage, t: (k: string) => string) => {
   const copy = COPY[lang];
   const topicId = topicForPath(pathname);
   const topic = HOME_TOPICS.find((t) => t.id === topicId);
   const link = HOME_TOPICS.flatMap((t) => t.offers.flatMap((o) => o.links)).find((l) => l.href === pathname);
   const knowledge = HOME_KNOWLEDGE.find((k) => k.href === pathname);
+  const framed = framedToolForPath(pathname);
+  if (pathname === '/assessment-tools') return { area: copy.areas, page: SLOT[lang].tools };
+  if (framed) return { area: framed.back === '/ki-lab' ? SLOT[lang].lab : SLOT[lang].tools, page: framed.titleKey ? t(framed.titleKey) : framed.title?.[lang] ?? '' };
   const page = link?.label[lang] ?? knowledge?.title[lang] ?? (pathname === '/references' ? REFERENCES_COPY[lang].nav : pathname === '/team' ? copy.team : pathname === '/contact' ? copy.contact : '');
   return { area: topic?.shortTitle[lang] ?? copy.areas, page };
 };
@@ -231,14 +239,16 @@ export function PublicWorkspace({ children }: { children: ReactNode }) {
     first.current = false;
   }, [location.key, navType]);
 
-  const { area, page } = currentLabels(location.pathname, lang);
+  const { area, page } = currentLabels(location.pathname, lang, t);
+  const labTool = framedToolForPath(location.pathname);
+  const wide = Boolean(labTool?.wide);
   const detail = SERVICE_DETAILS[location.pathname.replace(/^\/+|\/+$/g, '')];
   const serviceTitle = detail ? t(detail.titleKey) : undefined;
 
   return (
-    <div className="public-workspace mx-auto w-full max-w-7xl flex-1 lg:grid lg:grid-cols-[248px_minmax(0,1fr)] lg:gap-10 lg:px-6">
+    <div className={`public-workspace mx-auto w-full flex-1 ${wide ? 'max-w-[1700px]' : 'max-w-7xl lg:grid lg:grid-cols-[248px_minmax(0,1fr)] lg:gap-10 lg:px-6'}`}>
       {/* Mobile / tablet orientation bar */}
-      <div className="sticky top-[var(--site-header-h)] z-30 border-b border-border bg-background/95 backdrop-blur lg:hidden">
+      <div className={`sticky top-[var(--site-header-h)] z-30 border-b border-border bg-background/95 backdrop-blur ${wide ? '' : 'lg:hidden'}`}>
         <div className="flex min-h-12 items-center gap-3 px-4 sm:px-6">
           <p className="min-w-0 flex-1 truncate text-sm">
             <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-primary">{area}</span>
@@ -257,16 +267,34 @@ export function PublicWorkspace({ children }: { children: ReactNode }) {
       </div>
 
       {/* Desktop sticky navigation */}
-      <aside className="hidden lg:block">
+      <aside className={wide ? 'hidden' : 'hidden lg:block'}>
         <nav aria-label={copy.nav} className="sticky top-[calc(var(--site-header-h)+2.5rem)] mt-10 max-h-[calc(100vh-var(--site-header-h)-3.5rem)] overflow-y-auto pb-6 pr-1">
           <NavList lang={lang} pathname={location.pathname} />
         </nav>
       </aside>
 
       <div ref={contentRef} className="workspace-content min-w-0">
-        <div className="px-4 sm:px-6 lg:px-0"><IntroSlot lang={lang} pathname={location.pathname} pageLabel={serviceTitle ?? page} /></div>
+        <div className={wide ? 'px-4 sm:px-6' : 'px-4 sm:px-6 lg:px-0'}><IntroSlot lang={lang} pathname={location.pathname} pageLabel={serviceTitle ?? page} />
+          {labTool && <LabHeading title={page} contentRef={contentRef} />}</div>
         {children}
       </div>
     </div>
   );
+}
+
+/** Visible tool title outside any canvas, rendered only when the tool has no h1 of its own. */
+function LabHeading({ title, contentRef }: { title: string; contentRef: RefObject<HTMLDivElement> }) {
+  const [own, setOwn] = useState(true);
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!el) return;
+    const check = () => setOwn(el.querySelectorAll('h1:not([data-lab-heading])').length === 0);
+    check();
+    const mo = new MutationObserver(check);
+    mo.observe(el, { childList: true, subtree: true });
+    return () => mo.disconnect();
+  }, [contentRef]);
+  const cls = 'mb-5 font-sans text-2xl font-semibold leading-tight text-foreground sm:text-3xl';
+  // Tools with their own visible h1 already show the title; avoid a duplicate.
+  return own ? <h1 data-lab-heading className={cls}>{title}</h1> : null;
 }
