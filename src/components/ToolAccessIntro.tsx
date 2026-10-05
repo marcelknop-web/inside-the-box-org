@@ -12,6 +12,7 @@ type Props = {
   intro: ToolIntroduction;
   language: HomeLanguage;
   login: ReactNode;
+  withChrome?: boolean;
 };
 
 const UI = {
@@ -37,12 +38,12 @@ const CANONICAL_ROUTES: Record<string, string> = {
   'sitemap-index': '/sitemap',
 };
 
-export function ToolAccessIntro({ intro, language, login }: Props) {
+export function ToolAccessIntro({ intro, language, login, withChrome = true }: Props) {
   const { setLanguage } = useLanguage();
   const ui = UI[language];
   const Icon = intro.icon;
-  return (
-    <SiteChrome>
+  const content = (
+    <>
       <PageMeta title={intro.name} description={getLocalized(intro.problem, language)} canonicalPath={CANONICAL_ROUTES[intro.key]} />
       <main className="w-full overflow-x-clip">
       <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
@@ -125,6 +126,7 @@ export function ToolAccessIntro({ intro, language, login }: Props) {
         </section>
       </section>
       </main>
-    </SiteChrome>
+    </>
   );
+  return withChrome ? <SiteChrome>{content}</SiteChrome> : content;
 }

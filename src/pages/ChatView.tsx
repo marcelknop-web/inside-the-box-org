@@ -2006,13 +2006,13 @@ const ChatView = () => {
     : activeService === 'elite-ship'
     ? <Suspense fallback={lazyFallback}><EliteShipScene embedded /></Suspense>
     : activeService === 'cra-check'
-    ? <Suspense fallback={lazyFallback}><PasswordGate storageKey="cra-check" label="CRA Compliance Tool"><CraComplianceTool embedded /></PasswordGate></Suspense>
+    ? <Suspense fallback={lazyFallback}><PasswordGate embedded storageKey="cra-check" label="CRA Compliance Tool"><CraComplianceTool embedded /></PasswordGate></Suspense>
     : activeService === 'dora-compliance'
-    ? <Suspense fallback={lazyFallback}><PasswordGate storageKey="dora-compliance" label="DORA Compliance Tool"><DoraComplianceTool embedded /></PasswordGate></Suspense>
+    ? <Suspense fallback={lazyFallback}><PasswordGate embedded storageKey="dora-compliance" label="DORA Compliance Tool"><DoraComplianceTool embedded /></PasswordGate></Suspense>
     : activeService === 'nis2-compliance'
-    ? <Suspense fallback={lazyFallback}><PasswordGate storageKey="nis2-compliance" label="NIS-2 Compliance Tool"><Nis2ComplianceTool embedded /></PasswordGate></Suspense>
+    ? <Suspense fallback={lazyFallback}><PasswordGate embedded storageKey="nis2-compliance" label="NIS-2 Compliance Tool"><Nis2ComplianceTool embedded /></PasswordGate></Suspense>
     : activeService === 'iacs-e27' || activeService === 'iec62443'
-    ? <Suspense fallback={lazyFallback}><PasswordGate storageKey="iec62443" label="IEC 62443 Compliance Tool"><Iec62443ComplianceTool embedded /></PasswordGate></Suspense>
+    ? <Suspense fallback={lazyFallback}><PasswordGate embedded storageKey="iec62443" label="IEC 62443 Compliance Tool"><Iec62443ComplianceTool embedded /></PasswordGate></Suspense>
     : activeService === 'butterfly-lab'
     ? <Suspense fallback={lazyFallback}><ButterflyEffectLab embedded /></Suspense>
     : activeService === 'soc-life'
@@ -2020,7 +2020,7 @@ const ChatView = () => {
     : activeService === 'ot-soc-life'
     ? <Suspense fallback={lazyFallback}><OtSocLife embedded /></Suspense>
     : activeService === 'ai-act-readiness'
-    ? <Suspense fallback={lazyFallback}><PasswordGate storageKey="ai-act-readiness" label="EU AI Act Readiness Assessment"><AiActReadinessTool embedded /></PasswordGate></Suspense>
+    ? <Suspense fallback={lazyFallback}><PasswordGate embedded storageKey="ai-act-readiness" label="EU AI Act Readiness Assessment"><AiActReadinessTool embedded /></PasswordGate></Suspense>
     : activeService === 'wcst'
     ? <Suspense fallback={lazyFallback}><WisconsinCardSort embedded /></Suspense>
     : activeService === 'syndicate-game'

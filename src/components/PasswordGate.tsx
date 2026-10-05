@@ -17,9 +17,11 @@ interface PasswordGateProps {
   /** Visible label above the input (tool name). */
   label?: string;
   children: ReactNode;
+  /** The parent already provides the shared public site frame. */
+  embedded?: boolean;
 }
 
-export const PasswordGate = ({ storageKey, label, children }: PasswordGateProps) => {
+export const PasswordGate = ({ storageKey, label, children, embedded = false }: PasswordGateProps) => {
   const { language } = useLanguage();
   const sessionKey = `pwgate:${storageKey}`;
   const [unlocked, setUnlocked] = useState<boolean>(false);
@@ -114,6 +116,6 @@ export const PasswordGate = ({ storageKey, label, children }: PasswordGateProps)
   );
 
   const intro = getToolIntroduction(storageKey, label);
-  if (intro) return <ToolAccessIntro intro={intro} language={language} login={login} />;
+  if (intro) return <ToolAccessIntro intro={intro} language={language} login={login} withChrome={!embedded} />;
   return <div className="min-h-[60vh] w-full flex items-center justify-center px-4 py-12">{login}</div>;
 };
