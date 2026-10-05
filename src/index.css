@@ -650,7 +650,7 @@
 }
 .home-hero-copy { min-width: 0; }
 /* Homepage H1: the base layer sizes every span at 16px, so the word spans must inherit the heading size. */
-.home-title { margin-top: 1.25rem; max-width: 12ch; font-size: 3rem; line-height: 1.04; letter-spacing: -0.01em; }
+.home-title { margin-top: 1.25rem; max-width: 12ch; font-size: 2.75rem; line-height: 1.04; letter-spacing: -0.01em; }
 .home-title span { font-size: inherit; line-height: inherit; }
 .home-selector { min-width: 0; }
 @media (min-width: 1024px) { .home-title { font-size: 3.5rem; } }
