@@ -84,6 +84,36 @@ export default function Overview() {
 
   const active = HOME_TOPICS.find((topic) => topic.id === activeId) ?? HOME_TOPICS[0];
 
+  const openContact = () => window.dispatchEvent(new CustomEvent('sitechrome:contact'));
+  const renderTabs = (reveal: boolean) => (
+    <div className="grid grid-cols-3" role="tablist" aria-label={copy.services}>
+      {HOME_TOPICS.map((topic) => {
+        const selected = topic.id === activeId;
+        return (
+          <button
+            key={topic.id}
+            type="button"
+            role="tab"
+            aria-selected={selected}
+            aria-controls="topic-offers"
+            onClick={() => selectTopic(topic.id, reveal)}
+            className={`min-h-[60px] border-b px-1.5 py-2 text-center transition-colors md:min-h-[92px] md:border-b-0 md:border-r md:px-4 md:py-4 md:text-left md:last:border-r-0 ${selected ? 'border-t-2 border-t-primary bg-card text-foreground' : 'border-border text-foreground/65 hover:bg-card/60 hover:text-foreground'}`}
+          >
+            <span className="flex flex-col items-center justify-center gap-1.5 md:flex-row md:items-start md:justify-start md:gap-4">
+              <topic.icon className="h-4 w-4 flex-none text-primary md:hidden" aria-hidden="true" />
+              <span className="hidden font-mono text-[11px] text-primary md:inline">{topic.number}</span>
+              <span>
+                <strong className="block text-sm font-semibold md:hidden">{topic.shortTitle[lang]}</strong>
+                <strong className="hidden text-sm font-semibold md:block">{topic.title[lang]}</strong>
+                <small className="mt-1 hidden text-xs leading-relaxed text-muted-foreground md:block">{topic.choiceSubtitle[lang]}</small>
+              </span>
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+
   return (
     <SiteChrome>
       <PageMeta title={copy.title} description={copy.description} canonicalPath="/" />
@@ -91,49 +121,30 @@ export default function Overview() {
       <main className="overflow-x-hidden">
         <section className="home-hero" aria-labelledby="home-title">
           <div className="home-hero-copy">
-            <p className="font-mono text-[11px] uppercase text-primary tracking-[0.22em]">{copy.overline}</p>
-            <h1 id="home-title" className="mt-5 max-w-[12ch] font-sans text-[2.35rem] font-semibold leading-[1.04] sm:text-5xl lg:text-[3.5rem]">
+            <p className="hidden font-mono text-[11px] uppercase text-primary tracking-[0.22em] md:block">{copy.overline}</p>
+            <h1 id="home-title" className="home-title font-sans font-semibold">
               {copy.headline.split(' ').map((word, index, words) => (
                 <span key={`${word}-${index}`} className={index === words.length - 1 ? 'text-primary' : undefined}>{word}{index < words.length - 1 ? ' ' : ''}</span>
               ))}
             </h1>
-            <p className="mt-4 max-w-md text-base leading-relaxed text-foreground/70 sm:mt-6">{copy.lead}</p>
-            <Button className="mt-5 min-h-12 rounded-none px-5 font-semibold sm:mt-7" onClick={() => window.dispatchEvent(new CustomEvent('sitechrome:contact'))}>
+            <p className="mt-3 max-w-md text-base leading-relaxed text-foreground/70 sm:mt-6">{copy.lead}</p>
+            <Button className="mt-7 hidden min-h-12 rounded-none px-5 font-semibold md:inline-flex" onClick={openContact}>
               {copy.cta}<ArrowRight aria-hidden="true" />
             </Button>
           </div>
-          <TopicCube topics={HOME_TOPICS} activeId={activeId} language={lang} onSelect={selectTopic} />
+          <div className="home-selector">
+            <TopicCube topics={HOME_TOPICS} activeId={activeId} language={lang} onSelect={selectTopic} />
+            <div className="md:hidden">{renderTabs(false)}</div>
+          </div>
+          <Button className="min-h-12 w-full rounded-none px-5 font-semibold md:hidden" onClick={openContact}>
+            {copy.cta}<ArrowRight aria-hidden="true" />
+          </Button>
         </section>
 
         <section id="services" ref={servicesRef} className="scroll-mt-20 border-t border-border">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <h2 className="sr-only">{copy.services}</h2>
-            <div className="grid grid-cols-3" role="tablist" aria-label={copy.services}>
-              {HOME_TOPICS.map((topic) => {
-                const selected = topic.id === activeId;
-                return (
-                  <button
-                    key={topic.id}
-                    type="button"
-                    role="tab"
-                    aria-selected={selected}
-                    aria-controls="topic-offers"
-                    onClick={() => selectTopic(topic.id, true)}
-                    className={`min-h-[60px] border-b px-1.5 py-2 text-center transition-colors md:min-h-[92px] md:border-b-0 md:border-r md:px-4 md:py-4 md:text-left md:last:border-r-0 ${selected ? 'border-t-2 border-t-primary bg-card text-foreground' : 'border-border text-foreground/65 hover:bg-card/60 hover:text-foreground'}`}
-                  >
-                    <span className="flex flex-col items-center justify-center gap-1.5 md:flex-row md:items-start md:justify-start md:gap-4">
-                      <topic.icon className="h-4 w-4 flex-none text-primary md:hidden" aria-hidden="true" />
-                      <span className="hidden font-mono text-[11px] text-primary md:inline">{topic.number}</span>
-                      <span>
-                        <strong className="block text-sm font-semibold md:hidden">{topic.shortTitle[lang]}</strong>
-                        <strong className="hidden text-sm font-semibold md:block">{topic.title[lang]}</strong>
-                        <small className="mt-1 hidden text-xs leading-relaxed text-muted-foreground md:block">{topic.choiceSubtitle[lang]}</small>
-                      </span>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+            <div className="hidden md:block">{renderTabs(true)}</div>
 
             <div className="border-b border-t border-border py-4">
               <p className="max-w-2xl text-base text-foreground/75" aria-live="polite">{active.outcome[lang]}</p>
