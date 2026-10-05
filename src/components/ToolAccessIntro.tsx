@@ -5,6 +5,8 @@ import type { ToolIntroduction } from '@/data/toolIntroductions';
 import { getLocalized } from '@/data/toolIntroductions';
 import type { HomeLanguage } from '@/data/homeTopics';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { PageMeta } from '@/components/PageMeta';
+import { SiteChrome } from '@/components/SiteChrome';
 
 type Props = {
   intro: ToolIntroduction;
@@ -13,9 +15,26 @@ type Props = {
 };
 
 const UI = {
-  de: { jump: 'Zum Login', suited: 'Geeignet für', prepare: 'Was Sie vorbereiten', flow: 'Ablauf', results: 'Ergebnisse', limits: 'Wichtige Grenze', access: 'Geschützter Zugang' },
-  en: { jump: 'Go to login', suited: 'Who it is for', prepare: 'What to prepare', flow: 'Process', results: 'Outputs', limits: 'Important limitation', access: 'Protected access' },
-  fr: { jump: 'Aller à la connexion', suited: 'Pour qui', prepare: 'À préparer', flow: 'Déroulement', results: 'Résultats', limits: 'Limite importante', access: 'Accès protégé' },
+  de: { jump: 'Zum Zugang', suited: 'Geeignet für', prepare: 'Was Sie vorbereiten', flow: 'Ablauf', results: 'Ergebnisse', limits: 'Wichtige Grenze', access: 'Geschützter Zugang' },
+  en: { jump: 'Go to access', suited: 'Who it is for', prepare: 'What to prepare', flow: 'Process', results: 'Outputs', limits: 'Important limitation', access: 'Protected access' },
+  fr: { jump: 'Aller à l’accès', suited: 'Pour qui', prepare: 'À préparer', flow: 'Déroulement', results: 'Résultats', limits: 'Limite importante', access: 'Accès protégé' },
+};
+
+const CANONICAL_ROUTES: Record<string, string> = {
+  gapzero: '/gapzero',
+  'assessment-tools': '/assessment-tools',
+  'iacs-ur26': '/iacs-ur26',
+  'iacs-ur27': '/iacs-ur27',
+  iec62443: '/iec62443',
+  ernstlfall: '/ernstlfall',
+  marsec: '/marsec',
+  'cra-check': '/cra-check',
+  'dora-compliance': '/dora-compliance',
+  'nis2-compliance': '/nis2-compliance',
+  'ai-act-readiness': '/ai-act-readiness',
+  itsm: '/itsm',
+  'itsm-dev': '/itsm-dev',
+  'sitemap-index': '/sitemap',
 };
 
 export function ToolAccessIntro({ intro, language, login }: Props) {
@@ -23,9 +42,13 @@ export function ToolAccessIntro({ intro, language, login }: Props) {
   const ui = UI[language];
   const Icon = intro.icon;
   return (
-    <main className="w-full bg-background">
+    <SiteChrome>
+      <PageMeta title={intro.name} description={getLocalized(intro.problem, language)} canonicalPath={CANONICAL_ROUTES[intro.key]} />
+      <main className="w-full overflow-x-clip">
       <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
-        <div className="mb-6 flex min-h-11 items-center justify-end border-b border-border pb-3" role="group" aria-label={language === 'de' ? 'Sprache' : language === 'fr' ? 'Langue' : 'Language'}>
+        <div className="mb-6 flex min-h-11 flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
+          <a href="/#services" className="font-sans text-sm text-muted-foreground transition-colors hover:text-primary">← {language === 'de' ? 'Zur Themenauswahl' : language === 'fr' ? 'Retour aux thèmes' : 'Back to topics'}</a>
+          <div className="flex items-center" role="group" aria-label={language === 'de' ? 'Sprache' : language === 'fr' ? 'Langue' : 'Language'}>
           <Languages className="mr-2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
           {(['de', 'en', 'fr'] as const).map((code) => (
             <Button
@@ -40,6 +63,7 @@ export function ToolAccessIntro({ intro, language, login }: Props) {
               {code.toUpperCase()}
             </Button>
           ))}
+          </div>
         </div>
         <div className="flex flex-col gap-6 border-b border-border pb-8 sm:flex-row sm:items-start sm:justify-between">
           <div className="max-w-3xl">
@@ -100,6 +124,7 @@ export function ToolAccessIntro({ intro, language, login }: Props) {
           <div className="mt-5 flex justify-center">{login}</div>
         </section>
       </section>
-    </main>
+      </main>
+    </SiteChrome>
   );
 }
