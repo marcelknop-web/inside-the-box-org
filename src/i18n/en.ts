@@ -34,7 +34,7 @@ export const en = {
     socOps: 'SOC Operations',
     aiWorkflows: 'AI Workflows',
     aiLab: 'AI Lab',
-    publications: 'Articles & Insights',
+    publications: 'Articles, talks & trainings',
     events: 'Events',
     eventsWorkshops: 'Events & Trainings',
     ttxTraining: 'DORA & NIS2 TTX',
