@@ -60,7 +60,7 @@ export const SiteChrome = ({
   };
 
   return (
-    <div className="min-h-screen w-full text-foreground flex flex-col">
+    <div className="technical-grid min-h-screen w-full overflow-x-clip text-foreground flex flex-col">
       {/* Top bar */}
       <header className="border-b border-primary/10">
         <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between px-4 sm:px-6 py-4 sm:py-5 gap-3">
@@ -117,7 +117,7 @@ export const SiteChrome = ({
               keyboard users get a clear, brand-consistent indicator.
       */}
       <footer className="border-t border-primary/10 bg-background/40 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-nowrap items-center justify-between gap-2.5 sm:gap-4 font-mono text-[9px] sm:text-[10px] tracking-[0.08em] sm:tracking-[0.22em] text-muted-foreground">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3 sm:gap-4 font-mono text-[9px] sm:text-[10px] tracking-[0.08em] sm:tracking-[0.22em] text-muted-foreground">
           <button
             onClick={handleFooterBrand}
             className="whitespace-nowrap hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm transition-colors no-underline text-left"
@@ -125,7 +125,7 @@ export const SiteChrome = ({
           >
             <span className="hidden sm:inline">© {new Date().getFullYear()} </span>INSIDE-THE-BOX.ORG
           </button>
-          <div className="flex items-center gap-3 sm:gap-5">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-5">
             <button
               onClick={() => setDrawer('contact')}
               className="hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm transition-colors uppercase whitespace-nowrap no-underline"

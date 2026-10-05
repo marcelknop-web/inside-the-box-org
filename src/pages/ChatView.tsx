@@ -66,21 +66,21 @@ interface ChatMessage { role: 'user' | 'assistant'; content: string; links?: Nav
 // ── Chat-styled content blocks ──────────────────────────────────────────────
 
 const Block = ({ children, className = '' }: { children: ReactNode; className?: string }) => (
-  <div className={`rounded-lg px-5 py-5 text-base font-sans leading-relaxed tracking-wide text-foreground ${className}`}>
+  <section className={`rounded-lg border border-border/80 bg-card/90 px-4 py-5 text-base font-sans leading-relaxed text-foreground shadow-card backdrop-blur-sm sm:px-6 ${className}`}>
     {children}
-  </div>
+  </section>
 );
 
 const SectionTitle = ({ children }: { children: ReactNode }) => (
-  <h2 className="text-primary text-xl font-bold font-mono mb-3">{children}</h2>
+  <h2 className="mb-3 text-xl font-semibold text-foreground">{children}</h2>
 );
 
 const SubTitle = ({ children, variant: _v }: { children: ReactNode; variant?: 'primary' | 'highlight' }) => (
-  <h3 className="text-primary font-semibold font-mono text-base mb-1">{children}</h3>
+  <h3 className="mb-1 text-base font-semibold text-primary">{children}</h3>
 );
 
 const CardBlock = ({ icon: Icon, title, desc, variant = 'primary', link, linkLabel, bullets, result }: { icon: LucideIcon; title: string; desc: string; variant?: 'primary' | 'highlight'; link?: string; linkLabel?: string; bullets?: string[]; result?: string }) => (
-  <div className={`rounded-lg p-5 ${variant === 'highlight' ? 'bg-highlight/[0.03] border border-highlight/15' : 'bg-primary/[0.03] border border-primary/15'} shadow-[0_1px_3px_hsl(216_50%_3%/0.3)]`}>
+  <div className={`rounded-lg p-5 ${variant === 'highlight' ? 'bg-card/95 border border-highlight/15' : 'bg-card/95 border border-primary/15'} shadow-card`}>
     <div className="flex items-start gap-3.5">
       <Icon size={20} className={`mt-0.5 flex-shrink-0 opacity-70 ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`} />
       <div>
@@ -115,7 +115,7 @@ const GridItem = ({ icon: Icon, title, subtitle, desc, variant = 'primary', href
   const colorClass = variant === 'highlight' ? 'text-highlight' : 'text-primary';
   const borderClass = variant === 'highlight' ? 'border-highlight/12' : 'border-primary/12';
   return (
-    <div className={`bg-secondary/30 border ${borderClass} rounded-lg p-3.5 flex items-start gap-3 overflow-hidden shadow-[0_1px_2px_hsl(216_50%_3%/0.2)] ${className || ''}`}>
+    <div className={`bg-background/55 border ${borderClass} rounded-lg p-4 flex items-start gap-3 overflow-hidden ${className || ''}`}>
       <Icon size={17} className={`mt-0.5 flex-shrink-0 opacity-65 ${colorClass}`} />
       <div className="space-y-0.5 min-w-0">
         {href ? (
@@ -2065,7 +2065,7 @@ const ChatView = () => {
                 Team / Contact drawers (bg-background/85, backdrop-blur, brand
                 border, prominent close-X). Wraps the existing content stream
                 without changing any service rendering logic. */}
-            <div className={`w-full px-3 md:px-6 lg:px-10 py-4 md:py-6 mx-auto ${
+            <div className={`w-full px-3 md:px-6 lg:px-10 py-5 md:py-8 mx-auto ${
               activeService === 'soc-life' || activeService === 'ot-soc-life' || activeService === 'elite-ship' || activeService === 'butterfly-lab' || activeService === 'crisis-sim' || activeService === 'syndicate-game'
                 ? 'max-w-[1700px]'
                 : 'max-w-5xl'
@@ -2073,14 +2073,15 @@ const ChatView = () => {
 
               <section
                 aria-label={activeServiceLabel}
-                className="bg-background/85 backdrop-blur-md border border-primary/20 rounded-lg shadow-[0_8px_40px_-12px_hsl(var(--primary)/0.25)]"
+                className="bg-background/72 backdrop-blur-md border border-primary/20 rounded-lg shadow-[0_8px_40px_-12px_hsl(var(--primary)/0.25)]"
               >
                 {/* Sheet header — matches drawer header treatment */}
                 <header className="flex items-start justify-between gap-3 px-4 sm:px-6 pt-5 sm:pt-6 pb-4 border-b border-primary/10">
-                  <div className="min-w-0">
+                  <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
                     <p className="font-mono text-[10px] sm:text-[11px] tracking-[0.3em] sm:tracking-[0.35em] text-primary mb-1.5">
                       / {activeServiceLabel.toUpperCase()}
                     </p>
+                    <button onClick={closeToJourney} className="text-left font-sans text-xs text-muted-foreground transition-colors hover:text-primary">← {language === 'de' ? 'Zur Themenauswahl' : language === 'fr' ? 'Retour aux thèmes' : 'Back to topics'}</button>
                   </div>
                   <button
                     onClick={closeToJourney}

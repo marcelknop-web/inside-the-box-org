@@ -208,6 +208,36 @@
     background: hsl(var(--background));
   }
 
+  /* Shared technical drawing surface: fine subdivisions plus restrained
+     major lines. Text panels remain opaque enough to keep the grid secondary. */
+  .technical-grid {
+    position: relative;
+    isolation: isolate;
+    background-color: hsl(var(--background));
+  }
+
+  .technical-grid::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      linear-gradient(hsl(var(--foreground) / 0.025) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--foreground) / 0.025) 1px, transparent 1px),
+      linear-gradient(hsl(var(--primary) / 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--primary) / 0.045) 1px, transparent 1px),
+      radial-gradient(ellipse at 50% 35%, transparent 5%, hsl(var(--background) / 0.38) 82%);
+    background-size: 24px 24px, 24px 24px, 120px 120px, 120px 120px, 100% 100%;
+  }
+
+  @media (max-width: 640px) {
+    .technical-grid::before {
+      opacity: 0.62;
+      background-size: 20px 20px, 20px 20px, 100px 100px, 100px 100px, 100% 100%;
+    }
+  }
+
   .animate-glow {
     animation: glow 3s ease-in-out infinite alternate;
   }
