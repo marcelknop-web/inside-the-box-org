@@ -205,24 +205,7 @@
     @apply text-foreground antialiased;
     font-family: var(--font-ui);
     /* iOS safe-area: bottom-fixed elements use env(safe-area-inset-bottom) directly. */
-    background:
-      radial-gradient(circle at 20% 30%, hsl(216 26% 9% / 0.7) 0%, transparent 45%),
-      radial-gradient(circle at 80% 70%, hsl(216 26% 10% / 0.55) 0%, transparent 50%),
-      radial-gradient(circle at 40% 80%, hsl(216 30% 8% / 0.65) 0%, transparent 40%),
-      radial-gradient(ellipse at 70% 20%, hsl(216 26% 12% / 0.4) 0%, transparent 60%),
-      radial-gradient(ellipse at 10% 90%, hsl(216 26% 6% / 0.5) 0%, transparent 55%),
-      linear-gradient(hsl(214 28% 24% / 0.32) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(214 28% 24% / 0.32) 1px, transparent 1px),
-      linear-gradient(hsl(214 24% 20% / 0.18) 0.5px, transparent 0.5px),
-      linear-gradient(90deg, hsl(214 24% 20% / 0.18) 0.5px, transparent 0.5px),
-      linear-gradient(hsl(214 30% 28% / 0.42) 2px, transparent 2px),
-      linear-gradient(90deg, hsl(214 30% 28% / 0.42) 2px, transparent 2px),
-      radial-gradient(circle at 60% 40%, hsl(216 26% 10% / 0.25) 0%, transparent 80%),
-      linear-gradient(135deg, hsl(216 33% 5%) 0%, hsl(216 26% 7%) 100%);
-    background-size:
-      100% 100%, 100% 100%, 100% 100%, 120% 120%, 110% 110%,
-      5px 5px, 5px 5px, 2.5px 2.5px, 2.5px 2.5px,
-      50px 50px, 50px 50px, 200px 200px, 100% 100%;
+    background: hsl(var(--background));
   }
 
   .animate-glow {
@@ -666,12 +649,14 @@
   gap: 14px;
   padding: 24px;
   overflow: hidden;
-  border: 1px solid hsl(var(--border));
-  background: hsl(var(--secondary));
+  border: 1px solid hsl(var(--primary) / .16);
+  background: linear-gradient(145deg, hsl(var(--muted) / .98), hsl(var(--card)) 72%);
   color: hsl(var(--foreground) / .74);
   backface-visibility: hidden;
+  box-shadow: inset 1px 1px 0 hsl(var(--foreground) / .04), inset -5px -7px 16px hsl(var(--background) / .48);
 }
-.topic-cube-face.is-active { border-color: hsl(var(--primary)); color: hsl(var(--primary)); }
+.topic-cube-face::after { content: ''; position: absolute; inset: 5px; border: 1px solid hsl(var(--foreground) / .025); pointer-events: none; }
+.topic-cube-face.is-active { border-color: hsl(var(--primary) / .72); color: hsl(var(--primary)); box-shadow: inset 1px 1px 0 hsl(var(--foreground) / .06), inset -6px -8px 18px hsl(var(--background) / .55), 0 0 18px hsl(var(--primary) / .08); }
 .topic-cube-front { transform: translateZ(calc(var(--cube-size) / 2)); }
 .topic-cube-right { transform: rotateY(90deg) translateZ(calc(var(--cube-size) / 2)); }
 .topic-cube-top { transform: rotateX(90deg) translateZ(calc(var(--cube-size) / 2)); }
@@ -679,11 +664,10 @@
 .topic-cube-back { transform: rotateY(180deg) translateZ(calc(var(--cube-size) / 2)); }
 .topic-cube-bottom { transform: rotateX(-90deg) translateZ(calc(var(--cube-size) / 2)); }
 .topic-cube-label { max-width: 12ch; text-align: center; font-size: 1.35rem; font-weight: 600; line-height: 1.08; }
-.topic-cube-face small { text-align: center; font-family: var(--font-mono); font-size: .63rem; line-height: 1.5; color: hsl(var(--foreground) / .58); }
 .topic-cube-index { position: absolute; top: 12px; left: 14px; font-family: var(--font-mono); font-size: .65rem; }
-.topic-cube-floor { position: absolute; width: 76%; height: 55%; bottom: 20px; transform: rotateX(62deg); border: 1px solid hsl(var(--primary) / .08); background-image: linear-gradient(hsl(var(--primary) / .08) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary) / .08) 1px, transparent 1px); background-size: 28px 28px; }
-.topic-cube-shadow { position: absolute; width: 65%; height: 56px; bottom: 54px; border-radius: 50%; background: radial-gradient(ellipse, hsl(var(--primary) / .16), transparent 68%); filter: blur(8px); }
-.topic-cube-hint { position: absolute; bottom: 8px; font-size: .72rem; color: hsl(var(--muted-foreground)); }
+.topic-cube-floor { position: absolute; width: min(84%, 430px); height: 58%; bottom: 16px; transform: rotateX(62deg); border: 1px solid hsl(var(--primary) / .045); background-image: linear-gradient(hsl(var(--primary) / .045) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary) / .045) 1px, transparent 1px); background-size: 34px 34px; mask-image: radial-gradient(ellipse, black 12%, transparent 70%); }
+.topic-cube-shadow { position: absolute; width: 58%; height: 52px; bottom: 58px; border-radius: 50%; background: radial-gradient(ellipse, hsl(var(--background) / .9), transparent 70%); filter: blur(9px); }
+.topic-cube-hint { position: absolute; bottom: 8px; max-width: 90%; text-align: center; font-family: var(--font-mono); font-size: .65rem; line-height: 1.5; color: hsl(var(--muted-foreground)); }
 
 @media (max-width: 767px) {
   .home-hero { min-height: auto; grid-template-columns: 1fr; padding: 2.5rem 1rem 1.5rem; }
