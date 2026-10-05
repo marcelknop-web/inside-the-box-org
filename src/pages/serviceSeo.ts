@@ -143,6 +143,26 @@ export const SERVICE_SEO: Record<string, ServiceSeo> = {
 };
 
 const LOCALIZED_SERVICE_SEO: Partial<Record<string, LocalizedServiceSeo>> = {
+  isms: {
+    de: { title: 'ISMS & ISO 27001', description: 'ISMS aufbauen, in reale Abläufe integrieren und Audits nach ISO 27001, BSI IT-Grundschutz oder IEC 62443 fundiert vorbereiten.' },
+    en: { title: 'ISMS & ISO 27001', description: 'Build an ISMS, integrate it into real operations and prepare soundly for ISO 27001, BSI IT-Grundschutz or IEC 62443 audits.' },
+    fr: { title: 'SMSI & ISO 27001', description: 'Construire un SMSI, l’intégrer aux opérations et préparer rigoureusement les audits ISO 27001, BSI IT-Grundschutz ou IEC 62443.' },
+  },
+  'nis2-dora': {
+    de: { title: 'NIS-2 & DORA', description: 'Betroffenheit, Governance, Risikomaßnahmen und Nachweise für NIS-2 und DORA strukturiert klären und priorisieren.' },
+    en: { title: 'NIS 2 & DORA', description: 'Clarify and prioritise scope, governance, risk measures and evidence for NIS 2 and DORA in a structured way.' },
+    fr: { title: 'NIS 2 & DORA', description: 'Clarifier et prioriser de manière structurée l’applicabilité, la gouvernance, les mesures de risque et les preuves NIS 2 et DORA.' },
+  },
+  'tisax-pci-dss': {
+    de: { title: 'TISAX & PCI DSS', description: 'Scope, Assessment Level, SAQ, Kontrollen und Nachweise für TISAX- und PCI-DSS-Prüfungen sauber vorbereiten.' },
+    en: { title: 'TISAX & PCI DSS', description: 'Prepare scope, assessment level, SAQ, controls and evidence for TISAX and PCI DSS assessments.' },
+    fr: { title: 'TISAX & PCI DSS', description: 'Préparer précisément périmètre, niveau d’évaluation, SAQ, contrôles et preuves pour les évaluations TISAX et PCI DSS.' },
+  },
+  'assessments-concepts': {
+    de: { title: 'Assessments & Konzepte', description: 'Sicherheitslage unabhängig bewerten, Lücken priorisieren und umsetzbare Sicherheitskonzepte mit klarer Roadmap entwickeln.' },
+    en: { title: 'Assessments & Concepts', description: 'Assess security independently, prioritise gaps and develop actionable security concepts with a clear roadmap.' },
+    fr: { title: 'Évaluations & concepts', description: 'Évaluer la sécurité avec indépendance, prioriser les écarts et développer des concepts applicables avec une feuille de route claire.' },
+  },
   'cyber-crisis-management': {
     de: { title: 'Cyber-Krisenmanagement', description: 'Krisenorganisation, Entscheidungswege und Kommunikation so vorbereiten, dass Führung und Koordination im Cyber-Ernstfall funktionieren.' },
     en: { title: 'Cyber Crisis Management', description: 'Prepare crisis organisation, decision paths and communications so leadership and coordination work during a serious cyber incident.' },
@@ -157,6 +177,61 @@ const LOCALIZED_SERVICE_SEO: Partial<Record<string, LocalizedServiceSeo>> = {
     de: { title: 'Notfallmanagement & BCM', description: 'Kritische Geschäftsprozesse absichern, Wiederanlaufziele festlegen und belastbare Notfallpläne nach ISO 22301 und BSI 200-4 entwickeln.' },
     en: { title: 'Business Continuity & BCM', description: 'Protect critical business processes, set recovery objectives and develop robust continuity plans aligned with ISO 22301 and BSI 200-4.' },
     fr: { title: 'Continuité d’activité & PCA', description: 'Protéger les activités critiques, définir les objectifs de reprise et élaborer des plans robustes selon ISO 22301 et BSI 200-4.' },
+  },
+  'arena-training': {
+    de: { title: 'Cyber Range & Red Team', description: 'Angriffe realistisch simulieren und technische Teams in Cyber Range, Blue-Team-Drills und Red-Team-Szenarien gezielt trainieren.' },
+    en: { title: 'Cyber Range & Red Team', description: 'Simulate attacks realistically and train technical teams through cyber range, blue-team drills and red-team scenarios.' },
+    fr: { title: 'Cyber Range & Red Team', description: 'Simuler des attaques réalistes et entraîner les équipes techniques par cyber range, exercices blue team et scénarios red team.' },
+  },
+  'events-workshops': {
+    de: { title: 'Events & Workshops', description: 'Moderierte Security-Workshops, Awareness-Formate und Fachvorträge passend zu Zielgruppe, Anlass und gewünschtem Ergebnis.' },
+    en: { title: 'Events & Workshops', description: 'Facilitated security workshops, awareness formats and talks aligned with the audience, occasion and intended outcome.' },
+    fr: { title: 'Événements & ateliers', description: 'Ateliers sécurité animés, sensibilisation et conférences adaptés au public, au contexte et au résultat recherché.' },
+  },
+  publications: {
+    de: { title: 'Fachartikel & Einblicke', description: 'Fachartikel, Vorträge und Praxiseinblicke zu Informationssicherheit, Regulierung und Cyber-Krisenmanagement.' },
+    en: { title: 'Articles & Insights', description: 'Articles, talks and practical insight on information security, regulation and cyber crisis management.' },
+    fr: { title: 'Articles & analyses', description: 'Articles, conférences et retours pratiques sur la sécurité de l’information, la réglementation et la gestion de cyber-crise.' },
+  },
+  'virtual-ciso': {
+    de: { title: 'Virtual CISO', description: 'Informationssicherheit strategisch steuern, Risiken entscheiden und Management-Reporting mit erfahrener CISO-Unterstützung etablieren.' },
+    en: { title: 'Virtual CISO', description: 'Direct information security strategy, make risk decisions and establish management reporting with experienced CISO support.' },
+    fr: { title: 'CISO virtuel', description: 'Piloter la stratégie de sécurité, décider des risques et établir le reporting de direction avec un accompagnement CISO expérimenté.' },
+  },
+  'soc-operations': {
+    de: { title: 'SOC-Betrieb & Playbooks', description: 'SOC-Prozesse, Use Cases, Triage, Eskalation und Kennzahlen so strukturieren, dass Security Monitoring wirksam betrieben werden kann.' },
+    en: { title: 'SOC Operations & Playbooks', description: 'Structure SOC processes, use cases, triage, escalation and metrics so security monitoring can operate effectively.' },
+    fr: { title: 'Opérations SOC & playbooks', description: 'Structurer processus SOC, cas d’usage, triage, escalade et indicateurs pour exploiter efficacement la surveillance sécurité.' },
+  },
+  'ai-workflows': {
+    de: { title: 'KI-Workflows für Security', description: 'Wiederkehrende Security- und Compliance-Aufgaben mit klaren Daten- und Prüfgrenzen sinnvoll automatisieren.' },
+    en: { title: 'AI Workflows for Security', description: 'Automate recurring security and compliance tasks sensibly with clear data and review boundaries.' },
+    fr: { title: 'Workflows IA pour la sécurité', description: 'Automatiser utilement les tâches récurrentes de sécurité et conformité avec des limites claires pour les données et la revue.' },
+  },
+  'dora-nis2-ttx': {
+    de: { title: 'DORA & NIS-2 TTX', description: 'Tabletop Exercises für Entscheidungswege, regulatorische Meldungen und belastbare Nachweise nach DORA und NIS-2 gestalten.' },
+    en: { title: 'DORA & NIS 2 TTX', description: 'Design tabletop exercises for decision paths, regulatory reporting and robust evidence under DORA and NIS 2.' },
+    fr: { title: 'TTX DORA & NIS 2', description: 'Concevoir des exercices sur table pour les décisions, les notifications réglementaires et les preuves DORA et NIS 2.' },
+  },
+  why: {
+    de: { title: 'Cyber Training Range', description: 'Realistische Übungen machen Rollen, Entscheidungen und technische Reaktion unter Druck überprüfbar und verbesserbar.' },
+    en: { title: 'Cyber Training Range', description: 'Realistic exercises make roles, decisions and technical response under pressure observable and improvable.' },
+    fr: { title: 'Cyber Training Range', description: 'Des exercices réalistes rendent observables et améliorables les rôles, décisions et réponses techniques sous pression.' },
+  },
+  'ki-lab': {
+    de: { title: 'KI-Lab & Werkzeuge', description: 'Direkt nutzbare und geschützte Simulationen, Checks und Lernformate für Security, Compliance und Krisenmanagement.' },
+    en: { title: 'AI Lab & Tools', description: 'Open and protected simulations, checks and learning formats for security, compliance and crisis management.' },
+    fr: { title: 'Lab IA & outils', description: 'Simulations, évaluations et formats pédagogiques ouverts ou protégés pour sécurité, conformité et gestion de crise.' },
+  },
+  contact: {
+    de: { title: 'Kontakt', description: 'Kontakt zu Marcel Knop für Cybersecurity, Compliance, Krisenmanagement, Assessments und Übungen.' },
+    en: { title: 'Contact', description: 'Contact Marcel Knop about cybersecurity, compliance, crisis management, assessments and exercises.' },
+    fr: { title: 'Contact', description: 'Contacter Marcel Knop pour cybersécurité, conformité, gestion de crise, évaluations et exercices.' },
+  },
+  imprint: {
+    de: { title: 'Impressum & Datenschutz', description: 'Impressum, Anbieterkennzeichnung und Datenschutzhinweise von inside-the-box.org.' },
+    en: { title: 'Legal notice & privacy', description: 'Legal notice, provider information and privacy information for inside-the-box.org.' },
+    fr: { title: 'Mentions légales & confidentialité', description: 'Mentions légales, informations sur l’éditeur et confidentialité de inside-the-box.org.' },
   },
 };
 
