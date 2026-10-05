@@ -49,7 +49,7 @@ export function ToolAccessIntro({ intro, language, login, withChrome = true }: P
       <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
         <div className="mb-6 flex min-h-11 flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
           <a href="/#services" className="font-sans text-sm text-muted-foreground transition-colors hover:text-primary">← {language === 'de' ? 'Zur Themenauswahl' : language === 'fr' ? 'Retour aux thèmes' : 'Back to topics'}</a>
-          <div className="flex items-center" role="group" aria-label={language === 'de' ? 'Sprache' : language === 'fr' ? 'Langue' : 'Language'}>
+          {!withChrome && <div className="flex items-center" role="group" aria-label={language === 'de' ? 'Sprache' : language === 'fr' ? 'Langue' : 'Language'}>
           <Languages className="mr-2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
           {(['de', 'en', 'fr'] as const).map((code) => (
             <Button
@@ -64,7 +64,7 @@ export function ToolAccessIntro({ intro, language, login, withChrome = true }: P
               {code.toUpperCase()}
             </Button>
           ))}
-          </div>
+          </div>}
         </div>
         <div className="flex flex-col gap-6 border-b border-border pb-8 sm:flex-row sm:items-start sm:justify-between">
           <div className="max-w-3xl">
