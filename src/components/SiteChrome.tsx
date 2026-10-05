@@ -97,7 +97,7 @@ const ChromeFrame = ({
 
   const slug = location.pathname.replace(/^\/+|\/+$/g, '');
   const isServicePage = Boolean(SERVICE_DETAILS[slug]) && !['publications','ki-lab','ai-workflows'].includes(slug);
-  const isKnowledgePage = ['/publications','/ki-lab','/ai-workflows'].includes(location.pathname) || Boolean(framedToolForPath(location.pathname)) || (inWorkspace && !isServicePage && !['/team','/contact','/references'].includes(location.pathname));
+  const isKnowledgePage = ['/publications','/ki-lab','/ai-workflows'].includes(location.pathname) || Boolean(framedToolForPath(location.pathname)) || (inWorkspace && !isHome && !isServicePage && !['/team','/contact','/references'].includes(location.pathname));
   const isCurrent = (section: NonNullable<typeof activeSection>) => activeSection === section || (section === 'knowledge' && isKnowledgePage) || (section === 'services' && isServicePage) || (section === 'team' && location.pathname === '/team') || (section === 'contact' && location.pathname === '/contact');
   const navClass = (section: NonNullable<typeof activeSection>) => `font-mono text-[10px] tracking-[0.08em] transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:text-[11px] ${isCurrent(section) ? 'text-primary' : 'text-muted-foreground'}`;
 
