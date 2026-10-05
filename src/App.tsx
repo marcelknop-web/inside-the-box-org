@@ -2,7 +2,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { PublicFrame } from "@/components/SiteChrome";
 import { HelmetProvider } from "react-helmet-async";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { RouteSkeleton } from "@/components/RouteSkeleton";
@@ -57,8 +58,12 @@ const App = () => (
             <Routes>
               {/* Active Journey + entry points */}
               <Route path="/" element={<Overview />} />
-              <Route path="/team" element={<TeamPage />} />
-              <Route path="/contact" element={<ContactPage />} />
+              {/* One mounted public frame: header + sticky navigation stay put, only content swaps. */}
+              <Route element={<PublicFrame><Outlet /></PublicFrame>}>
+                <Route path="/team" element={<TeamPage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/:serviceId" element={<ChatView />} />
+              </Route>
               {/* Imprint is now drawer-only — see SiteChrome footer link. */}
 
               {/* Standalone tools (not part of the Journey, kept for direct/admin access) */}
@@ -90,7 +95,6 @@ const App = () => (
               <Route path="/marsec" element={<Suspense fallback={<RouteSkeleton />}><PasswordGate storageKey="ernstlfall" label="MarSec Studio"><MarSec /></PasswordGate></Suspense>} />
 
               {/* Catch-all: every Journey service id (nis2-dora, virtual-ciso, …) renders ChatView */}
-              <Route path="/:serviceId" element={<ChatView />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <ScrollToTopFab />

@@ -24,7 +24,7 @@ export function ServiceDetailPage({ serviceId }: { serviceId: string }) {
   };
 
   return (
-    <article className="mx-auto w-full max-w-6xl px-4 pb-24 pt-7 sm:px-6 sm:pt-10 lg:pt-12">
+    <article className="mx-auto w-full max-w-6xl px-4 pb-24 pt-8 sm:px-6 lg:px-0 lg:pt-10">
       <nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
         <Link to="/" className="min-h-10 content-center rounded-sm transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{copy.home}</Link><span aria-hidden="true">/</span>
         <Link to="/#services" onClick={rememberTopic} className="min-h-10 content-center rounded-sm transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{topic?.title[lang]}</Link><span aria-hidden="true">/</span>

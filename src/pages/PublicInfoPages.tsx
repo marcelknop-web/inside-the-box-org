@@ -46,7 +46,7 @@ export function TeamPage() {
   return (
     <SiteChrome activeSection="team">
       <PageMeta title={copy.team} description={copy.teamLead} canonicalPath="/team" />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-20 pt-8 sm:px-6 sm:pt-12">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-20 pt-8 sm:px-6 lg:px-0 lg:pt-10">
         <Breadcrumb current={copy.team} />
         <header className="max-w-3xl border-b border-primary/20 pb-8">
           <h1 className="text-3xl font-semibold leading-tight sm:text-4xl lg:text-5xl">{copy.teamTitle}</h1>
@@ -84,7 +84,7 @@ export function ContactPage() {
   return (
     <SiteChrome activeSection="contact">
       <PageMeta title={copy.contact} description={copy.contactLead} canonicalPath="/contact" />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-20 pt-8 sm:px-6 sm:pt-12">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-20 pt-8 sm:px-6 lg:px-0 lg:pt-10">
         <Breadcrumb current={copy.contact} />
         <header className="max-w-3xl border-b border-primary/20 pb-8">
           <h1 className="text-3xl font-semibold leading-tight sm:text-4xl lg:text-5xl">{copy.contactTitle}</h1>

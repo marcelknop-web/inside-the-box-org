@@ -44,7 +44,7 @@ export function ToolAccessIntro({ intro, language, login, withChrome = true }: P
     <>
       <PageMeta title={`${intro.name} — ${getLocalized(intro.eyebrow, language)}`} description={getLocalized(intro.problem, language)} canonicalPath={CANONICAL_ROUTES[intro.key]} />
       <main className="w-full overflow-x-clip">
-      <section className="mx-auto max-w-5xl px-4 py-7 sm:px-6 sm:py-10">
+      <section className="mx-auto max-w-5xl px-4 pb-10 pt-8 sm:px-6 lg:px-0 lg:pt-10">
         <div className="mb-6 flex min-h-11 items-center border-b border-border pb-3">
           <a href="/#services" className="font-sans text-sm text-muted-foreground transition-colors hover:text-primary">← {language === 'de' ? 'Zur Themenauswahl' : language === 'fr' ? 'Retour aux thèmes' : 'Back to topics'}</a>
         </div>
@@ -91,5 +91,5 @@ export function ToolAccessIntro({ intro, language, login, withChrome = true }: P
       </main>
     </>
   );
-  return withChrome ? <SiteChrome>{content}</SiteChrome> : content;
+  return withChrome ? <SiteChrome workspace>{content}</SiteChrome> : content;
 }
