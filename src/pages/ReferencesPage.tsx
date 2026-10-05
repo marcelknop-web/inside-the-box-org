@@ -12,8 +12,8 @@ export function ReferencesPage() {
   const { language } = useLanguage();
   const lang = language as HomeLanguage;
   const copy = REFERENCES_COPY[lang];
-  // Group by primary topic (first tag); further topics stay visible as tags.
-  const groups = HOME_TOPICS.map((topic) => ({ topic, items: CORE_REFERENCES.filter((r) => r.topics[0] === topic.id) })).filter((g) => g.items.length);
+  // Group by curated main theme; further topics stay visible as tags.
+  const groups = HOME_TOPICS.map((topic) => ({ topic, items: CORE_REFERENCES.filter((r) => r.group === topic.id) })).filter((g) => g.items.length);
 
   return (
     <SiteChrome>
@@ -27,7 +27,7 @@ export function ReferencesPage() {
         {groups.map(({ topic, items }) => (
           <section key={topic.id} aria-labelledby={`ref-${topic.id}`} className="pt-9">
             <h2 id={`ref-${topic.id}`} className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-primary">
-              <topic.icon className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />{topic.shortTitle[lang]}
+              <topic.icon className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />{topic.id === 'exercise' ? copy.exerciseGroup : topic.shortTitle[lang]}
             </h2>
             <ul className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
               {items.map((item) => <ReferenceCard key={item.id} item={item} lang={lang} />)}

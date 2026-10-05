@@ -19,6 +19,8 @@ export type ClientReference = {
   name: string;
   years?: L;
   topics: TopicId[];
+  /** Main theme for balanced grouping on /references. */
+  group?: TopicId;
   text: L;
   /** Service slugs where this reference appears in "Aus der Projektpraxis" (max. 2 per page). */
   services: string[];
@@ -38,37 +40,37 @@ export const CORE_REFERENCES: ClientReference[] = [
     services: ['assessments-concepts'],
   },
   {
-    id: 'arlanxeo', name: 'ARLANXEO', years: l('2025', '2025', '2025'), topics: ['security', 'crisis', 'exercise'],
+    id: 'arlanxeo', name: 'ARLANXEO', years: l('2025', '2025', '2025'), topics: ['security', 'crisis', 'exercise'], group: 'crisis',
     text: l('IT-/OT-Sicherheitsaudits, Notfallpläne und Tabletop-Übungen.', 'IT/OT security audits, emergency plans and tabletop exercises.', 'Audits de sécurité IT/OT, plans d’urgence et exercices sur table.'),
     services: ['bcm', 'cyber-crisis-management', 'dora-nis2-ttx'],
   },
   {
-    id: 'sap-fioneer', name: 'SAP Fioneer', years: l('2024–2025', '2024–2025', '2024–2025'), topics: ['crisis', 'security'],
+    id: 'sap-fioneer', name: 'SAP Fioneer', years: l('2024–2025', '2024–2025', '2024–2025'), topics: ['crisis', 'security'], group: 'crisis',
     text: l('Aufbau von Security-Incident-Management und DORA-bezogenen Meldeprozessen.', 'Set-up of security incident management and DORA-related reporting processes.', 'Mise en place de la gestion des incidents de sécurité et des processus de notification liés à DORA.'),
     services: ['incident-management', 'nis2-dora'],
   },
   {
-    id: 'lufthansa', name: 'Deutsche Lufthansa', years: l('2024–2025', '2024–2025', '2024–2025'), topics: ['security', 'crisis', 'exercise'],
+    id: 'lufthansa', name: 'Deutsche Lufthansa', years: l('2024–2025', '2024–2025', '2024–2025'), topics: ['security', 'crisis', 'exercise'], group: 'crisis',
     text: l('SOC-/SIEM-Prozesse und Runbooks sowie BCM-Tabletop-Übungen.', 'SOC/SIEM processes and runbooks, plus BCM tabletop exercises.', 'Processus et runbooks SOC/SIEM, ainsi qu’exercices BCM sur table.'),
     services: ['soc-operations', 'bcm'],
   },
   {
-    id: 'fi-ts', name: 'Finanz Informatik – Technologie Services (FI-TS)', years: l('2021–2025', '2021–2025', '2021–2025'), topics: ['security', 'crisis', 'exercise'],
+    id: 'fi-ts', name: 'Finanz Informatik – Technologie Services (FI-TS)', years: l('2021–2025', '2021–2025', '2021–2025'), topics: ['security', 'crisis', 'exercise'], group: 'security',
     text: l('SOC-Kunden-Onboarding, Incident-Response-Playbooks und TIBER-DE-Übungstrainings.', 'SOC client onboarding, incident response playbooks and TIBER-DE exercise training.', 'Intégration de clients SOC, playbooks de réponse aux incidents et entraînements aux exercices TIBER-DE.'),
     services: ['soc-operations', 'incident-management', 'dora-nis2-ttx'],
   },
   {
-    id: 'isaca', name: 'ISACA Germany Chapter', years: l('seit 2021', 'since 2021', 'depuis 2021'), topics: ['exercise'],
+    id: 'isaca', name: 'ISACA Germany Chapter', topics: ['exercise'], group: 'exercise',
     text: l('Konzeption und Durchführung des Zertifizierungstrainings Cyber Security Expert (CSE).', 'Design and delivery of the Cyber Security Expert (CSE) certification training.', 'Conception et animation de la formation certifiante Cyber Security Expert (CSE).'),
     services: ['arena-training', 'events-workshops'], seeAlso: '/publications',
   },
   {
-    id: 'bechtle-fastlane', name: 'Bechtle, Fast Lane', years: l('seit 2022', 'from 2022', 'depuis 2022'), topics: ['exercise', 'security'],
+    id: 'bechtle-fastlane', name: 'Bechtle, Fast Lane', topics: ['exercise', 'security'], group: 'exercise',
     text: l('SOC-Trainings als leitender Dozent, vor Ort und remote.', 'SOC training as lead trainer, on site and remote.', 'Formations SOC en tant que formateur principal, sur site et à distance.'),
     services: ['events-workshops'], seeAlso: '/publications',
   },
   {
-    id: 'netsecurity', name: 'Netsecurity (NO)', topics: ['exercise'],
+    id: 'netsecurity', name: 'Netsecurity (NO)', topics: ['exercise'], group: 'exercise',
     text: l('Konzeption und Durchführung von Incident-Response- und Forensik-Trainings für OT-Teams im IEC-62443-Umfeld.', 'Design and delivery of incident response and forensics training for OT teams in the IEC 62443 context.', 'Conception et animation de formations à la réponse aux incidents et à l’investigation numérique pour les équipes OT dans le contexte IEC 62443.'),
     services: ['arena-training'], seeAlso: '/publications',
   },
@@ -107,7 +109,7 @@ export const FURTHER_CLIENTS: { label: L; clients: string[] }[] = [
 ];
 
 export const REFERENCES_COPY = {
-  de: { nav: 'Referenzen', h1: 'Kunden & Projektreferenzen', intro: 'Ausgewählte Projekte aus der Beratungspraxis von Marcel Knop.', earlier: 'Weitere Projektbeispiele', earlierNote: 'Teils aus früheren Beratungstätigkeiten.', further: 'Weitere Kunden', practice: 'Aus der Projektpraxis', all: 'Alle Referenzen ansehen', home: 'Ausgewählte Referenzen', seeAlso: 'Zu Artikel, Vorträge & Trainings', cta: 'Projekt besprechen', metaDesc: 'Ausgewählte Kunden- und Projektreferenzen von Marcel Knop zu ISMS, SOC, Incident Management, DORA, BCM und Cyber-Trainings.', teamLink: 'Projektreferenzen von Marcel Knop' },
-  en: { nav: 'References', h1: 'Clients & project references', intro: 'Selected projects from Marcel Knop’s advisory practice.', earlier: 'Further project examples', earlierNote: 'Partly from earlier advisory roles.', further: 'Further clients', practice: 'From project practice', all: 'View all references', home: 'Selected references', seeAlso: 'See articles, talks & training', cta: 'Discuss a project', metaDesc: 'Selected client and project references by Marcel Knop on ISMS, SOC, incident management, DORA, BCM and cyber training.', teamLink: 'Project references of Marcel Knop' },
-  fr: { nav: 'Références', h1: 'Clients & références de projets', intro: 'Projets sélectionnés issus de la pratique de conseil de Marcel Knop.', earlier: 'Autres exemples de projets', earlierNote: 'En partie issus de missions de conseil antérieures.', further: 'Autres clients', practice: 'Issu de la pratique', all: 'Voir toutes les références', home: 'Références sélectionnées', seeAlso: 'Voir articles, conférences & formations', cta: 'Discuter d’un projet', metaDesc: 'Références clients et projets sélectionnées de Marcel Knop : SMSI, SOC, gestion des incidents, DORA, BCM et formations cyber.', teamLink: 'Références de projets de Marcel Knop' },
+  de: { nav: 'Referenzen', h1: 'Kunden & Projektreferenzen', intro: 'Ausgewählte Projekte aus der Beratungspraxis von Marcel Knop.', earlier: 'Weitere Projektbeispiele', earlierNote: 'Teils aus früheren Beratungstätigkeiten.', further: 'Weitere Kunden', practice: 'Aus der Projektpraxis', exerciseGroup: 'Übungen & Trainings', all: 'Alle Referenzen ansehen', home: 'Ausgewählte Referenzen', seeAlso: 'Zu Artikel, Vorträge & Trainings', cta: 'Projekt besprechen', metaDesc: 'Ausgewählte Kunden- und Projektreferenzen von Marcel Knop zu ISMS, SOC, Incident Management, DORA, BCM und Cyber-Trainings.', teamLink: 'Projektreferenzen von Marcel Knop' },
+  en: { nav: 'References', h1: 'Clients & project references', intro: 'Selected projects from Marcel Knop’s advisory practice.', earlier: 'Further project examples', earlierNote: 'Partly from earlier advisory roles.', further: 'Further clients', practice: 'Project experience', exerciseGroup: 'Training & exercises', all: 'View all references', home: 'Selected references', seeAlso: 'See articles, talks & training', cta: 'Discuss a project', metaDesc: 'Selected client and project references by Marcel Knop on ISMS, SOC, incident management, DORA, BCM and cyber training.', teamLink: 'Project references of Marcel Knop' },
+  fr: { nav: 'Références', h1: 'Clients & références de projets', intro: 'Projets sélectionnés issus de la pratique de conseil de Marcel Knop.', earlier: 'Autres exemples de projets', earlierNote: 'En partie issus de missions de conseil antérieures.', further: 'Autres clients', practice: 'Issu de la pratique', exerciseGroup: 'Exercices & formations', all: 'Voir toutes les références', home: 'Références sélectionnées', seeAlso: 'Voir articles, conférences & formations', cta: 'Discuter d’un projet', metaDesc: 'Références clients et projets sélectionnées de Marcel Knop : SMSI, SOC, gestion des incidents, DORA, BCM et formations cyber.', teamLink: 'Références de projets de Marcel Knop' },
 } as const;
