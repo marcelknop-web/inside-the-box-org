@@ -2006,7 +2006,7 @@ const ChatView = () => {
                 </header>}
                 <div className={`${isMarketingService ? '' : 'space-y-4'} ${
                   isWorkspaceService ? 'pb-20' :
-                    : activeService === 'soc-life' || activeService === 'ot-soc-life' || activeService === 'elite-ship' || activeService === 'butterfly-lab' || activeService === 'crisis-sim'
+                  activeService === 'soc-life' || activeService === 'ot-soc-life' || activeService === 'elite-ship' || activeService === 'butterfly-lab' || activeService === 'crisis-sim'
                     ? 'py-5 md:py-6 pb-20 px-2 sm:px-3 lg:px-4'
                     : 'py-5 md:py-6 pb-20 px-4 sm:px-6 lg:px-10'
                 }`}>
