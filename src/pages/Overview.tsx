@@ -96,8 +96,12 @@ export default function Overview() {
     const target = document.getElementById(id);
     if (!target) return;
     window.requestAnimationFrame(() => {
-      target.scrollIntoView({ block: 'start', behavior: 'auto' });
+      const restoring = id === 'services' && sessionStorage.getItem('overview:returnPending') === '1';
+      const savedY = Number(sessionStorage.getItem('overview:scrollY'));
+      if (restoring && Number.isFinite(savedY)) window.scrollTo({ top: savedY, behavior: 'auto' });
+      else target.scrollIntoView({ block: 'start', behavior: 'auto' });
       if (id === 'services') {
+        sessionStorage.removeItem('overview:returnPending');
         const sourceId = sessionStorage.getItem('overview:focus');
         const source = sourceId ? document.getElementById(sourceId) : null;
         source?.focus({ preventScroll: true });
