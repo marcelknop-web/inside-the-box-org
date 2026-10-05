@@ -1,7 +1,7 @@
 import { useEffect, useState, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Languages, ArrowRight, Linkedin, Mail, Phone } from 'lucide-react';
-import { useLanguage, nextLanguage } from '@/i18n/LanguageContext';
+import { useLanguage } from '@/i18n/LanguageContext';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { GeometricSymbol } from '@/components/GeometricSymbol';
 import { consultantProfiles } from '@/data/consultantProfiles';
