@@ -196,18 +196,6 @@ export const SERVICE_DETAILS: Record<string, ServiceDetail> = {
     inputs: [l('Thema und fachlicher Kontext', 'Topic and professional context', 'Sujet et contexte professionnel'), l('Zielgruppe und gewünschtes Format', 'Audience and intended format', 'Public et format souhaité')],
     details: [{ titleKey: 'publications.pub1Title', bodyKey: 'publications.pub1Desc' }, { titleKey: 'publications.pub2Title', bodyKey: 'publications.pub2Desc' }, { titleKey: 'publications.pub3Title', bodyKey: 'publications.pub3Desc' }, { titleKey: 'publications.talksSectionTitle', bodyKey: 'publications.talksExtra' }], related: ['events-workshops', 'ai-workflows'],
   },
-  why: {
-    id: 'why', topic: 'exercise', titleKey: 'index.title',
-    value: l('Realistische Übungen zeigen, ob technische Reaktion, Entscheidungen und Kommunikation unter Druck zusammenspielen.', 'Realistic exercises show whether technical response, decisions and communication work together under pressure.', 'Des exercices réalistes montrent si réponse technique, décisions et communication fonctionnent ensemble sous pression.'),
-    outcomes: [
-      { icon: Activity, title: l('Echte Dynamik', 'Real dynamics', 'Dynamique réelle'), text: l('Teams bearbeiten einen fortlaufenden Angriff statt isolierter Aufgaben.', 'Teams handle an evolving attack rather than isolated tasks.', 'Les équipes traitent une attaque évolutive plutôt que des tâches isolées.') },
-      { icon: Users, title: l('Gemeinsames Handeln', 'Joint action', 'Action collective'), text: l('Technik, Führung und Kommunikation arbeiten gleichzeitig.', 'Technical, leadership and communications roles act simultaneously.', 'Technique, direction et communication agissent simultanément.') },
-      { icon: Gauge, title: l('Sichtbare Belastbarkeit', 'Visible resilience', 'Résilience visible'), text: l('Beobachtungen zeigen konkrete Stärken und Verbesserungsfelder.', 'Observations reveal concrete strengths and areas to improve.', 'Les observations révèlent forces et axes d’amélioration.') },
-    ],
-    steps: [{ title: l('Ziele definieren', 'Define objectives', 'Définir les objectifs'), text: l('Teams, Systeme und Lernziele bestimmen.', 'Set teams, systems and learning goals.', 'Déterminer équipes, systèmes et objectifs.') }, { title: l('Angriff simulieren', 'Simulate attack', 'Simuler l’attaque'), text: l('Technische und organisatorische Lage entwickeln.', 'Develop the technical and organisational situation.', 'Faire évoluer la situation technique et organisationnelle.') }, { title: l('Lehren ziehen', 'Capture lessons', 'Tirer les leçons'), text: l('Handlungen auswerten und Verbesserungen priorisieren.', 'Review actions and prioritise improvements.', 'Évaluer les actions et prioriser les améliorations.') }],
-    inputs: [l('Teilnehmende Teams und Rollen', 'Participating teams and roles', 'Équipes et rôles participants'), l('Gewünschte Bedrohungslage und Lernziele', 'Desired threat scenario and learning objectives', 'Menace souhaitée et objectifs pédagogiques'), l('Technische Voraussetzungen der Teilnehmer', 'Participant technical requirements', 'Prérequis techniques des participants')],
-    details: [{ titleKey: 'index.whatTitle', bodyKey: 'index.whatDesc' }, { titleKey: 'training.methodsTitle', bodyKey: 'training.liveCyberAttacksDesc' }], related: ['arena-training', 'cyber-crisis-management', 'events-workshops'],
-  },
 };
 
 export const SERVICE_DETAIL_IDS = Object.keys(SERVICE_DETAILS);
