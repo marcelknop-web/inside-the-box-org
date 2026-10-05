@@ -68,7 +68,7 @@ export const SERVICE_SEO: Record<string, ServiceSeo> = {
   publications: {
     title: 'Publications & Insights',
     description:
-      'Articles, talks and trainings by Marcel Knop on cybersecurity and cyber crisis management: iX articles, building IoT, ISACA CSE.',
+      'Articles, talks and training by Marcel Knop on cybersecurity and cyber crisis management: iX articles, building IoT, ISACA CSE.',
   },
   'virtual-ciso': {
     title: 'Virtual CISO (vCISO)',
@@ -190,7 +190,7 @@ const LOCALIZED_SERVICE_SEO: Partial<Record<string, LocalizedServiceSeo>> = {
   },
   publications: {
     de: { title: 'Artikel, Vorträge & Trainings', description: 'Fachartikel, Vorträge und Trainings von Marcel Knop zu Cybersecurity und Krisenbewältigung, u. a. iX, building IoT und ISACA.' },
-    en: { title: 'Articles, talks & trainings', description: 'Articles, talks and trainings by Marcel Knop on cybersecurity and crisis management, including iX, building IoT and ISACA.' },
+    en: { title: 'Articles, talks & training', description: 'Articles, talks and training by Marcel Knop on cybersecurity and crisis management, including iX, building IoT and ISACA.' },
     fr: { title: 'Articles, conférences & formations', description: 'Articles, conférences et formations de Marcel Knop en cybersécurité et gestion de crise, notamment iX, building IoT et ISACA.' },
   },
   'virtual-ciso': {

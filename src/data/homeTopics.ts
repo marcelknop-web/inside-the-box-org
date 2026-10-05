@@ -203,7 +203,7 @@ export const HOME_TOPICS: HomeTopic[] = [
 
 export const HOME_KNOWLEDGE = [
   {
-    title: l('Artikel, Vorträge & Trainings', 'Articles, talks & trainings', 'Articles, conférences & formations'),
+    title: l('Artikel, Vorträge & Trainings', 'Articles, talks & training', 'Articles, conférences & formations'),
     description: l('iX-Fachartikel, building IoT 2024, ISACA-Training CSE.', 'iX articles, building IoT 2024, ISACA CSE training.', 'Articles iX, building IoT 2024, formation ISACA CSE.'),
     icon: BookOpen,
     href: '/publications',
