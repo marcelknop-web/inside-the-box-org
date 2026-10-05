@@ -1,4 +1,5 @@
 import { Helmet } from 'react-helmet-async';
+import { SiteChrome } from '@/components/SiteChrome';
 
 interface ToolFlow {
   id: string;
@@ -53,7 +54,7 @@ const tools: ToolFlow[] = [
 ];
 
 const PrivacyDataflowContent = () => (
-  <div className="min-h-screen bg-background text-foreground px-6 py-12 md:px-12">
+  <div className="px-4 pb-12 text-foreground sm:px-6 lg:px-0">
     <Helmet>
       <title>Datenschutz & Datenfluss — Compliance Tools</title>
       <meta name="robots" content="noindex,nofollow" />
@@ -183,6 +184,6 @@ LLM-Antwort  -->  Edge Function  -->  Browser
   </div>
 );
 
-const PrivacyDataflow = () => <PrivacyDataflowContent />;
+const PrivacyDataflow = () => <SiteChrome workspace><PrivacyDataflowContent /></SiteChrome>;
 
 export default PrivacyDataflow;

@@ -244,7 +244,7 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
   if (showResult) {
     return (
       <div className={wrapperClass}>
-        <PageMeta title="ISCP TTX Prioritizer" description="ISCP TTX Prioritization" />
+        <PageMeta title="ISCP Quick Check" description="ISCP Quick Check" />
 
         <div className="flex items-center justify-between mb-2">
           <h1 className={`${embedded ? 'text-lg' : 'text-xl'} font-bold text-primary font-mono`}>{t('iscp.resultTitle')}</h1>
@@ -303,7 +303,7 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
   // ── Rating view ──
   return (
     <div className={wrapperClass}>
-      <PageMeta title="ISCP TTX Prioritizer" description="ISCP TTX Prioritization" />
+      <PageMeta title="ISCP Quick Check" description="ISCP Quick Check" />
       <h1 className={`${embedded ? 'text-lg' : 'text-2xl md:text-3xl'} font-bold text-primary font-mono mb-2`}>
         {t('iscp.title')}
       </h1>
