@@ -155,13 +155,13 @@ function IntroSlot({ lang, pathname, pageLabel }: { lang: HomeLanguage; pathname
   const crumb = 'rounded-sm transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
   const remember = () => topic && sessionStorage.setItem('overview:topic', topic.id);
   return (
-    <div className="workspace-slot flex min-h-11 flex-wrap items-center justify-between gap-x-6 gap-y-1 pb-5 pt-5 text-xs text-muted-foreground lg:pb-6 lg:pt-8">
-      <nav aria-label="Breadcrumb" className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+    <div className="workspace-slot flex h-11 items-center justify-between gap-4 mb-5 mt-5 text-xs text-muted-foreground lg:mb-6 lg:mt-8">
+      <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-2 overflow-hidden whitespace-nowrap">
         <Link to="/" className={crumb}>{slot.home}</Link>
         {topic && <><span aria-hidden="true">/</span><Link to="/#services" onClick={remember} className={crumb}>{topic.title[lang]}</Link></>}
-        {pageLabel && <><span aria-hidden="true">/</span><span aria-current="page" className="text-foreground/75">{pageLabel}</span></>}
+        {pageLabel && <><span aria-hidden="true">/</span><span aria-current="page" className="truncate text-foreground/75">{pageLabel}</span></>}
       </nav>
-      {topic && <Link to="/#services" onClick={remember} className={`inline-flex min-h-11 items-center gap-1.5 ${crumb}`}><span aria-hidden="true">←</span>{slot.back}</Link>}
+      {topic && <Link to="/#services" onClick={remember} aria-label={slot.back} className={`inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap ${crumb}`}><span aria-hidden="true">←</span><span className="hidden sm:inline">{slot.back}</span></Link>}
     </div>
   );
 }
@@ -205,7 +205,7 @@ export function PublicWorkspace({ children }: { children: ReactNode }) {
   // Runs after child effects (e.g. ChatView's reset), so it has the last word.
   useEffect(() => {
     setMenuOpen(false);
-    if (navType === 'POP') {
+    if (navType === 'POP' && !first.current) {
       const y = readScroll()[location.key];
       if (typeof y === 'number') {
         window.scrollTo(0, y);
