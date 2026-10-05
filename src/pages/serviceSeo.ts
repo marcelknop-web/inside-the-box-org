@@ -179,7 +179,7 @@ const LOCALIZED_SERVICE_SEO: Partial<Record<string, LocalizedServiceSeo>> = {
     fr: { title: 'Continuité d’activité & PCA', description: 'Protéger les activités critiques, définir les objectifs de reprise et élaborer des plans robustes selon ISO 22301 et BSI 200-4.' },
   },
   'arena-training': {
-    de: { title: 'Cyber Range & Red Team', description: 'Angriffe realistisch simulieren und technische Teams in Cyber Range, Blue-Team-Drills und Red-Team-Szenarien gezielt trainieren.' },
+    de: { title: 'TIBER-Test', description: 'TIBER-Tests nach TIBER-EU/DE – End-to-End-Koordination für Finanzinstitute und kritische Infrastrukturen.' },
     en: { title: 'Cyber Range & Red Team', description: 'Simulate attacks realistically and train technical teams through cyber range, blue-team drills and red-team scenarios.' },
     fr: { title: 'Cyber Range & Red Team', description: 'Simuler des attaques réalistes et entraîner les équipes techniques par cyber range, exercices blue team et scénarios red team.' },
   },

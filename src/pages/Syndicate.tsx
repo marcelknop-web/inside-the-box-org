@@ -1290,7 +1290,9 @@ export default function Syndicate({ embedded = false }: SyndicateProps) {
   // we retry once on the first user interaction with the game shell.
   const autoFullscreenAttemptedRef = useRef(false);
   useEffect(() => {
-    if (autoFullscreenAttemptedRef.current) return;
+    // Embedded in the public workspace: keep title and "Zurück zum KI-Lab"
+    // visible; fullscreen stays available via the explicit button.
+    if (embedded || autoFullscreenAttemptedRef.current) return;
     autoFullscreenAttemptedRef.current = true;
 
     const requestFs = () => {
