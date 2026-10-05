@@ -11,3 +11,12 @@
 - [x] Keep DE/EN/FR visible and persistent on every public tool introduction.
 - [x] Correct trilingual service copy and enforce one service-name H1 per marketing page.
 - [x] Browser-check every discovered password-gated route and alias without creating data or publishing.
+
+# Public subpage redesign and final acceptance
+
+- [ ] Align all 14 marketing service pages with the landing-page design language and compact navigator.
+- [ ] Align Knowledge/AI Lab, publications, team, contact, tool introductions, and legal surfaces without changing legal meaning.
+- [ ] Restore and refine the shared millimetre-paper grid across landing and public subpages.
+- [ ] Complete trilingual editorial cleanup, including accurate direct/protected AI Lab wording.
+- [ ] Add responsive shared gate chrome, evidence-based ITSM copy, localized metadata, canonicals, and alias handling.
+- [ ] Browser-test representative public pages at 320/390/768/1024/1440 and all 19 gate routes without login or data creation.
