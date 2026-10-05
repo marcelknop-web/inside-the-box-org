@@ -10,6 +10,9 @@ export interface ServiceSeo {
   description: string;
 }
 
+type SeoLanguage = 'de' | 'en' | 'fr';
+type LocalizedServiceSeo = Record<SeoLanguage, ServiceSeo>;
+
 export const SITE_SEO: ServiceSeo = {
   title: 'Cybersecurity Consulting & Training',
   description:
@@ -139,8 +142,28 @@ export const SERVICE_SEO: Record<string, ServiceSeo> = {
   },
 };
 
-export const getServiceSeo = (serviceId: string | null, fallbackLabel?: string): ServiceSeo => {
+const LOCALIZED_SERVICE_SEO: Partial<Record<string, LocalizedServiceSeo>> = {
+  'cyber-crisis-management': {
+    de: { title: 'Cyber-Krisenmanagement', description: 'Krisenorganisation, Entscheidungswege und Kommunikation so vorbereiten, dass Führung und Koordination im Cyber-Ernstfall funktionieren.' },
+    en: { title: 'Cyber Crisis Management', description: 'Prepare crisis organisation, decision paths and communications so leadership and coordination work during a serious cyber incident.' },
+    fr: { title: 'Gestion de cyber-crise', description: 'Préparer organisation, décisions et communication pour piloter et coordonner efficacement une cyber-crise réelle.' },
+  },
+  'incident-management': {
+    de: { title: 'Incident Management', description: 'Technische und operative Reaktion auf Sicherheitsvorfälle mit klarer Triage, Eskalation, Koordination und Nachbereitung.' },
+    en: { title: 'Incident Management', description: 'Technical and operational incident response with clear triage, escalation, coordination and post-incident review.' },
+    fr: { title: 'Gestion des incidents', description: 'Réponse technique et opérationnelle avec triage, escalade, coordination et retour d’expérience clairement définis.' },
+  },
+  bcm: {
+    de: { title: 'Notfallmanagement & BCM', description: 'Kritische Geschäftsprozesse absichern, Wiederanlaufziele festlegen und belastbare Notfallpläne nach ISO 22301 und BSI 200-4 entwickeln.' },
+    en: { title: 'Business Continuity & BCM', description: 'Protect critical business processes, set recovery objectives and develop robust continuity plans aligned with ISO 22301 and BSI 200-4.' },
+    fr: { title: 'Continuité d’activité & PCA', description: 'Protéger les activités critiques, définir les objectifs de reprise et élaborer des plans robustes selon ISO 22301 et BSI 200-4.' },
+  },
+};
+
+export const getServiceSeo = (serviceId: string | null, fallbackLabel?: string, language: SeoLanguage = 'en'): ServiceSeo => {
   if (!serviceId) return SITE_SEO;
+  const localized = LOCALIZED_SERVICE_SEO[serviceId]?.[language];
+  if (localized) return localized;
   const hit = SERVICE_SEO[serviceId];
   if (hit) return hit;
   const label = (fallbackLabel || serviceId).slice(0, 38);

@@ -66,11 +66,11 @@ export const SiteChrome = ({
         <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between px-4 sm:px-6 py-4 sm:py-5 gap-3">
           <button
             onClick={handleBrand}
-            className="flex-shrink-0 transition-opacity hover:opacity-80"
+            className="flex flex-shrink-0 items-center gap-2.5 transition-opacity hover:opacity-80"
             aria-label="inside-the-box"
-            style={{ transform: 'scale(1.6)', transformOrigin: 'left center' }}
           >
             <GeometricSymbol size="xs" />
+            <span className="font-mono text-xs font-medium text-foreground sm:text-sm">inside-the-box.org</span>
           </button>
           <nav className="order-3 flex w-full items-center justify-between gap-3 border-t border-border pt-3 sm:order-none sm:w-auto sm:justify-end sm:border-0 sm:pt-0" aria-label={lang === 'de' ? 'Hauptnavigation' : lang === 'fr' ? 'Navigation principale' : 'Main navigation'}>
             <a href="/#services" className="font-mono text-[10px] tracking-[0.08em] text-muted-foreground transition-colors hover:text-primary sm:text-[11px]">

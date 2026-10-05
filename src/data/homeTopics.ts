@@ -210,10 +210,4 @@ export const HOME_KNOWLEDGE = [
     icon: FlaskConical,
     href: '/ki-lab',
   },
-  {
-    title: l('Assessment-Tools', 'Assessment tools', 'Outils d’évaluation'),
-    description: l('Strukturierte Checks für relevante Standards und Regelwerke.', 'Structured checks for relevant standards and regulations.', 'Évaluations structurées des normes et réglementations pertinentes.'),
-    icon: ScanSearch,
-    href: '/assessment-tools',
-  },
 ];

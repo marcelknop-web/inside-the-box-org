@@ -330,7 +330,7 @@ const useServiceContent = () => {
 
   const contentMap: Record<string, () => ReactNode> = {
     isms: () => (
-      <TypedSection title={t('isms.title')} mode="typewriter" intro={<p>{t('isms.intro')}</p>}>
+      <TypedSection title={t('isms.title')} mode="fade" intro={<p>{t('isms.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('isms.introDetail')}</p>
         </Block>
@@ -369,7 +369,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'nis2-dora': () => (
-      <TypedSection title={t('nis2.title')} mode="typewriter" intro={<p>{t('nis2.intro')}</p>}>
+      <TypedSection title={t('nis2.title')} mode="fade" intro={<p>{t('nis2.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('nis2.introDetail')}</p>
         </Block>
@@ -417,7 +417,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'tisax-pci-dss': () => (
-      <TypedSection title={t('tisax.title')} mode="typewriter" intro={<p>{t('tisax.intro')}</p>}>
+      <TypedSection title={t('tisax.title')} mode="fade" intro={<p>{t('tisax.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('tisax.introDetail')}</p>
         </Block>
@@ -455,7 +455,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'assessments-concepts': () => (
-      <TypedSection title={t('assessments.title')} mode="typewriter" intro={<p>{t('assessments.intro')}</p>}>
+      <TypedSection title={t('assessments.title')} mode="fade" intro={<p>{t('assessments.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('assessments.introDetail')}</p>
         </Block>
@@ -491,7 +491,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'incident-management': () => (
-      <TypedSection title={t('incident.title')} mode="typewriter" intro={<p>{t('incident.intro')}</p>}>
+      <TypedSection title={t('incident.title')} mode="fade" intro={<p>{t('incident.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('incident.introDetail')}</p>
         </Block>
@@ -529,7 +529,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'bcm': () => (
-      <TypedSection title={t('bcm.title')} mode="typewriter" intro={<p>{t('bcm.intro')}</p>}>
+      <TypedSection title={t('bcm.title')} mode="fade" intro={<p>{t('bcm.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('bcm.introDetail')}</p>
         </Block>
@@ -565,7 +565,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'cyber-crisis-management': () => (
-      <TypedSection title={t('cyberCrisis.title')} mode="typewriter" intro={<p>{t('cyberCrisis.intro')}</p>}>
+      <TypedSection title={t('cyberCrisis.title')} mode="fade" intro={<p>{t('cyberCrisis.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('cyberCrisis.introDetail')}</p>
         </Block>
@@ -601,7 +601,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'arena-training': () => (
-      <TypedSection title={t('arena.title')} mode="typewriter" intro={<p>{t('arena.intro')}</p>}>
+      <TypedSection title={t('arena.title')} mode="fade" intro={<p>{t('arena.intro')}</p>}>
          <Block className="bg-card/40 rounded-xl">
            <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('arena.introDetail')}</p>
          </Block>
@@ -645,7 +645,7 @@ const useServiceContent = () => {
           <img src="/lovable-uploads/f463db5a-733d-4e4e-b151-d3e33ebe8997.webp" alt="Training" width={800} height={534} loading="lazy" decoding="async" className="rounded-xl w-full h-40 md:h-48 object-cover border border-border" />
           <img src="/lovable-uploads/48ad82c3-84e8-4161-93d5-d79b509f7cc4.webp" alt="Conference" width={800} height={534} loading="lazy" decoding="async" className="rounded-xl w-full h-40 md:h-48 object-cover border border-border" />
         </div>
-        <TypedSection title={t('events.title')} mode="typewriter" intro={<p>{t('events.intro')}</p>}>
+        <TypedSection title={t('events.title')} mode="fade" intro={<p>{t('events.intro')}</p>}>
 
         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
           <div className="grid grid-cols-1 gap-3">
@@ -750,7 +750,7 @@ const useServiceContent = () => {
       </>
     ),
     publications: () => (
-      <TypedSection title={t('publications.title')} mode="typewriter" intro={<p>{t('publications.intro')}</p>}>
+      <TypedSection title={t('publications.title')} mode="fade" intro={<p>{t('publications.intro')}</p>}>
         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
           <SubTitle>{t('publications.pubSectionTitle')}</SubTitle>
           <div className="grid grid-cols-1 gap-3 mt-2">
@@ -779,7 +779,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'virtual-ciso': () => (
-      <TypedSection title={t('vciso.title')} mode="typewriter" intro={<p>{t('vciso.intro')}</p>}>
+      <TypedSection title={t('vciso.title')} mode="fade" intro={<p>{t('vciso.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('vciso.introDetail')}</p>
         </Block>
@@ -817,7 +817,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'soc-operations': () => (
-      <TypedSection title={t('socOps.title')} mode="typewriter" intro={<p>{t('socOps.intro')}</p>}>
+      <TypedSection title={t('socOps.title')} mode="fade" intro={<p>{t('socOps.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('socOps.introDetail')}</p>
         </Block>
@@ -848,7 +848,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'dora-nis2-ttx': () => (
-      <TypedSection title={t('ttx.title')} mode="typewriter" intro={<p>{t('ttx.intro')}</p>}>
+      <TypedSection title={t('ttx.title')} mode="fade" intro={<p>{t('ttx.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <div className="inline-flex items-center gap-2 mb-3 px-2.5 py-1 rounded-full bg-highlight/10 border border-highlight/30">
             <span className="w-1.5 h-1.5 rounded-full bg-highlight" />
@@ -1097,7 +1097,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'ai-workflows': () => (
-      <TypedSection title={t('aiWorkflows.title')} mode="typewriter" intro={<p>{t('aiWorkflows.intro')}</p>}>
+      <TypedSection title={t('aiWorkflows.title')} mode="fade" intro={<p>{t('aiWorkflows.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('aiWorkflows.introDetail')}</p>
         </Block>
@@ -1136,7 +1136,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     why: () => (
-      <TypedSection title={t('index.title')} mode="typewriter" intro={<p>{t('index.intro')}</p>}>
+      <TypedSection title={t('index.title')} mode="fade" intro={<p>{t('index.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('index.introDetail')}</p>
         </Block>
@@ -1189,7 +1189,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     training: () => (
-      <TypedSection title={t('training.title')} mode="typewriter" intro={<p>{t('training.subtitle')} {t('training.intro')}</p>}>
+      <TypedSection title={t('training.title')} mode="fade" intro={<p>{t('training.subtitle')} {t('training.intro')}</p>}>
         <CardBlock icon={Server} title={t('training.hostForensics')} desc={t('training.hostForensicsDesc')} />
         <CardBlock icon={Bug} title={t('training.malwareAnalysis')} desc={t('training.malwareAnalysisDesc')} />
         <CardBlock icon={Shield} title={t('training.siem')} desc={t('training.siemDesc')} />
@@ -1208,7 +1208,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     consulting: () => (
-      <TypedSection title={t('consulting.title')} mode="typewriter" intro={<p>{t('consulting.intro')}</p>}>
+      <TypedSection title={t('consulting.title')} mode="fade" intro={<p>{t('consulting.intro')}</p>}>
         {([
           { theme: 'isms', title: t('consulting.ismsTitle'), desc: t('consulting.ismsDesc'), id: 'isms' },
           { theme: 'nis2-dora', title: t('consulting.nis2Title'), desc: t('consulting.nis2Desc'), id: 'nis2-dora' },
@@ -1240,7 +1240,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     contact: () => (
-      <TypedSection title={t('contact.title')} mode="typewriter" charDelay={8} intro={<p>{t('contact.intro')}</p>}>
+      <TypedSection title={t('contact.title')} mode="fade" charDelay={8} intro={<p>{t('contact.intro')}</p>}>
         <Block className="bg-secondary/30">
           <p className="text-primary font-bold text-base font-sans mb-3">Marcel Knop</p>
           <div className="space-y-1.5 text-sm md:text-[15px] font-sans">
@@ -1255,7 +1255,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     imprint: () => (
-      <TypedSection title={t('imprint.title')} mode="typewriter" charDelay={8}>
+      <TypedSection title={t('imprint.title')} mode="fade" charDelay={8}>
         <Block className="bg-secondary/30">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">
             <span className="text-primary font-semibold">{t('imprint.responsible')}</span><br />
@@ -1292,7 +1292,7 @@ const useServiceContent = () => {
       const systemItems = tArray('techReq.systemItems');
       const networkItems = tArray('techReq.networkItems');
       return (
-        <TypedSection title={t('techReq.title')} mode="typewriter" charDelay={18} intro={<p>{t('techReq.intro')}</p>}>
+        <TypedSection title={t('techReq.title')} mode="fade" charDelay={18} intro={<p>{t('techReq.intro')}</p>}>
           <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
             <div className="flex items-center gap-2 mb-2">
               <Monitor size={16} className="text-primary" />
@@ -2045,6 +2045,7 @@ const ChatView = () => {
   const serviceSeo = getServiceSeo(
     activeService,
     sidebarGroups.flatMap(g => g.items).find(i => i.id === activeService)?.label,
+    language,
   );
 
   if (activeService) {
@@ -2153,12 +2154,21 @@ const ChatView = () => {
             </div>
           </div>
 
-          {/* Floating chat bar — same logic as legacy view */}
+          {/* Compact, explicitly opened navigator on public service pages. */}
           {(() => {
             if (isToolPage && activeService !== 'crisis-sim') return null;
             const placeholder = activeService === 'crisis-sim'
               ? 'Ask me anything …'
               : exampleQuestions[exampleIndex];
+            if (!chatOpen && activeService !== 'crisis-sim') return (
+              <button
+                type="button"
+                onClick={() => setChatOpen(true)}
+                className="fixed bottom-4 right-4 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-highlight/35 bg-secondary text-highlight shadow-lg transition-colors hover:border-highlight"
+                aria-label={language === 'de' ? 'Navigator öffnen' : language === 'fr' ? 'Ouvrir le navigateur' : 'Open navigator'}
+                title={language === 'de' ? 'Navigator öffnen' : language === 'fr' ? 'Ouvrir le navigateur' : 'Open navigator'}
+              ><MessageCircle className="h-4 w-4" /></button>
+            );
             return (
               <div
                 className="fixed z-40 pointer-events-none transition-opacity duration-700 ease-out"
@@ -2171,6 +2181,7 @@ const ChatView = () => {
               >
                 <div className="max-w-3xl ml-auto pointer-events-auto">
                   <div className="relative flex items-center bg-secondary/90 backdrop-blur-md rounded-xl border border-highlight/30 focus-within:border-highlight/60 transition-electric shadow-lg focus-within:shadow-[0_0_24px_hsl(var(--highlight)/0.18)]">
+                    {activeService !== 'crisis-sim' && <button type="button" onClick={() => setChatOpen(false)} className="ml-1.5 p-2 text-muted-foreground hover:text-foreground" aria-label={language === 'de' ? 'Navigator schließen' : language === 'fr' ? 'Fermer le navigateur' : 'Close navigator'}><X className="h-4 w-4" /></button>}
                     <div className="pl-3 md:pl-3.5 flex-shrink-0 text-highlight/70" aria-hidden="true">
                       <Sparkles size={14} />
                     </div>

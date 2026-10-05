@@ -33,10 +33,11 @@ const TypedSection = ({
   loadingSkeleton,
 }: TypedSectionProps) => {
   const isMobile = useIsMobile();
+  const immediate = mode === 'fade';
   const effectiveStagger = isMobile ? Math.max(stagger, 700) : stagger;
-  const [introVisible, setIntroVisible] = useState(false);
-  const [titleDone, setTitleDone] = useState(false);
-  const [introDone, setIntroDone] = useState(!intro); // if no intro, skip
+  const [introVisible, setIntroVisible] = useState(immediate);
+  const [titleDone, setTitleDone] = useState(immediate);
+  const [introDone, setIntroDone] = useState(immediate || !intro); // if no intro, skip
   const [suppressIntro, setSuppressIntro] = useState(false);
   const [skeletonVisible, setSkeletonVisible] = useState(true);
   const sectionKey = `${title}-${mode}-${charDelay}`;
@@ -47,16 +48,16 @@ const TypedSection = ({
     if (prevKeyRef.current !== sectionKey) {
       prevKeyRef.current = sectionKey;
       setSuppressIntro(true);
-      setTitleDone(false);
-      setIntroVisible(false);
-      setIntroDone(!intro);
+      setTitleDone(immediate);
+      setIntroVisible(immediate);
+      setIntroDone(immediate || !intro);
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setSuppressIntro(false);
         });
       });
     }
-  }, [sectionKey, intro]);
+  }, [sectionKey, intro, immediate]);
 
   // pause after title before showing intro
   useEffect(() => {
@@ -85,7 +86,7 @@ const TypedSection = ({
     <div className="space-y-5 md:space-y-3">
       <div className="rounded-2xl px-5 py-4 text-base font-sans leading-relaxed tracking-wide text-foreground">
         <h2 className="text-primary text-xl font-bold font-mono mb-3">
-          <Typewriter key={sectionKey} text={title} mode={mode} charDelay={charDelay} onDone={() => setTitleDone(true)} />
+          {immediate ? title : <Typewriter key={sectionKey} text={title} mode={mode} charDelay={charDelay} onDone={() => setTitleDone(true)} />}
         </h2>
         {intro && introVisible && (
           <div
@@ -95,7 +96,7 @@ const TypedSection = ({
               transition: suppressIntro ? 'none' : 'opacity 200ms ease-out',
             }}
           >
-            <IntroTypewriter intro={intro} mode={mode} charDelay={charDelay} sectionKey={sectionKey} onDone={() => setIntroDone(true)} />
+            {immediate ? <div className="text-primary">{intro}</div> : <IntroTypewriter intro={intro} mode={mode} charDelay={charDelay} sectionKey={sectionKey} onDone={() => setIntroDone(true)} />}
           </div>
         )}
       </div>
