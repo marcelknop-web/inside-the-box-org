@@ -64,7 +64,7 @@ export const SiteChrome = ({
     <div className="technical-grid min-h-screen w-full overflow-x-clip text-foreground flex flex-col">
       {/* Top bar */}
       <header className="border-b border-primary/10">
-        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between px-4 sm:px-6 py-3 sm:py-5 gap-2 sm:gap-3">
+        <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto] items-center gap-2 px-4 py-3 sm:flex sm:flex-wrap sm:justify-between sm:gap-3 sm:px-6 sm:py-5">
           <button
             onClick={handleBrand}
             className="flex flex-shrink-0 items-center gap-2.5 transition-opacity hover:opacity-80"
@@ -90,12 +90,12 @@ export const SiteChrome = ({
               {lang === 'de' ? 'KONTAKT' : 'CONTACT'}
             </button>
           </nav>
-          <div className="flex items-center gap-1" aria-label="Language">
+          <div className="order-3 col-span-2 flex items-center justify-self-end sm:order-none sm:col-auto" aria-label="Language">
             {!hideLanguageSwitch && (
               <>
-                <Languages className="mr-1 h-3 w-3 text-muted-foreground" aria-hidden="true" />
+                <Languages className="mr-1 hidden h-3 w-3 text-muted-foreground sm:block" aria-hidden="true" />
                 {(['de', 'en', 'fr'] as const).map((code) => (
-                  <button key={code} onClick={() => setLanguage(code)} aria-pressed={language === code} className={`min-h-10 min-w-9 font-mono text-[10px] uppercase transition-colors ${language === code ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>{code}</button>
+                  <button key={code} onClick={() => setLanguage(code)} aria-pressed={language === code} className={`min-h-10 min-w-8 font-mono text-[10px] uppercase transition-colors sm:min-w-9 ${language === code ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>{code}</button>
                 ))}
               </>
             )}
@@ -103,7 +103,7 @@ export const SiteChrome = ({
           <button type="button" aria-expanded={mobileMenuOpen} aria-controls="mobile-site-navigation" aria-label={lang === 'de' ? 'Menü' : lang === 'fr' ? 'Menu' : 'Menu'} onClick={() => setMobileMenuOpen((open) => !open)} className="flex h-11 w-11 items-center justify-center text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:hidden">
             {mobileMenuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
           </button>
-          {mobileMenuOpen && <nav id="mobile-site-navigation" className="order-4 grid w-full grid-cols-2 border-t border-border pt-2 sm:hidden" aria-label={lang === 'de' ? 'Hauptnavigation' : lang === 'fr' ? 'Navigation principale' : 'Main navigation'}>
+          {mobileMenuOpen && <nav id="mobile-site-navigation" className="order-4 col-span-2 grid w-full grid-cols-2 border-t border-border pt-2 sm:hidden" aria-label={lang === 'de' ? 'Hauptnavigation' : lang === 'fr' ? 'Navigation principale' : 'Main navigation'}>
             <a href="/#services" onClick={() => setMobileMenuOpen(false)} className="flex min-h-11 items-center font-mono text-[11px] text-muted-foreground hover:text-primary">{lang === 'de' ? 'LEISTUNGEN' : 'SERVICES'}</a>
             <a href="/#knowledge" onClick={() => setMobileMenuOpen(false)} className="flex min-h-11 items-center font-mono text-[11px] text-muted-foreground hover:text-primary">{lang === 'de' ? 'WISSEN & TOOLS' : lang === 'fr' ? 'EXPERTISE & OUTILS' : 'KNOWLEDGE & TOOLS'}</a>
             <button type="button" onClick={() => { setDrawer('team'); setMobileMenuOpen(false); }} className="min-h-11 text-left font-mono text-[11px] text-muted-foreground hover:text-primary">{lang === 'fr' ? 'ÉQUIPE' : 'TEAM'}</button>

@@ -108,7 +108,7 @@ export default function Overview() {
         <section id="services" ref={servicesRef} className="scroll-mt-20 border-t border-border">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <h2 className="sr-only">{copy.services}</h2>
-            <div className="grid md:grid-cols-3" role="tablist" aria-label={copy.services}>
+            <div className="grid grid-cols-3" role="tablist" aria-label={copy.services}>
               {HOME_TOPICS.map((topic) => {
                 const selected = topic.id === activeId;
                 return (
@@ -119,11 +119,11 @@ export default function Overview() {
                     aria-selected={selected}
                     aria-controls="topic-offers"
                     onClick={() => selectTopic(topic.id, true)}
-                    className={`min-h-11 border-b px-3 py-3 text-left transition-colors md:min-h-[92px] md:border-b-0 md:border-r md:px-4 md:py-4 md:last:border-r-0 ${selected ? 'border-t-2 border-t-primary bg-card text-foreground' : 'border-border text-foreground/65 hover:bg-card/60 hover:text-foreground'}`}
+                    className={`min-h-[60px] border-b px-1.5 py-2 text-center transition-colors md:min-h-[92px] md:border-b-0 md:border-r md:px-4 md:py-4 md:text-left md:last:border-r-0 ${selected ? 'border-t-2 border-t-primary bg-card text-foreground' : 'border-border text-foreground/65 hover:bg-card/60 hover:text-foreground'}`}
                   >
-                    <span className="flex items-center gap-3 md:items-start md:gap-4">
+                    <span className="flex flex-col items-center justify-center gap-1.5 md:flex-row md:items-start md:justify-start md:gap-4">
                       <topic.icon className="h-4 w-4 flex-none text-primary md:hidden" aria-hidden="true" />
-                      <span className="font-mono text-[11px] text-primary">{topic.number}</span>
+                      <span className="hidden font-mono text-[11px] text-primary md:inline">{topic.number}</span>
                       <span>
                         <strong className="block text-sm font-semibold md:hidden">{topic.shortTitle[lang]}</strong>
                         <strong className="hidden text-sm font-semibold md:block">{topic.title[lang]}</strong>
