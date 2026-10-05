@@ -79,6 +79,18 @@ export default function Overview() {
   useEffect(() => sessionStorage.setItem(SESSION_KEY, activeId), [activeId]);
 
   useEffect(() => {
+    if (location.hash || sessionStorage.getItem('overview:returnPending') !== '1') return;
+    const scrollY = Number(sessionStorage.getItem('overview:scrollY'));
+    sessionStorage.removeItem('overview:returnPending');
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: Number.isFinite(scrollY) ? scrollY : servicesRef.current?.offsetTop ?? 0, behavior: 'auto' });
+      const sourceId = sessionStorage.getItem('overview:focus');
+      const source = sourceId ? document.getElementById(sourceId) : null;
+      source?.focus({ preventScroll: true });
+    });
+  }, [location.hash]);
+
+  useEffect(() => {
     if (location.hash !== '#services' && location.hash !== '#knowledge') return;
     const id = location.hash.slice(1);
     const target = document.getElementById(id);
@@ -97,6 +109,12 @@ export default function Overview() {
     setActiveId(id);
     if (reveal) window.requestAnimationFrame(() => servicesRef.current?.scrollIntoView({ block: 'start' }));
   }, []);
+
+  const rememberOffer = (id: string) => {
+    sessionStorage.setItem('overview:focus', id);
+    sessionStorage.setItem('overview:scrollY', String(window.scrollY));
+    sessionStorage.setItem('overview:returnPending', '1');
+  };
 
   const active = HOME_TOPICS.find((topic) => topic.id === activeId) ?? HOME_TOPICS[0];
 
@@ -171,7 +189,7 @@ export default function Overview() {
                       <h3 className="text-lg font-semibold leading-snug">{offer.title[lang]}</h3>
                     </div>
                     <p className="mt-3 text-sm leading-relaxed text-foreground/65">{offer.description[lang]}</p>
-                    <Link id={`offer-${offer.links[0].href.slice(1)}`} to={offer.links[0].href} onClick={() => sessionStorage.setItem('overview:focus', `offer-${offer.links[0].href.slice(1)}`)} className="group mt-4 flex min-h-11 items-center justify-between gap-3 border-t border-border pt-3 text-sm font-medium text-foreground/85 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                    <Link id={`offer-${offer.links[0].href.slice(1)}`} to={offer.links[0].href} onClick={() => rememberOffer(`offer-${offer.links[0].href.slice(1)}`)} className="group mt-4 flex min-h-11 items-center justify-between gap-3 border-t border-border pt-3 text-sm font-medium text-foreground/85 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                       <span>{offer.links[0].label[lang]}</span><ArrowRight className="h-4 w-4 flex-none transition-transform group-hover:translate-x-1" aria-hidden="true" />
                     </Link>
                     {offer.links.length > 1 && <Collapsible>
@@ -181,7 +199,7 @@ export default function Overview() {
                       <CollapsibleContent><ul className="space-y-1 border-t border-border pt-1">
                       {offer.links.slice(1).map((item) => (
                         <li key={item.href}>
-                          <Link id={`offer-${item.href.slice(1)}`} to={item.href} onClick={() => sessionStorage.setItem('overview:focus', `offer-${item.href.slice(1)}`)} className="group flex min-h-11 items-center justify-between gap-3 py-2 text-sm text-foreground/80 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                          <Link to={item.href} onClick={() => rememberOffer(`offer-${offer.links[0].href.slice(1)}`)} className="group flex min-h-11 items-center justify-between gap-3 py-2 text-sm text-foreground/80 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                             <span>{item.label[lang]}</span><ArrowRight className="h-4 w-4 flex-none transition-transform group-hover:translate-x-1" aria-hidden="true" />
                           </Link>
                         </li>

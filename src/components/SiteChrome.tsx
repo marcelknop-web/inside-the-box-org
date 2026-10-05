@@ -6,7 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '
 import { GeometricSymbol } from '@/components/GeometricSymbol';
 
 /**
- * Shared site chrome (top bar + footer + Team/Contact drawers) used by the
+ * Shared site chrome (top bar + footer + legal drawer) used by the
  * Overview homepage and every service sub-page reachable from it. Keeps the
  * brand surface identical across the journey.
  *
@@ -27,7 +27,7 @@ export const SiteChrome = ({
   hideLanguageSwitch?: boolean;
   activeSection?: 'services' | 'knowledge' | 'team' | 'contact';
 }) => {
-  const { language, setLanguage, t } = useLanguage();
+  const { language, setLanguage } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const [drawer, setDrawer] = useState<'imprint' | null>(null);

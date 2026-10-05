@@ -2,7 +2,6 @@ import { ArrowRight, Check, ChevronRight, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
-import { ServiceSymbol, type ServiceTheme } from '@/components/ServiceSymbol';
 import { SERVICE_DETAILS } from '@/data/serviceDetails';
 import { HOME_TOPICS, type HomeLanguage } from '@/data/homeTopics';
 import { useLanguage } from '@/i18n/LanguageContext';
