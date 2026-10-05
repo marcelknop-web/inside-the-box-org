@@ -6,3 +6,4 @@
 - Marketing service routes render through `ServiceDetailPage` and `src/data/serviceDetails.ts` so concise core content, topic navigation and closed technical depth stay consistent.
 - Base typography sizes every `span` at 16px, so spans inside display headings must explicitly inherit font size and line height; otherwise headings render at body size.
 - Team and contact are normal public routes under shared `SiteChrome`; calls to action navigate there so browser history remains predictable.
+- Public sub-pages (services, knowledge, team, contact, tool intros) render inside SiteChrome's PublicWorkspace via one mounted PublicFrame layout route so header and sticky navigation stay geometrically fixed and only content swaps; nested SiteChrome calls collapse to children.

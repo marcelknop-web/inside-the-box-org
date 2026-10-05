@@ -1,9 +1,15 @@
-import { useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Languages, Menu, X } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { GeometricSymbol } from '@/components/GeometricSymbol';
+import { PublicWorkspace, isWorkspacePath } from '@/components/PublicWorkspace';
+
+const ChromeContext = createContext(false);
+
+/** Layout route: keeps one SiteChrome mounted across public sub-pages. */
+export const PublicFrame = ({ children }: { children: ReactNode }) => <SiteChrome>{children}</SiteChrome>;
 
 /**
  * Shared site chrome (top bar + footer + legal drawer) used by the
@@ -20,12 +26,33 @@ export const SiteChrome = ({
   onBrandClick,
   hideLanguageSwitch,
   activeSection,
+  workspace,
 }: {
   children: ReactNode;
   onBrandClick?: () => void;
   /** Hide the language switcher (for English-only pages like GapZero). */
   hideLanguageSwitch?: boolean;
   activeSection?: 'services' | 'knowledge' | 'team' | 'contact';
+  /** Force the stable sub-page workspace (e.g. public tool introductions). */
+  workspace?: boolean;
+}) => {
+  const nested = useContext(ChromeContext);
+  if (nested) return <>{children}</>;
+  return <ChromeFrame onBrandClick={onBrandClick} hideLanguageSwitch={hideLanguageSwitch} activeSection={activeSection} workspace={workspace}>{children}</ChromeFrame>;
+};
+
+const ChromeFrame = ({
+  children,
+  onBrandClick,
+  hideLanguageSwitch,
+  activeSection,
+  workspace,
+}: {
+  children: ReactNode;
+  onBrandClick?: () => void;
+  hideLanguageSwitch?: boolean;
+  activeSection?: 'services' | 'knowledge' | 'team' | 'contact';
+  workspace?: boolean;
 }) => {
   const { language, setLanguage } = useLanguage();
   const navigate = useNavigate();
@@ -33,6 +60,17 @@ export const SiteChrome = ({
   const [drawer, setDrawer] = useState<'imprint' | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const lang = language as 'en' | 'de' | 'fr';
+  const inWorkspace = Boolean(workspace) || isWorkspacePath(location.pathname);
+  const headerRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const apply = () => document.documentElement.style.setProperty('--site-header-h', `${el.offsetHeight}px`);
+    apply();
+    const ro = new ResizeObserver(apply);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   const footerImprintLabel =
     lang === 'de' ? 'Impressum' : lang === 'fr' ? 'Mentions légales' : 'Imprint';
@@ -53,14 +91,14 @@ export const SiteChrome = ({
     navigate('/');
   };
 
-  const isCurrent = (section: NonNullable<typeof activeSection>) => activeSection === section || (section === 'team' && location.pathname === '/team') || (section === 'contact' && location.pathname === '/contact');
+  const isCurrent = (section: NonNullable<typeof activeSection>) => activeSection === section || (section === 'knowledge' && ['/publications','/ki-lab'].includes(location.pathname)) || (section === 'services' && inWorkspace && !['/publications','/ki-lab','/team','/contact'].includes(location.pathname)) || (section === 'team' && location.pathname === '/team') || (section === 'contact' && location.pathname === '/contact');
   const navClass = (section: NonNullable<typeof activeSection>) => `font-mono text-[10px] tracking-[0.08em] transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:text-[11px] ${isCurrent(section) ? 'text-primary' : 'text-muted-foreground'}`;
 
   return (
     <div className="technical-grid min-h-screen w-full overflow-x-clip text-foreground flex flex-col">
       {/* Top bar */}
-      <header className="border-b border-primary/10">
-        <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto] items-center gap-2 px-4 py-2 sm:flex sm:flex-wrap sm:justify-between sm:gap-3 sm:px-6 sm:py-5">
+      <header ref={headerRef} className={`border-b border-primary/10 ${inWorkspace ? 'sticky top-0 z-40 bg-background/95 backdrop-blur' : ''}`}>
+        <div className={`mx-auto grid ${inWorkspace ? 'max-w-7xl lg:px-9' : 'max-w-6xl'} grid-cols-[1fr_auto] items-center gap-2 px-4 py-2 sm:flex sm:flex-wrap sm:justify-between sm:gap-3 sm:px-6 sm:py-5`}>
           <button
             onClick={handleBrand}
             className="flex flex-shrink-0 items-center gap-2.5 transition-opacity hover:opacity-80"
@@ -115,7 +153,9 @@ export const SiteChrome = ({
       {/* Page content – flex-1 ensures the footer stays pinned to the
           bottom on short pages (e.g. hero), keeping a consistent footer
           baseline across the homepage and all sub-pages. */}
-      <div className="flex-1 flex flex-col">{children}</div>
+      <ChromeContext.Provider value={true}>
+        <div className="flex-1 flex flex-col">{inWorkspace ? <PublicWorkspace>{children}</PublicWorkspace> : children}</div>
+      </ChromeContext.Provider>
 
       {/* Footer
           ----------------------------------------------------------------
