@@ -649,6 +649,11 @@
   gap: 1rem;
 }
 .home-hero-copy { min-width: 0; }
+/* Homepage H1: the base layer sizes every span at 16px, so the word spans must inherit the heading size. */
+.home-title { margin-top: 1.25rem; max-width: 12ch; font-size: 3rem; line-height: 1.04; letter-spacing: -0.01em; }
+.home-title span { font-size: inherit; line-height: inherit; }
+.home-selector { min-width: 0; }
+@media (min-width: 1024px) { .home-title { font-size: 3.5rem; } }
 .topic-cube-stage {
   --cube-size: 230px;
   position: relative;
@@ -704,15 +709,18 @@
 .topic-cube-hint { position: absolute; bottom: 8px; max-width: 90%; text-align: center; font-family: var(--font-mono); font-size: .65rem; line-height: 1.5; color: hsl(var(--muted-foreground)); }
 
 @media (max-width: 767px) {
-  .home-hero { min-height: auto; grid-template-columns: 1fr; padding: 1.5rem 1rem 1rem; gap: .25rem; }
-  .home-hero-copy h1 { font-size: clamp(1.875rem, 9vw, 2.25rem); max-width: 14ch; }
-  .topic-cube-stage { --cube-size: 175px; height: 245px; }
+  .home-hero { min-height: auto; grid-template-columns: 1fr; padding: 1.25rem 1rem 1.5rem; gap: 1.25rem; }
+  .home-title { margin-top: 0; max-width: 14ch; font-size: clamp(1.875rem, 9.2vw, 2.25rem); line-height: 1.08; }
+  .home-selector { border: 1px solid hsl(var(--border)); background: linear-gradient(180deg, hsl(var(--background) / .35), hsl(var(--card) / .75)); }
+  .home-selector [role="tablist"] { border-top: 1px solid hsl(var(--border)); }
+  .home-selector [role="tab"] { border-bottom: 0; }
+  .topic-cube-stage { --cube-size: 150px; height: 252px; overflow: hidden; }
   .topic-cube-floor { bottom: 0; height: 48%; }
-  .topic-cube-shadow { bottom: 26px; }
+  .topic-cube-shadow { bottom: 18px; }
   .topic-cube-hint { display: none; }
 }
 @media (max-width: 390px) {
-  .topic-cube-stage { --cube-size: 165px; height: 230px; }
+  .topic-cube-stage { --cube-size: 138px; height: 232px; }
   .topic-cube-content { padding: 14px; gap: 10px; }
   .topic-cube-label { font-size: 1rem; }
   .topic-cube-face small { font-size: .55rem; }
