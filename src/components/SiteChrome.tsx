@@ -14,6 +14,8 @@ import { consultantProfiles } from '@/data/consultantProfiles';
  * `onBrandClick` is optional — pages that have an in-page reset (e.g. Overview's
  * hero) can hook into it. By default the brand link navigates to `/`.
  */
+const LANGUAGE_NAMES = { de: 'Deutsch', en: 'English', fr: 'Français' } as const;
+
 export const SiteChrome = ({
   children,
   onBrandClick,
@@ -64,7 +66,7 @@ export const SiteChrome = ({
     <div className="technical-grid min-h-screen w-full overflow-x-clip text-foreground flex flex-col">
       {/* Top bar */}
       <header className="border-b border-primary/10">
-        <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto] items-center gap-2 px-4 py-3 sm:flex sm:flex-wrap sm:justify-between sm:gap-3 sm:px-6 sm:py-5">
+        <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto] items-center gap-2 px-4 py-2 sm:flex sm:flex-wrap sm:justify-between sm:gap-3 sm:px-6 sm:py-5">
           <button
             onClick={handleBrand}
             className="flex flex-shrink-0 items-center gap-2.5 transition-opacity hover:opacity-80"
@@ -90,7 +92,7 @@ export const SiteChrome = ({
               {lang === 'de' ? 'KONTAKT' : 'CONTACT'}
             </button>
           </nav>
-          <div className="order-3 col-span-2 flex items-center justify-self-end sm:order-none sm:col-auto" aria-label="Language">
+          <div className="hidden items-center sm:flex" aria-label="Language">
             {!hideLanguageSwitch && (
               <>
                 <Languages className="mr-1 hidden h-3 w-3 text-muted-foreground sm:block" aria-hidden="true" />
@@ -100,14 +102,21 @@ export const SiteChrome = ({
               </>
             )}
           </div>
-          <button type="button" aria-expanded={mobileMenuOpen} aria-controls="mobile-site-navigation" aria-label={lang === 'de' ? 'Menü' : lang === 'fr' ? 'Menu' : 'Menu'} onClick={() => setMobileMenuOpen((open) => !open)} className="flex h-11 w-11 items-center justify-center text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:hidden">
+          <button type="button" aria-expanded={mobileMenuOpen} aria-controls="mobile-site-navigation" aria-label={`${lang === 'de' ? 'Menü' : 'Menu'}${hideLanguageSwitch ? '' : ` · ${LANGUAGE_NAMES[lang]}`}`} onClick={() => setMobileMenuOpen((open) => !open)} className="flex h-11 min-w-11 items-center justify-center gap-2 px-1 text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:hidden">
+            {!hideLanguageSwitch && <span className="font-mono text-[11px] uppercase text-primary" aria-hidden="true">{lang}</span>}
             {mobileMenuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
           </button>
-          {mobileMenuOpen && <nav id="mobile-site-navigation" className="order-4 col-span-2 grid w-full grid-cols-2 border-t border-border pt-2 sm:hidden" aria-label={lang === 'de' ? 'Hauptnavigation' : lang === 'fr' ? 'Navigation principale' : 'Main navigation'}>
+          {mobileMenuOpen && <nav id="mobile-site-navigation" className="col-span-2 grid w-full grid-cols-2 border-t border-border pt-2 sm:hidden" aria-label={lang === 'de' ? 'Hauptnavigation' : lang === 'fr' ? 'Navigation principale' : 'Main navigation'}>
             <a href="/#services" onClick={() => setMobileMenuOpen(false)} className="flex min-h-11 items-center font-mono text-[11px] text-muted-foreground hover:text-primary">{lang === 'de' ? 'LEISTUNGEN' : 'SERVICES'}</a>
             <a href="/#knowledge" onClick={() => setMobileMenuOpen(false)} className="flex min-h-11 items-center font-mono text-[11px] text-muted-foreground hover:text-primary">{lang === 'de' ? 'WISSEN & TOOLS' : lang === 'fr' ? 'EXPERTISE & OUTILS' : 'KNOWLEDGE & TOOLS'}</a>
             <button type="button" onClick={() => { setDrawer('team'); setMobileMenuOpen(false); }} className="min-h-11 text-left font-mono text-[11px] text-muted-foreground hover:text-primary">{lang === 'fr' ? 'ÉQUIPE' : 'TEAM'}</button>
             <button type="button" onClick={() => { setDrawer('contact'); setMobileMenuOpen(false); }} className="min-h-11 text-left font-mono text-[11px] text-muted-foreground hover:text-primary">{lang === 'de' ? 'KONTAKT' : 'CONTACT'}</button>
+            {!hideLanguageSwitch && <div className="col-span-2 mt-1 flex items-center gap-1 border-t border-border pt-2" role="group" aria-label={lang === 'de' ? 'Sprache' : lang === 'fr' ? 'Langue' : 'Language'}>
+              <Languages className="mr-2 h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+              {(['de', 'en', 'fr'] as const).map((code) => (
+                <button key={code} type="button" onClick={() => setLanguage(code)} aria-pressed={language === code} aria-label={LANGUAGE_NAMES[code]} className={`min-h-11 min-w-11 border font-mono text-[11px] uppercase transition-colors ${language === code ? 'border-primary/60 text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>{code}</button>
+              ))}
+            </div>}
           </nav>}
         </div>
       </header>

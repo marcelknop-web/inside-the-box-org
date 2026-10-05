@@ -714,7 +714,7 @@
   .home-selector { border: 1px solid hsl(var(--border)); background: linear-gradient(180deg, hsl(var(--background) / .35), hsl(var(--card) / .75)); }
   .home-selector [role="tablist"] { border-top: 1px solid hsl(var(--border)); }
   .home-selector [role="tab"] { border-bottom: 0; }
-  .topic-cube-stage { --cube-size: 150px; height: 252px; overflow: hidden; }
+  .topic-cube-stage { --cube-size: 150px; height: 252px; }
   .topic-cube-floor { bottom: 0; height: 48%; }
   .topic-cube-shadow { bottom: 18px; }
   .topic-cube-hint { display: none; }
