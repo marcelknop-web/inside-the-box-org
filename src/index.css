@@ -716,6 +716,7 @@
   .topic-cube-stage { --cube-size: 150px; height: 252px; }
   .topic-cube-floor { bottom: 0; height: 48%; }
   .topic-cube-shadow { bottom: 18px; }
+}
 @media (max-width: 390px) {
   .topic-cube-stage { --cube-size: 138px; height: 232px; }
   .topic-cube-content { padding: 14px; gap: 10px; }
