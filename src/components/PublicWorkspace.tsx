@@ -158,7 +158,7 @@ function IntroSlot({ lang, pathname, pageLabel }: { lang: HomeLanguage; pathname
     <div className="workspace-slot flex h-11 items-center justify-between gap-4 mb-5 mt-5 text-xs text-muted-foreground lg:mb-6 lg:mt-8">
       <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-2 overflow-hidden whitespace-nowrap">
         <Link to="/" className={crumb}>{slot.home}</Link>
-        {topic && <><span aria-hidden="true">/</span><Link to="/#services" onClick={remember} className={crumb}>{topic.title[lang]}</Link></>}
+        {topic && <><span aria-hidden="true" className="hidden sm:inline">/</span><Link to="/#services" onClick={remember} className={`hidden shrink-0 sm:inline ${crumb}`}>{topic.title[lang]}</Link></>}
         {pageLabel && <><span aria-hidden="true">/</span><span aria-current="page" className="truncate text-foreground/75">{pageLabel}</span></>}
       </nav>
       {topic && <Link to="/#services" onClick={remember} aria-label={slot.back} className={`inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap ${crumb}`}><span aria-hidden="true">←</span><span className="hidden sm:inline">{slot.back}</span></Link>}
