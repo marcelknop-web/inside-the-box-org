@@ -8,9 +8,9 @@ import { HOME_TOPICS, type HomeLanguage } from '@/data/homeTopics';
 import { useLanguage } from '@/i18n/LanguageContext';
 
 const COPY = {
-  de: { back: 'Zurück zu', outcomes: 'Ergebnisse & Leistungen', process: 'So arbeiten wir', inputs: 'Das bringen Sie mit', details: 'Fachliche Details', contact: 'Erstgespräch vereinbaren', contactEnd: 'Klären wir den passenden Einstieg für Ihre Situation.', related: 'Verwandte Angebote' },
-  en: { back: 'Back to', outcomes: 'Outcomes & services', process: 'How we work', inputs: 'What you provide', details: 'Technical details', contact: 'Schedule an introductory call', contactEnd: 'Let us identify the right starting point for your situation.', related: 'Related services' },
-  fr: { back: 'Retour à', outcomes: 'Résultats & services', process: 'Notre démarche', inputs: 'Ce que vous apportez', details: 'Détails techniques', contact: 'Planifier un premier échange', contactEnd: 'Identifions le bon point de départ pour votre situation.', related: 'Services associés' },
+  de: { back: 'Zurück zu', outcomes: 'Das erhalten Sie', process: 'Ablauf', inputs: 'Vorbereitung', processAndInputs: 'Ablauf & Vorbereitung', details: 'Fachliche Details', contact: 'Erstgespräch vereinbaren', contactEnd: 'Klären wir den passenden Einstieg.', related: 'Verwandte Angebote' },
+  en: { back: 'Back to', outcomes: 'What you receive', process: 'Process', inputs: 'Preparation', processAndInputs: 'Process & preparation', details: 'Technical details', contact: 'Schedule an introductory call', contactEnd: 'Let us identify the right starting point.', related: 'Related services' },
+  fr: { back: 'Retour à', outcomes: 'Ce que vous obtenez', process: 'Déroulement', inputs: 'Préparation', processAndInputs: 'Déroulement & préparation', details: 'Détails techniques', contact: 'Planifier un premier échange', contactEnd: 'Identifions le bon point de départ.', related: 'Services associés' },
 };
 
 export function ServiceDetailPage({ serviceId }: { serviceId: string }) {
@@ -49,61 +49,54 @@ export function ServiceDetailPage({ serviceId }: { serviceId: string }) {
         </Button>
       </header>
 
-      <section aria-labelledby="service-outcomes" className="py-10 sm:py-12">
-        <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary">01 / {copy.outcomes}</p>
+      <section aria-labelledby="service-outcomes" className="py-8 sm:py-10">
+        <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary">{copy.outcomes}</p>
         <h2 id="service-outcomes" className="sr-only">{copy.outcomes}</h2>
         <div className="mt-5 grid gap-3 md:grid-cols-3">
           {service.outcomes.map(({ icon: Icon, title, text }) => (
             <div key={title.en} className="min-w-0 border border-border bg-card/90 p-5 shadow-card sm:p-6">
               <Icon className="h-5 w-5 text-primary" strokeWidth={1.6} aria-hidden="true" />
-              <h3 className="mt-5 text-lg font-semibold text-foreground">{title[lang]}</h3>
+              <h3 className="mt-4 text-lg font-semibold text-foreground">{title[lang]}</h3>
               <p className="mt-2 text-sm leading-relaxed text-foreground/65">{text[lang]}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <section aria-labelledby="service-process" className="border-y border-border bg-background/70 py-10 sm:py-12">
-        <div className="px-0">
-          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary">02 / {copy.process}</p>
-          <h2 id="service-process" className="mt-3 text-2xl font-semibold">{copy.process}</h2>
-          <ol className="mt-6 grid gap-0 md:grid-cols-3">
-            {service.steps.map((step, index) => (
-              <li key={step.title.en} className="relative border-l border-primary/30 py-2 pl-5 pr-5 md:border-l-0 md:border-t md:pt-6">
-                <span className="absolute -left-[5px] top-3 h-2.5 w-2.5 bg-primary md:-top-[5px] md:left-0" aria-hidden="true" />
-                <span className="font-mono text-[10px] text-primary">0{index + 1}</span>
-                <h3 className="mt-2 text-base font-semibold">{step.title[lang]}</h3>
-                <p className="mt-1 text-sm leading-relaxed text-foreground/60">{step.text[lang]}</p>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
+      <Accordion type="multiple" className="border-y border-border">
+        <AccordionItem value="process" className="border-border">
+          <AccordionTrigger className="min-h-16 text-left font-sans text-lg font-semibold hover:text-primary hover:no-underline">{copy.processAndInputs}</AccordionTrigger>
+          <AccordionContent className="pb-8">
+            <h2 id="service-process" className="text-lg font-semibold">{copy.process}</h2>
+            <ol className="mt-5 grid gap-5 md:grid-cols-3">
+              {service.steps.map((step, index) => (
+                <li key={step.title.en} className="border-l border-primary/35 pl-4">
+                  <span className="font-mono text-[10px] text-primary">0{index + 1}</span>
+                  <h3 className="mt-2 text-base font-semibold">{step.title[lang]}</h3>
+                  <p className="mt-1 text-sm leading-relaxed text-foreground/65">{step.text[lang]}</p>
+                </li>
+              ))}
+            </ol>
+            {service.inputs.length > 0 && <div className="mt-8 border-t border-border pt-6">
+              <h2 className="text-lg font-semibold">{copy.inputs}</h2>
+              <ul className="mt-4 grid gap-3 md:grid-cols-3">
+                {service.inputs.map((input) => <li key={input.en} className="flex items-start gap-3 text-sm leading-relaxed text-foreground/70"><Check className="mt-0.5 h-4 w-4 flex-none text-highlight" aria-hidden="true" /><span>{input[lang]}</span></li>)}
+              </ul>
+            </div>}
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="details" className="border-0">
+          <AccordionTrigger className="min-h-16 text-left font-sans text-lg font-semibold hover:text-primary hover:no-underline">{copy.details}</AccordionTrigger>
+          <AccordionContent className="max-w-3xl space-y-6 pb-8">
+            {service.details.map((detail) => <section key={`${detail.titleKey}-${detail.bodyKey}`}>
+              <h2 className="text-base font-semibold text-foreground">{t(detail.titleKey)}</h2>
+              <p className="mt-2 font-sans text-sm leading-relaxed text-foreground/70">{t(detail.bodyKey)}</p>
+            </section>)}
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
 
-      {service.inputs.length > 0 && (
-        <section aria-labelledby="service-inputs" className="py-10 sm:py-12">
-          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary">03 / {copy.inputs}</p>
-          <h2 id="service-inputs" className="mt-3 text-2xl font-semibold">{copy.inputs}</h2>
-          <ul className="mt-5 grid gap-3 md:grid-cols-3">
-            {service.inputs.map((input) => <li key={input.en} className="flex items-start gap-3 border-t border-border pt-4 text-sm leading-relaxed text-foreground/70"><Check className="mt-0.5 h-4 w-4 flex-none text-highlight" aria-hidden="true" /><span>{input[lang]}</span></li>)}
-          </ul>
-        </section>
-      )}
-
-      <section aria-labelledby="service-details" className="border-t border-border py-10 sm:py-12">
-        <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary">04 / {copy.details}</p>
-        <h2 id="service-details" className="mt-3 text-2xl font-semibold">{copy.details}</h2>
-        <Accordion type="single" collapsible className="mt-5 border-t border-border">
-          {service.details.map((detail) => (
-            <AccordionItem key={`${detail.titleKey}-${detail.bodyKey}`} value={detail.titleKey} className="border-border">
-              <AccordionTrigger className="min-h-14 text-left font-sans text-base font-semibold hover:text-primary hover:no-underline">{t(detail.titleKey)}</AccordionTrigger>
-              <AccordionContent className="max-w-3xl pb-6 font-sans text-sm leading-relaxed text-foreground/70">{t(detail.bodyKey)}</AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-      </section>
-
-      <section className="grid gap-8 border-t border-primary/25 bg-card/75 px-5 py-7 sm:px-7 md:grid-cols-[1fr_auto] md:items-center">
+      <section className="mt-10 grid gap-6 border-t border-primary/25 bg-card/75 px-5 py-7 sm:px-7 md:grid-cols-[1fr_auto] md:items-center">
         <div><p className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary">/ {copy.contact}</p><h2 className="mt-3 text-xl font-semibold">{copy.contactEnd}</h2></div>
         <Button onClick={openContact} className="min-h-12 w-fit rounded-none px-5"><Mail aria-hidden="true" />{copy.contact}</Button>
       </section>

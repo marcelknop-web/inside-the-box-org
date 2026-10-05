@@ -1,6 +1,6 @@
 import { useEffect, useState, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Languages, ArrowRight, Linkedin, Mail, Phone } from 'lucide-react';
+import { Languages, ArrowRight, Linkedin, Mail, Menu, Phone, X } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { GeometricSymbol } from '@/components/GeometricSymbol';
@@ -27,6 +27,7 @@ export const SiteChrome = ({
   const { language, setLanguage, t } = useLanguage();
   const navigate = useNavigate();
   const [drawer, setDrawer] = useState<'team' | 'contact' | 'imprint' | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const lang = language as 'en' | 'de' | 'fr';
 
   useEffect(() => {
@@ -63,7 +64,7 @@ export const SiteChrome = ({
     <div className="technical-grid min-h-screen w-full overflow-x-clip text-foreground flex flex-col">
       {/* Top bar */}
       <header className="border-b border-primary/10">
-        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between px-4 sm:px-6 py-4 sm:py-5 gap-3">
+        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between px-4 sm:px-6 py-3 sm:py-5 gap-2 sm:gap-3">
           <button
             onClick={handleBrand}
             className="flex flex-shrink-0 items-center gap-2.5 transition-opacity hover:opacity-80"
@@ -72,7 +73,7 @@ export const SiteChrome = ({
             <GeometricSymbol size="xs" />
             <span className="font-mono text-xs font-medium text-foreground sm:text-sm">inside-the-box.org</span>
           </button>
-          <nav className="order-3 flex w-full items-center justify-between gap-3 border-t border-border pt-3 sm:order-none sm:w-auto sm:justify-end sm:border-0 sm:pt-0" aria-label={lang === 'de' ? 'Hauptnavigation' : lang === 'fr' ? 'Navigation principale' : 'Main navigation'}>
+          <nav className="hidden items-center gap-3 sm:flex" aria-label={lang === 'de' ? 'Hauptnavigation' : lang === 'fr' ? 'Navigation principale' : 'Main navigation'}>
             <a href="/#services" className="font-mono text-[10px] tracking-[0.08em] text-muted-foreground transition-colors hover:text-primary sm:text-[11px]">
               {lang === 'de' ? 'LEISTUNGEN' : lang === 'fr' ? 'SERVICES' : 'SERVICES'}
             </a>
@@ -99,6 +100,15 @@ export const SiteChrome = ({
               </>
             )}
           </div>
+          <button type="button" aria-expanded={mobileMenuOpen} aria-controls="mobile-site-navigation" aria-label={lang === 'de' ? 'Menü' : lang === 'fr' ? 'Menu' : 'Menu'} onClick={() => setMobileMenuOpen((open) => !open)} className="flex h-11 w-11 items-center justify-center text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:hidden">
+            {mobileMenuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
+          </button>
+          {mobileMenuOpen && <nav id="mobile-site-navigation" className="order-4 grid w-full grid-cols-2 border-t border-border pt-2 sm:hidden" aria-label={lang === 'de' ? 'Hauptnavigation' : lang === 'fr' ? 'Navigation principale' : 'Main navigation'}>
+            <a href="/#services" onClick={() => setMobileMenuOpen(false)} className="flex min-h-11 items-center font-mono text-[11px] text-muted-foreground hover:text-primary">{lang === 'de' ? 'LEISTUNGEN' : 'SERVICES'}</a>
+            <a href="/#knowledge" onClick={() => setMobileMenuOpen(false)} className="flex min-h-11 items-center font-mono text-[11px] text-muted-foreground hover:text-primary">{lang === 'de' ? 'WISSEN & TOOLS' : lang === 'fr' ? 'EXPERTISE & OUTILS' : 'KNOWLEDGE & TOOLS'}</a>
+            <button type="button" onClick={() => { setDrawer('team'); setMobileMenuOpen(false); }} className="min-h-11 text-left font-mono text-[11px] text-muted-foreground hover:text-primary">{lang === 'fr' ? 'ÉQUIPE' : 'TEAM'}</button>
+            <button type="button" onClick={() => { setDrawer('contact'); setMobileMenuOpen(false); }} className="min-h-11 text-left font-mono text-[11px] text-muted-foreground hover:text-primary">{lang === 'de' ? 'KONTAKT' : 'CONTACT'}</button>
+          </nav>}
         </div>
       </header>
 

@@ -78,7 +78,6 @@ export function TopicCube({ topics, activeId, language, onSelect }: Props) {
       <div className="topic-cube-shadow" aria-hidden="true" />
       <div
         className="topic-cube"
-        data-active={activeId}
         style={{ '--topic-turn': `${turns * 120}deg` } as CSSProperties}
       >
         {topics.map((topic) => {
