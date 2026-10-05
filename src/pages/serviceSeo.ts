@@ -68,7 +68,7 @@ export const SERVICE_SEO: Record<string, ServiceSeo> = {
   publications: {
     title: 'Publications & Insights',
     description:
-      'Articles, talks and practical publications on ISMS, NIS-2, DORA, OT security and cyber crisis management from the field.',
+      'Articles, talks and trainings by Marcel Knop on cybersecurity and cyber crisis management: iX articles, building IoT, ISACA CSE.',
   },
   'virtual-ciso': {
     title: 'Virtual CISO (vCISO)',
@@ -189,9 +189,9 @@ const LOCALIZED_SERVICE_SEO: Partial<Record<string, LocalizedServiceSeo>> = {
     fr: { title: 'Événements & ateliers', description: 'Ateliers sécurité animés, sensibilisation et conférences adaptés au public, au contexte et au résultat recherché.' },
   },
   publications: {
-    de: { title: 'Fachartikel & Einblicke', description: 'Fachartikel, Vorträge und Praxiseinblicke zu Informationssicherheit, Regulierung und Cyber-Krisenmanagement.' },
-    en: { title: 'Articles & Insights', description: 'Articles, talks and practical insight on information security, regulation and cyber crisis management.' },
-    fr: { title: 'Articles & analyses', description: 'Articles, conférences et retours pratiques sur la sécurité de l’information, la réglementation et la gestion de cyber-crise.' },
+    de: { title: 'Artikel, Vorträge & Trainings', description: 'Fachartikel, Vorträge und Trainings von Marcel Knop zu Cybersecurity und Krisenbewältigung, u. a. iX, building IoT und ISACA.' },
+    en: { title: 'Articles, talks & trainings', description: 'Articles, talks and trainings by Marcel Knop on cybersecurity and crisis management, including iX, building IoT and ISACA.' },
+    fr: { title: 'Articles, conférences & formations', description: 'Articles, conférences et formations de Marcel Knop en cybersécurité et gestion de crise, notamment iX, building IoT et ISACA.' },
   },
   'virtual-ciso': {
     de: { title: 'Virtual CISO', description: 'Informationssicherheit strategisch steuern, Risiken entscheiden und Management-Reporting mit erfahrener CISO-Unterstützung etablieren.' },

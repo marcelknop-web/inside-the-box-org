@@ -34,7 +34,7 @@ export const fr = {
     socOps: 'Opérations SOC',
     aiWorkflows: 'Workflows IA',
     aiLab: 'Lab IA',
-    publications: 'Articles & Analyses',
+    publications: 'Articles, conférences & formations',
     events: 'Événements',
     eventsWorkshops: 'Events & Trainings',
     ttxTraining: 'DORA & NIS2 TTX',
@@ -562,7 +562,7 @@ export const fr = {
     spotsInfo: 'Places limitées — inscription anticipée recommandée.',
   },
   publications: {
-    title: 'Articles & Analyses',
+    title: 'Articles, conférences & formations',
     metaDesc: 'Une expertise vérifiable. Articles, présentations et programmes de certification.',
     intro: 'Une expertise vérifiable.',
     pubSectionTitle: 'Articles & Analyses',

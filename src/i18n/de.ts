@@ -34,7 +34,7 @@ export const de = {
     socOps: 'SOC-Betrieb',
     aiWorkflows: 'KI-Workflows',
     aiLab: 'KI-Lab',
-    publications: 'Fachartikel & Insights',
+    publications: 'Artikel, Vorträge & Trainings',
     events: 'Events',
     eventsWorkshops: 'Events & Trainings',
     ttxTraining: 'DORA & NIS2 TTX',
@@ -562,7 +562,7 @@ export const de = {
     spotsInfo: 'Begrenzte Teilnehmerzahl — frühzeitige Anmeldung empfohlen.',
   },
   publications: {
-    title: 'Fachartikel & Insights',
+    title: 'Artikel, Vorträge & Trainings',
     metaDesc: 'Fachkompetenz, die sich nachprüfen lässt. Fachartikel, Vorträge und Zertifizierungsprogramme.',
     intro: 'Fachkompetenz, die sich nachprüfen lässt.',
     pubSectionTitle: 'Fachartikel & Insights',
