@@ -1,11 +1,11 @@
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { HomeLanguage, HomeTopic } from '@/data/homeTopics';
 import { cn } from '@/lib/utils';
 
-const ROTATIONS: Record<HomeTopic['id'], string> = {
-  security: 'rotateX(-15deg) rotateY(-18deg)',
-  crisis: 'rotateX(-15deg) rotateY(-108deg)',
-  exercise: 'rotateX(-105deg) rotateY(0deg)',
+const INITIAL_TURNS: Record<HomeTopic['id'], number> = {
+  security: 0,
+  crisis: 1,
+  exercise: -1,
 };
 
 type Props = {
@@ -19,6 +19,17 @@ export function TopicCube({ topics, activeId, language, onSelect }: Props) {
   const pointerStart = useRef<{ x: number; y: number } | null>(null);
   const swiped = useRef(false);
   const activeIndex = topics.findIndex((topic) => topic.id === activeId);
+  const previousIndex = useRef(activeIndex);
+  const [turns, setTurns] = useState(() => INITIAL_TURNS[activeId]);
+
+  useEffect(() => {
+    const previous = previousIndex.current;
+    if (activeIndex < 0 || previous < 0 || activeIndex === previous) return;
+    const forward = (activeIndex - previous + topics.length) % topics.length;
+    const shortestStep = forward === 2 ? -1 : forward;
+    setTurns((current) => current + shortestStep);
+    previousIndex.current = activeIndex;
+  }, [activeIndex, topics.length]);
 
   const step = (delta: number) => {
     const index = (activeIndex + delta + topics.length) % topics.length;
@@ -65,7 +76,11 @@ export function TopicCube({ topics, activeId, language, onSelect }: Props) {
     >
       <div className="topic-cube-floor" aria-hidden="true" />
       <div className="topic-cube-shadow" aria-hidden="true" />
-      <div className="topic-cube" style={{ transform: ROTATIONS[activeId] }}>
+      <div
+        className="topic-cube"
+        data-active={activeId}
+        style={{ '--topic-turn': `${turns * 120}deg` } as React.CSSProperties}
+      >
         {topics.map((topic) => {
           const Icon = topic.icon;
           const faceClass = topic.id === 'security' ? 'topic-cube-front' : topic.id === 'crisis' ? 'topic-cube-right' : 'topic-cube-top';
@@ -82,9 +97,11 @@ export function TopicCube({ topics, activeId, language, onSelect }: Props) {
               aria-pressed={selected}
               tabIndex={selected ? 0 : -1}
             >
-              <span className="topic-cube-index" aria-hidden="true">{topic.number}</span>
-              <Icon className="h-9 w-9" strokeWidth={1.5} aria-hidden="true" />
-              <span className="topic-cube-label">{topic.faceTitle[language]}</span>
+              <span className="topic-cube-content">
+                <span className="topic-cube-index" aria-hidden="true">{topic.number}</span>
+                <Icon className="h-9 w-9" strokeWidth={1.5} aria-hidden="true" />
+                <span className="topic-cube-label">{topic.faceTitle[language]}</span>
+              </span>
             </button>
           );
         })}

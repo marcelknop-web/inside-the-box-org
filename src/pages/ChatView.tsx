@@ -2079,9 +2079,9 @@ const ChatView = () => {
                 {/* Sheet header — matches drawer header treatment */}
                 <header className="flex items-start justify-between gap-3 px-4 sm:px-6 pt-5 sm:pt-6 pb-4 border-b border-primary/10">
                   <div className="min-w-0">
-                    <h1 className="font-mono text-[10px] sm:text-[11px] tracking-[0.3em] sm:tracking-[0.35em] text-primary mb-1.5">
+                    <p className="font-mono text-[10px] sm:text-[11px] tracking-[0.3em] sm:tracking-[0.35em] text-primary mb-1.5">
                       / {activeServiceLabel.toUpperCase()}
-                    </h1>
+                    </p>
                   </div>
                   <button
                     onClick={closeToJourney}

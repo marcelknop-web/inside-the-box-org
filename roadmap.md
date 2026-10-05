@@ -4,3 +4,10 @@
 - [x] Add localized public introductions before every password gate without changing authentication.
 - [x] Refine service-page presentation, crisis-management copy, SEO, and navigator behavior.
 - [x] Verify required viewport, interaction, language, route, gate, and error states without publishing.
+
+# Direct acceptance follow-up
+
+- [ ] Rebuild the topic cube around one diagonal 120° rotation axis with upright active-face labels.
+- [ ] Keep DE/EN/FR visible and persistent on every public tool introduction.
+- [ ] Correct trilingual service copy and enforce one service-name H1 per marketing page.
+- [ ] Browser-check every discovered password-gated route and alias without creating data or publishing.

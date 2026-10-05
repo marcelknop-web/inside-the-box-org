@@ -326,7 +326,7 @@ export const fr = {
     introDetail: 'Nous préparons les cellules de crise à piloter les événements cyber majeurs : escalade depuis la gestion opérationnelle des incidents, décisions sur les impacts métier et la reprise, communication cohérente avec collaborateurs, clients, autorités et public.',
     sectionTitle: 'Préparer la direction de crise et soutenir la réponse',
     planTitle: 'Gouvernance et structures décisionnelles',
-    planDesc: 'Les seuils d\'escalade, les autorités et les responsabilités doivent être définis avant l\'événement. En situation de crise, c\'est une question de secondes : qui peut prendre quelle décision avec quel mandat — et qui ne le peut pas.',
+    planDesc: 'Les seuils d\'escalade, les pouvoirs et les responsabilités doivent être définis avant l\'événement. En situation de crise, chaque seconde compte. Il faut donc savoir qui peut prendre quelle décision, avec quel mandat — et qui ne le peut pas.',
     scenarioTitle: 'Pilotage de la situation et interfaces',
     scenarioDesc: 'La gestion des incidents coordonne la réponse technique et opérationnelle. Le PCA organise les activités critiques et la reprise. La gestion de crise pilote la situation globale, fixe les priorités et relie ces flux aux parties prenantes.',
     simTitle: 'Préparation et capacité d’action',

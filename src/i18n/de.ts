@@ -326,7 +326,7 @@ export const de = {
     introDetail: 'Wir bereiten Krisenorganisationen auf die tatsächliche Steuerung schwerwiegender Cyberlagen vor: Eskalation aus dem operativen Incident Management, Entscheidungen zu Geschäftsauswirkungen und Wiederanlauf sowie konsistente Kommunikation mit Beschäftigten, Kunden, Behörden und Öffentlichkeit.',
     sectionTitle: 'Krisenführung vorbereiten und im Ereignis unterstützen',
     planTitle: 'Governance und Entscheidungsstrukturen',
-    planDesc: 'Eskalationsschwellen, Befugnisse und Zuständigkeiten müssen vor dem Ereignis definiert sein. Im Krisenfall zählt Sekunden, wer welche Entscheidung mit welchem Mandat treffen darf – und wer nicht.',
+    planDesc: 'Eskalationsschwellen, Befugnisse und Zuständigkeiten müssen vor dem Ereignis definiert sein. Im Krisenfall zählt jede Sekunde. Deshalb muss klar sein, wer welche Entscheidung mit welchem Mandat treffen darf – und wer nicht.',
     scenarioTitle: 'Lageführung und Schnittstellen',
     scenarioDesc: 'Incident Management koordiniert die technische und operative Reaktion. BCM organisiert kritischen Geschäftsbetrieb und Wiederanlauf. Das Krisenmanagement führt die Gesamtlage, entscheidet über Prioritäten und verbindet beide Stränge mit den relevanten Stakeholdern.',
     simTitle: 'Vorbereitung und Handlungsfähigkeit',

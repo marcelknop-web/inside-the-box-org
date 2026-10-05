@@ -326,7 +326,7 @@ export const en = {
     introDetail: 'We prepare crisis organisations to direct serious cyber events: escalation from operational incident management, decisions on business impact and recovery, and consistent communication with staff, customers, authorities and the public.',
     sectionTitle: 'Prepare crisis leadership and support the response',
     planTitle: 'Governance and Decision Structures',
-    planDesc: 'Escalation thresholds, authorities, and responsibilities must be defined before the event. In a crisis, it\'s a matter of seconds who may make which decision with which mandate — and who may not.',
+    planDesc: 'Escalation thresholds, authority and responsibilities must be defined before an event. In a crisis, every second counts. It must therefore be clear who may make each decision, under which mandate — and who may not.',
     scenarioTitle: 'Situation Management and Interfaces',
     scenarioDesc: 'Incident management coordinates technical and operational response. BCM organises critical operations and recovery. Crisis management directs the overall situation, sets priorities and connects both streams with relevant stakeholders.',
     simTitle: 'Preparedness and Response Capability',
