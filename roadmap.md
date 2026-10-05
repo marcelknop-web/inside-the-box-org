@@ -30,9 +30,9 @@
 
 # Content hierarchy and mobile homepage refinement
 
-- [ ] Reduce homepage copy and create compact primary/secondary offer hierarchy.
-- [ ] Build accessible mobile navigation and first-viewport composition.
-- [ ] Fix cube face-local content orientation without selection-dependent transforms.
-- [ ] Consolidate each service route into two initially closed disclosures.
-- [ ] Shorten public tool introductions without changing protected access.
-- [ ] Verify requested viewports, languages, cube states, service disclosures, tool access, and build.
+- [x] Reduce homepage copy and create compact primary/secondary offer hierarchy.
+- [x] Build accessible mobile navigation and first-viewport composition.
+- [x] Fix cube face-local content orientation without selection-dependent transforms.
+- [x] Consolidate each service route into two initially closed disclosures.
+- [x] Shorten public tool introductions without changing protected access.
+- [x] Verify requested viewports, languages, cube states, service disclosures, tool access, and build.
