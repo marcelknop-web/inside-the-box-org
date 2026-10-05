@@ -562,7 +562,7 @@ export const de = {
     spotsInfo: 'Begrenzte Teilnehmerzahl — frühzeitige Anmeldung empfohlen.',
   },
   publications: {
-    title: 'Fachartikel & Insights',
+    title: 'Artikel, Vorträge & Trainings',
     metaDesc: 'Fachkompetenz, die sich nachprüfen lässt. Fachartikel, Vorträge und Zertifizierungsprogramme.',
     intro: 'Fachkompetenz, die sich nachprüfen lässt.',
     pubSectionTitle: 'Fachartikel & Insights',

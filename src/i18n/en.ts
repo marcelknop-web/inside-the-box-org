@@ -562,7 +562,7 @@ export const en = {
     spotsInfo: 'Limited spots available — early registration recommended.',
   },
   publications: {
-    title: 'Articles & Insights',
+    title: 'Articles, talks & trainings',
     metaDesc: 'Expertise you can verify. Articles, presentations, and certification programs.',
     intro: 'Expertise you can verify.',
     pubSectionTitle: 'Articles & Insights',

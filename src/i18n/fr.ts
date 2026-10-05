@@ -562,7 +562,7 @@ export const fr = {
     spotsInfo: 'Places limitées — inscription anticipée recommandée.',
   },
   publications: {
-    title: 'Articles & Analyses',
+    title: 'Articles, conférences & formations',
     metaDesc: 'Une expertise vérifiable. Articles, présentations et programmes de certification.',
     intro: 'Une expertise vérifiable.',
     pubSectionTitle: 'Articles & Analyses',
