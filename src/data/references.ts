@@ -32,12 +32,12 @@ export type ClientReference = {
 
 export const CORE_REFERENCES: ClientReference[] = [
   {
-    id: 'diethelm-keller', name: 'Diethelm Keller Holding (CH)', years: l('2023–2025', '2023–2025', '2023–2025'), topics: ['security'],
+    id: 'diethelm-keller', name: 'Diethelm Keller Holding (CH)', years: l('2023–2025', '2023–2025', '2023–2025'), topics: ['security'], group: 'security',
     text: l('Aufbau eines konzernweiten ISMS, Policy-Rahmenwerk und interne Audits.', 'Set-up of a group-wide ISMS, policy framework and internal audits.', 'Mise en place d’un SMSI à l’échelle du groupe, cadre de politiques et audits internes.'),
     services: ['isms', 'assessments-concepts'],
   },
   {
-    id: 'hapag-lloyd', name: 'Hapag-Lloyd', years: l('2024–2025', '2024–2025', '2024–2025'), topics: ['security'],
+    id: 'hapag-lloyd', name: 'Hapag-Lloyd', years: l('2024–2025', '2024–2025', '2024–2025'), topics: ['security'], group: 'security',
     text: l('Cybersecurity-Konzept und Zugriffsverfahren für maritime Satellitenkonnektivität.', 'Cybersecurity concept and access procedures for maritime satellite connectivity.', 'Concept de cybersécurité et procédures d’accès pour la connectivité satellitaire maritime.'),
     services: ['assessments-concepts'],
   },
