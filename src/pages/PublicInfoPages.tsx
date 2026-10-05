@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { PageMeta } from '@/components/PageMeta';
 import { SiteChrome } from '@/components/SiteChrome';
 import { consultantProfiles } from '@/data/consultantProfiles';
+import { REFERENCES_COPY } from '@/data/references';
 import { useLanguage } from '@/i18n/LanguageContext';
 
 const COPY = {
@@ -58,6 +59,7 @@ export function TeamPage() {
               </div>
               <p className="mt-5 text-sm leading-relaxed text-foreground/75">{t(`profiles.${key}.bio`)}</p>
               <dl className="mt-5 space-y-4 border-t border-border pt-5">{facts.map(([label, value]) => <div key={label}><dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-primary">{label}</dt><dd className="mt-1 text-sm leading-relaxed text-foreground/70">{value}</dd></div>)}</dl>
+              {key === 'marcel' && <Link to="/references" className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-primary underline-offset-4 hover:underline">{REFERENCES_COPY[language].teamLink}<ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>}
             </article>;
           })}
         </div>
