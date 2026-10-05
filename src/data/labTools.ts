@@ -69,6 +69,7 @@ const DIRECT_TOOLS: Record<string, FramedTool> = {
   'elite-ship': { title: t3('Elite Ship'), back: '/ki-lab', wide: true },
   'butterfly-lab': { title: t3('Butterfly Effect Lab'), back: '/ki-lab', wide: true },
   wcst: { title: t3('Wisconsin Card Sorting Test'), back: '/ki-lab', wide: false },
+  'datenschutz-tools': { title: t3('Datenschutz & Datenfluss'), back: '/assessment-tools', wide: false },
   'system-check': { title: t3('System-Check', 'System check', 'Vérification système'), back: '/ki-lab', wide: false },
   'cra-check': { title: t3('CRA Compliance Tool'), back: '/assessment-tools', wide: false },
   'dora-compliance': { title: t3('DORA Compliance Tool'), back: '/assessment-tools', wide: false },

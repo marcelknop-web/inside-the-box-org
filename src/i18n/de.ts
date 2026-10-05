@@ -382,7 +382,7 @@ export const de = {
     agentTtxDesc: 'ISCPs bewerten und daraus übergreifende Tabletop-Szenarien ableiten',
     agentDoraTitle: 'DORA Incident Check',
     agentDoraDesc: 'Meldepflicht nach DORA Art. 19 – Schritt für Schritt',
-    agentTisaxTitle: 'TISAX Assessment Check',
+    agentTisaxTitle: 'TISAX Einstufungs-Check',
     agentTisaxDesc: 'Assessment-Level und Prüfziele nach VDA ISA ermitteln',
     agentPciTitle: 'PCI-DSS SAQ Navigator',
     agentPciDesc: 'Richtigen SAQ-Typ nach PCI DSS v4.0 bestimmen',
