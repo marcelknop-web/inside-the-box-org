@@ -32,13 +32,14 @@ export function TopicCube({ topics, activeId, language, onSelect }: Props) {
       aria-label={language === 'de' ? 'Drehbare Themenbox' : language === 'fr' ? 'Boîte thématique rotative' : 'Rotating topic box'}
       tabIndex={0}
       onKeyDown={(event) => {
+        const isFaceButton = event.target instanceof HTMLButtonElement;
         if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
           event.preventDefault();
           step(event.key === 'ArrowRight' ? 1 : -1);
         }
         if (event.key === 'Home') onSelect(topics[0].id);
         if (event.key === 'End') onSelect(topics[topics.length - 1].id);
-        if (event.key === 'Enter' || event.key === ' ') {
+        if (!isFaceButton && (event.key === 'Enter' || event.key === ' ')) {
           event.preventDefault();
           step(1);
         }
