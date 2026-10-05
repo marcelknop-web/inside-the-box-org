@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import type { HomeLanguage, HomeTopic } from '@/data/homeTopics';
 import { cn } from '@/lib/utils';
 
@@ -79,7 +79,7 @@ export function TopicCube({ topics, activeId, language, onSelect }: Props) {
       <div
         className="topic-cube"
         data-active={activeId}
-        style={{ '--topic-turn': `${turns * 120}deg` } as React.CSSProperties}
+        style={{ '--topic-turn': `${turns * 120}deg` } as CSSProperties}
       >
         {topics.map((topic) => {
           const Icon = topic.icon;
