@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { HOME_TOPICS, type HomeLanguage } from '@/data/homeTopics';
 import { REFERENCES_COPY, type ClientReference } from '@/data/references';
 
-export function ReferenceCard({ item, lang, showTags = true }: { item: ClientReference; lang: HomeLanguage; showTags?: boolean }) {
+export function ReferenceCard({ item, lang, showTags = true, serviceId }: { item: ClientReference; lang: HomeLanguage; showTags?: boolean; serviceId?: string }) {
+  const text = (serviceId && item.serviceText?.[serviceId]) || item.text;
   const copy = REFERENCES_COPY[lang];
   const topics = item.topics.map((id) => HOME_TOPICS.find((t) => t.id === id)).filter(Boolean);
   const Icon = topics[0]?.icon;
@@ -18,7 +19,7 @@ export function ReferenceCard({ item, lang, showTags = true }: { item: ClientRef
             {showTags && topics.map((t) => <span key={t!.id} className="text-foreground/55">#{t!.shortTitle[lang]}</span>)}
           </p>
         )}
-        <p className="mt-2 text-sm leading-relaxed text-foreground/75">{item.text[lang]}</p>
+        <p className="mt-2 text-sm leading-relaxed text-foreground/75">{text[lang]}</p>
         {item.seeAlso && (
           <Link to={item.seeAlso} className="mt-2 inline-flex min-h-11 items-center gap-1 text-sm font-medium text-primary underline-offset-4 hover:underline">
             {copy.seeAlso}<ChevronRight className="h-4 w-4" aria-hidden="true" />
