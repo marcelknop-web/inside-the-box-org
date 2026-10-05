@@ -27,3 +27,12 @@
 - [x] Curate concise DE/EN/FR outcomes, process, inputs and closed technical details.
 - [x] Browser-check three representative routes at five widths and all remaining service routes.
 - [x] Confirm a successful preview build without publishing.
+
+# Content hierarchy and mobile homepage refinement
+
+- [ ] Reduce homepage copy and create compact primary/secondary offer hierarchy.
+- [ ] Build accessible mobile navigation and first-viewport composition.
+- [ ] Fix cube face-local content orientation without selection-dependent transforms.
+- [ ] Consolidate each service route into two initially closed disclosures.
+- [ ] Shorten public tool introductions without changing protected access.
+- [ ] Verify requested viewports, languages, cube states, service disclosures, tool access, and build.
