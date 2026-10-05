@@ -30,7 +30,7 @@ const commonSteps = (
 export const TOOL_INTRODUCTIONS: ToolIntroduction[] = [
   {
     key: 'gapzero', name: 'GapZero', icon: Gauge,
-    eyebrow: l('Internal Audit & Readiness', 'Internal audit & readiness', 'Audit interne & préparation'),
+    eyebrow: l('Interne Revision & Readiness', 'Internal audit & readiness', 'Audit interne & préparation à l’audit'),
     audience: l('Für Verantwortliche in Informationssicherheit, Compliance und interner Revision.', 'For information security, compliance and internal audit leads.', 'Pour les responsables sécurité de l’information, conformité et audit interne.'),
     problem: l('Führt strukturiert durch das Kontrolldesign eines gewählten Regelwerks und macht Lücken, Begründungen und Maßnahmen nachvollziehbar.', 'Guides a structured review of control design against a selected framework and documents gaps, rationale and actions.', 'Guide une revue structurée de la conception des contrôles selon un référentiel et documente écarts, justification et actions.'),
     inputs: [l('Regelwerk und Geltungsbereich', 'Framework and scope', 'Référentiel et périmètre'), l('Prüfergeführte Antworten und Nachweise', 'Assessor-led answers and evidence', 'Réponses guidées par l’auditeur et éléments probants')],

@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react';
-import { ArrowDown, CheckCircle2, LockKeyhole, ShieldAlert } from 'lucide-react';
+import { ArrowDown, CheckCircle2, Languages, LockKeyhole, ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { ToolIntroduction } from '@/data/toolIntroductions';
 import { getLocalized } from '@/data/toolIntroductions';
 import type { HomeLanguage } from '@/data/homeTopics';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 type Props = {
   intro: ToolIntroduction;
@@ -18,11 +19,28 @@ const UI = {
 };
 
 export function ToolAccessIntro({ intro, language, login }: Props) {
+  const { setLanguage } = useLanguage();
   const ui = UI[language];
   const Icon = intro.icon;
   return (
     <main className="w-full bg-background">
       <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
+        <div className="mb-6 flex min-h-11 items-center justify-end border-b border-border pb-3" role="group" aria-label={language === 'de' ? 'Sprache' : language === 'fr' ? 'Langue' : 'Language'}>
+          <Languages className="mr-2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+          {(['de', 'en', 'fr'] as const).map((code) => (
+            <Button
+              key={code}
+              type="button"
+              variant="ghost"
+              size="sm"
+              aria-pressed={language === code}
+              onClick={() => setLanguage(code)}
+              className={language === code ? 'font-mono text-xs text-primary' : 'font-mono text-xs text-muted-foreground'}
+            >
+              {code.toUpperCase()}
+            </Button>
+          ))}
+        </div>
         <div className="flex flex-col gap-6 border-b border-border pb-8 sm:flex-row sm:items-start sm:justify-between">
           <div className="max-w-3xl">
             <div className="mb-5 flex items-center gap-3 text-primary">

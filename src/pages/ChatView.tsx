@@ -41,7 +41,6 @@ import { StaggerReveal } from '@/components/StaggerReveal';
 import GlitchText from '@/components/GlitchText';
 import Typewriter from '@/components/Typewriter';
 import TypedSection from '@/components/TypedSection';
-import { LinkButton } from '@/components/LinkButton';
 import TtxRegistrationForm from '@/components/TtxRegistrationForm';
 import { NewsPanel } from '@/components/NewsPanel';
 import { RelatedServices } from '@/components/RelatedServices';
@@ -566,6 +565,10 @@ const useServiceContent = () => {
     ),
     'cyber-crisis-management': () => (
       <TypedSection title={t('cyberCrisis.title')} mode="fade" intro={<p>{t('cyberCrisis.intro')}</p>}>
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('cyberCrisis.outcomesTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('cyberCrisis.outcomesDesc')}</p>
+        </Block>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('cyberCrisis.introDetail')}</p>
         </Block>
@@ -578,10 +581,6 @@ const useServiceContent = () => {
             <GridItem icon={Crown} title={t('cyberCrisis.leaderTitle')} desc={t('cyberCrisis.leaderDesc')} />
             <GridItem icon={MessageSquare} title={t('cyberCrisis.commTitle')} desc={t('cyberCrisis.commDesc')} />
           </div>
-        </Block>
-        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
-          <SubTitle variant="highlight">{t('cyberCrisis.outcomesTitle')}</SubTitle>
-          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('cyberCrisis.outcomesDesc')}</p>
         </Block>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('cyberCrisis.refTitle')}</SubTitle>
@@ -2079,9 +2078,9 @@ const ChatView = () => {
                 {/* Sheet header — matches drawer header treatment */}
                 <header className="flex items-start justify-between gap-3 px-4 sm:px-6 pt-5 sm:pt-6 pb-4 border-b border-primary/10">
                   <div className="min-w-0">
-                    <h1 className="font-mono text-[10px] sm:text-[11px] tracking-[0.3em] sm:tracking-[0.35em] text-primary mb-1.5">
+                    <p className="font-mono text-[10px] sm:text-[11px] tracking-[0.3em] sm:tracking-[0.35em] text-primary mb-1.5">
                       / {activeServiceLabel.toUpperCase()}
-                    </h1>
+                    </p>
                   </div>
                   <button
                     onClick={closeToJourney}
