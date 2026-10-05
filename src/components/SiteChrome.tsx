@@ -98,7 +98,7 @@ const ChromeFrame = ({
     <div className="technical-grid min-h-screen w-full overflow-x-clip text-foreground flex flex-col">
       {/* Top bar */}
       <header ref={headerRef} className={`border-b border-primary/10 ${inWorkspace ? 'sticky top-0 z-40 bg-background/95 backdrop-blur' : ''}`}>
-        <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto] items-center gap-2 px-4 py-2 sm:flex sm:flex-wrap sm:justify-between sm:gap-3 sm:px-6 sm:py-5">
+        <div className={`mx-auto grid ${inWorkspace ? 'max-w-7xl lg:px-9' : 'max-w-6xl'} grid-cols-[1fr_auto] items-center gap-2 px-4 py-2 sm:flex sm:flex-wrap sm:justify-between sm:gap-3 sm:px-6 sm:py-5`}>
           <button
             onClick={handleBrand}
             className="flex flex-shrink-0 items-center gap-2.5 transition-opacity hover:opacity-80"
