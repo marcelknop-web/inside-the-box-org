@@ -20,3 +20,10 @@
 - [x] Complete trilingual editorial cleanup, including accurate direct/protected AI Lab wording.
 - [x] Add responsive shared gate chrome, evidence-based ITSM copy, localized metadata, canonicals, and alias handling.
 - [x] Browser-test representative public pages at 320/390/768/1024/1440 and all 19 gate routes without login or data creation.
+
+# Service-page structure correction
+
+- [x] Replace all 14 marketing service routes with the shared ServiceDetailPage.
+- [x] Curate concise DE/EN/FR outcomes, process, inputs and closed technical details.
+- [x] Browser-check three representative routes at five widths and all remaining service routes.
+- [x] Confirm a successful preview build without publishing.
