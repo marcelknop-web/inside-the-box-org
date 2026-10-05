@@ -1,4 +1,4 @@
-import { useState, ReactNode } from 'react';
+import { useEffect, useState, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Languages, ArrowRight, Linkedin, Mail, Phone } from 'lucide-react';
 import { useLanguage, nextLanguage } from '@/i18n/LanguageContext';
@@ -29,6 +29,17 @@ export const SiteChrome = ({
   const [drawer, setDrawer] = useState<'team' | 'contact' | 'imprint' | null>(null);
   const lang = language as 'en' | 'de' | 'fr';
 
+  useEffect(() => {
+    const openContact = () => setDrawer('contact');
+    const openTeam = () => setDrawer('team');
+    window.addEventListener('sitechrome:contact', openContact);
+    window.addEventListener('sitechrome:team', openTeam);
+    return () => {
+      window.removeEventListener('sitechrome:contact', openContact);
+      window.removeEventListener('sitechrome:team', openTeam);
+    };
+  }, []);
+
   const footerImprintLabel =
     lang === 'de' ? 'Impressum' : lang === 'fr' ? 'Mentions légales' : 'Imprint';
   const footerContactLabel =
@@ -52,7 +63,7 @@ export const SiteChrome = ({
     <div className="min-h-screen w-full text-foreground flex flex-col">
       {/* Top bar */}
       <header className="border-b border-primary/10">
-        <div className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 gap-3">
+        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between px-4 sm:px-6 py-4 sm:py-5 gap-3">
           <button
             onClick={handleBrand}
             className="flex-shrink-0 transition-opacity hover:opacity-80"
@@ -61,22 +72,31 @@ export const SiteChrome = ({
           >
             <GeometricSymbol size="xs" />
           </button>
-          <div className="flex items-center gap-6 sm:gap-8">
+          <nav className="order-3 flex w-full items-center justify-between gap-3 border-t border-border pt-3 sm:order-none sm:w-auto sm:justify-end sm:border-0 sm:pt-0" aria-label={lang === 'de' ? 'Hauptnavigation' : lang === 'fr' ? 'Navigation principale' : 'Main navigation'}>
+            <a href="/#services" className="font-mono text-[10px] tracking-[0.08em] text-muted-foreground transition-colors hover:text-primary sm:text-[11px]">
+              {lang === 'de' ? 'LEISTUNGEN' : lang === 'fr' ? 'SERVICES' : 'SERVICES'}
+            </a>
+            <a href="/#knowledge" className="font-mono text-[10px] tracking-[0.08em] text-muted-foreground transition-colors hover:text-primary sm:text-[11px]">
+              {lang === 'de' ? 'WISSEN & TOOLS' : lang === 'fr' ? 'EXPERTISE & OUTILS' : 'KNOWLEDGE & TOOLS'}
+            </a>
             <button
               onClick={() => setDrawer('team')}
-              className="font-mono text-[12px] tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors"
+              className="min-h-11 font-mono text-[10px] tracking-[0.08em] text-muted-foreground hover:text-primary transition-colors sm:text-[11px]"
             >
               {lang === 'de' ? 'TEAM' : lang === 'fr' ? 'ÉQUIPE' : 'TEAM'}
             </button>
+            <button onClick={() => setDrawer('contact')} className="min-h-11 font-mono text-[10px] tracking-[0.08em] text-muted-foreground transition-colors hover:text-primary sm:text-[11px]">
+              {lang === 'de' ? 'KONTAKT' : 'CONTACT'}
+            </button>
+          </nav>
+          <div className="flex items-center gap-1" aria-label="Language">
             {!hideLanguageSwitch && (
-              <button
-                onClick={() => setLanguage(nextLanguage(language))}
-                className="font-mono text-[12px] tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-                aria-label="Language"
-              >
-                <Languages className="w-3 h-3" />
-                {language.toUpperCase()}
-              </button>
+              <>
+                <Languages className="mr-1 h-3 w-3 text-muted-foreground" aria-hidden="true" />
+                {(['de', 'en', 'fr'] as const).map((code) => (
+                  <button key={code} onClick={() => setLanguage(code)} aria-pressed={language === code} className={`min-h-10 min-w-9 font-mono text-[10px] uppercase transition-colors ${language === code ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>{code}</button>
+                ))}
+              </>
             )}
           </div>
         </div>
