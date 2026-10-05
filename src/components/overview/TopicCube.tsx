@@ -108,7 +108,7 @@ export function TopicCube({ topics, activeId, language, onSelect }: Props) {
         <div className="topic-cube-face topic-cube-back" aria-hidden="true" />
         <div className="topic-cube-face topic-cube-bottom" aria-hidden="true" />
       </div>
-      <p className="topic-cube-hint">
+      <p className="sr-only">
         {language === 'de' ? 'Fläche wählen · aktive Fläche schaltet weiter · wischen oder Pfeiltasten' : language === 'fr' ? 'Choisir une face · la face active avance · balayage ou flèches' : 'Choose a face · active face advances · swipe or arrow keys'}
       </p>
     </div>
