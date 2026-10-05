@@ -80,7 +80,7 @@ export const PUBLICATION_GROUPS: PublicationGroup[] = [
       },
       {
         title: 'SOC-Trainings',
-        source: l('Bechtle, Fast Lane', 'Bechtle, Fast Lane', 'Bechtle, Fast Lane'), year: l('seit 2022', 'since 2022', 'depuis 2022').de && undefined,
+        source: l('Bechtle, Fast Lane', 'Bechtle, Fast Lane', 'Bechtle, Fast Lane'),
         role: l('Leitender Dozent', 'Lead trainer', 'Formateur principal'),
         text: l('Trainings für SOC-Teams, vor Ort und remote.', 'Trainings for SOC teams, on site and remote.', 'Formations pour équipes SOC, sur site et à distance.'),
       },
