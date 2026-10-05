@@ -11,6 +11,7 @@ import ChatView from "./pages/ChatView";
 import { PasswordGate } from "@/components/PasswordGate";
 import NotFound from "./pages/NotFound";
 import Overview from "./pages/Overview";
+import { ContactPage, TeamPage } from "./pages/PublicInfoPages";
 import { lazy, Suspense } from "react";
 
 // Active routes only. Standalone tools and the unified /:serviceId catchall
@@ -56,6 +57,8 @@ const App = () => (
             <Routes>
               {/* Active Journey + entry points */}
               <Route path="/" element={<Overview />} />
+              <Route path="/team" element={<TeamPage />} />
+              <Route path="/contact" element={<ContactPage />} />
               {/* Imprint is now drawer-only — see SiteChrome footer link. */}
 
               {/* Standalone tools (not part of the Journey, kept for direct/admin access) */}

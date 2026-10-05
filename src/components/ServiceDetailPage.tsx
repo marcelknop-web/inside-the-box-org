@@ -1,16 +1,15 @@
 import { ArrowRight, Check, ChevronRight, Mail } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
-import { ServiceSymbol, type ServiceTheme } from '@/components/ServiceSymbol';
 import { SERVICE_DETAILS } from '@/data/serviceDetails';
 import { HOME_TOPICS, type HomeLanguage } from '@/data/homeTopics';
 import { useLanguage } from '@/i18n/LanguageContext';
 
 const COPY = {
-  de: { back: 'Zurück zu', outcomes: 'Das erhalten Sie', process: 'Ablauf', inputs: 'Vorbereitung', processAndInputs: 'Ablauf & Vorbereitung', details: 'Fachliche Details', contact: 'Erstgespräch vereinbaren', contactEnd: 'Klären wir den passenden Einstieg.', related: 'Verwandte Angebote' },
-  en: { back: 'Back to', outcomes: 'What you receive', process: 'Process', inputs: 'Preparation', processAndInputs: 'Process & preparation', details: 'Technical details', contact: 'Schedule an introductory call', contactEnd: 'Let us identify the right starting point.', related: 'Related services' },
-  fr: { back: 'Retour à', outcomes: 'Ce que vous obtenez', process: 'Déroulement', inputs: 'Préparation', processAndInputs: 'Déroulement & préparation', details: 'Détails techniques', contact: 'Planifier un premier échange', contactEnd: 'Identifions le bon point de départ.', related: 'Services associés' },
+  de: { home: 'Start', back: 'Zur Themenübersicht', outcomes: 'Das erhalten Sie', process: 'Ablauf', inputs: 'Vorbereitung', processAndInputs: 'Ablauf & Vorbereitung', details: 'Fachliche Details', contact: 'Erstgespräch vereinbaren', contactEnd: 'Klären wir den passenden Einstieg.', related: 'Verwandte Angebote' },
+  en: { home: 'Home', back: 'Back to topic overview', outcomes: 'What you receive', process: 'Process', inputs: 'Preparation', processAndInputs: 'Process & preparation', details: 'Technical details', contact: 'Schedule an introductory call', contactEnd: 'Let us identify the right starting point.', related: 'Related services' },
+  fr: { home: 'Accueil', back: 'Retour à la vue du thème', outcomes: 'Ce que vous obtenez', process: 'Déroulement', inputs: 'Préparation', processAndInputs: 'Déroulement & préparation', details: 'Détails techniques', contact: 'Planifier un premier échange', contactEnd: 'Identifions le bon point de départ.', related: 'Services associés' },
 };
 
 export function ServiceDetailPage({ serviceId }: { serviceId: string }) {
@@ -18,35 +17,28 @@ export function ServiceDetailPage({ serviceId }: { serviceId: string }) {
   const lang = language as HomeLanguage;
   const copy = COPY[lang];
   const service = SERVICE_DETAILS[serviceId];
-  const navigate = useNavigate();
   if (!service) return null;
   const topic = HOME_TOPICS.find((item) => item.id === service.topic);
-  const openContact = () => window.dispatchEvent(new CustomEvent('sitechrome:contact'));
-  const backToTopic = () => {
+  const rememberTopic = () => {
     sessionStorage.setItem('overview:topic', service.topic);
-    navigate('/#services');
   };
 
   return (
     <article className="mx-auto w-full max-w-6xl px-4 pb-24 pt-7 sm:px-6 sm:pt-10 lg:pt-12">
-      <nav aria-label="Breadcrumb" className="mb-7 flex items-center gap-2 text-xs text-muted-foreground">
-        <button type="button" onClick={backToTopic} className="inline-flex min-h-10 items-center gap-2 font-sans transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-          <span aria-hidden="true">←</span> {copy.back} {topic?.title[lang]}
-        </button>
+      <nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+        <Link to="/" className="min-h-10 content-center rounded-sm transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{copy.home}</Link><span aria-hidden="true">/</span>
+        <Link to="/#services" onClick={rememberTopic} className="min-h-10 content-center rounded-sm transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{topic?.title[lang]}</Link><span aria-hidden="true">/</span>
+        <span aria-current="page" className="content-center text-foreground/75">{t(service.titleKey)}</span>
       </nav>
+
+      <Link to="/#services" onClick={rememberTopic} className="mb-6 inline-flex min-h-10 items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><span aria-hidden="true">←</span>{copy.back}</Link>
 
       <header className="grid gap-7 border-b border-primary/20 pb-9 lg:grid-cols-[1fr_auto] lg:items-end">
         <div className="max-w-3xl">
-          <div className="mb-4 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.22em] text-primary">
-            <ServiceSymbol theme={service.id as ServiceTheme} size={20} aria-hidden="true" />
-            <span>{topic?.number} / {topic?.title[lang]}</span>
-          </div>
           <h1 className="text-3xl font-semibold leading-tight text-foreground sm:text-4xl lg:text-5xl">{t(service.titleKey)}</h1>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-foreground/75 sm:text-lg">{service.value[lang]}</p>
         </div>
-        <Button onClick={openContact} className="min-h-12 w-fit rounded-none px-5 font-sans font-semibold">
-          {copy.contact}<ArrowRight aria-hidden="true" />
-        </Button>
+        <Button asChild className="min-h-12 w-fit rounded-none px-5 font-sans font-semibold"><Link to="/contact">{copy.contact}<ArrowRight aria-hidden="true" /></Link></Button>
       </header>
 
       <section aria-labelledby="service-outcomes" className="py-8 sm:py-10">
@@ -98,7 +90,7 @@ export function ServiceDetailPage({ serviceId }: { serviceId: string }) {
 
       <section className="mt-10 grid gap-6 border-t border-primary/25 bg-card/75 px-5 py-7 sm:px-7 md:grid-cols-[1fr_auto] md:items-center">
         <div><p className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary">/ {copy.contact}</p><h2 className="mt-3 text-xl font-semibold">{copy.contactEnd}</h2></div>
-        <Button onClick={openContact} className="min-h-12 w-fit rounded-none px-5"><Mail aria-hidden="true" />{copy.contact}</Button>
+        <Button asChild className="min-h-12 w-fit rounded-none px-5"><Link to="/contact"><Mail aria-hidden="true" />{copy.contact}</Link></Button>
       </section>
 
       {service.related.length > 0 && (
