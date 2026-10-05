@@ -185,13 +185,16 @@ export function PublicWorkspace({ children }: { children: ReactNode }) {
     } else {
       window.scrollTo(0, 0);
       if (!first.current) {
-        requestAnimationFrame(() => {
+        let tries = 0;
+        const focusHeading = () => {
           const heading = contentRef.current?.querySelector<HTMLElement>('h1');
           if (heading) {
             if (!heading.hasAttribute('tabindex')) heading.setAttribute('tabindex', '-1');
+            heading.classList.add('focus:outline-none');
             heading.focus({ preventScroll: true });
-          }
-        });
+          } else if (tries++ < 20) window.setTimeout(focusHeading, 50);
+        };
+        window.setTimeout(focusHeading, 30);
       }
     }
     first.current = false;
