@@ -28,6 +28,7 @@ export type HomeTopic = {
   id: 'security' | 'crisis' | 'exercise';
   number: string;
   title: LocalizedText;
+  shortTitle: LocalizedText;
   faceTitle: LocalizedText;
   faceSubtitle: LocalizedText;
   choiceSubtitle: LocalizedText;
@@ -43,6 +44,7 @@ export const HOME_TOPICS: HomeTopic[] = [
     id: 'security',
     number: '01',
     title: l('Sicherheit & Compliance', 'Security & Compliance', 'Sécurité & conformité'),
+    shortTitle: l('Sicherheit', 'Security', 'Sécurité'),
     faceTitle: l('Sicherheit & Compliance', 'Security & Compliance', 'Sécurité & conformité'),
     faceSubtitle: l('Bewerten · Umsetzen · Steuern', 'Assess · Implement · Govern', 'Évaluer · Mettre en œuvre · Piloter'),
     choiceSubtitle: l('Risiken bewerten. Anforderungen umsetzen.', 'Assess risks. Implement requirements.', 'Évaluer les risques. Mettre en œuvre les exigences.'),
@@ -101,6 +103,7 @@ export const HOME_TOPICS: HomeTopic[] = [
     id: 'crisis',
     number: '02',
     title: l('Krisen vorbereiten & bewältigen', 'Prepare for & manage crises', 'Préparer & gérer les crises'),
+    shortTitle: l('Krise', 'Crisis', 'Crise'),
     faceTitle: l('Krisen bewältigen', 'Manage crises', 'Gérer les crises'),
     faceSubtitle: l('Vorbereiten · Reagieren', 'Prepare · Respond', 'Préparer · Réagir'),
     choiceSubtitle: l('Handeln, entscheiden, kommunizieren.', 'Act, decide and communicate.', 'Agir, décider et communiquer.'),
@@ -150,6 +153,7 @@ export const HOME_TOPICS: HomeTopic[] = [
     id: 'exercise',
     number: '03',
     title: l('Üben & trainieren', 'Exercise & train', 'Exercer & former'),
+    shortTitle: l('Üben', 'Exercise', 'Exercer'),
     faceTitle: l('Üben & trainieren', 'Exercise & train', 'Exercer & former'),
     faceSubtitle: l('Erproben · Lernen · Verbessern', 'Test · Learn · Improve', 'Tester · Apprendre · Améliorer'),
     choiceSubtitle: l('Teams auf den Ernstfall vorbereiten.', 'Prepare teams for real incidents.', 'Préparer les équipes aux situations réelles.'),

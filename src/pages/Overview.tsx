@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowRight, BadgeCheck } from 'lucide-react';
+import { ArrowRight, BadgeCheck, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { PageMeta } from '@/components/PageMeta';
 import { SiteChrome } from '@/components/SiteChrome';
 import { TopicCube } from '@/components/overview/TopicCube';
 import { Button } from '@/components/ui/button';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { HOME_KNOWLEDGE, HOME_TOPICS, type HomeLanguage, type HomeTopic } from '@/data/homeTopics';
 import { useLanguage } from '@/i18n/LanguageContext';
 
@@ -14,8 +15,8 @@ const COPY = {
     headline: 'Wenn es ernst wird, muss es funktionieren.',
     lead: 'Cybersecurity, Compliance und Krisenmanagement für Ihr Unternehmen.',
     cta: 'Erstgespräch vereinbaren',
-    services: 'Leistungen',
-    offers: 'Angebote im gewählten Bereich',
+    services: 'Themen',
+    more: 'Mehr anzeigen',
     knowledge: 'Wissen & Tools',
     knowledgeLead: 'Fachwissen und ausgewählte Werkzeuge für konkrete Aufgaben.',
     team: 'Marcel Knop & Andreas Funder',
@@ -31,8 +32,8 @@ const COPY = {
     headline: 'When it matters, it has to work.',
     lead: 'Cybersecurity, compliance and crisis management for your organisation.',
     cta: 'Schedule an introductory call',
-    services: 'Services',
-    offers: 'Services in the selected area',
+    services: 'Topics',
+    more: 'Show more',
     knowledge: 'Knowledge & tools',
     knowledgeLead: 'Expert insight and selected tools for concrete tasks.',
     team: 'Marcel Knop & Andreas Funder',
@@ -48,8 +49,8 @@ const COPY = {
     headline: 'Quand ça compte, ça doit fonctionner.',
     lead: 'Cybersécurité, conformité et gestion de crise pour votre entreprise.',
     cta: 'Planifier un premier échange',
-    services: 'Services',
-    offers: 'Services du domaine sélectionné',
+    services: 'Thèmes',
+    more: 'Voir plus',
     knowledge: 'Expertise & outils',
     knowledgeLead: 'Expertise et outils sélectionnés pour des tâches concrètes.',
     team: 'Marcel Knop & Andreas Funder',
@@ -96,8 +97,8 @@ export default function Overview() {
                 <span key={`${word}-${index}`} className={index === words.length - 1 ? 'text-primary' : undefined}>{word}{index < words.length - 1 ? ' ' : ''}</span>
               ))}
             </h1>
-            <p className="mt-6 max-w-md text-base leading-relaxed text-foreground/70">{copy.lead}</p>
-            <Button className="mt-7 min-h-12 rounded-none px-5 font-semibold" onClick={() => window.dispatchEvent(new CustomEvent('sitechrome:contact'))}>
+            <p className="mt-4 max-w-md text-base leading-relaxed text-foreground/70 sm:mt-6">{copy.lead}</p>
+            <Button className="mt-5 min-h-12 rounded-none px-5 font-semibold sm:mt-7" onClick={() => window.dispatchEvent(new CustomEvent('sitechrome:contact'))}>
               {copy.cta}<ArrowRight aria-hidden="true" />
             </Button>
           </div>
@@ -107,7 +108,7 @@ export default function Overview() {
         <section id="services" ref={servicesRef} className="scroll-mt-20 border-t border-border">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <h2 className="sr-only">{copy.services}</h2>
-            <div className="grid md:grid-cols-3" role="tablist" aria-label={copy.services}>
+            <div className="grid grid-cols-3" role="tablist" aria-label={copy.services}>
               {HOME_TOPICS.map((topic) => {
                 const selected = topic.id === activeId;
                 return (
@@ -118,13 +119,15 @@ export default function Overview() {
                     aria-selected={selected}
                     aria-controls="topic-offers"
                     onClick={() => selectTopic(topic.id, true)}
-                    className={`min-h-[92px] border-b px-4 py-4 text-left transition-colors md:border-b-0 md:border-r md:last:border-r-0 ${selected ? 'border-t-2 border-t-primary bg-card text-foreground' : 'border-border text-foreground/65 hover:bg-card/60 hover:text-foreground'}`}
+                    className={`min-h-[60px] border-b px-1.5 py-2 text-center transition-colors md:min-h-[92px] md:border-b-0 md:border-r md:px-4 md:py-4 md:text-left md:last:border-r-0 ${selected ? 'border-t-2 border-t-primary bg-card text-foreground' : 'border-border text-foreground/65 hover:bg-card/60 hover:text-foreground'}`}
                   >
-                    <span className="flex gap-4">
-                      <span className="font-mono text-[11px] text-primary">{topic.number}</span>
+                    <span className="flex flex-col items-center justify-center gap-1.5 md:flex-row md:items-start md:justify-start md:gap-4">
+                      <topic.icon className="h-4 w-4 flex-none text-primary md:hidden" aria-hidden="true" />
+                      <span className="hidden font-mono text-[11px] text-primary md:inline">{topic.number}</span>
                       <span>
-                        <strong className="block text-sm font-semibold">{topic.title[lang]}</strong>
-                        <small className="mt-1 block text-xs leading-relaxed text-muted-foreground">{topic.choiceSubtitle[lang]}</small>
+                        <strong className="block text-sm font-semibold md:hidden">{topic.shortTitle[lang]}</strong>
+                        <strong className="hidden text-sm font-semibold md:block">{topic.title[lang]}</strong>
+                        <small className="mt-1 hidden text-xs leading-relaxed text-muted-foreground md:block">{topic.choiceSubtitle[lang]}</small>
                       </span>
                     </span>
                   </button>
@@ -132,9 +135,8 @@ export default function Overview() {
               })}
             </div>
 
-            <div className="flex flex-col justify-between gap-4 border-b border-t border-border py-5 sm:flex-row sm:items-center">
+            <div className="border-b border-t border-border py-4">
               <p className="max-w-2xl text-base text-foreground/75" aria-live="polite">{active.outcome[lang]}</p>
-              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-primary">{copy.offers}</span>
             </div>
 
             <div id="topic-offers" role="tabpanel" key={`${active.id}-${lang}`} className="grid gap-px bg-border py-px md:grid-cols-3">
@@ -146,16 +148,23 @@ export default function Overview() {
                       <Icon className="mt-0.5 h-5 w-5 flex-none text-primary" strokeWidth={1.6} aria-hidden="true" />
                       <h3 className="text-lg font-semibold leading-snug">{offer.title[lang]}</h3>
                     </div>
-                    <p className="mt-4 text-sm leading-relaxed text-foreground/65">{offer.description[lang]}</p>
-                    <ul className="mt-5 space-y-1 border-t border-border pt-3">
-                      {offer.links.map((item) => (
+                    <p className="mt-3 text-sm leading-relaxed text-foreground/65">{offer.description[lang]}</p>
+                    <Link to={offer.links[0].href} className="group mt-4 flex min-h-11 items-center justify-between gap-3 border-t border-border pt-3 text-sm font-medium text-foreground/85 transition-colors hover:text-primary">
+                      <span>{offer.links[0].label[lang]}</span><ArrowRight className="h-4 w-4 flex-none transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                    </Link>
+                    {offer.links.length > 1 && <Collapsible>
+                      <CollapsibleTrigger className="group flex min-h-11 w-full items-center gap-2 text-left text-xs text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                        {copy.more}<ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" aria-hidden="true" />
+                      </CollapsibleTrigger>
+                      <CollapsibleContent><ul className="space-y-1 border-t border-border pt-1">
+                      {offer.links.slice(1).map((item) => (
                         <li key={item.href}>
                           <Link to={item.href} className="group flex min-h-11 items-center justify-between gap-3 py-2 text-sm text-foreground/80 transition-colors hover:text-primary">
                             <span>{item.label[lang]}</span><ArrowRight className="h-4 w-4 flex-none transition-transform group-hover:translate-x-1" aria-hidden="true" />
                           </Link>
                         </li>
                       ))}
-                    </ul>
+                    </ul></CollapsibleContent></Collapsible>}
                   </article>
                 );
               })}
