@@ -637,7 +637,7 @@
   position: relative;
   z-index: 2;
   transform-style: preserve-3d;
-  transform: rotateX(-25deg) rotateY(34deg) rotate3d(1, -1, 1, var(--topic-turn));
+  transform: rotateX(-25deg) rotateY(-34deg) rotate3d(1, -1, 1, var(--topic-turn));
   transition: transform 720ms cubic-bezier(.2,.76,.22,1);
 }
 .topic-cube-face {
