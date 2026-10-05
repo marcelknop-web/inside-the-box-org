@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import { Activity, BarChart3, BookOpenCheck, CheckCircle2, ClipboardCheck, FileCheck2, Flag, Gauge, Layers3, Network, Radar, Route, Scale, Search, Settings2, ShieldCheck, Siren, Target, Users, Workflow, Wrench } from 'lucide-react';
+import { Activity, BarChart3, BookOpenCheck, CheckCircle2, ClipboardCheck, FileCheck2, Flag, Gauge, Layers3, Network, Radar, Route, Scale, Search, Settings2, ShieldCheck, Siren, Target, Users, Workflow } from 'lucide-react';
 import type { HomeLanguage } from './homeTopics';
 
 export type Localized = Record<HomeLanguage, string>;
@@ -183,6 +183,18 @@ export const SERVICE_DETAILS: Record<string, ServiceDetail> = {
     steps: [{ title: l('Anlass klären', 'Clarify context', 'Clarifier le contexte'), text: l('Zielgruppe, Ziel und Rahmen abstimmen.', 'Agree audience, objective and constraints.', 'Convenir public, objectif et cadre.') }, { title: l('Format entwickeln', 'Design format', 'Concevoir le format'), text: l('Inhalte, Interaktion und Ablauf ausarbeiten.', 'Develop content, interaction and sequence.', 'Élaborer contenu, interaction et déroulé.') }, { title: l('Durchführen', 'Deliver', 'Réaliser'), text: l('Moderieren, trainieren und Ergebnisse sichern.', 'Facilitate, train and capture outcomes.', 'Animer, former et consigner les résultats.') }],
     inputs: [l('Termin, Zielgruppe und Teilnehmerzahl', 'Date, audience and participant count', 'Date, public et nombre de participants'), l('Gewünschtes Thema und konkretes Ziel', 'Intended topic and concrete objective', 'Thème souhaité et objectif concret'), l('Rahmen für Präsenz, online oder hybrid', 'On-site, online or hybrid setting', 'Cadre présentiel, en ligne ou hybride')],
     details: [{ titleKey: 'events.moderationTitle', bodyKey: 'events.moderationDesc' }, { titleKey: 'events.workshopsTitle', bodyKey: 'events.workshopsDesc' }, { titleKey: 'events.isacaTitle', bodyKey: 'events.isacaDesc' }, { titleKey: 'events.referencesTitle', bodyKey: 'events.referencesDesc' }], related: ['arena-training', 'dora-nis2-ttx'],
+  },
+  publications: {
+    id: 'publications', topic: 'exercise', titleKey: 'publications.title',
+    value: l('Fachartikel und Vorträge machen Vorgehensweisen, Erfahrungen und Positionen zu Cybersecurity nachvollziehbar.', 'Articles and talks make cybersecurity methods, experience and positions transparent.', 'Articles et conférences rendent transparentes les méthodes, l’expérience et les positions en cybersécurité.'),
+    outcomes: [
+      { icon: BookOpenCheck, title: l('Fachartikel', 'Technical articles', 'Articles spécialisés'), text: l('Veröffentlichungen ordnen Cyber Training und Cyber-Krisenmanagement praktisch ein.', 'Publications examine cyber training and cyber crisis management in practice.', 'Les publications éclairent concrètement cyber training et gestion de cyber-crise.') },
+      { icon: Users, title: l('Vorträge', 'Talks', 'Conférences'), text: l('Keynotes vermitteln fachliche Inhalte an Führungskräfte und Spezialisten.', 'Keynotes convey specialist content to executives and practitioners.', 'Les conférences transmettent les sujets aux dirigeants et spécialistes.') },
+      { icon: ClipboardCheck, title: l('Trainingswissen', 'Training expertise', 'Expertise pédagogique'), text: l('Curricula und Unterlagen entstehen aus realer Projekt- und Übungspraxis.', 'Curricula and materials draw on real projects and exercises.', 'Programmes et supports s’appuient sur des projets et exercices réels.') },
+    ],
+    steps: [{ title: l('Thema klären', 'Clarify topic', 'Clarifier le sujet'), text: l('Zielgruppe und gewünschte Aussage bestimmen.', 'Define audience and intended message.', 'Définir public et message recherché.') }, { title: l('Inhalt kuratieren', 'Curate content', 'Sélectionner le contenu'), text: l('Erfahrungen und Quellen strukturiert aufbereiten.', 'Structure experience and sources.', 'Structurer expériences et sources.') }, { title: l('Format liefern', 'Deliver format', 'Livrer le format'), text: l('Artikel, Vortrag oder Trainingsmaterial passend umsetzen.', 'Deliver the appropriate article, talk or training material.', 'Réaliser article, conférence ou support adapté.') }],
+    inputs: [l('Thema und fachlicher Kontext', 'Topic and professional context', 'Sujet et contexte professionnel'), l('Zielgruppe und gewünschtes Format', 'Audience and intended format', 'Public et format souhaité')],
+    details: [{ titleKey: 'publications.pub1Title', bodyKey: 'publications.pub1Desc' }, { titleKey: 'publications.pub2Title', bodyKey: 'publications.pub2Desc' }, { titleKey: 'publications.pub3Title', bodyKey: 'publications.pub3Desc' }, { titleKey: 'publications.talksSectionTitle', bodyKey: 'publications.talksExtra' }], related: ['events-workshops', 'ai-workflows'],
   },
   why: {
     id: 'why', topic: 'exercise', titleKey: 'index.title',

@@ -23,7 +23,7 @@
 
 # Service-page structure correction
 
-- [ ] Replace all 14 marketing service routes with the shared ServiceDetailPage.
-- [ ] Curate concise DE/EN/FR outcomes, process, inputs and closed technical details.
+- [x] Replace all 14 marketing service routes with the shared ServiceDetailPage.
+- [x] Curate concise DE/EN/FR outcomes, process, inputs and closed technical details.
 - [ ] Browser-check three representative routes at five widths and all remaining service routes.
 - [ ] Confirm a successful preview build without publishing.

@@ -48,6 +48,8 @@ import { NewDateBadge } from '@/components/NewDateBadge';
 import { SiteChrome } from '@/components/SiteChrome';
 import { PasswordGate } from '@/components/PasswordGate';
 import { VisitCounter } from '@/components/VisitCounter';
+import { ServiceDetailPage } from '@/components/ServiceDetailPage';
+import { SERVICE_DETAILS } from '@/data/serviceDetails';
 
 // AI Lab tool publication dates (ISO YYYY-MM-DD).
 // Tools listed here show a "Neu/New/Nouveau" badge for 30 days from this date.
@@ -1983,7 +1985,9 @@ const ChatView = () => {
     </div>
   );
 
-  const serviceContent = activeService === 'crisis-sim'
+  const serviceContent = activeService && SERVICE_DETAILS[activeService]
+    ? <ServiceDetailPage serviceId={activeService} />
+    : activeService === 'crisis-sim'
     ? <Suspense fallback={lazyFallback}><CyberCrisisSimulator embedded ref={crisisRef} /></Suspense>
     : activeService === 'dora-check'
     ? <Suspense fallback={lazyFallback}><DoraIncidentReporter embedded /></Suspense>
@@ -2049,6 +2053,7 @@ const ChatView = () => {
   const canonicalPath = activeService === 'iacs-e27' ? '/iec62443' : activeService ? `/${activeService}` : '/';
 
   if (activeService) {
+    const isMarketingService = Boolean(SERVICE_DETAILS[activeService]);
     // Resolve current service label for the sheet header (falls back to nav.contact label etc.)
     const activeServiceLabel =
       sidebarGroups.flatMap(g => g.items).find(i => i.id === activeService)?.label ?? '';
@@ -2066,7 +2071,7 @@ const ChatView = () => {
                 Team / Contact drawers (bg-background/85, backdrop-blur, brand
                 border, prominent close-X). Wraps the existing content stream
                 without changing any service rendering logic. */}
-            <div className={`w-full px-3 md:px-6 lg:px-10 py-5 md:py-8 mx-auto ${
+            <div className={`w-full mx-auto ${isMarketingService ? '' : 'px-3 py-5 md:px-6 md:py-8 lg:px-10'} ${
               activeService === 'soc-life' || activeService === 'ot-soc-life' || activeService === 'elite-ship' || activeService === 'butterfly-lab' || activeService === 'crisis-sim' || activeService === 'syndicate-game'
                 ? 'max-w-[1700px]'
                 : 'max-w-5xl'
@@ -2074,10 +2079,10 @@ const ChatView = () => {
 
               <section
                 aria-label={activeServiceLabel}
-                className="bg-background/72 backdrop-blur-md border border-primary/20 rounded-lg shadow-[0_8px_40px_-12px_hsl(var(--primary)/0.25)]"
+                className={isMarketingService ? 'min-w-0' : 'bg-background/72 backdrop-blur-md border border-primary/20 rounded-lg shadow-[0_8px_40px_-12px_hsl(var(--primary)/0.25)]'}
               >
                 {/* Sheet header — matches drawer header treatment */}
-                <header className="flex items-start justify-between gap-3 px-4 sm:px-6 pt-5 sm:pt-6 pb-4 border-b border-primary/10">
+                {!isMarketingService && <header className="flex items-start justify-between gap-3 px-4 sm:px-6 pt-5 sm:pt-6 pb-4 border-b border-primary/10">
                   <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
                     <p className="font-mono text-[10px] sm:text-[11px] tracking-[0.3em] sm:tracking-[0.35em] text-primary mb-1.5">
                       / {activeServiceLabel.toUpperCase()}
@@ -2091,8 +2096,9 @@ const ChatView = () => {
                   >
                     <X className="w-4 h-4" />
                   </button>
-                </header>
-                <div className={`space-y-4 ${
+                </header>}
+                <div className={`${isMarketingService ? '' : 'space-y-4'} ${
+                  isMarketingService ? '' :
                   activeService === 'syndicate-game'
                     ? 'p-2 sm:p-3'
                     : activeService === 'soc-life' || activeService === 'ot-soc-life' || activeService === 'elite-ship' || activeService === 'butterfly-lab' || activeService === 'crisis-sim'
