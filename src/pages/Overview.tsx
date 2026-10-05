@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowRight, BadgeCheck, ChevronDown } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { PageMeta } from '@/components/PageMeta';
 import { SiteChrome } from '@/components/SiteChrome';
 import { TopicCube } from '@/components/overview/TopicCube';
@@ -66,6 +66,7 @@ const COPY = {
 const SESSION_KEY = 'overview:topic';
 
 export default function Overview() {
+  const location = useLocation();
   const { language } = useLanguage();
   const lang = language as HomeLanguage;
   const copy = COPY[lang];
@@ -77,6 +78,21 @@ export default function Overview() {
 
   useEffect(() => sessionStorage.setItem(SESSION_KEY, activeId), [activeId]);
 
+  useEffect(() => {
+    if (location.hash !== '#services' && location.hash !== '#knowledge') return;
+    const id = location.hash.slice(1);
+    const target = document.getElementById(id);
+    if (!target) return;
+    window.requestAnimationFrame(() => {
+      target.scrollIntoView({ block: 'start', behavior: 'auto' });
+      if (id === 'services') {
+        const sourceId = sessionStorage.getItem('overview:focus');
+        const source = sourceId ? document.getElementById(sourceId) : null;
+        source?.focus({ preventScroll: true });
+      }
+    });
+  }, [location.key, location.hash]);
+
   const selectTopic = useCallback((id: HomeTopic['id'], reveal = false) => {
     setActiveId(id);
     if (reveal) window.requestAnimationFrame(() => servicesRef.current?.scrollIntoView({ block: 'start' }));
@@ -84,7 +100,6 @@ export default function Overview() {
 
   const active = HOME_TOPICS.find((topic) => topic.id === activeId) ?? HOME_TOPICS[0];
 
-  const openContact = () => window.dispatchEvent(new CustomEvent('sitechrome:contact'));
   const renderTabs = (reveal: boolean) => (
     <div className="grid grid-cols-3" role="tablist" aria-label={copy.services}>
       {HOME_TOPICS.map((topic) => {
@@ -115,7 +130,7 @@ export default function Overview() {
   );
 
   return (
-    <SiteChrome>
+    <SiteChrome activeSection={location.hash === '#knowledge' ? 'knowledge' : location.hash === '#services' ? 'services' : undefined}>
       <PageMeta title={copy.title} description={copy.description} canonicalPath="/" />
 
       <main className="overflow-x-hidden">
@@ -128,17 +143,13 @@ export default function Overview() {
               ))}
             </h1>
             <p className="mt-3 max-w-md text-base leading-relaxed text-foreground/70 sm:mt-6">{copy.lead}</p>
-            <Button className="mt-7 hidden min-h-12 rounded-none px-5 font-semibold md:inline-flex" onClick={openContact}>
-              {copy.cta}<ArrowRight aria-hidden="true" />
-            </Button>
+            <Button asChild className="mt-7 hidden min-h-12 rounded-none px-5 font-semibold md:inline-flex"><Link to="/contact">{copy.cta}<ArrowRight aria-hidden="true" /></Link></Button>
           </div>
           <div className="home-selector">
             <TopicCube topics={HOME_TOPICS} activeId={activeId} language={lang} onSelect={selectTopic} />
             <div className="md:hidden">{renderTabs(false)}</div>
           </div>
-          <Button className="min-h-12 w-full rounded-none px-5 font-semibold md:hidden" onClick={openContact}>
-            {copy.cta}<ArrowRight aria-hidden="true" />
-          </Button>
+          <Button asChild className="min-h-12 w-full rounded-none px-5 font-semibold md:hidden"><Link to="/contact">{copy.cta}<ArrowRight aria-hidden="true" /></Link></Button>
         </section>
 
         <section id="services" ref={servicesRef} className="scroll-mt-20 border-t border-border">
@@ -160,7 +171,7 @@ export default function Overview() {
                       <h3 className="text-lg font-semibold leading-snug">{offer.title[lang]}</h3>
                     </div>
                     <p className="mt-3 text-sm leading-relaxed text-foreground/65">{offer.description[lang]}</p>
-                    <Link to={offer.links[0].href} className="group mt-4 flex min-h-11 items-center justify-between gap-3 border-t border-border pt-3 text-sm font-medium text-foreground/85 transition-colors hover:text-primary">
+                    <Link id={`offer-${offer.links[0].href.slice(1)}`} to={offer.links[0].href} onClick={() => sessionStorage.setItem('overview:focus', `offer-${offer.links[0].href.slice(1)}`)} className="group mt-4 flex min-h-11 items-center justify-between gap-3 border-t border-border pt-3 text-sm font-medium text-foreground/85 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                       <span>{offer.links[0].label[lang]}</span><ArrowRight className="h-4 w-4 flex-none transition-transform group-hover:translate-x-1" aria-hidden="true" />
                     </Link>
                     {offer.links.length > 1 && <Collapsible>
@@ -170,7 +181,7 @@ export default function Overview() {
                       <CollapsibleContent><ul className="space-y-1 border-t border-border pt-1">
                       {offer.links.slice(1).map((item) => (
                         <li key={item.href}>
-                          <Link to={item.href} className="group flex min-h-11 items-center justify-between gap-3 py-2 text-sm text-foreground/80 transition-colors hover:text-primary">
+                          <Link id={`offer-${item.href.slice(1)}`} to={item.href} onClick={() => sessionStorage.setItem('overview:focus', `offer-${item.href.slice(1)}`)} className="group flex min-h-11 items-center justify-between gap-3 py-2 text-sm text-foreground/80 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                             <span>{item.label[lang]}</span><ArrowRight className="h-4 w-4 flex-none transition-transform group-hover:translate-x-1" aria-hidden="true" />
                           </Link>
                         </li>
@@ -211,14 +222,14 @@ export default function Overview() {
               <BadgeCheck className="mt-1 h-5 w-5 flex-none text-primary" aria-hidden="true" />
               <div><h2 className="text-lg font-semibold">{copy.team}</h2><p className="mt-1 text-sm text-foreground/60">{copy.teamLead}</p></div>
             </div>
-            <Button variant="outline" className="rounded-none" onClick={() => window.dispatchEvent(new CustomEvent('sitechrome:team'))}>{copy.teamAction}</Button>
+            <Button asChild variant="outline" className="rounded-none"><Link to="/team">{copy.teamAction}</Link></Button>
           </div>
         </section>
 
         <section className="border-t border-border bg-card py-12">
           <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 sm:px-6 md:flex-row md:items-end md:justify-between">
             <div><h2 className="text-2xl font-semibold">{copy.contact}</h2><p className="mt-2 max-w-xl text-sm text-foreground/65">{copy.contactLead}</p></div>
-            <Button className="min-h-12 rounded-none" onClick={() => window.dispatchEvent(new CustomEvent('sitechrome:contact'))}>{copy.cta}<ArrowRight aria-hidden="true" /></Button>
+            <Button asChild className="min-h-12 rounded-none"><Link to="/contact">{copy.cta}<ArrowRight aria-hidden="true" /></Link></Button>
           </div>
         </section>
       </main>
