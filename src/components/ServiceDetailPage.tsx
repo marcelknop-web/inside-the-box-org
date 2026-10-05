@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { SERVICE_DETAILS } from '@/data/serviceDetails';
+import { REFERENCES_COPY, referencesForService } from '@/data/references';
+import { ReferenceCard } from '@/components/ReferenceCard';
 import { HOME_TOPICS, type HomeLanguage } from '@/data/homeTopics';
 import { useLanguage } from '@/i18n/LanguageContext';
 
@@ -18,6 +20,8 @@ export function ServiceDetailPage({ serviceId }: { serviceId: string }) {
   const copy = COPY[lang];
   const service = SERVICE_DETAILS[serviceId];
   if (!service) return null;
+  const refs = referencesForService(serviceId);
+  const refCopy = REFERENCES_COPY[lang];
   const topic = HOME_TOPICS.find((item) => item.id === service.topic);
   const rememberTopic = () => {
     sessionStorage.setItem('overview:topic', service.topic);
@@ -46,6 +50,16 @@ export function ServiceDetailPage({ serviceId }: { serviceId: string }) {
           ))}
         </div>
       </section>
+
+      {refs.length > 0 && (
+        <section aria-labelledby="service-references" className="pb-8 sm:pb-10">
+          <h2 id="service-references" className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary">{refCopy.practice}</h2>
+          <ul className="mt-4 grid gap-3 md:grid-cols-2">
+            {refs.map((item) => <ReferenceCard key={item.id} item={item} lang={lang} showTags={false} />)}
+          </ul>
+          <Link to="/references" className="mt-3 inline-flex min-h-11 items-center gap-1 text-sm font-medium text-primary underline-offset-4 hover:underline">{refCopy.all}<ChevronRight className="h-4 w-4" aria-hidden="true" /></Link>
+        </section>
+      )}
 
       <Accordion type="multiple" className="border-y border-border">
         <AccordionItem value="process" className="border-border">

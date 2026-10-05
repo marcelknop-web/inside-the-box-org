@@ -1,6 +1,7 @@
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigationType } from 'react-router-dom';
-import { BookOpen, ChevronDown, ChevronRight, Mail, Menu, Users, X } from 'lucide-react';
+import { Award, BookOpen, ChevronDown, ChevronRight, Mail, Menu, Users, X } from 'lucide-react';
+import { REFERENCES_COPY } from '@/data/references';
 import { HOME_KNOWLEDGE, HOME_TOPICS, type HomeLanguage, type HomeTopic } from '@/data/homeTopics';
 import { SERVICE_DETAILS } from '@/data/serviceDetails';
 import { useLanguage } from '@/i18n/LanguageContext';
@@ -22,7 +23,7 @@ const KNOWLEDGE_PATHS = HOME_KNOWLEDGE.map((k) => k.href);
 /** Public paths that always render inside the workspace. */
 export const isWorkspacePath = (pathname: string) => {
   const slug = pathname.replace(/^\/+|\/+$/g, '');
-  return Boolean(SERVICE_DETAILS[slug]) || KNOWLEDGE_PATHS.includes(pathname) || pathname === '/team' || pathname === '/contact';
+  return Boolean(SERVICE_DETAILS[slug]) || KNOWLEDGE_PATHS.includes(pathname) || pathname === '/team' || pathname === '/contact' || pathname === '/references';
 };
 
 const topicLinks = (topic: HomeTopic) => {
@@ -55,6 +56,7 @@ function NavList({ lang, pathname, onNavigate }: { lang: HomeLanguage; pathname:
     }`;
   const areaLinks = [
     ...HOME_KNOWLEDGE.map((k) => ({ href: k.href, label: k.title[lang], icon: BookOpen })),
+    { href: '/references', label: REFERENCES_COPY[lang].nav, icon: Award },
     { href: '/team', label: copy.team, icon: Users },
     { href: '/contact', label: copy.contact, icon: Mail },
   ];
@@ -172,7 +174,7 @@ const currentLabels = (pathname: string, lang: HomeLanguage) => {
   const topic = HOME_TOPICS.find((t) => t.id === topicId);
   const link = HOME_TOPICS.flatMap((t) => t.offers.flatMap((o) => o.links)).find((l) => l.href === pathname);
   const knowledge = HOME_KNOWLEDGE.find((k) => k.href === pathname);
-  const page = link?.label[lang] ?? knowledge?.title[lang] ?? (pathname === '/team' ? copy.team : pathname === '/contact' ? copy.contact : '');
+  const page = link?.label[lang] ?? knowledge?.title[lang] ?? (pathname === '/references' ? REFERENCES_COPY[lang].nav : pathname === '/team' ? copy.team : pathname === '/contact' ? copy.contact : '');
   return { area: topic?.shortTitle[lang] ?? copy.areas, page };
 };
 

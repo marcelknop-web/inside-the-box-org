@@ -13,6 +13,7 @@ import { PasswordGate } from "@/components/PasswordGate";
 import NotFound from "./pages/NotFound";
 import Overview from "./pages/Overview";
 import { ContactPage, TeamPage } from "./pages/PublicInfoPages";
+import { ReferencesPage } from "./pages/ReferencesPage";
 import { lazy, Suspense } from "react";
 
 // Active routes only. Standalone tools and the unified /:serviceId catchall
@@ -61,6 +62,7 @@ const App = () => (
               {/* One mounted public frame: header + sticky navigation stay put, only content swaps. */}
               <Route element={<PublicFrame><Outlet /></PublicFrame>}>
                 <Route path="/team" element={<TeamPage />} />
+                <Route path="/references" element={<ReferencesPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/:serviceId" element={<ChatView />} />
               </Route>
