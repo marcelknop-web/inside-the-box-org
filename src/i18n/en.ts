@@ -34,7 +34,7 @@ export const en = {
     socOps: 'SOC Operations',
     aiWorkflows: 'AI Workflows',
     aiLab: 'AI Lab',
-    publications: 'Articles, talks & trainings',
+    publications: 'Articles, talks & training',
     events: 'Events',
     eventsWorkshops: 'Events & Trainings',
     ttxTraining: 'DORA & NIS2 TTX',
@@ -562,7 +562,7 @@ export const en = {
     spotsInfo: 'Limited spots available — early registration recommended.',
   },
   publications: {
-    title: 'Articles, talks & trainings',
+    title: 'Articles, talks & training',
     metaDesc: 'Expertise you can verify. Articles, presentations, and certification programs.',
     intro: 'Expertise you can verify.',
     pubSectionTitle: 'Articles & Insights',
