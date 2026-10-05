@@ -29,17 +29,17 @@ interface Group {
 const GROUPS: Group[] = [
   {
     label: {
-      de: 'GapZero — Internal Audit & Compliance Readiness (Beta)',
+      de: 'GapZero — Interne Revision & Compliance-Readiness (Beta)',
       en: 'GapZero — Internal Audit & Compliance Readiness (Beta)',
-      fr: 'GapZero — Internal Audit & Compliance Readiness (Beta)',
+      fr: 'GapZero — Audit interne & préparation à la conformité (bêta)',
     },
     tools: [
       {
         icon: Sparkles, path: '/gapzero', protected: true, title: 'GapZero — AI-Powered Audit & Readiness Platform',
         desc: {
-          de: 'From zero to audit-ready. Pick a standard → intake → compliance assessment → AI insights → reporting. Rule-based compliance with an AI insight & advisory layer.',
+          de: 'Vom Prüfrahmen zum nachvollziehbaren Bericht: Standard wählen, Angaben erfassen, regelbasiert bewerten und Ergebnisse einordnen. KI unterstützt die Interpretation, verändert aber keine Feststellungen oder Bewertungen.',
           en: 'From zero to audit-ready. Pick a standard → intake → compliance assessment → AI insights → reporting. Rule-based compliance with an AI insight & advisory layer.',
-          fr: 'From zero to audit-ready. Pick a standard → intake → compliance assessment → AI insights → reporting. Rule-based compliance with an AI insight & advisory layer.',
+          fr: 'Du référentiel au rapport traçable : choisir une norme, saisir le contexte, lancer l’évaluation fondée sur des règles et interpréter les résultats. L’IA facilite l’analyse sans modifier les constats ni les scores.',
         },
       },
     ],
