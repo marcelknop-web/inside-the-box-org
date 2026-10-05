@@ -26,6 +26,8 @@ export type ClientReference = {
   services: string[];
   /** Internal link when the same work is already described elsewhere. */
   seeAlso?: string;
+  /** Scope statement shown on a specific service page instead of the general text. */
+  serviceText?: Record<string, L>;
 };
 
 export const CORE_REFERENCES: ClientReference[] = [
@@ -57,12 +59,13 @@ export const CORE_REFERENCES: ClientReference[] = [
   {
     id: 'fi-ts', name: 'Finanz Informatik – Technologie Services (FI-TS)', years: l('2021–2025', '2021–2025', '2021–2025'), topics: ['security', 'crisis', 'exercise'], group: 'security',
     text: l('SOC-Kunden-Onboarding, Incident-Response-Playbooks und TIBER-DE-Übungstrainings.', 'SOC client onboarding, incident response playbooks and TIBER-DE exercise training.', 'Intégration de clients SOC, playbooks de réponse aux incidents et entraînements aux exercices TIBER-DE.'),
-    services: ['soc-operations', 'incident-management', 'dora-nis2-ttx'],
+    services: ['soc-operations', 'incident-management', 'dora-nis2-ttx', 'arena-training'],
+    serviceText: { 'arena-training': l('Konzeption von TIBER-DE-Übungstrainings für Kunden.', 'Design of TIBER-DE exercise training for clients.', 'Conception de formations aux exercices TIBER-DE pour des clients.') },
   },
   {
     id: 'isaca', name: 'ISACA Germany Chapter', topics: ['exercise'], group: 'exercise',
     text: l('Konzeption und Durchführung des Zertifizierungstrainings Cyber Security Expert (CSE).', 'Design and delivery of the Cyber Security Expert (CSE) certification training.', 'Conception et animation de la formation certifiante Cyber Security Expert (CSE).'),
-    services: ['arena-training', 'events-workshops'], seeAlso: '/publications',
+    services: ['events-workshops'], seeAlso: '/publications',
   },
   {
     id: 'bechtle-fastlane', name: 'Bechtle, Fast Lane', topics: ['exercise', 'security'], group: 'exercise',
@@ -72,7 +75,7 @@ export const CORE_REFERENCES: ClientReference[] = [
   {
     id: 'netsecurity', name: 'Netsecurity (NO)', topics: ['exercise'], group: 'exercise',
     text: l('Konzeption und Durchführung von Incident-Response- und Forensik-Trainings für OT-Teams im IEC-62443-Umfeld.', 'Design and delivery of incident response and forensics training for OT teams in the IEC 62443 context.', 'Conception et animation de formations à la réponse aux incidents et à l’investigation numérique pour les équipes OT dans le contexte IEC 62443.'),
-    services: ['arena-training'], seeAlso: '/publications',
+    services: [], seeAlso: '/publications',
   },
 ];
 

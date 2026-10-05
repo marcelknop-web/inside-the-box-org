@@ -55,7 +55,7 @@ export function ServiceDetailPage({ serviceId }: { serviceId: string }) {
         <section aria-labelledby="service-references" className="pb-8 sm:pb-10">
           <h2 id="service-references" className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary">{refCopy.practice}</h2>
           <ul className="mt-4 grid gap-3 md:grid-cols-2">
-            {refs.map((item) => <ReferenceCard key={item.id} item={item} lang={lang} showTags={false} />)}
+            {refs.map((item) => <ReferenceCard key={item.id} item={item} lang={lang} showTags={false} serviceId={serviceId} />)}
           </ul>
           <Link to="/references" className="mt-3 inline-flex min-h-11 items-center gap-1 text-sm font-medium text-primary underline-offset-4 hover:underline">{refCopy.all}<ChevronRight className="h-4 w-4" aria-hidden="true" /></Link>
         </section>
