@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { HOME_KNOWLEDGE, HOME_TOPICS, type HomeLanguage, type HomeTopic } from '@/data/homeTopics';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { ReferenceCard } from '@/components/ReferenceCard';
+import { ALL_REFERENCES, HOME_REFERENCE_IDS, REFERENCES_COPY } from '@/data/references';
 
 const COPY = {
   de: {
@@ -213,6 +215,19 @@ export default function Overview() {
                 );
               })}
             </div>
+          </div>
+        </section>
+
+        <section id="references" aria-labelledby="home-references" className="scroll-mt-20 border-t border-border py-12 sm:py-16">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6">
+            <h2 id="home-references" className="text-2xl font-semibold sm:text-3xl">{REFERENCES_COPY[lang].home}</h2>
+            <ul className="mt-6 grid gap-3 md:grid-cols-3">
+              {HOME_TOPICS.map((topic) => {
+                const item = ALL_REFERENCES.find((r) => r.id === HOME_REFERENCE_IDS[topic.id]);
+                return item ? <ReferenceCard key={item.id} item={{ ...item, topics: [topic.id], seeAlso: undefined }} lang={lang} /> : null;
+              })}
+            </ul>
+            <Link to="/references" className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-primary underline-offset-4 hover:underline">{REFERENCES_COPY[lang].all}<ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
           </div>
         </section>
 
