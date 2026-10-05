@@ -24,15 +24,7 @@ export function ServiceDetailPage({ serviceId }: { serviceId: string }) {
   };
 
   return (
-    <article className="mx-auto w-full max-w-6xl px-4 pb-24 pt-8 sm:px-6 lg:px-0 lg:pt-10">
-      <nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-        <Link to="/" className="min-h-10 content-center rounded-sm transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{copy.home}</Link><span aria-hidden="true">/</span>
-        <Link to="/#services" onClick={rememberTopic} className="min-h-10 content-center rounded-sm transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{topic?.title[lang]}</Link><span aria-hidden="true">/</span>
-        <span aria-current="page" className="content-center text-foreground/75">{t(service.titleKey)}</span>
-      </nav>
-
-      <Link to="/#services" onClick={rememberTopic} className="mb-6 inline-flex min-h-10 items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><span aria-hidden="true">←</span>{copy.back}</Link>
-
+    <article className="mx-auto w-full max-w-6xl px-4 pb-24 sm:px-6 lg:px-0">
       <header className="grid gap-7 border-b border-primary/20 pb-9 lg:grid-cols-[1fr_auto] lg:items-end">
         <div className="max-w-3xl">
           <h1 className="text-3xl font-semibold leading-tight text-foreground sm:text-4xl lg:text-5xl">{t(service.titleKey)}</h1>

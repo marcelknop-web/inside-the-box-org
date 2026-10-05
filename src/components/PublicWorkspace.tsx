@@ -59,68 +59,73 @@ function NavList({ lang, pathname, onNavigate }: { lang: HomeLanguage; pathname:
     { href: '/contact', label: copy.contact, icon: Mail },
   ];
 
+  const activeTopicData = HOME_TOPICS.find((t) => t.id === activeTopic);
+  const activeGroup = activeTopicData ? { topic: activeTopicData, ...topicLinks(activeTopicData) } : null;
+  // Secondary offers stay closed unless the current page is one of them.
   useEffect(() => {
-    if (!activeTopic) return;
-    const topic = HOME_TOPICS.find((t) => t.id === activeTopic);
-    if (topic && topicLinks(topic).secondary.some((l) => l.href === pathname)) setMoreOpen(true);
+    setMoreOpen(Boolean(activeGroup?.secondary.some((l) => l.href === pathname)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTopic, pathname]);
 
   return (
     <div className="space-y-6">
       <div>
         <p className="mb-2 px-3 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{copy.topics}</p>
-        <ul className="space-y-1">
+        {/* Fixed signposts: the three topics never move. */}
+        <ul className="space-y-0.5">
           {HOME_TOPICS.map((topic) => {
             const Icon = topic.icon;
             const isActive = topic.id === activeTopic;
-            const { primary, secondary } = topicLinks(topic);
             return (
               <li key={topic.id}>
                 <Link
-                  to={primary[0]?.href ?? '/'}
+                  to={topicLinks(topic).primary[0]?.href ?? '/'}
                   onClick={onNavigate}
                   aria-current={isActive ? 'true' : undefined}
-                  className={`flex min-h-11 items-center gap-2.5 px-3 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${isActive ? 'text-primary' : 'text-foreground/80 hover:text-primary'}`}
+                  className={`flex min-h-11 items-center gap-2.5 border-l-2 px-3 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${isActive ? 'border-primary text-primary' : 'border-transparent text-foreground/80 hover:text-primary'}`}
                 >
                   <Icon className="h-4 w-4 shrink-0" strokeWidth={1.7} aria-hidden="true" />
                   <span className="flex-1">{topic.shortTitle[lang]}</span>
-                  {isActive ? <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" /> : <ChevronRight className="h-3.5 w-3.5 opacity-50" aria-hidden="true" />}
+                  {isActive && <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />}
                 </Link>
-                {isActive && (
-                  <ul className="mb-2 ml-5 mt-1 space-y-0.5 border-l border-border">
-                    {primary.map((link) => (
-                      <li key={link.href}>
-                        <Link to={link.href} onClick={onNavigate} aria-current={pathname === link.href ? 'page' : undefined} className={itemClass(pathname === link.href)}>
-                          {pathname === link.href && <ChevronRight className="h-3.5 w-3.5 shrink-0 text-primary" aria-hidden="true" />}
-                          <span>{link.label[lang]}</span>
-                        </Link>
-                      </li>
-                    ))}
-                    {secondary.length > 0 && (
-                      <li>
-                        <button type="button" aria-expanded={moreOpen} onClick={() => setMoreOpen((o) => !o)} className="flex min-h-11 w-full items-center gap-2 pl-3 pr-2 text-left text-xs text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                          <ChevronDown className={`h-3.5 w-3.5 transition-transform ${moreOpen ? '' : '-rotate-90'}`} aria-hidden="true" />{copy.more}
-                        </button>
-                        {moreOpen && (
-                          <ul className="space-y-0.5">
-                            {secondary.map((link) => (
-                              <li key={link.href}>
-                                <Link to={link.href} onClick={onNavigate} aria-current={pathname === link.href ? 'page' : undefined} className={`${itemClass(pathname === link.href)} pl-6`}>
-                                  <span>{link.label[lang]}</span>
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </li>
-                    )}
-                  </ul>
-                )}
               </li>
             );
           })}
         </ul>
       </div>
+      {activeGroup && (
+        <div className="border-t border-border pt-4">
+          <p className="mb-2 px-3 font-mono text-[10px] uppercase tracking-[0.2em] text-primary">{activeGroup.topic.shortTitle[lang]}</p>
+          <ul className="space-y-0.5">
+            {activeGroup.primary.map((link) => (
+              <li key={link.href}>
+                <Link to={link.href} onClick={onNavigate} aria-current={pathname === link.href ? 'page' : undefined} className={itemClass(pathname === link.href)}>
+                  {pathname === link.href && <ChevronRight className="h-3.5 w-3.5 shrink-0 text-primary" aria-hidden="true" />}
+                  <span>{link.label[lang]}</span>
+                </Link>
+              </li>
+            ))}
+            {activeGroup.secondary.length > 0 && (
+              <li>
+                <button type="button" aria-expanded={moreOpen} onClick={() => setMoreOpen((o) => !o)} className="flex min-h-11 w-full items-center gap-2 pl-3 pr-2 text-left text-xs text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                  <ChevronDown className={`h-3.5 w-3.5 transition-transform ${moreOpen ? '' : '-rotate-90'}`} aria-hidden="true" />{copy.more}
+                </button>
+                {moreOpen && (
+                  <ul className="space-y-0.5">
+                    {activeGroup.secondary.map((link) => (
+                      <li key={link.href}>
+                        <Link to={link.href} onClick={onNavigate} aria-current={pathname === link.href ? 'page' : undefined} className={`${itemClass(pathname === link.href)} pl-6`}>
+                          <span>{link.label[lang]}</span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            )}
+          </ul>
+        </div>
+      )}
       <div className="border-t border-border pt-4">
         <p className="mb-2 px-3 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{copy.areas}</p>
         <ul className="space-y-0.5">
@@ -137,6 +142,30 @@ function NavList({ lang, pathname, onNavigate }: { lang: HomeLanguage; pathname:
   );
 }
 
+const SLOT = {
+  de: { home: 'Start', back: 'Zur Themenübersicht' },
+  en: { home: 'Home', back: 'Topic overview' },
+  fr: { home: 'Accueil', back: 'Vue du thème' },
+};
+
+/** One compact intro slot for every workspace page: breadcrumb + optional topic return. */
+function IntroSlot({ lang, pathname, pageLabel }: { lang: HomeLanguage; pathname: string; pageLabel: string }) {
+  const slot = SLOT[lang];
+  const topic = HOME_TOPICS.find((t) => t.id === topicForPath(pathname));
+  const crumb = 'rounded-sm transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
+  const remember = () => topic && sessionStorage.setItem('overview:topic', topic.id);
+  return (
+    <div className="workspace-slot flex h-11 items-center justify-between gap-4 mb-5 mt-5 text-xs text-muted-foreground lg:mb-6 lg:mt-8">
+      <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-2 overflow-hidden whitespace-nowrap">
+        <Link to="/" className={crumb}>{slot.home}</Link>
+        {topic && <><span aria-hidden="true" className="hidden sm:inline">/</span><Link to="/#services" onClick={remember} className={`hidden shrink-0 sm:inline ${crumb}`}>{topic.title[lang]}</Link></>}
+        {pageLabel && <><span aria-hidden="true">/</span><span aria-current="page" className="truncate text-foreground/75">{pageLabel}</span></>}
+      </nav>
+      {topic && <Link to="/#services" onClick={remember} aria-label={slot.back} className={`inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap ${crumb}`}><span aria-hidden="true">←</span><span className="hidden sm:inline">{slot.back}</span></Link>}
+    </div>
+  );
+}
+
 const currentLabels = (pathname: string, lang: HomeLanguage) => {
   const copy = COPY[lang];
   const topicId = topicForPath(pathname);
@@ -148,7 +177,7 @@ const currentLabels = (pathname: string, lang: HomeLanguage) => {
 };
 
 export function PublicWorkspace({ children }: { children: ReactNode }) {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const lang = language as HomeLanguage;
   const copy = COPY[lang];
   const location = useLocation();
@@ -176,7 +205,7 @@ export function PublicWorkspace({ children }: { children: ReactNode }) {
   // Runs after child effects (e.g. ChatView's reset), so it has the last word.
   useEffect(() => {
     setMenuOpen(false);
-    if (navType === 'POP') {
+    if (navType === 'POP' && !first.current) {
       const y = readScroll()[location.key];
       if (typeof y === 'number') {
         window.scrollTo(0, y);
@@ -201,6 +230,8 @@ export function PublicWorkspace({ children }: { children: ReactNode }) {
   }, [location.key, navType]);
 
   const { area, page } = currentLabels(location.pathname, lang);
+  const detail = SERVICE_DETAILS[location.pathname.replace(/^\/+|\/+$/g, '')];
+  const serviceTitle = detail ? t(detail.titleKey) : undefined;
 
   return (
     <div className="public-workspace mx-auto w-full max-w-7xl flex-1 lg:grid lg:grid-cols-[248px_minmax(0,1fr)] lg:gap-10 lg:px-6">
@@ -230,7 +261,10 @@ export function PublicWorkspace({ children }: { children: ReactNode }) {
         </nav>
       </aside>
 
-      <div ref={contentRef} className="workspace-content min-w-0">{children}</div>
+      <div ref={contentRef} className="workspace-content min-w-0">
+        <div className="px-4 sm:px-6 lg:px-0"><IntroSlot lang={lang} pathname={location.pathname} pageLabel={serviceTitle ?? page} /></div>
+        {children}
+      </div>
     </div>
   );
 }
