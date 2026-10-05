@@ -49,6 +49,7 @@ import { SiteChrome } from '@/components/SiteChrome';
 import { PasswordGate } from '@/components/PasswordGate';
 import { VisitCounter } from '@/components/VisitCounter';
 import { ServiceDetailPage } from '@/components/ServiceDetailPage';
+import { PublicationsPage } from '@/components/PublicationsPage';
 import { SERVICE_DETAILS } from '@/data/serviceDetails';
 
 // AI Lab tool publication dates (ISO YYYY-MM-DD).
@@ -1985,7 +1986,9 @@ const ChatView = () => {
     </div>
   );
 
-  const serviceContent = activeService && SERVICE_DETAILS[activeService]
+  const serviceContent = activeService === 'publications'
+    ? <PublicationsPage />
+    : activeService && SERVICE_DETAILS[activeService]
     ? <ServiceDetailPage key={activeService} serviceId={activeService} />
     : activeService === 'crisis-sim'
     ? <Suspense fallback={lazyFallback}><CyberCrisisSimulator embedded ref={crisisRef} /></Suspense>
