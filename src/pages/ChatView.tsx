@@ -2046,6 +2046,7 @@ const ChatView = () => {
     sidebarGroups.flatMap(g => g.items).find(i => i.id === activeService)?.label,
     language,
   );
+  const canonicalPath = activeService === 'iacs-e27' ? '/iec62443' : activeService ? `/${activeService}` : '/';
 
   if (activeService) {
     // Resolve current service label for the sheet header (falls back to nav.contact label etc.)
@@ -2058,7 +2059,7 @@ const ChatView = () => {
 
     return (
       <SiteChrome>
-        <PageMeta title={serviceSeo.title} description={serviceSeo.description} />
+        <PageMeta title={serviceSeo.title} description={serviceSeo.description} canonicalPath={canonicalPath} />
         <main className="flex-1 flex flex-col min-w-0 relative">
           <div ref={contentAreaRef} className="flex-1 overflow-y-auto" style={{ contain: 'layout style' }}>
             {/* Sheet-styled service surface — visually consistent with the
@@ -2214,7 +2215,7 @@ const ChatView = () => {
 
   return (
     <div className="h-screen flex overflow-hidden bg-transparent">
-      <PageMeta title={serviceSeo.title} description={serviceSeo.description} />
+      <PageMeta title={serviceSeo.title} description={serviceSeo.description} canonicalPath={canonicalPath} />
 
       {/* Mobile sidebar overlay — hidden on service sub-pages (linked from new homepage) */}
       {isMobile && sidebarOpen && !activeService && (

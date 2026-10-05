@@ -44,7 +44,7 @@ export function ToolAccessIntro({ intro, language, login, withChrome = true }: P
   const Icon = intro.icon;
   const content = (
     <>
-      <PageMeta title={intro.name} description={getLocalized(intro.problem, language)} canonicalPath={CANONICAL_ROUTES[intro.key]} />
+      <PageMeta title={`${intro.name} — ${getLocalized(intro.eyebrow, language)}`} description={getLocalized(intro.problem, language)} canonicalPath={CANONICAL_ROUTES[intro.key]} />
       <main className="w-full overflow-x-clip">
       <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
         <div className="mb-6 flex min-h-11 flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
