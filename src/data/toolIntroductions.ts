@@ -172,7 +172,9 @@ export const TOOL_INTRODUCTIONS: ToolIntroduction[] = [
 
 export function getToolIntroduction(storageKey: string, label?: string) {
   if (label === 'GapZero') return TOOL_INTRODUCTIONS.find((item) => item.key === 'gapzero');
+  if (label === 'IACS UR E26 Compliance Tool') return TOOL_INTRODUCTIONS.find((item) => item.key === 'iacs-ur26');
   if (label === 'IACS UR E27 Compliance Tool') return TOOL_INTRODUCTIONS.find((item) => item.key === 'iacs-ur27');
+  if (label === 'IEC 62443 Compliance Tool') return TOOL_INTRODUCTIONS.find((item) => item.key === 'iec62443');
   if (label === 'MarSec Studio') return TOOL_INTRODUCTIONS.find((item) => item.key === 'marsec');
   return TOOL_INTRODUCTIONS.find((item) => item.key === storageKey);
 }

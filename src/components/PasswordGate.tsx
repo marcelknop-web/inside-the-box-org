@@ -77,7 +77,7 @@ export const PasswordGate = ({ storageKey, label, children }: PasswordGateProps)
     return (
       <div className="min-h-[60vh] w-full flex items-center justify-center px-4 py-12">
         <div className="font-mono text-[11px] text-muted-foreground tracking-[0.3em] uppercase">
-          Prüfe Zugang …
+          {language === 'de' ? 'Prüfe Zugang …' : language === 'fr' ? 'Vérification de l’accès…' : 'Checking access…'}
         </div>
       </div>
     );

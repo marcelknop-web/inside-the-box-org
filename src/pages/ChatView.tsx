@@ -1136,7 +1136,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     why: () => (
-      <TypedSection title={t('index.title')} mode="typewriter" intro={<p>{t('index.intro')}</p>}>
+      <TypedSection title={t('index.title')} mode="fade" intro={<p>{t('index.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('index.introDetail')}</p>
         </Block>
@@ -1189,7 +1189,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     training: () => (
-      <TypedSection title={t('training.title')} mode="typewriter" intro={<p>{t('training.subtitle')} {t('training.intro')}</p>}>
+      <TypedSection title={t('training.title')} mode="fade" intro={<p>{t('training.subtitle')} {t('training.intro')}</p>}>
         <CardBlock icon={Server} title={t('training.hostForensics')} desc={t('training.hostForensicsDesc')} />
         <CardBlock icon={Bug} title={t('training.malwareAnalysis')} desc={t('training.malwareAnalysisDesc')} />
         <CardBlock icon={Shield} title={t('training.siem')} desc={t('training.siemDesc')} />
@@ -1208,7 +1208,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     consulting: () => (
-      <TypedSection title={t('consulting.title')} mode="typewriter" intro={<p>{t('consulting.intro')}</p>}>
+      <TypedSection title={t('consulting.title')} mode="fade" intro={<p>{t('consulting.intro')}</p>}>
         {([
           { theme: 'isms', title: t('consulting.ismsTitle'), desc: t('consulting.ismsDesc'), id: 'isms' },
           { theme: 'nis2-dora', title: t('consulting.nis2Title'), desc: t('consulting.nis2Desc'), id: 'nis2-dora' },
@@ -1240,7 +1240,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     contact: () => (
-      <TypedSection title={t('contact.title')} mode="typewriter" charDelay={8} intro={<p>{t('contact.intro')}</p>}>
+      <TypedSection title={t('contact.title')} mode="fade" charDelay={8} intro={<p>{t('contact.intro')}</p>}>
         <Block className="bg-secondary/30">
           <p className="text-primary font-bold text-base font-sans mb-3">Marcel Knop</p>
           <div className="space-y-1.5 text-sm md:text-[15px] font-sans">
@@ -1255,7 +1255,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     imprint: () => (
-      <TypedSection title={t('imprint.title')} mode="typewriter" charDelay={8}>
+      <TypedSection title={t('imprint.title')} mode="fade" charDelay={8}>
         <Block className="bg-secondary/30">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">
             <span className="text-primary font-semibold">{t('imprint.responsible')}</span><br />
@@ -1292,7 +1292,7 @@ const useServiceContent = () => {
       const systemItems = tArray('techReq.systemItems');
       const networkItems = tArray('techReq.networkItems');
       return (
-        <TypedSection title={t('techReq.title')} mode="typewriter" charDelay={18} intro={<p>{t('techReq.intro')}</p>}>
+        <TypedSection title={t('techReq.title')} mode="fade" charDelay={18} intro={<p>{t('techReq.intro')}</p>}>
           <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
             <div className="flex items-center gap-2 mb-2">
               <Monitor size={16} className="text-primary" />
