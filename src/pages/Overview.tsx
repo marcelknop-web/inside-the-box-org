@@ -179,7 +179,9 @@ export default function Overview() {
         <section id="services" ref={servicesRef} className="scroll-mt-20 border-t border-border">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <h2 className="sr-only">{copy.services}</h2>
-            <div className="border-b border-border py-4 md:border-t-0">
+            <div className="hidden md:block">{renderTabs(true)}</div>
+
+            <div className="border-b border-t border-border py-4">
               <p className="max-w-2xl text-base text-foreground/75" aria-live="polite">{active.outcome[lang]}</p>
             </div>
 
