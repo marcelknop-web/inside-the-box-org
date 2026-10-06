@@ -104,18 +104,18 @@ const ChromeFrame = ({
   return (
     <div className="technical-grid min-h-screen w-full overflow-x-clip text-foreground flex flex-col">
       {/* Top bar */}
-      <header ref={headerRef} className={`border-b border-border/80 ${isHome ? 'lg:sticky lg:top-0 lg:z-40 lg:bg-background/90 lg:backdrop-blur-xl' : inWorkspace ? 'sticky top-0 z-40 bg-background/90 backdrop-blur-xl' : ''}`}>
-        <div className={`mx-auto grid ${inWorkspace ? 'max-w-7xl lg:grid-cols-[272px_minmax(0,1fr)] lg:px-6' : 'max-w-6xl sm:flex sm:justify-between'} grid-cols-[1fr_auto] items-center gap-2 px-4 py-2 sm:px-6 lg:min-h-20 lg:py-0`}>
+      <header ref={headerRef} className={`border-b border-border/60 ${isHome ? 'md:sticky md:top-0 md:z-40 md:bg-background/90 md:backdrop-blur-xl' : inWorkspace ? 'sticky top-0 z-40 bg-background/90 backdrop-blur-xl' : ''}`}>
+        <div className={`mx-auto grid ${inWorkspace ? 'max-w-[1440px] md:grid-cols-[232px_minmax(0,1fr)] md:px-0 xl:grid-cols-[288px_minmax(0,1fr)]' : 'max-w-6xl sm:flex sm:justify-between'} grid-cols-[1fr_auto] items-center gap-2 px-4 py-2 sm:px-6 md:min-h-20 md:py-0`}>
           <button
             onClick={handleBrand}
-            className={`flex flex-shrink-0 items-center gap-2.5 transition-colors hover:text-primary ${inWorkspace ? 'lg:h-20 lg:border-r lg:border-border/80 lg:pr-8' : ''}`}
+            className={`flex flex-shrink-0 items-center gap-3 transition-colors hover:text-primary ${inWorkspace ? 'md:h-20 md:border-r md:border-border/60 md:px-6 xl:px-8' : ''}`}
             aria-label="inside-the-box"
           >
             <GeometricSymbol size="xs" />
             <span className="font-mono text-xs font-medium text-foreground sm:text-sm">inside-the-box.org</span>
           </button>
-          <div className={`hidden items-center justify-between sm:flex ${inWorkspace ? 'lg:pl-10' : ''}`}>
-          <nav className="flex items-center gap-5" aria-label={lang === 'de' ? 'Hauptnavigation' : lang === 'fr' ? 'Navigation principale' : 'Main navigation'}>
+          <div className={`hidden items-center justify-between sm:flex ${inWorkspace ? 'md:px-8 xl:px-16' : ''}`}>
+          <nav className="flex items-center gap-5 xl:gap-8" aria-label={lang === 'de' ? 'Hauptnavigation' : lang === 'fr' ? 'Navigation principale' : 'Main navigation'}>
             <Link to="/#services" aria-current={isCurrent('services') ? 'page' : undefined} className={navClass('services')}>
               {lang === 'de' ? 'LEISTUNGEN' : lang === 'fr' ? 'SERVICES' : 'SERVICES'}
             </Link>
@@ -129,7 +129,7 @@ const ChromeFrame = ({
               {lang === 'de' ? 'KONTAKT' : 'CONTACT'}
             </Link>
           </nav>
-          <div className="ml-6 flex items-center" aria-label="Language">
+          <div className="ml-4 flex items-center xl:ml-8" aria-label="Language">
             {!hideLanguageSwitch && (
               <>
                 <Languages className="mr-1 hidden h-3 w-3 text-muted-foreground sm:block" aria-hidden="true" />
