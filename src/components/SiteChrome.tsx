@@ -104,17 +104,18 @@ const ChromeFrame = ({
   return (
     <div className="technical-grid min-h-screen w-full overflow-x-clip text-foreground flex flex-col">
       {/* Top bar */}
-      <header ref={headerRef} className={`border-b border-primary/10 ${isHome ? 'lg:sticky lg:top-0 lg:z-40 lg:bg-background/95 lg:backdrop-blur' : inWorkspace ? 'sticky top-0 z-40 bg-background/95 backdrop-blur' : ''}`}>
-        <div className={`mx-auto grid ${inWorkspace ? 'max-w-7xl lg:px-9' : 'max-w-6xl'} grid-cols-[1fr_auto] items-center gap-2 px-4 py-2 sm:flex sm:flex-wrap sm:justify-between sm:gap-3 sm:px-6 sm:py-5`}>
+      <header ref={headerRef} className={`border-b border-border/80 ${isHome ? 'lg:sticky lg:top-0 lg:z-40 lg:bg-background/90 lg:backdrop-blur-xl' : inWorkspace ? 'sticky top-0 z-40 bg-background/90 backdrop-blur-xl' : ''}`}>
+        <div className={`mx-auto grid ${inWorkspace ? 'max-w-7xl lg:grid-cols-[272px_minmax(0,1fr)] lg:px-6' : 'max-w-6xl sm:flex sm:justify-between'} grid-cols-[1fr_auto] items-center gap-2 px-4 py-2 sm:px-6 lg:min-h-20 lg:py-0`}>
           <button
             onClick={handleBrand}
-            className="flex flex-shrink-0 items-center gap-2.5 transition-opacity hover:opacity-80"
+            className={`flex flex-shrink-0 items-center gap-2.5 transition-colors hover:text-primary ${inWorkspace ? 'lg:h-20 lg:border-r lg:border-border/80 lg:pr-8' : ''}`}
             aria-label="inside-the-box"
           >
             <GeometricSymbol size="xs" />
             <span className="font-mono text-xs font-medium text-foreground sm:text-sm">inside-the-box.org</span>
           </button>
-          <nav className="hidden items-center gap-3 sm:flex" aria-label={lang === 'de' ? 'Hauptnavigation' : lang === 'fr' ? 'Navigation principale' : 'Main navigation'}>
+          <div className={`hidden items-center justify-between sm:flex ${inWorkspace ? 'lg:pl-10' : ''}`}>
+          <nav className="flex items-center gap-5" aria-label={lang === 'de' ? 'Hauptnavigation' : lang === 'fr' ? 'Navigation principale' : 'Main navigation'}>
             <Link to="/#services" aria-current={isCurrent('services') ? 'page' : undefined} className={navClass('services')}>
               {lang === 'de' ? 'LEISTUNGEN' : lang === 'fr' ? 'SERVICES' : 'SERVICES'}
             </Link>
@@ -128,7 +129,7 @@ const ChromeFrame = ({
               {lang === 'de' ? 'KONTAKT' : 'CONTACT'}
             </Link>
           </nav>
-          <div className="hidden items-center sm:flex" aria-label="Language">
+          <div className="ml-6 flex items-center" aria-label="Language">
             {!hideLanguageSwitch && (
               <>
                 <Languages className="mr-1 hidden h-3 w-3 text-muted-foreground sm:block" aria-hidden="true" />
@@ -137,6 +138,7 @@ const ChromeFrame = ({
                 ))}
               </>
             )}
+          </div>
           </div>
           <button type="button" aria-expanded={mobileMenuOpen} aria-controls="mobile-site-navigation" aria-label={`${lang === 'de' ? 'Menü' : 'Menu'}${hideLanguageSwitch ? '' : ` · ${LANGUAGE_NAMES[lang]}`}`} onClick={() => setMobileMenuOpen((open) => !open)} className="flex h-11 min-w-11 items-center justify-center gap-2 px-1 text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:hidden">
             {!hideLanguageSwitch && <span className="font-mono text-[11px] uppercase text-primary" aria-hidden="true">{lang}</span>}
