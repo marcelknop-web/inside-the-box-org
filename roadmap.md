@@ -48,4 +48,4 @@
 # Unified menu visual correction
 
 - [x] Reopen the three menu design directions for selection before further implementation.
-- [ ] Match the selected Architectural grid navigation at desktop and embedded-preview widths.
+- [x] Match the selected Architectural grid navigation at desktop and embedded-preview widths.
