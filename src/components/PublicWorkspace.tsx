@@ -52,8 +52,8 @@ function NavList({ lang, pathname, onNavigate }: { lang: HomeLanguage; pathname:
   const activeTopic = topicForPath(pathname);
   const [moreOpen, setMoreOpen] = useState(false);
   const itemClass = (active: boolean) =>
-    `group flex min-h-11 items-center gap-2 border-l-2 py-1.5 pl-3 pr-2 text-sm leading-snug transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-      active ? 'border-primary bg-primary/10 font-semibold text-foreground' : 'border-transparent text-foreground/65 hover:border-primary/40 hover:text-foreground'
+    `group flex min-h-11 items-center gap-2 border-l-2 py-2 pl-3 pr-3 text-sm leading-snug transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+      active ? 'border-primary bg-primary/5 font-semibold text-primary' : 'border-transparent text-foreground/65 hover:border-highlight/60 hover:text-foreground'
     }`;
   const areaLinks = [
     ...HOME_KNOWLEDGE.map((k) => ({ href: k.href, label: k.title[lang], icon: BookOpen })),
@@ -71,11 +71,11 @@ function NavList({ lang, pathname, onNavigate }: { lang: HomeLanguage; pathname:
   }, [activeTopic, pathname]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-9">
       <div>
-        <p className="mb-2 px-3 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{copy.topics}</p>
+        <p className="mb-3 px-3 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{copy.topics}</p>
         {/* Fixed signposts: the three topics never move. */}
-        <ul className="space-y-0.5">
+        <ul className="space-y-1">
           {HOME_TOPICS.map((topic) => {
             const Icon = topic.icon;
             const isActive = topic.id === activeTopic;
@@ -85,11 +85,11 @@ function NavList({ lang, pathname, onNavigate }: { lang: HomeLanguage; pathname:
                   to={topicLinks(topic).primary[0]?.href ?? '/'}
                   onClick={onNavigate}
                   aria-current={isActive ? 'true' : undefined}
-                  className={`flex min-h-11 items-center gap-2.5 border-l-2 px-3 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${isActive ? 'border-primary text-primary' : 'border-transparent text-foreground/80 hover:text-primary'}`}
+                  className={`group flex min-h-11 items-center gap-3 border-l-2 px-3 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${isActive ? 'border-highlight bg-highlight/5 text-highlight' : 'border-transparent text-foreground/75 hover:border-highlight/50 hover:text-highlight'}`}
                 >
-                  <Icon className="h-4 w-4 shrink-0" strokeWidth={1.7} aria-hidden="true" />
-                  <span className="flex-1">{topic.shortTitle[lang]}</span>
-                  {isActive && <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />}
+                  <Icon className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-highlight" strokeWidth={1.7} aria-hidden="true" />
+                  <span className="flex-1 text-sm leading-snug">{topic.shortTitle[lang]}</span>
+                  {isActive && <span className="h-1.5 w-1.5 shrink-0 bg-highlight shadow-[0_0_8px_hsl(var(--highlight)/0.45)]" aria-hidden="true" />}
                 </Link>
               </li>
             );
@@ -97,14 +97,14 @@ function NavList({ lang, pathname, onNavigate }: { lang: HomeLanguage; pathname:
         </ul>
       </div>
       {activeGroup && (
-        <div className="border-t border-border pt-4">
+        <div className="border-t border-border/80 pt-5">
           <p className="mb-2 px-3 font-mono text-[10px] uppercase tracking-[0.2em] text-primary">{activeGroup.topic.shortTitle[lang]}</p>
           <ul className="space-y-0.5">
             {activeGroup.primary.map((link) => (
               <li key={link.href}>
                 <Link to={link.href} onClick={onNavigate} aria-current={pathname === link.href ? 'page' : undefined} className={itemClass(pathname === link.href)}>
-                  {pathname === link.href && <ChevronRight className="h-3.5 w-3.5 shrink-0 text-primary" aria-hidden="true" />}
-                  <span>{link.label[lang]}</span>
+                  <span className="text-sm leading-snug">{link.label[lang]}</span>
+                  {pathname === link.href && <span className="ml-auto h-1.5 w-1.5 shrink-0 bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.45)]" aria-hidden="true" />}
                 </Link>
               </li>
             ))}
@@ -118,7 +118,7 @@ function NavList({ lang, pathname, onNavigate }: { lang: HomeLanguage; pathname:
                     {activeGroup.secondary.map((link) => (
                       <li key={link.href}>
                         <Link to={link.href} onClick={onNavigate} aria-current={pathname === link.href ? 'page' : undefined} className={`${itemClass(pathname === link.href)} pl-6`}>
-                          <span>{link.label[lang]}</span>
+                          <span className="text-sm leading-snug">{link.label[lang]}</span>
                         </Link>
                       </li>
                     ))}
@@ -129,13 +129,15 @@ function NavList({ lang, pathname, onNavigate }: { lang: HomeLanguage; pathname:
           </ul>
         </div>
       )}
-      <div className="border-t border-border pt-4">
+      <div className="border-t border-border/80 pt-5">
         <p className="mb-2 px-3 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{copy.areas}</p>
         <ul className="space-y-0.5">
           {areaLinks.map(({ href, label, icon: Icon }) => (
             <li key={href}>
               <Link to={href} onClick={onNavigate} aria-current={pathname === href ? 'page' : href === '/ki-lab' && framedToolForPath(pathname)?.back === '/ki-lab' ? 'true' : undefined} className={itemClass(pathname === href || (href === '/ki-lab' && framedToolForPath(pathname)?.back === '/ki-lab'))}>
-                <Icon className="h-4 w-4 shrink-0" strokeWidth={1.7} aria-hidden="true" /><span>{label}</span>
+                <Icon className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-highlight" strokeWidth={1.7} aria-hidden="true" />
+                <span className="text-sm leading-snug">{label}</span>
+                {(pathname === href || (href === '/ki-lab' && framedToolForPath(pathname)?.back === '/ki-lab')) && <span className="ml-auto h-1.5 w-1.5 shrink-0 bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.45)]" aria-hidden="true" />}
               </Link>
             </li>
           ))}
@@ -249,7 +251,7 @@ export function PublicWorkspace({ children, home = false }: { children: ReactNod
   const serviceTitle = detail ? t(detail.titleKey) : undefined;
 
   return (
-    <div className={`public-workspace mx-auto w-full flex-1 lg:grid lg:grid-cols-[248px_minmax(0,1fr)] lg:gap-10 lg:px-6 ${wide ? 'max-w-[1700px]' : 'max-w-7xl'}`}>
+    <div className={`public-workspace mx-auto w-full flex-1 lg:grid lg:grid-cols-[272px_minmax(0,1fr)] lg:gap-0 lg:px-6 ${wide ? 'max-w-[1700px]' : 'max-w-7xl'}`}>
       {/* Mobile / tablet orientation bar */}
       <div className={`sticky top-[var(--site-header-h)] z-30 border-b border-border bg-background/95 backdrop-blur lg:hidden ${home ? 'hidden' : ''}`}>
         <div className="flex min-h-12 items-center gap-3 px-4 sm:px-6">
@@ -271,12 +273,12 @@ export function PublicWorkspace({ children, home = false }: { children: ReactNod
 
       {/* Desktop sticky navigation */}
       <aside className="hidden lg:block">
-        <nav aria-label={copy.nav} className="sticky top-[calc(var(--site-header-h)+2.5rem)] mt-10 max-h-[calc(100vh-var(--site-header-h)-3.5rem)] overflow-y-auto pb-6 pr-1">
+        <nav aria-label={copy.nav} className="sticky top-[var(--site-header-h)] min-h-[calc(100vh-var(--site-header-h))] max-h-[calc(100vh-var(--site-header-h))] overflow-y-auto border-r border-border/80 px-5 py-8 pr-7">
           <NavList lang={lang} pathname={location.pathname} />
         </nav>
       </aside>
 
-      <div ref={contentRef} className="workspace-content min-w-0">
+      <div ref={contentRef} className="workspace-content min-w-0 lg:pl-10">
         {!home && <div className="px-4 sm:px-6 lg:px-0"><IntroSlot lang={lang} pathname={location.pathname} pageLabel={serviceTitle ?? page} />
           {labTool && <LabHeading title={page} contentRef={contentRef} />}</div>}
         {children}
