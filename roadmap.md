@@ -44,8 +44,3 @@
 - [x] Add consistent service breadcrumbs and deterministic topic return with focus restoration.
 - [x] Verify desktop visual balance, three topic navigation loops, browser back, direct URLs, and mobile regression.
 - [x] Remove the desktop-visible cube usage note, keeping it screen-reader-only in DE/EN/FR.
-
-# Unified menu visual correction
-
-- [x] Reopen the three menu design directions for selection before further implementation.
-- [x] Match the selected Architectural grid navigation at desktop and embedded-preview widths.
