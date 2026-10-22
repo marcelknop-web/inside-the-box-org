@@ -6,7 +6,7 @@ import { ArrowLeft, ArrowUp, ArrowDown, Check, Copy, Users, LockKeyhole, Rocket,
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { moonCrashItems } from "@/data/moonCrashItems";
-import { isRanking } from "../../supabase/functions/_shared/moonCrash";
+import { isRanking } from "../../supabase/functions/_shared/moonCrashValidation";
 import lunarImage from "@/assets/moon-crash.jpg";
 
 type Person = { slot: number; name: string; claimed: boolean; submitted: boolean; ranking: number[] | null; score: number | null };

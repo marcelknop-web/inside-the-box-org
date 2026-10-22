@@ -1,7 +1,8 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { z } from "npm:zod@3.25.76";
-import { MAX_PARTICIPANTS, isRanking, reference, explanations, scoreRanking } from "../_shared/moonCrash.ts";
+import { reference, explanations, scoreRanking } from "../_shared/moonCrash.ts";
+import { MAX_PARTICIPANTS, isRanking } from "../_shared/moonCrashValidation.ts";
 
 const rankingSchema = z.array(z.number()).refine(isRanking);
 

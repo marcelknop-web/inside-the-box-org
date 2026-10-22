@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { MAX_PARTICIPANTS, isRanking, reference, scoreRanking } from "../../supabase/functions/_shared/moonCrash";
+import { reference, scoreRanking } from "../../supabase/functions/_shared/moonCrash";
+import { MAX_PARTICIPANTS, isRanking } from "../../supabase/functions/_shared/moonCrashValidation";
 describe("Moon Crash rules", () => {
   it("allows at most 15 participants", () => expect(MAX_PARTICIPANTS).toBe(15));
   it("requires all 15 unique ranks", () => {

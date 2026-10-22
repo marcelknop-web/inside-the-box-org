@@ -1,6 +1,3 @@
-export const MAX_PARTICIPANTS = 15;
-export const isRanking = (ranks: number[]) => ranks.length === 15 && new Set(ranks).size === 15 && ranks.every(rank => Number.isInteger(rank) && rank >= 1 && rank <= 15);
-
 // Original item order from the NASA StarChild exercise; ranks stay server-side until release.
 export const reference = [15, 4, 6, 8, 13, 11, 12, 1, 3, 9, 2, 10, 7, 14, 5];
 export const explanations = [
