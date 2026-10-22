@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { reference, scoreRanking } from "../../supabase/functions/_shared/moonCrash";
+import { reference, scoreRanking, winningSlots } from "../../supabase/functions/_shared/moonCrash";
 import { MAX_PARTICIPANTS, isRanking } from "../../supabase/functions/_shared/moonCrashValidation";
 describe("Moon Crash rules", () => {
   it("allows at most 15 participants", () => expect(MAX_PARTICIPANTS).toBe(15));
@@ -15,5 +15,14 @@ describe("Moon Crash rules", () => {
     const changed = [...reference];
     [changed[0], changed[7]] = [changed[7], changed[0]];
     expect(scoreRanking(changed)).toBe(28);
+  });
+  it("awards the lowest deviation score, including ties but not missing submissions", () => {
+    expect(winningSlots([{ slot: 1, score: 28 }, { slot: 2, score: 0 }, { slot: 3, score: 0 }, { slot: 4, score: null }])).toEqual([2, 3]);
+    expect(winningSlots([{ slot: 1, score: null }])).toEqual([]);
+  });
+  it("scores an agreed group solution using the same NASA deviations", () => {
+    const group = [...reference];
+    [group[1], group[2]] = [group[2], group[1]];
+    expect(scoreRanking(group)).toBe(4);
   });
 });

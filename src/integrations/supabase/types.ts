@@ -125,6 +125,7 @@ export type Database = {
         Row: {
           code: string
           created_at: string
+          group_ranking: Json | null
           id: string
           revealed: boolean
           title: string
@@ -133,6 +134,7 @@ export type Database = {
         Insert: {
           code: string
           created_at?: string
+          group_ranking?: Json | null
           id?: string
           revealed?: boolean
           title: string
@@ -141,6 +143,7 @@ export type Database = {
         Update: {
           code?: string
           created_at?: string
+          group_ranking?: Json | null
           id?: string
           revealed?: boolean
           title?: string
@@ -221,6 +224,15 @@ export type Database = {
           p_ranking: Json
           p_session: string
           p_slot: number
+        }
+        Returns: boolean
+      }
+      moon_crash_trainer_action: {
+        Args: {
+          p_hash: string
+          p_ranking?: Json
+          p_reveal?: boolean
+          p_session: string
         }
         Returns: boolean
       }
