@@ -1,7 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { z } from "npm:zod@3.25.76";
-import { reference, explanations, scoreRanking } from "../_shared/moonCrash.ts";
+import { reference, explanations, scoreRanking, winningSlots } from "../_shared/moonCrash.ts";
 import { MAX_PARTICIPANTS, isRanking } from "../_shared/moonCrashValidation.ts";
 
 const rankingSchema = z.array(z.number()).refine(isRanking);
@@ -15,6 +15,7 @@ const schema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("claim"), code, slot: z.number().int().min(1).max(15) }),
   z.object({ action: z.literal("submit"), code, slot: z.number().int().min(1).max(15), token, ranking: rankingSchema }),
   z.object({ action: z.literal("reveal"), code, token }),
+  z.object({ action: z.literal("group"), code, token, ranking: rankingSchema }),
 ]);
 const makeToken = () => Array.from(crypto.getRandomValues(new Uint8Array(32)), b => b.toString(16).padStart(2, "0")).join("");
 async function hash(value: string) {
@@ -63,11 +64,13 @@ Deno.serve(async (req) => {
       return response({ saved: true });
     }
     const trainer = body.token ? await hash(body.token) === session.trainer_hash : false;
-    if (body.action === "reveal") {
+    if (body.action === "reveal" || body.action === "group") {
       if (!trainer) return response({ error: "Nur die Übungsleitung kann die Auswertung freigeben." }, 403);
-      const { error: revealError } = await db.from("moon_crash_sessions").update({ revealed: true }).eq("id", session.id);
+      const { data: saved, error: revealError } = await db.rpc("moon_crash_trainer_action", { p_session: session.id, p_hash: await hash(body.token), p_ranking: body.action === "group" ? body.ranking : null, p_reveal: body.action === "reveal" });
       if (revealError) throw new Error("reveal");
-      session.revealed = true;
+      if (!saved) return response({ error: "Aktion nicht möglich: Auswertung bereits freigegeben oder noch keine Abgabe vorhanden." }, 409);
+      if (body.action === "reveal") session.revealed = true;
+      else session.group_ranking = body.ranking;
     }
     const { data: people, error: peopleError } = await db.from("moon_crash_participants").select("*").eq("session_id", session.id).order("slot");
     if (peopleError || !people) throw new Error("status");
@@ -79,6 +82,9 @@ Deno.serve(async (req) => {
       })),
       reference: session.revealed ? reference : null,
       explanations: session.revealed ? explanations : null,
+      groupRanking: session.revealed || trainer ? session.group_ranking : null,
+      groupScore: session.revealed && session.group_ranking ? scoreRanking(session.group_ranking) : null,
+      winnerSlots: session.revealed ? winningSlots(people.map(p => ({ slot: p.slot, score: p.ranking ? scoreRanking(p.ranking) : null }))) : [],
     });
   } catch (error) {
     if (error instanceof SyntaxError) return response({ error: "Ungültige Eingabe." }, 400);

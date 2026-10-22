@@ -20,3 +20,8 @@ export const explanations = [
 export function scoreRanking(ranking: number[]) {
   return ranking.reduce((sum, rank, index) => sum + Math.abs(rank - reference[index]), 0);
 }
+export function winningSlots(people: { slot: number; score: number | null }[]) {
+  const submitted = people.filter(p => p.score !== null);
+  const best = Math.min(...submitted.map(p => p.score ?? Infinity));
+  return submitted.filter(p => p.score === best).map(p => p.slot);
+}

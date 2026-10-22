@@ -8,6 +8,20 @@
       "when": 1792677665145,
       "tag": "0000_moon_crash_sessions",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792679710865,
+      "tag": "0001_moon_crash_group_ranking",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792679775578,
+      "tag": "0002_moon_crash_trainer_actions",
+      "breakpoints": true
     }
   ]
 }
