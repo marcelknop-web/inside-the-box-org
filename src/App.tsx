@@ -42,6 +42,7 @@ const Starfighter = lazy(() => import("./pages/Starfighter"));
 const Ernstfall = lazy(() => import("./pages/Ernstfall"));
 const Notnagel = lazy(() => import("./pages/Notnagel"));
 const MarSec = lazy(() => import("./pages/MarSec"));
+const MoonCrash = lazy(() => import("./pages/MoonCrash"));
 
 const queryClient = new QueryClient();
 
@@ -85,6 +86,7 @@ const App = () => (
               <Route path="/ernstfall" element={<Navigate to="/ernstlfall" replace />} />
               <Route path="/notnagel" element={<Suspense fallback={<RouteSkeleton />}><Notnagel /></Suspense>} />
               <Route path="/marsec" element={<Suspense fallback={<RouteSkeleton />}><PasswordGate storageKey="ernstlfall" label="MarSec Studio"><MarSec /></PasswordGate></Suspense>} />
+              <Route path="/moon-crash" element={<Suspense fallback={<RouteSkeleton />}><MoonCrash /></Suspense>} />
 
               {/* Catch-all: every Journey service id (nis2-dora, virtual-ciso, …) renders ChatView */}
               <Route path="/:serviceId" element={<ChatView />} />

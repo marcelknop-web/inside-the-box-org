@@ -1,0 +1,2 @@
+export const MAX_PARTICIPANTS = 15;
+export const isRanking = (ranks: number[]) => ranks.length === 15 && new Set(ranks).size === 15 && ranks.every(rank => Number.isInteger(rank) && rank >= 1 && rank <= 15);
