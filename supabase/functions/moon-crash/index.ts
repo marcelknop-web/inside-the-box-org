@@ -11,6 +11,7 @@ const code = z.string().regex(/^[A-Z0-9]{12}$/);
 const token = z.string().regex(/^[a-f0-9]{64}$/);
 const schema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("create"), title: name, names: z.array(name).min(1).max(MAX_PARTICIPANTS) }),
+  z.object({ action: z.literal("latest") }),
   z.object({ action: z.literal("status"), code, token: token.optional(), slot: z.number().int().min(1).max(15).optional() }),
   z.object({ action: z.literal("claim"), code, slot: z.number().int().min(1).max(15) }),
   z.object({ action: z.literal("submit"), code, slot: z.number().int().min(1).max(15), token, ranking: rankingSchema }),
@@ -47,6 +48,11 @@ Deno.serve(async (req) => {
         throw new Error("participants");
       }
       return response({ code: joinCode, token: trainerToken });
+    }
+    if (body.action === "latest") {
+      const { data } = await db.from("moon_crash_sessions").select("code").order("created_at", { ascending: false }).limit(1).maybeSingle();
+      if (!data) return response({ error: "Noch keine Sitzung gestartet. Bitte auf die Übungsleitung warten." }, 404);
+      return response({ code: data.code });
     }
     const { data: session, error } = await db.from("moon_crash_sessions").select("*").eq("code", body.code).single();
     if (error || !session) return response({ error: "Sitzung nicht gefunden. Sitzungscode prüfen." }, 404);
