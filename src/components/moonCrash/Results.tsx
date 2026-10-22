@@ -2,11 +2,12 @@ import { useState } from "react";
 import { Trophy, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { moonCrashItems } from "@/data/moonCrashItems";
+import { PersonalAnalysis } from "@/components/moonCrash/PersonalAnalysis";
 
 type Person = { slot: number; name: string; score: number | null; ranking: number[] | null };
-export function MoonCrashResults({ participants, reference, explanations, groupRanking, groupScore, winnerSlots }: { participants: Person[]; reference: number[]; explanations: string[] | null; groupRanking: number[] | null; groupScore: number | null; winnerSlots: number[] }) {
+export function MoonCrashResults({ participants, reference, explanations, groupRanking, groupScore, winnerSlots, ownSlot }: { ownSlot?: number | null; participants: Person[]; reference: number[]; explanations: string[] | null; groupRanking: number[] | null; groupScore: number | null; winnerSlots: number[] }) {
   const ranked = participants.filter(p => p.score !== null && p.ranking).sort((a, b) => (a.score ?? 0) - (b.score ?? 0));
-  const [selected, setSelected] = useState<number | "group">(groupRanking ? "group" : ranked[0]?.slot ?? 0);
+  const [selected, setSelected] = useState<number | "group">(ownSlot != null && participants.some(p => p.slot === ownSlot && p.ranking) ? ownSlot : groupRanking ? "group" : ranked[0]?.slot ?? 0);
   const person = participants.find(p => p.slot === selected);
   const ranking = selected === "group" ? groupRanking : person?.ranking;
   const label = selected === "group" ? "Gruppenlösung" : person?.name ?? "Keine Abgabe";
@@ -20,6 +21,7 @@ export function MoonCrashResults({ participants, reference, explanations, groupR
       <div><Users className="size-7 text-highlight mb-3" /><p className="text-xs font-mono text-muted-foreground">GEMEINSAME GRUPPENLÖSUNG</p><p className="text-3xl font-mono text-highlight mt-3">{groupScore ?? "—"}<span className="text-sm text-muted-foreground"> Punkte</span></p><p className="text-sm text-muted-foreground mt-2">{groupRanking ? "Gemeinsam vereinbarte Prioritäten" : "Keine Gruppenlösung abgegeben"}</p></div>
       <div><p className="text-xs font-mono text-muted-foreground mt-10">DURCHSCHNITT DER EINZELLÖSUNGEN</p><p className="text-3xl font-mono mt-3">{meanScore === null ? "—" : meanScore.toFixed(1)}<span className="text-sm text-muted-foreground"> Punkte</span></p>{meanScore !== null && groupScore !== null && <p className="text-sm mt-2 text-highlight">{groupScore < meanScore ? `${(meanScore - groupScore).toFixed(1)} Punkte besser als der Einzel-Durchschnitt` : groupScore > meanScore ? `${(groupScore - meanScore).toFixed(1)} Punkte über dem Einzel-Durchschnitt` : "Gleichauf mit dem Einzel-Durchschnitt"}</p>}</div>
     </div>
+    {ranking && <PersonalAnalysis key={String(selected)} label={label} ranking={ranking} reference={reference} crewScores={ranked.map(p => p.score ?? 0)} groupScore={groupScore} />}
     <div className="grid lg:grid-cols-[280px_1fr] gap-8 pt-8">
       <div><h3 className="text-xl mb-4">Crew-Vergleich</h3>{[...(groupRanking ? [{ slot: "group" as const, name: "Gruppenlösung", score: groupScore }] : []), ...ranked].map(p => <Button key={p.slot} variant="ghost" aria-pressed={selected === p.slot} onClick={() => setSelected(p.slot)} className={`w-full h-auto min-h-16 flex-col items-stretch px-3 py-3 whitespace-normal text-left mb-2 ${selected === p.slot ? "bg-secondary border-l-2 border-highlight" : ""}`}><span className="flex justify-between gap-3"><span className="min-w-0 break-words">{p.name}</span><span className="font-mono text-highlight">{p.score}</span></span><svg viewBox="0 0 240 5" className="!w-full !h-2" aria-hidden="true"><rect width="240" height="5" rx="2" className="fill-muted" /><rect width={Math.max(2, ((p.score ?? 0) / maxScore) * 240)} height="5" rx="2" className={p.slot === "group" ? "fill-highlight" : "fill-primary"} /></svg></Button>)}</div>
       <div className="min-w-0"><h3 className="text-xl font-semibold mb-3 break-words">{label} vs. NASA</h3><div className="flex flex-wrap gap-4 text-xs font-mono mb-5"><span className="text-highlight">● NASA</span><span className="text-primary">● {label}</span><span className="text-muted-foreground">1 = höchste / 15 = niedrigste Priorität</span></div>
