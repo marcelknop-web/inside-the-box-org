@@ -8,6 +8,9 @@ type Person = { slot: number; name: string; score: number | null; ranking: numbe
 export function MoonCrashResults({ participants, reference, explanations, groupRanking, groupScore, winnerSlots, ownSlot }: { ownSlot?: number | null; participants: Person[]; reference: number[]; explanations: string[] | null; groupRanking: number[] | null; groupScore: number | null; winnerSlots: number[] }) {
   const ranked = participants.filter(p => p.score !== null && p.ranking).sort((a, b) => (a.score ?? 0) - (b.score ?? 0));
   const [selected, setSelected] = useState<number | "group">(ownSlot != null && participants.some(p => p.slot === ownSlot && p.ranking) ? ownSlot : groupRanking ? "group" : ranked[0]?.slot ?? 0);
+  const fallback = groupRanking ? "group" as const : ranked[0]?.slot ?? 0;
+  const valid = selected === "group" ? !!groupRanking : participants.some(p => p.slot === selected && p.ranking);
+  if (!valid && fallback !== selected) setSelected(fallback);
   const person = participants.find(p => p.slot === selected);
   const ranking = selected === "group" ? groupRanking : person?.ranking;
   const label = selected === "group" ? "Gruppenlösung" : person?.name ?? "Keine Abgabe";

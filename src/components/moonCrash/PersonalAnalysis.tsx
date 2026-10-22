@@ -48,7 +48,7 @@ export function PersonalAnalysis({ label, ranking, reference, crewScores, groupS
         {groupScore !== null && <g><line x1={at(groupScore)} x2={at(groupScore)} y1="14" y2="38" className="stroke-highlight" strokeWidth="2" /><text x={at(groupScore)} y="50" textAnchor="middle" className="fill-highlight font-mono" fontSize="9">Gruppe {groupScore}</text></g>}
         <polygon points={`${at(a.score) - 6},4 ${at(a.score) + 6},4 ${at(a.score)},16`} className="fill-primary" />
         <text x={at(a.score)} y="11" dx="10" className="fill-primary font-mono" fontSize="10">{label.slice(0, 18)} {a.score}</text>
-        {[0, 25, 32, 45, 55, 112].map(t => <text key={t} x={at(t)} y="50" textAnchor="middle" className="fill-muted-foreground font-mono" fontSize="8">{groupScore !== null && Math.abs(at(t) - at(groupScore)) < 26 ? "" : t}</text>)}
+        {[0, 25, 32, 45, 55, 112].map(t => <text key={t} x={at(t)} y="50" textAnchor={t === 112 ? "end" : t === 0 ? "start" : "middle"} className="fill-muted-foreground font-mono" fontSize="8">{groupScore !== null && Math.abs(at(t) - at(groupScore)) < 26 ? "" : t}</text>)}
       </svg>
       <p className="text-xs text-muted-foreground">Punkte = Crew · Linie = Gruppenlösung · Bänder nach NASA-Bewertung (0–25 ausgezeichnet … über 55 schwach)</p>
     </div>
