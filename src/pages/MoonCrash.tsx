@@ -38,7 +38,6 @@ export default function MoonCrash() {
   const [title, setTitle] = useState("Moon Crash · Crew 01");
   const [count, setCount] = useState(15);
   const [names, setNames] = useState(Array.from({ length: 15 }, (_, i) => `Teilnehmer ${String(i + 1).padStart(2, "0")}`));
-  const [joinCode, setJoinCode] = useState("");
   const [order, setOrder] = useState<number[]>([]);
   const [groupOrder, setGroupOrder] = useState<number[]>([]);
   const [busy, setBusy] = useState(false);
