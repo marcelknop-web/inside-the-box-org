@@ -73,7 +73,7 @@ export function PersonalAnalysis({ label, ranking, reference, crewScores, groupS
         </svg>
         <p className="text-xs text-muted-foreground">Anzahl Gegenstände je Rangabweichung · Ø {a.mean.toFixed(1)} Ränge pro Gegenstand</p>
         {top.length > 0 && <div className="mt-4"><p className="font-mono text-[10px] tracking-wider text-muted-foreground mb-2">GRÖSSTE ABWEICHUNGEN</p>
-          {top.map(t => <div key={t.i} className="flex items-center gap-3 py-2 border-t border-border text-sm"><ItemIcon index={t.i} className="size-5 text-primary shrink-0" /><span className="flex-1 min-w-0 break-words">{moonCrashItems[t.i]}</span><span className="font-mono text-xs text-muted-foreground shrink-0">{t.raw > 0 ? "unterschätzt" : "überschätzt"} · Δ{t.d}</span></div>)}
+          {top.map(t => <div key={t.i} className="flex items-center gap-3 py-2 border-t border-border text-sm"><ItemIcon item={t.i} className="size-5 text-primary shrink-0" /><span className="flex-1 min-w-0 break-words">{moonCrashItems[t.i]}</span><span className="font-mono text-xs text-muted-foreground shrink-0">{t.raw > 0 ? "unterschätzt" : "überschätzt"} · Δ{t.d}</span></div>)}
         </div>}
       </div>
     </div>
