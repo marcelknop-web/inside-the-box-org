@@ -83,6 +83,71 @@ export type Database = {
         }
         Relationships: []
       }
+      moon_crash_participants: {
+        Row: {
+          id: string
+          name: string
+          ranking: Json | null
+          session_id: string
+          slot: number
+          submitted_at: string | null
+          token_hash: string | null
+        }
+        Insert: {
+          id?: string
+          name: string
+          ranking?: Json | null
+          session_id: string
+          slot: number
+          submitted_at?: string | null
+          token_hash?: string | null
+        }
+        Update: {
+          id?: string
+          name?: string
+          ranking?: Json | null
+          session_id?: string
+          slot?: number
+          submitted_at?: string | null
+          token_hash?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moon_crash_participants_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "moon_crash_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      moon_crash_sessions: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          revealed: boolean
+          title: string
+          trainer_hash: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          revealed?: boolean
+          title: string
+          trainer_hash: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          revealed?: boolean
+          title?: string
+          trainer_hash?: string
+        }
+        Relationships: []
+      }
       page_visits: {
         Row: {
           count: number
@@ -146,6 +211,19 @@ export type Database = {
     }
     Functions: {
       increment_page_visit: { Args: { p_page: string }; Returns: number }
+      moon_crash_claim: {
+        Args: { p_hash: string; p_session: string; p_slot: number }
+        Returns: boolean
+      }
+      moon_crash_submit: {
+        Args: {
+          p_hash: string
+          p_ranking: Json
+          p_session: string
+          p_slot: number
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
