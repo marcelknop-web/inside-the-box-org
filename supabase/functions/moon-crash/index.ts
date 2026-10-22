@@ -81,16 +81,17 @@ Deno.serve(async (req) => {
     const { data: people, error: peopleError } = await db.from("moon_crash_participants").select("*").eq("session_id", session.id).order("slot");
     if (peopleError || !people) throw new Error("status");
     const suppliedHash = body.token ? await hash(body.token) : "";
+    const liveResults = session.revealed || trainer;
     return response({ code: session.code, title: session.title, revealed: session.revealed, trainer,
       participants: people.map(p => ({ slot: p.slot, name: p.name, claimed: Boolean(p.token_hash), submitted: Boolean(p.submitted_at),
-        ranking: session.revealed || (body.action === "status" && p.slot === body.slot && p.token_hash === suppliedHash) ? p.ranking : null,
-        score: session.revealed && p.ranking ? scoreRanking(p.ranking) : null,
+        ranking: liveResults || (body.action === "status" && p.slot === body.slot && p.token_hash === suppliedHash) ? p.ranking : null,
+        score: liveResults && p.ranking ? scoreRanking(p.ranking) : null,
       })),
-      reference: session.revealed ? reference : null,
-      explanations: session.revealed ? explanations : null,
-      groupRanking: session.revealed || trainer ? session.group_ranking : null,
-      groupScore: session.revealed && session.group_ranking ? scoreRanking(session.group_ranking) : null,
-      winnerSlots: session.revealed ? winningSlots(people.map(p => ({ slot: p.slot, score: p.ranking ? scoreRanking(p.ranking) : null }))) : [],
+      reference: liveResults ? reference : null,
+      explanations: liveResults ? explanations : null,
+      groupRanking: liveResults ? session.group_ranking : null,
+      groupScore: liveResults && session.group_ranking ? scoreRanking(session.group_ranking) : null,
+      winnerSlots: liveResults ? winningSlots(people.map(p => ({ slot: p.slot, score: p.ranking ? scoreRanking(p.ranking) : null }))) : [],
     });
   } catch (error) {
     if (error instanceof SyntaxError) return response({ error: "Ungültige Eingabe." }, 400);
