@@ -5,5 +5,5 @@
 - [x] Simplify person/trainer selection and ranking input.
 - [x] Add trainer-entered group solution, winners and graphical NASA comparisons.
 - [x] Verify role switching, submission and release end to end.
-- [ ] Add a full Moon-Crash briefing and step-by-step equipment decisions without numeric entry.
-- [ ] Verify equipment selection, corrections and submission in the live exercise.
+- [x] Add a full Moon-Crash briefing and step-by-step equipment decisions without numeric entry.
+- [x] Verify equipment selection, corrections and submission in the live exercise.
