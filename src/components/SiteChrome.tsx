@@ -1,80 +1,33 @@
-import { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Languages, Menu, X } from 'lucide-react';
-import { useLanguage } from '@/i18n/LanguageContext';
+import { useState, ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Languages, ArrowRight, Linkedin, Mail, Phone } from 'lucide-react';
+import { useLanguage, nextLanguage } from '@/i18n/LanguageContext';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { GeometricSymbol } from '@/components/GeometricSymbol';
-import { PublicWorkspace, isWorkspacePath } from '@/components/PublicWorkspace';
-import { SERVICE_DETAILS } from '@/data/serviceDetails';
-import { framedToolForPath } from '@/data/labTools';
-
-const ChromeContext = createContext(false);
-
-/** Layout route: keeps one SiteChrome mounted across public sub-pages. */
-export const PublicFrame = ({ children }: { children: ReactNode }) => <SiteChrome>{children}</SiteChrome>;
+import { consultantProfiles } from '@/data/consultantProfiles';
 
 /**
- * Shared site chrome (top bar + footer + legal drawer) used by the
+ * Shared site chrome (top bar + footer + Team/Contact drawers) used by the
  * Overview homepage and every service sub-page reachable from it. Keeps the
  * brand surface identical across the journey.
  *
  * `onBrandClick` is optional — pages that have an in-page reset (e.g. Overview's
  * hero) can hook into it. By default the brand link navigates to `/`.
  */
-const LANGUAGE_NAMES = { de: 'Deutsch', en: 'English', fr: 'Français' } as const;
-
 export const SiteChrome = ({
   children,
   onBrandClick,
   hideLanguageSwitch,
-  activeSection,
-  workspace,
 }: {
   children: ReactNode;
   onBrandClick?: () => void;
   /** Hide the language switcher (for English-only pages like GapZero). */
   hideLanguageSwitch?: boolean;
-  activeSection?: 'services' | 'knowledge' | 'team' | 'contact';
-  /** Force the stable sub-page workspace (e.g. public tool introductions). */
-  workspace?: boolean;
 }) => {
-  const nested = useContext(ChromeContext);
-  if (nested) return <>{children}</>;
-  return <ChromeFrame onBrandClick={onBrandClick} hideLanguageSwitch={hideLanguageSwitch} activeSection={activeSection} workspace={workspace}>{children}</ChromeFrame>;
-};
-
-const ChromeFrame = ({
-  children,
-  onBrandClick,
-  hideLanguageSwitch,
-  activeSection,
-  workspace,
-}: {
-  children: ReactNode;
-  onBrandClick?: () => void;
-  hideLanguageSwitch?: boolean;
-  activeSection?: 'services' | 'knowledge' | 'team' | 'contact';
-  workspace?: boolean;
-}) => {
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
   const navigate = useNavigate();
-  const location = useLocation();
-  const [drawer, setDrawer] = useState<'imprint' | null>(null);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [drawer, setDrawer] = useState<'team' | 'contact' | 'imprint' | null>(null);
   const lang = language as 'en' | 'de' | 'fr';
-  const isHome = location.pathname === '/';
-  // Homepage shares the desktop frame (sidebar) but keeps its own mobile hero.
-  const inWorkspace = Boolean(workspace) || isWorkspacePath(location.pathname) || isHome;
-  const headerRef = useRef<HTMLElement>(null);
-  useEffect(() => {
-    const el = headerRef.current;
-    if (!el) return;
-    const apply = () => document.documentElement.style.setProperty('--site-header-h', `${el.offsetHeight}px`);
-    apply();
-    const ro = new ResizeObserver(apply);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
 
   const footerImprintLabel =
     lang === 'de' ? 'Impressum' : lang === 'fr' ? 'Mentions légales' : 'Imprint';
@@ -95,74 +48,44 @@ const ChromeFrame = ({
     navigate('/');
   };
 
-  const slug = location.pathname.replace(/^\/+|\/+$/g, '');
-  const isServicePage = Boolean(SERVICE_DETAILS[slug]) && !['publications','ki-lab','ai-workflows'].includes(slug);
-  const isKnowledgePage = ['/publications','/ki-lab','/ai-workflows'].includes(location.pathname) || Boolean(framedToolForPath(location.pathname)) || (inWorkspace && !isHome && !isServicePage && !['/team','/contact','/references'].includes(location.pathname));
-  const isCurrent = (section: NonNullable<typeof activeSection>) => activeSection === section || (section === 'knowledge' && isKnowledgePage) || (section === 'services' && isServicePage) || (section === 'team' && location.pathname === '/team') || (section === 'contact' && location.pathname === '/contact');
-  const navClass = (section: NonNullable<typeof activeSection>) => `font-mono text-[10px] tracking-[0.08em] transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:text-[11px] ${isCurrent(section) ? 'text-primary' : 'text-muted-foreground'}`;
-
   return (
-    <div className="technical-grid min-h-screen w-full overflow-x-clip text-foreground flex flex-col">
+    <div className="min-h-screen w-full text-foreground flex flex-col">
       {/* Top bar */}
-      <header ref={headerRef} className={`border-b border-primary/10 ${isHome ? 'lg:sticky lg:top-0 lg:z-40 lg:bg-background/95 lg:backdrop-blur' : inWorkspace ? 'sticky top-0 z-40 bg-background/95 backdrop-blur' : ''}`}>
-        <div className={`mx-auto grid ${inWorkspace ? 'max-w-7xl lg:px-9' : 'max-w-6xl'} grid-cols-[1fr_auto] items-center gap-2 px-4 py-2 sm:flex sm:flex-wrap sm:justify-between sm:gap-3 sm:px-6 sm:py-5`}>
+      <header className="border-b border-primary/10">
+        <div className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 gap-3">
           <button
             onClick={handleBrand}
-            className="flex flex-shrink-0 items-center gap-2.5 transition-opacity hover:opacity-80"
+            className="flex-shrink-0 transition-opacity hover:opacity-80"
             aria-label="inside-the-box"
+            style={{ transform: 'scale(1.6)', transformOrigin: 'left center' }}
           >
             <GeometricSymbol size="xs" />
-            <span className="font-mono text-xs font-medium text-foreground sm:text-sm">inside-the-box.org</span>
           </button>
-          <nav className="hidden items-center gap-3 sm:flex" aria-label={lang === 'de' ? 'Hauptnavigation' : lang === 'fr' ? 'Navigation principale' : 'Main navigation'}>
-            <Link to="/#services" aria-current={isCurrent('services') ? 'page' : undefined} className={navClass('services')}>
-              {lang === 'de' ? 'LEISTUNGEN' : lang === 'fr' ? 'SERVICES' : 'SERVICES'}
-            </Link>
-            <Link to="/#knowledge" aria-current={isCurrent('knowledge') ? 'page' : undefined} className={navClass('knowledge')}>
-              {lang === 'de' ? 'WISSEN & TOOLS' : lang === 'fr' ? 'EXPERTISE & OUTILS' : 'KNOWLEDGE & TOOLS'}
-            </Link>
-            <Link to="/team" aria-current={isCurrent('team') ? 'page' : undefined} className={`inline-flex min-h-11 items-center ${navClass('team')}`}>
+          <div className="flex items-center gap-6 sm:gap-8">
+            <button
+              onClick={() => setDrawer('team')}
+              className="font-mono text-[12px] tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors"
+            >
               {lang === 'de' ? 'TEAM' : lang === 'fr' ? 'ÉQUIPE' : 'TEAM'}
-            </Link>
-            <Link to="/contact" aria-current={isCurrent('contact') ? 'page' : undefined} className={`inline-flex min-h-11 items-center ${navClass('contact')}`}>
-              {lang === 'de' ? 'KONTAKT' : 'CONTACT'}
-            </Link>
-          </nav>
-          <div className="hidden items-center sm:flex" aria-label="Language">
+            </button>
             {!hideLanguageSwitch && (
-              <>
-                <Languages className="mr-1 hidden h-3 w-3 text-muted-foreground sm:block" aria-hidden="true" />
-                {(['de', 'en', 'fr'] as const).map((code) => (
-                  <button key={code} onClick={() => setLanguage(code)} aria-pressed={language === code} className={`min-h-10 min-w-8 font-mono text-[10px] uppercase transition-colors sm:min-w-9 ${language === code ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>{code}</button>
-                ))}
-              </>
+              <button
+                onClick={() => setLanguage(nextLanguage(language))}
+                className="font-mono text-[12px] tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
+                aria-label="Language"
+              >
+                <Languages className="w-3 h-3" />
+                {language.toUpperCase()}
+              </button>
             )}
           </div>
-          <button type="button" aria-expanded={mobileMenuOpen} aria-controls="mobile-site-navigation" aria-label={`${lang === 'de' ? 'Menü' : 'Menu'}${hideLanguageSwitch ? '' : ` · ${LANGUAGE_NAMES[lang]}`}`} onClick={() => setMobileMenuOpen((open) => !open)} className="flex h-11 min-w-11 items-center justify-center gap-2 px-1 text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:hidden">
-            {!hideLanguageSwitch && <span className="font-mono text-[11px] uppercase text-primary" aria-hidden="true">{lang}</span>}
-            {mobileMenuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
-          </button>
-          {mobileMenuOpen && <nav id="mobile-site-navigation" className="col-span-2 grid w-full grid-cols-2 border-t border-border pt-2 sm:hidden" aria-label={lang === 'de' ? 'Hauptnavigation' : lang === 'fr' ? 'Navigation principale' : 'Main navigation'}>
-            <Link to="/#services" onClick={() => setMobileMenuOpen(false)} aria-current={isCurrent('services') ? 'page' : undefined} className="flex min-h-11 items-center font-mono text-[11px] text-muted-foreground hover:text-primary">{lang === 'de' ? 'LEISTUNGEN' : 'SERVICES'}</Link>
-            <Link to="/#knowledge" onClick={() => setMobileMenuOpen(false)} aria-current={isCurrent('knowledge') ? 'page' : undefined} className="flex min-h-11 items-center font-mono text-[11px] text-muted-foreground hover:text-primary">{lang === 'de' ? 'WISSEN & TOOLS' : lang === 'fr' ? 'EXPERTISE & OUTILS' : 'KNOWLEDGE & TOOLS'}</Link>
-            <Link to="/team" onClick={() => setMobileMenuOpen(false)} aria-current={isCurrent('team') ? 'page' : undefined} className="flex min-h-11 items-center font-mono text-[11px] text-muted-foreground hover:text-primary">{lang === 'fr' ? 'ÉQUIPE' : 'TEAM'}</Link>
-            <Link to="/contact" onClick={() => setMobileMenuOpen(false)} aria-current={isCurrent('contact') ? 'page' : undefined} className="flex min-h-11 items-center font-mono text-[11px] text-muted-foreground hover:text-primary">{lang === 'de' ? 'KONTAKT' : 'CONTACT'}</Link>
-            {!hideLanguageSwitch && <div className="col-span-2 mt-1 flex items-center gap-1 border-t border-border pt-2" role="group" aria-label={lang === 'de' ? 'Sprache' : lang === 'fr' ? 'Langue' : 'Language'}>
-              <Languages className="mr-2 h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
-              {(['de', 'en', 'fr'] as const).map((code) => (
-                <button key={code} type="button" onClick={() => setLanguage(code)} aria-pressed={language === code} aria-label={LANGUAGE_NAMES[code]} className={`min-h-11 min-w-11 border font-mono text-[11px] uppercase transition-colors ${language === code ? 'border-primary/60 text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>{code}</button>
-              ))}
-            </div>}
-          </nav>}
         </div>
       </header>
 
       {/* Page content – flex-1 ensures the footer stays pinned to the
           bottom on short pages (e.g. hero), keeping a consistent footer
           baseline across the homepage and all sub-pages. */}
-      <ChromeContext.Provider value={true}>
-        <div className="flex-1 flex flex-col">{inWorkspace ? <PublicWorkspace home={isHome}>{children}</PublicWorkspace> : children}</div>
-      </ChromeContext.Provider>
+      <div className="flex-1 flex flex-col">{children}</div>
 
       {/* Footer
           ----------------------------------------------------------------
@@ -174,7 +97,7 @@ const ChromeFrame = ({
               keyboard users get a clear, brand-consistent indicator.
       */}
       <footer className="border-t border-primary/10 bg-background/40 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3 sm:gap-4 font-mono text-[9px] sm:text-[10px] tracking-[0.08em] sm:tracking-[0.22em] text-muted-foreground">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-nowrap items-center justify-between gap-2.5 sm:gap-4 font-mono text-[9px] sm:text-[10px] tracking-[0.08em] sm:tracking-[0.22em] text-muted-foreground">
           <button
             onClick={handleFooterBrand}
             className="whitespace-nowrap hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm transition-colors no-underline text-left"
@@ -182,13 +105,13 @@ const ChromeFrame = ({
           >
             <span className="hidden sm:inline">© {new Date().getFullYear()} </span>INSIDE-THE-BOX.ORG
           </button>
-          <div className="flex flex-wrap items-center gap-3 sm:gap-5">
-            <Link
-              to="/contact"
+          <div className="flex items-center gap-3 sm:gap-5">
+            <button
+              onClick={() => setDrawer('contact')}
               className="hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm transition-colors uppercase whitespace-nowrap no-underline"
             >
               {footerContactLabel}
-            </Link>
+            </button>
             <button
               onClick={() => setDrawer('imprint')}
               className="hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm transition-colors uppercase whitespace-nowrap no-underline"
@@ -198,6 +121,224 @@ const ChromeFrame = ({
           </div>
         </div>
       </footer>
+
+      {/* Team Drawer */}
+      <Sheet open={drawer === 'team'} onOpenChange={(o) => !o && setDrawer(null)}>
+        <SheetContent
+          side="right"
+          className="w-full sm:max-w-2xl bg-background/85 backdrop-blur-md border-l border-primary/20 overflow-y-auto"
+        >
+          <SheetHeader className="text-left mb-8">
+            <div className="font-mono text-[12px] tracking-[0.3em] text-primary mb-3">/ TEAM</div>
+            <SheetTitle className="font-mono font-semibold text-2xl sm:text-3xl text-foreground">
+              {lang === 'de'
+                ? 'Wer hinter inside-the-box steht'
+                : lang === 'fr'
+                ? 'Qui se cache derrière inside-the-box'
+                : 'The people behind inside-the-box'}
+            </SheetTitle>
+            <SheetDescription className="font-sans text-sm text-muted-foreground leading-relaxed">
+              {lang === 'de'
+                ? 'Zwei Senior-Berater, gemeinsam über 35 Jahre Erfahrung in Cybersecurity, Compliance und Krisenmanagement.'
+                : lang === 'fr'
+                ? 'Deux consultants seniors, plus de 35 ans d\'expérience combinée en cybersécurité, conformité et gestion de crise.'
+                : 'Two senior consultants, 35+ combined years in cybersecurity, compliance and crisis management.'}
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="space-y-8">
+            {consultantProfiles.map((p) => {
+              const key = p.name === 'Marcel Knop' ? 'marcel' : 'andreas';
+              const sections = [
+                { label: t(`profiles.${key}.focusLabel`), value: t(`profiles.${key}.focus`) },
+                { label: t(`profiles.${key}.experienceLabel`), value: t(`profiles.${key}.experience`) },
+                { label: t(`profiles.${key}.certsLabel`), value: t(`profiles.${key}.certs`) },
+                { label: t(`profiles.${key}.eduLabel`), value: t(`profiles.${key}.edu`) },
+                { label: t(`profiles.${key}.langLabel`), value: t(`profiles.${key}.lang`) },
+              ];
+              return (
+                <article key={p.name} className="bg-background/40 border border-primary/15 p-5">
+                  <header className="flex items-start gap-4 mb-4">
+                    <img
+                      src={p.imageUrl}
+                      alt={p.name}
+                      className="w-16 h-16 rounded-full object-cover border border-primary/30"
+                      style={{ objectPosition: (p as any).imagePosition ?? 'center' }}
+                      loading="lazy"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-mono font-semibold text-base text-foreground">{p.name}</h3>
+                      <p className="font-mono text-[11px] tracking-[0.15em] text-primary/80 uppercase mt-1">{p.role}</p>
+                      {p.linkedinUrl && (
+                        <a
+                          href={p.linkedinUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 font-mono text-[11px] text-muted-foreground hover:text-primary transition-colors mt-2"
+                        >
+                          <Linkedin className="w-3 h-3" />
+                          LinkedIn
+                        </a>
+                      )}
+                    </div>
+                  </header>
+
+                  <div className="font-sans text-[15px] text-foreground/85 leading-relaxed mb-4 space-y-3">
+                    {t(`profiles.${key}.bio`).split('\n\n').map((para, i) => (
+                      <p key={i}>{para}</p>
+                    ))}
+                  </div>
+
+                  <dl className="grid grid-cols-1 gap-3">
+                    {sections.map((s) => (
+                      <div key={s.label} className="border-t border-primary/10 pt-3">
+                        <dt className="font-mono text-[12px] tracking-[0.25em] text-primary/70 uppercase mb-1.5">
+                          {s.label}
+                        </dt>
+                        <dd className="font-sans text-[15px] text-foreground/85 leading-relaxed">
+                          {s.value}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                </article>
+              );
+            })}
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Contact Drawer */}
+      <Sheet open={drawer === 'contact'} onOpenChange={(o) => !o && setDrawer(null)}>
+        <SheetContent
+          side="right"
+          className="w-full sm:max-w-md bg-background/85 backdrop-blur-md border-l border-primary/20"
+        >
+          <SheetHeader className="text-left mb-8">
+            <div className="font-mono text-[12px] tracking-[0.3em] text-primary mb-3">{lang === 'de' ? '/ KONTAKT' : '/ CONTACT'}</div>
+            <SheetTitle className="font-mono font-semibold text-2xl sm:text-3xl text-foreground">
+              {lang === 'de' ? 'Sprechen wir' : lang === 'fr' ? 'Parlons-en' : 'Let\'s talk'}
+            </SheetTitle>
+          </SheetHeader>
+
+          <div className="space-y-3">
+            <a
+              href="mailto:marcel@inside-the-box.org"
+              className="group flex items-center justify-between gap-3 p-4 border border-primary/20 hover:border-primary bg-background/40 hover:bg-primary/5 transition-all"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <Mail className="w-4 h-4 text-primary flex-shrink-0" />
+                <div className="min-w-0">
+                  <div className="font-mono text-[10px] tracking-[0.25em] text-muted-foreground uppercase mb-0.5">{lang === 'fr' ? 'E-mail · Marcel Knop' : 'E-Mail · Marcel Knop'}</div>
+                  <div className="font-mono text-sm text-foreground truncate">marcel@inside-the-box.org</div>
+                </div>
+              </div>
+              <ArrowRight className="w-4 h-4 text-primary/0 group-hover:text-primary transition-colors flex-shrink-0" />
+            </a>
+
+            <a
+              href="tel:+4915205691648"
+              className="group flex items-center justify-between gap-3 p-4 border border-primary/20 hover:border-primary bg-background/40 hover:bg-primary/5 transition-all"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <Phone className="w-4 h-4 text-primary flex-shrink-0" />
+                <div className="min-w-0">
+                  <div className="font-mono text-[10px] tracking-[0.25em] text-muted-foreground uppercase mb-0.5">{lang === 'de' ? 'Mobil · Marcel Knop' : lang === 'fr' ? 'Mobile · Marcel Knop' : 'Mobile · Marcel Knop'}</div>
+                  <div className="font-mono text-sm text-foreground">+49 1520 569 1648</div>
+                </div>
+              </div>
+              <ArrowRight className="w-4 h-4 text-primary/0 group-hover:text-primary transition-colors flex-shrink-0" />
+            </a>
+
+            <a
+              href="https://www.linkedin.com/in/inside-the-box"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center justify-between gap-3 p-4 border border-primary/20 hover:border-primary bg-background/40 hover:bg-primary/5 transition-all"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <Linkedin className="w-4 h-4 text-primary flex-shrink-0" />
+                <div className="min-w-0">
+                  <div className="font-mono text-[10px] tracking-[0.25em] text-muted-foreground uppercase mb-0.5">LinkedIn</div>
+                  <div className="font-mono text-sm text-foreground">inside-the-box</div>
+                </div>
+              </div>
+              <ArrowRight className="w-4 h-4 text-primary/0 group-hover:text-primary transition-colors flex-shrink-0" />
+            </a>
+
+            {/* PGP Public Key — for encrypted email to marcel@inside-the-box.org */}
+            <details className="group border border-primary/20 bg-background/40 open:border-primary/40 transition-all">
+              <summary className="flex items-center justify-between gap-3 p-4 cursor-pointer hover:bg-primary/5 list-none [&::-webkit-details-marker]:hidden">
+                <div className="flex items-center gap-3 min-w-0">
+                  <Mail className="w-4 h-4 text-primary flex-shrink-0" />
+                  <div className="min-w-0">
+                    <div className="font-mono text-[10px] tracking-[0.25em] text-muted-foreground uppercase mb-0.5">
+                      {lang === 'de' ? 'PGP Public Key' : lang === 'fr' ? 'Clé publique PGP' : 'PGP Public Key'}
+                    </div>
+                    <div className="font-mono text-sm text-foreground">
+                      {lang === 'de' ? 'Für verschlüsselte E-Mails' : lang === 'fr' ? 'Pour e-mails chiffrés' : 'For encrypted email'}
+                    </div>
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-primary/60 group-open:rotate-90 transition-transform flex-shrink-0" />
+              </summary>
+              <pre className="px-4 pb-4 pt-0 max-h-64 overflow-auto font-mono text-[10px] leading-relaxed text-muted-foreground whitespace-pre select-all">
+{`-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: MailClient.Security v10.4.5326+97a2e75a43
+
+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
+=jzzN
+-----END PGP PUBLIC KEY BLOCK-----`}
+              </pre>
+            </details>
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* Imprint Drawer */}
       <Sheet open={drawer === 'imprint'} onOpenChange={(o) => !o && setDrawer(null)}>

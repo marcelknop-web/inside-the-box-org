@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, ReactNode, useCallback, useMemo, lazy, Suspense } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { LAB_GROUPS, framedToolForPath } from '@/data/labTools';
+import { useParams, useNavigate } from 'react-router-dom';
 
 import { supabase } from '@/integrations/supabase/client';
 import { Send, Plus, MessageCircle, Shield, Target, BookOpen, AlertTriangle, Eye, Flame, Swords, Calendar, FileText, UserCheck, ChevronLeft, Menu, ShieldCheck, Search, Settings, Award, RotateCcw, Network, CreditCard, CheckCircle, FileCheck, Car, BarChart, RefreshCw, GraduationCap, ClipboardList, Zap, Crown, Users, Gamepad2, Monitor, Crosshair, CheckSquare, Mic, Radio, Video, Mail, Server, Bug, AlertCircle, MessageSquare, Building2, Plane, Landmark, Scale, Wifi, XCircle, HelpCircle, Loader2, X, Linkedin, Play, TrendingDown, Rocket, Fingerprint, Factory, Sparkles, Brain, Skull } from 'lucide-react';
@@ -36,11 +35,13 @@ const SocLife = lazy(() => import('./SocLife'));
 const OtSocLife = lazy(() => import('./OtSocLife'));
 const AiActReadinessTool = lazy(() => import('./AiActReadinessTool'));
 const WisconsinCardSort = lazy(() => import('./WisconsinCardSort'));
+const Syndicate = lazy(() => import('./Syndicate'));
 
 import { StaggerReveal } from '@/components/StaggerReveal';
 import GlitchText from '@/components/GlitchText';
 import Typewriter from '@/components/Typewriter';
 import TypedSection from '@/components/TypedSection';
+import { LinkButton } from '@/components/LinkButton';
 import TtxRegistrationForm from '@/components/TtxRegistrationForm';
 import { NewsPanel } from '@/components/NewsPanel';
 import { RelatedServices } from '@/components/RelatedServices';
@@ -48,9 +49,6 @@ import { NewDateBadge } from '@/components/NewDateBadge';
 import { SiteChrome } from '@/components/SiteChrome';
 import { PasswordGate } from '@/components/PasswordGate';
 import { VisitCounter } from '@/components/VisitCounter';
-import { ServiceDetailPage } from '@/components/ServiceDetailPage';
-import { PublicationsPage } from '@/components/PublicationsPage';
-import { SERVICE_DETAILS } from '@/data/serviceDetails';
 
 // AI Lab tool publication dates (ISO YYYY-MM-DD).
 // Tools listed here show a "Neu/New/Nouveau" badge for 30 days from this date.
@@ -58,7 +56,7 @@ import { SERVICE_DETAILS } from '@/data/serviceDetails';
 const AI_TOOL_ADDED_AT: Record<string, string> = {
   'soc-life': '2026-04-10',
   'ot-soc-life': '2026-04-24',
-  'syndicate': '2026-07-02',
+  'syndicate-game': '2026-07-02',
   'ernstfall': '2026-07-20',
 };
 
@@ -69,21 +67,21 @@ interface ChatMessage { role: 'user' | 'assistant'; content: string; links?: Nav
 // ── Chat-styled content blocks ──────────────────────────────────────────────
 
 const Block = ({ children, className = '' }: { children: ReactNode; className?: string }) => (
-  <section className={`rounded-lg border border-border/80 bg-card/90 px-4 py-5 text-base font-sans leading-relaxed text-foreground shadow-card backdrop-blur-sm sm:px-6 ${className}`}>
+  <div className={`rounded-lg px-5 py-5 text-base font-sans leading-relaxed tracking-wide text-foreground ${className}`}>
     {children}
-  </section>
+  </div>
 );
 
 const SectionTitle = ({ children }: { children: ReactNode }) => (
-  <h2 className="mb-3 text-xl font-semibold text-foreground">{children}</h2>
+  <h2 className="text-primary text-xl font-bold font-mono mb-3">{children}</h2>
 );
 
 const SubTitle = ({ children, variant: _v }: { children: ReactNode; variant?: 'primary' | 'highlight' }) => (
-  <h3 className="mb-1 text-base font-semibold text-primary">{children}</h3>
+  <h3 className="text-primary font-semibold font-mono text-base mb-1">{children}</h3>
 );
 
 const CardBlock = ({ icon: Icon, title, desc, variant = 'primary', link, linkLabel, bullets, result }: { icon: LucideIcon; title: string; desc: string; variant?: 'primary' | 'highlight'; link?: string; linkLabel?: string; bullets?: string[]; result?: string }) => (
-  <div className={`rounded-lg p-5 ${variant === 'highlight' ? 'bg-card/95 border border-highlight/15' : 'bg-card/95 border border-primary/15'} shadow-card`}>
+  <div className={`rounded-lg p-5 ${variant === 'highlight' ? 'bg-highlight/[0.03] border border-highlight/15' : 'bg-primary/[0.03] border border-primary/15'} shadow-[0_1px_3px_hsl(216_50%_3%/0.3)]`}>
     <div className="flex items-start gap-3.5">
       <Icon size={20} className={`mt-0.5 flex-shrink-0 opacity-70 ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`} />
       <div>
@@ -118,7 +116,7 @@ const GridItem = ({ icon: Icon, title, subtitle, desc, variant = 'primary', href
   const colorClass = variant === 'highlight' ? 'text-highlight' : 'text-primary';
   const borderClass = variant === 'highlight' ? 'border-highlight/12' : 'border-primary/12';
   return (
-    <div className={`bg-background/55 border ${borderClass} rounded-lg p-4 flex items-start gap-3 overflow-hidden ${className || ''}`}>
+    <div className={`bg-secondary/30 border ${borderClass} rounded-lg p-3.5 flex items-start gap-3 overflow-hidden shadow-[0_1px_2px_hsl(216_50%_3%/0.2)] ${className || ''}`}>
       <Icon size={17} className={`mt-0.5 flex-shrink-0 opacity-65 ${colorClass}`} />
       <div className="space-y-0.5 min-w-0">
         {href ? (
@@ -332,7 +330,7 @@ const useServiceContent = () => {
 
   const contentMap: Record<string, () => ReactNode> = {
     isms: () => (
-      <TypedSection title={t('isms.title')} mode="fade" intro={<p>{t('isms.intro')}</p>}>
+      <TypedSection title={t('isms.title')} mode="typewriter" intro={<p>{t('isms.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('isms.introDetail')}</p>
         </Block>
@@ -371,7 +369,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'nis2-dora': () => (
-      <TypedSection title={t('nis2.title')} mode="fade" intro={<p>{t('nis2.intro')}</p>}>
+      <TypedSection title={t('nis2.title')} mode="typewriter" intro={<p>{t('nis2.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('nis2.introDetail')}</p>
         </Block>
@@ -419,7 +417,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'tisax-pci-dss': () => (
-      <TypedSection title={t('tisax.title')} mode="fade" intro={<p>{t('tisax.intro')}</p>}>
+      <TypedSection title={t('tisax.title')} mode="typewriter" intro={<p>{t('tisax.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('tisax.introDetail')}</p>
         </Block>
@@ -457,7 +455,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'assessments-concepts': () => (
-      <TypedSection title={t('assessments.title')} mode="fade" intro={<p>{t('assessments.intro')}</p>}>
+      <TypedSection title={t('assessments.title')} mode="typewriter" intro={<p>{t('assessments.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('assessments.introDetail')}</p>
         </Block>
@@ -493,7 +491,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'incident-management': () => (
-      <TypedSection title={t('incident.title')} mode="fade" intro={<p>{t('incident.intro')}</p>}>
+      <TypedSection title={t('incident.title')} mode="typewriter" intro={<p>{t('incident.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('incident.introDetail')}</p>
         </Block>
@@ -531,7 +529,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'bcm': () => (
-      <TypedSection title={t('bcm.title')} mode="fade" intro={<p>{t('bcm.intro')}</p>}>
+      <TypedSection title={t('bcm.title')} mode="typewriter" intro={<p>{t('bcm.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('bcm.introDetail')}</p>
         </Block>
@@ -567,11 +565,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'cyber-crisis-management': () => (
-      <TypedSection title={t('cyberCrisis.title')} mode="fade" intro={<p>{t('cyberCrisis.intro')}</p>}>
-        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
-          <SubTitle variant="highlight">{t('cyberCrisis.outcomesTitle')}</SubTitle>
-          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('cyberCrisis.outcomesDesc')}</p>
-        </Block>
+      <TypedSection title={t('cyberCrisis.title')} mode="typewriter" intro={<p>{t('cyberCrisis.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('cyberCrisis.introDetail')}</p>
         </Block>
@@ -584,6 +578,10 @@ const useServiceContent = () => {
             <GridItem icon={Crown} title={t('cyberCrisis.leaderTitle')} desc={t('cyberCrisis.leaderDesc')} />
             <GridItem icon={MessageSquare} title={t('cyberCrisis.commTitle')} desc={t('cyberCrisis.commDesc')} />
           </div>
+        </Block>
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('cyberCrisis.outcomesTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('cyberCrisis.outcomesDesc')}</p>
         </Block>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('cyberCrisis.refTitle')}</SubTitle>
@@ -603,7 +601,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'arena-training': () => (
-      <TypedSection title={t('arena.title')} mode="fade" intro={<p>{t('arena.intro')}</p>}>
+      <TypedSection title={t('arena.title')} mode="typewriter" intro={<p>{t('arena.intro')}</p>}>
          <Block className="bg-card/40 rounded-xl">
            <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('arena.introDetail')}</p>
          </Block>
@@ -647,7 +645,7 @@ const useServiceContent = () => {
           <img src="/lovable-uploads/f463db5a-733d-4e4e-b151-d3e33ebe8997.webp" alt="Training" width={800} height={534} loading="lazy" decoding="async" className="rounded-xl w-full h-40 md:h-48 object-cover border border-border" />
           <img src="/lovable-uploads/48ad82c3-84e8-4161-93d5-d79b509f7cc4.webp" alt="Conference" width={800} height={534} loading="lazy" decoding="async" className="rounded-xl w-full h-40 md:h-48 object-cover border border-border" />
         </div>
-        <TypedSection title={t('events.title')} mode="fade" intro={<p>{t('events.intro')}</p>}>
+        <TypedSection title={t('events.title')} mode="typewriter" intro={<p>{t('events.intro')}</p>}>
 
         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
           <div className="grid grid-cols-1 gap-3">
@@ -752,7 +750,7 @@ const useServiceContent = () => {
       </>
     ),
     publications: () => (
-      <TypedSection title={t('publications.title')} mode="fade" intro={<p>{t('publications.intro')}</p>}>
+      <TypedSection title={t('publications.title')} mode="typewriter" intro={<p>{t('publications.intro')}</p>}>
         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
           <SubTitle>{t('publications.pubSectionTitle')}</SubTitle>
           <div className="grid grid-cols-1 gap-3 mt-2">
@@ -781,7 +779,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'virtual-ciso': () => (
-      <TypedSection title={t('vciso.title')} mode="fade" intro={<p>{t('vciso.intro')}</p>}>
+      <TypedSection title={t('vciso.title')} mode="typewriter" intro={<p>{t('vciso.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('vciso.introDetail')}</p>
         </Block>
@@ -819,7 +817,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'soc-operations': () => (
-      <TypedSection title={t('socOps.title')} mode="fade" intro={<p>{t('socOps.intro')}</p>}>
+      <TypedSection title={t('socOps.title')} mode="typewriter" intro={<p>{t('socOps.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('socOps.introDetail')}</p>
         </Block>
@@ -850,7 +848,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'dora-nis2-ttx': () => (
-      <TypedSection title={t('ttx.title')} mode="fade" intro={<p>{t('ttx.intro')}</p>}>
+      <TypedSection title={t('ttx.title')} mode="typewriter" intro={<p>{t('ttx.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <div className="inline-flex items-center gap-2 mb-3 px-2.5 py-1 rounded-full bg-highlight/10 border border-highlight/30">
             <span className="w-1.5 h-1.5 rounded-full bg-highlight" />
@@ -942,68 +940,164 @@ const useServiceContent = () => {
     ),
     'ki-lab': () => (
       <TypedSection title={t('kiLab.title')} mode="fade" charDelay={4} pause={120} stagger={90} intro={<p>{t('kiLab.intro')}</p>} loadingSkeleton={<ToolGridSkeleton />}>
-        <p className="max-w-3xl text-sm leading-relaxed text-foreground/80 md:text-[15px]">{t('kiLab.introDetail')}</p>
-        {LAB_GROUPS.map((group) => (
-          <section key={group.id} aria-labelledby={`lab-${group.id}`} className="mt-8">
-            <h2 id={`lab-${group.id}`} className="mb-3 font-mono text-[11px] uppercase tracking-[0.2em] text-primary">{group.label[language as 'de' | 'en' | 'fr']}</h2>
-            <ul className="grid gap-px border border-border bg-border sm:grid-cols-2">
-              {group.tools.map((tool) => {
-                const Icon = tool.icon;
-                const title = t(tool.titleKey);
-                const body = (
-                  <>
-                    <Icon className="mt-0.5 h-5 w-5 shrink-0 text-primary" strokeWidth={1.7} aria-hidden="true" />
-                    <span className="min-w-0 flex-1">
-                      <span className="flex flex-wrap items-center gap-2 text-base font-semibold leading-snug text-foreground">
-                        {title}
-                        {tool.slug && AI_TOOL_ADDED_AT[tool.slug] && <NewDateBadge addedAt={AI_TOOL_ADDED_AT[tool.slug]} />}
-                      </span>
-                      <span className="mt-1 block text-sm leading-relaxed text-foreground/70">{t(tool.descKey)}</span>
-                      <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">{tool.slug ? (language === 'de' ? 'Starten' : language === 'fr' ? 'Lancer' : 'Start') : (language === 'de' ? 'Abspielen' : language === 'fr' ? 'Lire' : 'Play')}<span aria-hidden="true">→</span></span>
-                    </span>
-                  </>
-                );
-                const cls = 'flex h-full w-full items-start gap-3 bg-card/90 p-5 text-left transition-colors hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring';
-                return (
-                  <li key={tool.titleKey} className="min-w-0">
-                    {tool.slug
-                      ? <Link to={`/${tool.slug}`} className={cls} aria-label={`${title} – ${language === 'de' ? 'starten' : language === 'fr' ? 'lancer' : 'start'}`}>{body}</Link>
-                      : <button type="button" onClick={() => setYtDialogOpen(true)} className={cls} aria-label={`${title} – ${language === 'de' ? 'abspielen' : language === 'fr' ? 'lire' : 'play'}`}>{body}</button>}
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-        ))}
-        <Dialog open={ytDialogOpen} onOpenChange={setYtDialogOpen}>
-          <DialogContent className="sm:max-w-[720px] p-0 bg-background border-primary/30">
-            <DialogTitle className="sr-only">{t('aiWorkflows.agentYtTitle')}</DialogTitle>
-            <div className="aspect-video w-full">
-              {ytDialogOpen && (
-                <iframe
-                  className="w-full h-full"
-                  src="https://www.youtube.com/embed/T8cfqFS77es?autoplay=1"
-                  title="Realistische Einspieler in Krisenstabsübungen"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
-        <section className="mt-10 border-t border-primary/25 bg-card/75 px-5 py-6 sm:px-7">
-          <p className="font-semibold text-foreground">{t('kiLab.ctaTitle')}</p>
-          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-foreground/75">{t('kiLab.ctaDesc')}</p>
-          <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-semibold">
-            <Link to="/ai-workflows" className="text-primary hover:underline">{t('kiLab.ctaButton')}</Link>
-            <Link to="/contact" className="text-primary hover:underline">{t('kiLab.ctaContact')}</Link>
+        <Block className="bg-card/40 rounded-xl">
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('kiLab.introDetail')}</p>
+        </Block>
+
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('aiWorkflows.tryAgentsTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] mb-3">{t('aiWorkflows.tryAgentsDesc')}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {/* — Flagship: Krisensimulator — */}
+            <button onClick={() => setActive('crisis-sim')} className="sm:col-span-2 flex items-start gap-3 p-3.5 rounded-lg border border-highlight/40 bg-highlight/10 hover:bg-highlight/15 hover:border-highlight/60 transition-electric text-left">
+              <AlertTriangle size={20} className="text-highlight mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-highlight font-semibold font-mono text-sm">{t('crisisSim.sidebarLabel')}</p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentCrisisDesc')}</p>
+              </div>
+            </button>
+            {/* — Regulierungs-Checks — */}
+            <button onClick={() => setActive('dora-check')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <Landmark size={20} className="text-highlight mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentDoraTitle')}</p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentDoraDesc')}</p>
+              </div>
+            </button>
+            <button onClick={() => setActive('tisax-check')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <Car size={20} className="text-highlight mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentTisaxTitle')}</p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentTisaxDesc')}</p>
+              </div>
+            </button>
+            <button onClick={() => setActive('pci-check')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <CreditCard size={20} className="text-highlight mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentPciTitle')}</p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentPciDesc')}</p>
+              </div>
+            </button>
+            {/* — Planung & Priorisierung — */}
+            <button onClick={() => setActive('ttx-check')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <ClipboardList size={20} className="text-highlight mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentTtxTitle')}</p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentTtxDesc')}</p>
+              </div>
+            </button>
+            {/* — Lern-Simulationen — */}
+            <button onClick={() => setActive('nis2-quiz')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <Scale size={20} className="text-highlight mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentNis2QuizTitle')}</p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentNis2QuizDesc')}</p>
+              </div>
+            </button>
+            <button onClick={() => setActive('ciso-sim')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <TrendingDown size={20} className="text-highlight mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentCisoTitle')}</p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentCisoDesc')}</p>
+              </div>
+            </button>
+            <button onClick={() => setActive('threatdrop')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <Shield size={20} className="text-highlight mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentThreatDropTitle')}</p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentThreatDropDesc')}</p>
+              </div>
+            </button>
+            {/* — Arcade — */}
+            <button onClick={() => setActive('trigger-triage')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <Crosshair size={20} className="text-highlight mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentTriggerTriageTitle')}</p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentTriggerTriageDesc')}</p>
+              </div>
+            </button>
+            <button onClick={() => setActive('soc-life')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <Building2 size={20} className="text-highlight mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-highlight font-semibold font-mono text-sm flex items-center gap-2 flex-wrap">
+                  {t('aiWorkflows.agentSocLifeTitle')}
+                  {AI_TOOL_ADDED_AT['soc-life'] && <NewDateBadge addedAt={AI_TOOL_ADDED_AT['soc-life']} />}
+                </p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentSocLifeDesc')}</p>
+              </div>
+            </button>
+            <button onClick={() => setActive('ot-soc-life')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <Factory size={20} className="text-highlight mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-highlight font-semibold font-mono text-sm flex items-center gap-2 flex-wrap">
+                  {t('aiWorkflows.agentOtSocLifeTitle')}
+                  {AI_TOOL_ADDED_AT['ot-soc-life'] && <NewDateBadge addedAt={AI_TOOL_ADDED_AT['ot-soc-life']} />}
+                </p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentOtSocLifeDesc')}</p>
+              </div>
+            </button>
+            {/* — Media — */}
+            <button onClick={() => setYtDialogOpen(true)} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <Play size={20} className="text-highlight mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentYtTitle')}</p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentYtDesc')}</p>
+              </div>
+            </button>
+            {/* — ERNSTLFALL: TTX Generator — nur per Direktlink /ernstfall — */}
+            {/* — Arcade: Strategie-Spiel — */}
+            <button onClick={() => setActive('syndicate-game')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <Skull size={20} className="text-highlight mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-highlight font-semibold font-mono text-sm flex items-center gap-2 flex-wrap">
+                  {t('aiWorkflows.syndicateTitle')}
+                  {AI_TOOL_ADDED_AT['syndicate-game'] && <NewDateBadge addedAt={AI_TOOL_ADDED_AT['syndicate-game']} />}
+                </p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.syndicateDesc')}</p>
+              </div>
+            </button>
           </div>
-        </section>
+          <Dialog open={ytDialogOpen} onOpenChange={setYtDialogOpen}>
+            <DialogContent className="sm:max-w-[720px] p-0 bg-background border-highlight/30">
+              <DialogTitle className="sr-only">{t('aiWorkflows.agentYtTitle')}</DialogTitle>
+              <div className="aspect-video w-full">
+                {ytDialogOpen && (
+                  <iframe
+                    className="w-full h-full rounded-lg"
+                    src="https://www.youtube.com/embed/T8cfqFS77es?autoplay=1"
+                    title="Realistische Einspieler in Krisenstabsübungen"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
+        </Block>
+
+        <Block className="bg-card/40 rounded-xl">
+          <p className="text-highlight font-mono font-bold text-sm">{t('kiLab.ctaTitle')}</p>
+          <p className="text-foreground/80 text-sm font-sans mt-1">{t('kiLab.ctaDesc')}</p>
+          <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
+            <button
+              onClick={() => setActive('ai-workflows')}
+              className="inline-flex items-center gap-2 text-highlight font-mono font-bold text-sm hover:text-primary transition-electric cursor-pointer bg-transparent border-none p-0"
+            >
+              {t('kiLab.ctaButton')}
+            </button>
+            <button
+              onClick={() => setActive('contact')}
+              className="inline-flex items-center gap-2 text-primary font-mono font-bold text-sm hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"
+            >
+              {t('kiLab.ctaContact')}
+            </button>
+          </div>
+        </Block>
         <VisitCounter />
       </TypedSection>
     ),
     'ai-workflows': () => (
-      <TypedSection title={t('aiWorkflows.title')} mode="fade" intro={<p>{t('aiWorkflows.intro')}</p>}>
+      <TypedSection title={t('aiWorkflows.title')} mode="typewriter" intro={<p>{t('aiWorkflows.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('aiWorkflows.introDetail')}</p>
         </Block>
@@ -1042,7 +1136,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     why: () => (
-      <TypedSection title={t('index.title')} mode="fade" intro={<p>{t('index.intro')}</p>}>
+      <TypedSection title={t('index.title')} mode="typewriter" intro={<p>{t('index.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('index.introDetail')}</p>
         </Block>
@@ -1095,7 +1189,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     training: () => (
-      <TypedSection title={t('training.title')} mode="fade" intro={<p>{t('training.subtitle')} {t('training.intro')}</p>}>
+      <TypedSection title={t('training.title')} mode="typewriter" intro={<p>{t('training.subtitle')} {t('training.intro')}</p>}>
         <CardBlock icon={Server} title={t('training.hostForensics')} desc={t('training.hostForensicsDesc')} />
         <CardBlock icon={Bug} title={t('training.malwareAnalysis')} desc={t('training.malwareAnalysisDesc')} />
         <CardBlock icon={Shield} title={t('training.siem')} desc={t('training.siemDesc')} />
@@ -1114,7 +1208,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     consulting: () => (
-      <TypedSection title={t('consulting.title')} mode="fade" intro={<p>{t('consulting.intro')}</p>}>
+      <TypedSection title={t('consulting.title')} mode="typewriter" intro={<p>{t('consulting.intro')}</p>}>
         {([
           { theme: 'isms', title: t('consulting.ismsTitle'), desc: t('consulting.ismsDesc'), id: 'isms' },
           { theme: 'nis2-dora', title: t('consulting.nis2Title'), desc: t('consulting.nis2Desc'), id: 'nis2-dora' },
@@ -1146,7 +1240,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     contact: () => (
-      <TypedSection title={t('contact.title')} mode="fade" charDelay={8} intro={<p>{t('contact.intro')}</p>}>
+      <TypedSection title={t('contact.title')} mode="typewriter" charDelay={8} intro={<p>{t('contact.intro')}</p>}>
         <Block className="bg-secondary/30">
           <p className="text-primary font-bold text-base font-sans mb-3">Marcel Knop</p>
           <div className="space-y-1.5 text-sm md:text-[15px] font-sans">
@@ -1161,7 +1255,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     imprint: () => (
-      <TypedSection title={t('imprint.title')} mode="fade" charDelay={8}>
+      <TypedSection title={t('imprint.title')} mode="typewriter" charDelay={8}>
         <Block className="bg-secondary/30">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">
             <span className="text-primary font-semibold">{t('imprint.responsible')}</span><br />
@@ -1198,7 +1292,7 @@ const useServiceContent = () => {
       const systemItems = tArray('techReq.systemItems');
       const networkItems = tArray('techReq.networkItems');
       return (
-        <TypedSection title={t('techReq.title')} mode="fade" charDelay={18} intro={<p>{t('techReq.intro')}</p>}>
+        <TypedSection title={t('techReq.title')} mode="typewriter" charDelay={18} intro={<p>{t('techReq.intro')}</p>}>
           <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
             <div className="flex items-center gap-2 mb-2">
               <Monitor size={16} className="text-primary" />
@@ -1486,7 +1580,7 @@ const ChatView = () => {
     'nis2-quiz', 'ciso-sim', 'threatdrop', 'trigger-triage', 'cyber-frogger',
     'elite-ship', 'cra-check', 'dora-compliance', 'nis2-compliance',
     'iacs-e27', 'iec62443', 'butterfly-lab', 'soc-life', 'ot-soc-life', 'system-check',
-    'ttx-readiness', 'enigma', 'itsm', 'itsm-dev', 'ai-act-readiness', 'wcst',
+    'ttx-readiness', 'enigma', 'itsm', 'itsm-dev', 'ai-act-readiness', 'wcst', 'syndicate-game',
   ]), []);
   const isToolPage = !!activeService && TOOL_SERVICES.has(activeService);
 
@@ -1890,11 +1984,7 @@ const ChatView = () => {
     </div>
   );
 
-  const serviceContent = activeService === 'publications'
-    ? <PublicationsPage />
-    : activeService && SERVICE_DETAILS[activeService]
-    ? <ServiceDetailPage key={activeService} serviceId={activeService} />
-    : activeService === 'crisis-sim'
+  const serviceContent = activeService === 'crisis-sim'
     ? <Suspense fallback={lazyFallback}><CyberCrisisSimulator embedded ref={crisisRef} /></Suspense>
     : activeService === 'dora-check'
     ? <Suspense fallback={lazyFallback}><DoraIncidentReporter embedded /></Suspense>
@@ -1917,13 +2007,13 @@ const ChatView = () => {
     : activeService === 'elite-ship'
     ? <Suspense fallback={lazyFallback}><EliteShipScene embedded /></Suspense>
     : activeService === 'cra-check'
-    ? <Suspense fallback={lazyFallback}><PasswordGate embedded storageKey="cra-check" label="CRA Compliance Tool"><CraComplianceTool embedded /></PasswordGate></Suspense>
+    ? <Suspense fallback={lazyFallback}><PasswordGate storageKey="cra-check" label="CRA Compliance Tool"><CraComplianceTool embedded /></PasswordGate></Suspense>
     : activeService === 'dora-compliance'
-    ? <Suspense fallback={lazyFallback}><PasswordGate embedded storageKey="dora-compliance" label="DORA Compliance Tool"><DoraComplianceTool embedded /></PasswordGate></Suspense>
+    ? <Suspense fallback={lazyFallback}><PasswordGate storageKey="dora-compliance" label="DORA Compliance Tool"><DoraComplianceTool embedded /></PasswordGate></Suspense>
     : activeService === 'nis2-compliance'
-    ? <Suspense fallback={lazyFallback}><PasswordGate embedded storageKey="nis2-compliance" label="NIS-2 Compliance Tool"><Nis2ComplianceTool embedded /></PasswordGate></Suspense>
+    ? <Suspense fallback={lazyFallback}><PasswordGate storageKey="nis2-compliance" label="NIS-2 Compliance Tool"><Nis2ComplianceTool embedded /></PasswordGate></Suspense>
     : activeService === 'iacs-e27' || activeService === 'iec62443'
-    ? <Suspense fallback={lazyFallback}><PasswordGate embedded storageKey="iec62443" label="IEC 62443 Compliance Tool"><Iec62443ComplianceTool embedded /></PasswordGate></Suspense>
+    ? <Suspense fallback={lazyFallback}><PasswordGate storageKey="iec62443" label="IEC 62443 Compliance Tool"><Iec62443ComplianceTool embedded /></PasswordGate></Suspense>
     : activeService === 'butterfly-lab'
     ? <Suspense fallback={lazyFallback}><ButterflyEffectLab embedded /></Suspense>
     : activeService === 'soc-life'
@@ -1931,9 +2021,11 @@ const ChatView = () => {
     : activeService === 'ot-soc-life'
     ? <Suspense fallback={lazyFallback}><OtSocLife embedded /></Suspense>
     : activeService === 'ai-act-readiness'
-    ? <Suspense fallback={lazyFallback}><PasswordGate embedded storageKey="ai-act-readiness" label="EU AI Act Readiness Assessment"><AiActReadinessTool embedded /></PasswordGate></Suspense>
+    ? <Suspense fallback={lazyFallback}><PasswordGate storageKey="ai-act-readiness" label="EU AI Act Readiness Assessment"><AiActReadinessTool embedded /></PasswordGate></Suspense>
     : activeService === 'wcst'
     ? <Suspense fallback={lazyFallback}><WisconsinCardSort embedded /></Suspense>
+    : activeService === 'syndicate-game'
+    ? <Suspense fallback={lazyFallback}><Syndicate embedded /></Suspense>
     : activeService === 'system-check'
     ? <InlineSystemCheck t={t} />
     : activeService && contentMap[activeService] ? contentMap[activeService]() : null;
@@ -1952,15 +2044,10 @@ const ChatView = () => {
   // Per-route SEO metadata (short titles, 50-160 char descriptions).
   const serviceSeo = getServiceSeo(
     activeService,
-    sidebarGroups.flatMap(g => g.items).find(i => i.id === activeService)?.label ?? (() => { const f = framedToolForPath(`/${activeService}`); return f ? (f.titleKey ? t(f.titleKey) : f.title?.[language as 'de' | 'en' | 'fr']) : undefined; })(),
-    language,
+    sidebarGroups.flatMap(g => g.items).find(i => i.id === activeService)?.label,
   );
-  const canonicalPath = activeService === 'iacs-e27' ? '/iec62443' : activeService ? `/${activeService}` : '/';
 
   if (activeService) {
-    const isMarketingService = Boolean(SERVICE_DETAILS[activeService]);
-    // ki-lab sits in the public workspace: no sheet header/close-X, workspace padding.
-    const isWorkspaceService = isMarketingService || activeService === 'ki-lab' || Boolean(framedToolForPath(`/${activeService}`));
     // Resolve current service label for the sheet header (falls back to nav.contact label etc.)
     const activeServiceLabel =
       sidebarGroups.flatMap(g => g.items).find(i => i.id === activeService)?.label ?? '';
@@ -1971,30 +2058,29 @@ const ChatView = () => {
 
     return (
       <SiteChrome>
-        <PageMeta title={serviceSeo.title} description={serviceSeo.description} canonicalPath={canonicalPath} />
+        <PageMeta title={serviceSeo.title} description={serviceSeo.description} />
         <main className="flex-1 flex flex-col min-w-0 relative">
           <div ref={contentAreaRef} className="flex-1 overflow-y-auto" style={{ contain: 'layout style' }}>
             {/* Sheet-styled service surface — visually consistent with the
                 Team / Contact drawers (bg-background/85, backdrop-blur, brand
                 border, prominent close-X). Wraps the existing content stream
                 without changing any service rendering logic. */}
-            <div className={`w-full mx-auto ${isMarketingService ? '' : isWorkspaceService ? 'px-4 -mt-1 sm:px-6 lg:px-0' : 'px-3 py-5 md:px-6 md:py-8 lg:px-10'} ${
-              activeService === 'soc-life' || activeService === 'ot-soc-life' || activeService === 'elite-ship' || activeService === 'butterfly-lab' || activeService === 'crisis-sim'
+            <div className={`w-full px-3 md:px-6 lg:px-10 py-4 md:py-6 mx-auto ${
+              activeService === 'soc-life' || activeService === 'ot-soc-life' || activeService === 'elite-ship' || activeService === 'butterfly-lab' || activeService === 'crisis-sim' || activeService === 'syndicate-game'
                 ? 'max-w-[1700px]'
                 : 'max-w-5xl'
             }`}>
 
               <section
                 aria-label={activeServiceLabel}
-                className={isWorkspaceService ? 'min-w-0' : 'bg-background/72 backdrop-blur-md border border-primary/20 rounded-lg shadow-[0_8px_40px_-12px_hsl(var(--primary)/0.25)]'}
+                className="bg-background/85 backdrop-blur-md border border-primary/20 rounded-lg shadow-[0_8px_40px_-12px_hsl(var(--primary)/0.25)]"
               >
                 {/* Sheet header — matches drawer header treatment */}
-                {!isWorkspaceService && <header className="flex items-start justify-between gap-3 px-4 sm:px-6 pt-5 sm:pt-6 pb-4 border-b border-primary/10">
-                  <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-                    <p className="font-mono text-[10px] sm:text-[11px] tracking-[0.3em] sm:tracking-[0.35em] text-primary mb-1.5">
+                <header className="flex items-start justify-between gap-3 px-4 sm:px-6 pt-5 sm:pt-6 pb-4 border-b border-primary/10">
+                  <div className="min-w-0">
+                    <div className="font-mono text-[10px] sm:text-[11px] tracking-[0.3em] sm:tracking-[0.35em] text-primary mb-1.5">
                       / {activeServiceLabel.toUpperCase()}
-                    </p>
-                    <button onClick={closeToJourney} className="text-left font-sans text-xs text-muted-foreground transition-colors hover:text-primary">← {language === 'de' ? 'Zur Themenauswahl' : language === 'fr' ? 'Retour aux thèmes' : 'Back to topics'}</button>
+                    </div>
                   </div>
                   <button
                     onClick={closeToJourney}
@@ -2003,10 +2089,11 @@ const ChatView = () => {
                   >
                     <X className="w-4 h-4" />
                   </button>
-                </header>}
-                <div className={`${isMarketingService ? '' : 'space-y-4'} ${
-                  isWorkspaceService ? 'pb-20' :
-                  activeService === 'soc-life' || activeService === 'ot-soc-life' || activeService === 'elite-ship' || activeService === 'butterfly-lab' || activeService === 'crisis-sim'
+                </header>
+                <div className={`space-y-4 ${
+                  activeService === 'syndicate-game'
+                    ? 'p-2 sm:p-3'
+                    : activeService === 'soc-life' || activeService === 'ot-soc-life' || activeService === 'elite-ship' || activeService === 'butterfly-lab' || activeService === 'crisis-sim'
                     ? 'py-5 md:py-6 pb-20 px-2 sm:px-3 lg:px-4'
                     : 'py-5 md:py-6 pb-20 px-4 sm:px-6 lg:px-10'
                 }`}>
@@ -2066,21 +2153,12 @@ const ChatView = () => {
             </div>
           </div>
 
-          {/* Compact, explicitly opened navigator on public service pages. */}
+          {/* Floating chat bar — same logic as legacy view */}
           {(() => {
             if (isToolPage && activeService !== 'crisis-sim') return null;
             const placeholder = activeService === 'crisis-sim'
               ? 'Ask me anything …'
               : exampleQuestions[exampleIndex];
-            if (!chatOpen && activeService !== 'crisis-sim') return (
-              <button
-                type="button"
-                onClick={() => setChatOpen(true)}
-                className="fixed bottom-4 right-4 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-highlight/35 bg-secondary text-highlight shadow-lg transition-colors hover:border-highlight"
-                aria-label={language === 'de' ? 'Navigator öffnen' : language === 'fr' ? 'Ouvrir le navigateur' : 'Open navigator'}
-                title={language === 'de' ? 'Navigator öffnen' : language === 'fr' ? 'Ouvrir le navigateur' : 'Open navigator'}
-              ><MessageCircle className="h-4 w-4" /></button>
-            );
             return (
               <div
                 className="fixed z-40 pointer-events-none transition-opacity duration-700 ease-out"
@@ -2093,7 +2171,6 @@ const ChatView = () => {
               >
                 <div className="max-w-3xl ml-auto pointer-events-auto">
                   <div className="relative flex items-center bg-secondary/90 backdrop-blur-md rounded-xl border border-highlight/30 focus-within:border-highlight/60 transition-electric shadow-lg focus-within:shadow-[0_0_24px_hsl(var(--highlight)/0.18)]">
-                    {activeService !== 'crisis-sim' && <button type="button" onClick={() => setChatOpen(false)} className="ml-1.5 p-2 text-muted-foreground hover:text-foreground" aria-label={language === 'de' ? 'Navigator schließen' : language === 'fr' ? 'Fermer le navigateur' : 'Close navigator'}><X className="h-4 w-4" /></button>}
                     <div className="pl-3 md:pl-3.5 flex-shrink-0 text-highlight/70" aria-hidden="true">
                       <Sparkles size={14} />
                     </div>
@@ -2126,7 +2203,7 @@ const ChatView = () => {
 
   return (
     <div className="h-screen flex overflow-hidden bg-transparent">
-      <PageMeta title={serviceSeo.title} description={serviceSeo.description} canonicalPath={canonicalPath} />
+      <PageMeta title={serviceSeo.title} description={serviceSeo.description} />
 
       {/* Mobile sidebar overlay — hidden on service sub-pages (linked from new homepage) */}
       {isMobile && sidebarOpen && !activeService && (

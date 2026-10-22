@@ -29,17 +29,17 @@ interface Group {
 const GROUPS: Group[] = [
   {
     label: {
-      de: 'GapZero — Interne Revision & Compliance-Readiness (Beta)',
+      de: 'GapZero — Internal Audit & Compliance Readiness (Beta)',
       en: 'GapZero — Internal Audit & Compliance Readiness (Beta)',
-      fr: 'GapZero — Audit interne & préparation à la conformité (bêta)',
+      fr: 'GapZero — Internal Audit & Compliance Readiness (Beta)',
     },
     tools: [
       {
         icon: Sparkles, path: '/gapzero', protected: true, title: 'GapZero — AI-Powered Audit & Readiness Platform',
         desc: {
-          de: 'Vom Prüfrahmen zum nachvollziehbaren Bericht: Standard wählen, Angaben erfassen, regelbasiert bewerten und Ergebnisse einordnen. KI unterstützt die Interpretation, verändert aber keine Feststellungen oder Bewertungen.',
+          de: 'From zero to audit-ready. Pick a standard → intake → compliance assessment → AI insights → reporting. Rule-based compliance with an AI insight & advisory layer.',
           en: 'From zero to audit-ready. Pick a standard → intake → compliance assessment → AI insights → reporting. Rule-based compliance with an AI insight & advisory layer.',
-          fr: 'Du référentiel au rapport traçable : choisir une norme, saisir le contexte, lancer l’évaluation fondée sur des règles et interpréter les résultats. L’IA facilite l’analyse sans modifier les constats ni les scores.',
+          fr: 'From zero to audit-ready. Pick a standard → intake → compliance assessment → AI insights → reporting. Rule-based compliance with an AI insight & advisory layer.',
         },
       },
     ],
@@ -182,18 +182,17 @@ const AssessmentTools = () => {
     : 'Download build guide';
 
   return (
-    <SiteChrome workspace>
+    <SiteChrome>
+      <PasswordGate storageKey="assessment-tools" label="Assessment Tools">
       <PageMeta
         title="Assessment Tools — Inside the Box"
         description="Zentraler Einstieg zu allen Assessment- und Compliance-Tools: NIS-2, DORA, IEC 62443, IACS UR E26/E27, TISAX, PCI-DSS, EU AI Act und mehr."
-        canonicalPath="/assessment-tools"
       />
-      <PasswordGate embedded storageKey="assessment-tools" label="Assessment Tools">
       <Helmet>
         <meta name="robots" content="noindex,nofollow" />
       </Helmet>
 
-      <main className="flex-1 w-full px-4 sm:px-6 lg:px-0 pb-14">
+      <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
         <header className="mb-10 sm:mb-14">
           <div className="font-mono text-[11px] tracking-[0.3em] uppercase text-primary mb-3">
             {sectionLabel}

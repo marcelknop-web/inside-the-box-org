@@ -205,37 +205,24 @@
     @apply text-foreground antialiased;
     font-family: var(--font-ui);
     /* iOS safe-area: bottom-fixed elements use env(safe-area-inset-bottom) directly. */
-    background: hsl(var(--background));
-  }
-
-  /* Shared technical drawing surface: fine subdivisions plus restrained
-     major lines. Text panels remain opaque enough to keep the grid secondary. */
-  .technical-grid {
-    position: relative;
-    isolation: isolate;
-    background-color: hsl(var(--background));
-  }
-
-  .technical-grid::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background-image:
-      linear-gradient(hsl(var(--foreground) / 0.025) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(var(--foreground) / 0.025) 1px, transparent 1px),
-      linear-gradient(hsl(var(--primary) / 0.045) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(var(--primary) / 0.045) 1px, transparent 1px),
-      radial-gradient(ellipse at 50% 35%, transparent 5%, hsl(var(--background) / 0.38) 82%);
-    background-size: 24px 24px, 24px 24px, 120px 120px, 120px 120px, 100% 100%;
-  }
-
-  @media (max-width: 640px) {
-    .technical-grid::before {
-      opacity: 0.62;
-      background-size: 20px 20px, 20px 20px, 100px 100px, 100px 100px, 100% 100%;
-    }
+    background:
+      radial-gradient(circle at 20% 30%, hsl(216 26% 9% / 0.7) 0%, transparent 45%),
+      radial-gradient(circle at 80% 70%, hsl(216 26% 10% / 0.55) 0%, transparent 50%),
+      radial-gradient(circle at 40% 80%, hsl(216 30% 8% / 0.65) 0%, transparent 40%),
+      radial-gradient(ellipse at 70% 20%, hsl(216 26% 12% / 0.4) 0%, transparent 60%),
+      radial-gradient(ellipse at 10% 90%, hsl(216 26% 6% / 0.5) 0%, transparent 55%),
+      linear-gradient(hsl(214 28% 24% / 0.32) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(214 28% 24% / 0.32) 1px, transparent 1px),
+      linear-gradient(hsl(214 24% 20% / 0.18) 0.5px, transparent 0.5px),
+      linear-gradient(90deg, hsl(214 24% 20% / 0.18) 0.5px, transparent 0.5px),
+      linear-gradient(hsl(214 30% 28% / 0.42) 2px, transparent 2px),
+      linear-gradient(90deg, hsl(214 30% 28% / 0.42) 2px, transparent 2px),
+      radial-gradient(circle at 60% 40%, hsl(216 26% 10% / 0.25) 0%, transparent 80%),
+      linear-gradient(135deg, hsl(216 33% 5%) 0%, hsl(216 26% 7%) 100%);
+    background-size:
+      100% 100%, 100% 100%, 100% 100%, 120% 120%, 110% 110%,
+      5px 5px, 5px 5px, 2.5px 2.5px, 2.5px 2.5px,
+      50px 50px, 50px 50px, 200px 200px, 100% 100%;
   }
 
   .animate-glow {
@@ -634,95 +621,4 @@
   font-family: 'Press Start 2P', 'IBM Plex Mono', monospace;
   letter-spacing: 0.02em;
   line-height: 1.5;
-}
-
-/* Homepage: stable three-sided CSS object with a flat-selector fallback below. */
-.home-hero {
-  width: 100%;
-  max-width: 72rem;
-  min-height: 0;
-  margin-inline: auto;
-  padding: 2.5rem 1.5rem 1.25rem;
-  display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1.1fr);
-  align-items: center;
-  gap: 1rem;
-}
-.home-hero-copy { min-width: 0; }
-/* Homepage H1: the base layer sizes every span at 16px, so the word spans must inherit the heading size. */
-.home-title { margin-top: 1.25rem; max-width: 12ch; font-size: 2.75rem; line-height: 1.04; letter-spacing: -0.01em; }
-.home-title span { font-size: inherit; line-height: inherit; }
-.home-selector { min-width: 0; }
-@media (min-width: 1024px) { .home-title { font-size: 3.5rem; } }
-.topic-cube-stage {
-  --cube-size: 200px;
-  position: relative;
-  height: 310px;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  perspective: 1100px;
-  touch-action: pan-y;
-  outline-offset: -4px;
-}
-.topic-cube {
-  width: var(--cube-size);
-  height: var(--cube-size);
-  position: relative;
-  z-index: 2;
-  transform-style: preserve-3d;
-  transform: rotateX(-25deg) rotateY(-34deg) rotate3d(1, -1, 1, var(--topic-turn));
-  transition: transform 720ms cubic-bezier(.2,.76,.22,1);
-}
-.topic-cube-face {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  padding: 24px;
-  overflow: hidden;
-  border: 1px solid hsl(var(--foreground) / .11);
-  background: linear-gradient(145deg, hsl(var(--muted) / .98), hsl(var(--card)) 72%);
-  color: hsl(var(--foreground) / .74);
-  backface-visibility: hidden;
-  box-shadow: inset 1px 1px 0 hsl(var(--foreground) / .07), inset -7px -9px 18px hsl(var(--background) / .5);
-}
-.topic-cube-face.is-active { border-color: hsl(var(--primary) / .7); color: hsl(var(--primary)); box-shadow: inset 1px 1px 0 hsl(var(--foreground) / .08), inset -7px -9px 18px hsl(var(--background) / .55), 0 0 16px hsl(var(--primary) / .07); }
-.topic-cube-front { transform: translateZ(calc(var(--cube-size) / 2)); }
-.topic-cube-right { transform: rotateY(90deg) translateZ(calc(var(--cube-size) / 2)); }
-.topic-cube-top { transform: rotateX(90deg) translateZ(calc(var(--cube-size) / 2)); }
-.topic-cube-left { transform: rotateY(-90deg) translateZ(calc(var(--cube-size) / 2)); }
-.topic-cube-back { transform: rotateY(180deg) translateZ(calc(var(--cube-size) / 2)); }
-.topic-cube-bottom { transform: rotateX(-90deg) translateZ(calc(var(--cube-size) / 2)); }
-.topic-cube-content { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px; }
-.topic-cube-front .topic-cube-content { transform: rotate(0deg); }
-.topic-cube-right .topic-cube-content { transform: rotate(-90deg); }
-.topic-cube-top .topic-cube-content { transform: rotate(90deg); }
-.topic-cube-label { max-width: 12ch; text-align: center; font-size: 1.35rem; font-weight: 600; line-height: 1.08; }
-.topic-cube-index { position: absolute; top: 12px; left: 14px; font-family: var(--font-mono); font-size: .65rem; }
-.topic-cube-floor { position: absolute; width: min(84%, 430px); height: 58%; bottom: 16px; transform: rotateX(62deg); border: 1px solid hsl(var(--primary) / .045); background-image: linear-gradient(hsl(var(--primary) / .045) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary) / .045) 1px, transparent 1px); background-size: 34px 34px; mask-image: radial-gradient(ellipse, black 12%, transparent 70%); }
-.topic-cube-shadow { position: absolute; width: 58%; height: 52px; bottom: 58px; border-radius: 50%; background: radial-gradient(ellipse, hsl(var(--background) / .9), transparent 70%); filter: blur(9px); }
-
-@media (max-width: 767px) {
-  .home-hero { min-height: auto; grid-template-columns: 1fr; padding: 1.25rem 1rem 1.5rem; gap: 1.25rem; }
-  .home-title { margin-top: 0; max-width: 14ch; font-size: clamp(1.875rem, 9.2vw, 2.25rem); line-height: 1.08; }
-  .home-selector { border: 1px solid hsl(var(--border)); background: linear-gradient(180deg, hsl(var(--background) / .35), hsl(var(--card) / .75)); }
-  .home-selector [role="tablist"] { border-top: 1px solid hsl(var(--border)); }
-  .home-selector [role="tab"] { border-bottom: 0; }
-  .topic-cube-stage { --cube-size: 150px; height: 252px; }
-  .topic-cube-floor { bottom: 0; height: 48%; }
-  .topic-cube-shadow { bottom: 18px; }
-}
-@media (max-width: 390px) {
-  .topic-cube-stage { --cube-size: 138px; height: 232px; }
-  .topic-cube-content { padding: 14px; gap: 10px; }
-  .topic-cube-label { font-size: 1rem; }
-  .topic-cube-face small { font-size: .55rem; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .topic-cube { transition: none; }
 }

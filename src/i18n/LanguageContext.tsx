@@ -40,10 +40,6 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('language', lang);
   };
 
-  useEffect(() => {
-    document.documentElement.lang = language;
-  }, [language]);
-
   const t = (key: string): string => {
     return getNestedValue(translations[language], key);
   };
