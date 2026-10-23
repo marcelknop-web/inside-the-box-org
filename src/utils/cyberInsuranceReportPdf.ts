@@ -73,7 +73,7 @@ export async function generateCyberInsuranceReport(intake: Intake, language: str
   pdf.addBookmark(L('Auflagen', 'Conditions'));
   CONTROLS.forEach((c) => {
     const a = intake.controls[c.id] ?? 'no';
-    pdf.fieldInline(`${tx(c.label, lang)}${c.knockout ? ' *' : ''}`, a === 'yes' ? L('umgesetzt', 'in place') : a === 'partial' ? L('teilweise', 'partial') : L('fehlt', 'missing'));
+    pdf.fieldInline(`${c.knockout ? '* ' : ''}${tx(c.label, lang)}`, a === 'yes' ? L('umgesetzt', 'in place') : a === 'partial' ? L('teilweise', 'partial') : L('fehlt', 'missing'));
   });
   pdf.metaLine(L('* Pflichtmaßnahme: Fehlen führt bei den meisten Versicherern zur Ablehnung.', '* Mandatory control: absence leads most insurers to decline.'));
   if (r.conditions.length) {
