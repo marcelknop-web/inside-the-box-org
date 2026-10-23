@@ -7,3 +7,6 @@
 - [x] Verify role switching, submission and release end to end.
 - [x] Add a full Moon-Crash briefing and step-by-step equipment decisions without numeric entry.
 - [x] Verify equipment selection, corrections and submission in the live exercise.- [x] Moon Crash: Symbole, vereinfachen, ein Thema pro Screen
+
+# AssistantZero
+- [x] Guided cyber insurance prospect assessment at /assistantzero (profile, controls, needs, weights, segment comparison, PDF).
