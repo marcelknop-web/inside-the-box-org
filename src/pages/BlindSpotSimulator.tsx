@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
+import { Maximize, Minimize } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import {
@@ -60,6 +61,21 @@ const ROLE_DISPLAY_NAME: Record<RoleId, string> = {
 };
 
 const BlindSpotSimulator = () => {
+  const gameRef = useRef<HTMLDivElement>(null);
+  const [fullscreen, setFullscreen] = useState(false);
+  useEffect(() => {
+    const update = () => setFullscreen(document.fullscreenElement === gameRef.current);
+    document.addEventListener("fullscreenchange", update);
+    return () => document.removeEventListener("fullscreenchange", update);
+  }, []);
+  const toggleFullscreen = async () => {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await gameRef.current?.requestFullscreen();
+    } catch {
+      toast({ title: "Fullscreen unavailable", description: "Please allow fullscreen in your browser." });
+    }
+  };
   const [screen, setScreen] = useState<Screen>({ kind: "welcome" });
   const [userRole, setUserRole] = useState<Role | null>(null);
 
@@ -500,7 +516,17 @@ const BlindSpotSimulator = () => {
       : 1;
 
   return (
-    <div className="min-h-screen bg-[#1C1C1E] text-white">
+    <div ref={gameRef} className={`relative bg-background text-foreground ${screen.kind === "inject" ? "min-h-dvh lg:h-dvh lg:min-h-0 lg:overflow-hidden flex flex-col" : "min-h-dvh"}`}>
+      <Button
+        variant="outline"
+        size="icon"
+        className="absolute right-3 top-2 z-40 hidden lg:inline-flex bg-background border-border text-primary"
+        aria-label={fullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+        title={fullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+        onClick={() => void toggleFullscreen()}
+      >
+        {fullscreen ? <Minimize className="size-4" /> : <Maximize className="size-4" />}
+      </Button>
       <Helmet>
         <title>Blind Spot — OT Cyber Crisis Simulation</title>
         <meta
@@ -520,7 +546,7 @@ const BlindSpotSimulator = () => {
 
       )}
 
-      <main className={screen.kind === "debrief" ? "w-full" : screen.kind === "inject" ? "max-w-[1600px] mx-auto px-3 py-2 h-[calc(100vh-64px)] flex flex-col" : "max-w-5xl mx-auto px-4 py-8"}>
+      <main className={screen.kind === "debrief" ? "w-full" : screen.kind === "inject" ? "w-full max-w-[1600px] mx-auto px-3 py-2 flex flex-col lg:flex-1 lg:min-h-0" : "max-w-5xl mx-auto px-4 py-8"}>
         {/* ===== Welcome ===== */}
         {screen.kind === "welcome" && (
           <div className="min-h-[70vh] flex flex-col justify-center items-center text-center">
@@ -629,11 +655,11 @@ const BlindSpotSimulator = () => {
                 userMsgCount={phaseUserMsgCount}
               />
 
-              <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-3 flex-1 min-h-0">
+              <div className="grid grid-cols-1 lg:grid-cols-2 lg:grid-rows-[minmax(0,1fr)] gap-3 flex-1 min-h-0">
 
 
                 {/* LEFT COLUMN — Evidence (top) + Implications / "Your call" (bottom) */}
-                <div className="grid grid-rows-2 gap-3 min-h-0">
+                <div className="grid grid-rows-[minmax(0,1fr)_minmax(0,1fr)] gap-3 min-h-0">
 
                   <EvidencePanel
                     phaseName={phase.name}
@@ -659,7 +685,7 @@ const BlindSpotSimulator = () => {
                         <span className="font-mono text-[10px] text-black/50 animate-pulse">● live</span>
                       </div>
 
-                      <div className="flex-1 overflow-y-auto p-4 flex flex-col justify-center gap-3 min-h-1/4">
+                      <div className="flex-1 overflow-y-auto p-4 flex flex-col justify-center gap-3 min-h-0">
                         <p className="text-[15px] text-black/90 leading-snug font-semibold">
                           {phase.decisionQuestion}
                         </p>

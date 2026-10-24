@@ -666,7 +666,7 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
       </div>
 
       {/* Feed */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+      <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 py-3 space-y-3">
         {messages.map((m) => (
           <FeedRow key={m.id} m={m} />
         ))}
@@ -674,7 +674,7 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
       </div>
 
       {/* Input */}
-      <div className="border-t p-3 flex gap-2" style={{ borderColor: "#2a2a2a" }}>
+      <div className="border-t p-3 flex gap-2 shrink-0" style={{ borderColor: "#2a2a2a" }}>
         <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}
