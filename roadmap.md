@@ -12,4 +12,4 @@
 - [x] Guided cyber insurance prospect assessment at /assistantzero (profile, controls, needs, weights, segment comparison, PDF).
 
 # Blind Spot
-- [ ] Fit desktop fullscreen gameplay to the viewport and verify visible chat and decision controls.
+- [x] Fit desktop fullscreen gameplay to the viewport and verify visible chat and decision controls.
