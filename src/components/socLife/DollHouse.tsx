@@ -1035,9 +1035,8 @@ function drawLedWall(ctx: CanvasRenderingContext2D, x: number, y: number, t: num
 }
 function renderRzfDecor(ctx: CanvasRenderingContext2D, room: RoomId, x: number, y: number, t: number) {
   switch (room) {
-    case "soc_floor": drawRzfSign(ctx, x + 14, y + 2); break;
     case "ciso_office": drawNrwPennant(ctx, x + 40, y + 20); break;
-    case "war_room": drawNrwPennant(ctx, x + 2, y + 2); break;
+    case "war_room": drawRzfSign(ctx, x + 30, y + 4); drawNrwPennant(ctx, x + 4, y + 30); break;
     case "server_room": drawLedWall(ctx, x + 46, y + 2, t); break;
   }
 }
