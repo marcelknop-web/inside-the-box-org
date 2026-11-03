@@ -17,6 +17,10 @@ export const RZF_I18N = {
     ciso_office: { name: "ISB-Büro",             desc: "Informationssicherheitsbeauftragte: Eskalation, Meldungen, Ministerium." },
     kitchen:     { name: "Teeküche",             desc: "Kaffee, kurzer Austausch, durchatmen." },
   },
+  onboarding: {
+    s1Body: "Klicke einen Raum im Grundriss an oder nutze die Buttons rechts. Acht Räume im RZF: SOC-Leitstand, SIEM, Forensik, Netzleitstelle, RZ-Halle, Krisenstab, ISB-Büro, Teeküche.",
+    s3Body: "Ein Alarm ertönt: Phishing, Ransomware im Finanzamt, auffällige Abrufe von Steuerdaten. Geh in den geforderten Raum, lies die Lage und entscheide, bevor die Zeit abläuft.",
+  },
   npcs: {
     junior:   { name: "Jana (Analystin)",          greet: "Im Finanzamt Köln-Mitte meldet ein Client merkwürdige Prozesse …" },
     ir_lead:  { name: "Stefan (IR-Leitung)",       greet: "Größere Lage? Dann sofort in den Krisenstab." },
