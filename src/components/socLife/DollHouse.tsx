@@ -1009,6 +1009,39 @@ const NPC_LOOK: Record<NpcId, { shirt: string; pants: string; skin: string; hair
   sysadmin: { shirt: C.green,   pants: "#1a1a26", skin: C.skinD, hair: C.hairD },
 };
 
+// RZF variant decor: NRW pennant (green/white/red), wall sign, and a denser
+// data-centre hall with a blinking LED wall.
+function drawNrwPennant(ctx: CanvasRenderingContext2D, x: number, y: number) {
+  drawRect(ctx, x, y, 1, 12, "#8a8aa0"); // pole
+  drawRect(ctx, x + 1, y, 6, 2, "#1f8a3a");
+  drawRect(ctx, x + 1, y + 2, 6, 2, "#e8e8e8");
+  drawRect(ctx, x + 1, y + 4, 6, 2, "#d0202a");
+}
+function drawRzfSign(ctx: CanvasRenderingContext2D, x: number, y: number) {
+  drawRect(ctx, x, y, 15, 7, "#0e0e18");
+  drawRect(ctx, x, y + 6, 15, 1, C.gold);
+  // tiny pixel "RZF"
+  const px = (dx: number, dy: number) => drawPx(ctx, x + 2 + dx, y + 1 + dy, C.gold);
+  [[0,0],[1,0],[0,1],[2,1],[0,2],[1,2],[0,3],[2,3],[0,4],[2,4]].forEach(([a,b]) => px(a,b));
+  [[4,0],[5,0],[6,0],[6,1],[5,2],[4,3],[4,4],[5,4],[6,4]].forEach(([a,b]) => px(a,b));
+  [[8,0],[9,0],[10,0],[8,1],[8,2],[9,2],[8,3],[8,4]].forEach(([a,b]) => px(a,b));
+}
+function drawLedWall(ctx: CanvasRenderingContext2D, x: number, y: number, t: number) {
+  drawRect(ctx, x, y, 14, 8, "#10101c");
+  for (let i = 0; i < 6; i++) for (let j = 0; j < 3; j++) {
+    const on = ((Math.floor(t / 9) + i * 7 + j * 13) % 5) !== 0;
+    drawPx(ctx, x + 1 + i * 2, y + 1 + j * 2, on ? (j === 0 ? C.green : C.cyan) : "#2a2a40");
+  }
+}
+function renderRzfDecor(ctx: CanvasRenderingContext2D, room: RoomId, x: number, y: number, t: number) {
+  switch (room) {
+    case "soc_floor": drawRzfSign(ctx, x + 14, y + 2); break;
+    case "ciso_office": drawNrwPennant(ctx, x + 40, y + 20); break;
+    case "war_room": drawNrwPennant(ctx, x + 2, y + 2); break;
+    case "server_room": drawLedWall(ctx, x + 46, y + 2, t); break;
+  }
+}
+
 // Per-room furniture renderer
 function renderRoom(
   ctx: CanvasRenderingContext2D,
@@ -1098,6 +1131,7 @@ function renderRoom(
       break;
     }
   }
+  if (variant === "rzf") renderRzfDecor(ctx, room, x, y, t);
 }
 
 export function DollHouse({ current, highlight, onMove, maxHeight, isNight = false, alertRoom = null }: DollHouseProps) {
