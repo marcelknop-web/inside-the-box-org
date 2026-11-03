@@ -1,6 +1,8 @@
 import { createContext, useCallback, useContext, ReactNode } from "react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { en } from "@/i18n/en";
+import { de } from "@/i18n/de";
+import { RZF_I18N } from "@/data/rzfSocLifeI18n";
 
 /**
  * SOC Life ships in two flavours that share the same engine, components,
@@ -21,7 +23,7 @@ import { en } from "@/i18n/en";
  * authoritative English wording — we deliberately bypass the active
  * language and resolve directly against the EN dictionary.
  */
-export type SocLifeVariant = "it" | "ot";
+export type SocLifeVariant = "it" | "ot" | "rzf";
 
 interface VariantInfo {
   variant: SocLifeVariant;
@@ -44,7 +46,7 @@ export function SocLifeVariantProvider({
   variant: SocLifeVariant;
   children: ReactNode;
 }) {
-  const i18nRoot = variant === "ot" ? "otSocLife" : "socLife";
+  const i18nRoot = variant === "ot" ? "otSocLife" : variant === "rzf" ? "rzfSocLife" : "socLife";
   const storageNs = i18nRoot;
   return (
     <VariantContext.Provider value={{ variant, i18nRoot, storageNs }}>
@@ -68,6 +70,20 @@ function getNestedRaw(obj: any, path: string): any {
 function resolveEnString(key: string): string {
   const v = getNestedRaw(en, key);
   return typeof v === "string" ? v : key;
+}
+
+/** RZF variant: German-locked; overrides from RZF_I18N, fallback to DE socLife. */
+function resolveRzfString(key: string): string {
+  const o = getNestedRaw(RZF_I18N, key);
+  if (typeof o === "string") return o;
+  const v = getNestedRaw(de, `socLife.${key}`);
+  return typeof v === "string" ? v : key;
+}
+function resolveRzfArray(key: string): string[] {
+  const o = getNestedRaw(RZF_I18N, key);
+  if (Array.isArray(o)) return o;
+  const v = getNestedRaw(de, `socLife.${key}`);
+  return Array.isArray(v) ? v : [];
 }
 
 function resolveEnArray(key: string): string[] {
@@ -96,6 +112,7 @@ export function useVariantT(): {
   const t = useCallback(
     (key: string): string => {
       if (i18nRoot === "socLife") return rawT(`socLife.${key}`);
+      if (i18nRoot === "rzfSocLife") return resolveRzfString(key);
       // OT variant — English only.
       const variantKey = `otSocLife.${key}`;
       const v = resolveEnString(variantKey);
@@ -108,6 +125,7 @@ export function useVariantT(): {
   const tArray = useCallback(
     (key: string): string[] => {
       if (i18nRoot === "socLife") return rawTArray(`socLife.${key}`);
+      if (i18nRoot === "rzfSocLife") return resolveRzfArray(key);
       // OT variant — English only.
       const arr = resolveEnArray(`otSocLife.${key}`);
       if (arr.length > 0) return arr;
@@ -118,7 +136,8 @@ export function useVariantT(): {
 
   // Report EN to consumers so any locale-dependent rendering inside the
   // OT shell (e.g. reason resolver) also stays English.
-  const reportedLanguage = i18nRoot === "otSocLife" ? "en" : (language as "de" | "en" | "fr");
+  const reportedLanguage =
+    i18nRoot === "otSocLife" ? "en" : i18nRoot === "rzfSocLife" ? "de" : (language as "de" | "en" | "fr");
 
   return { t, tArray, language: reportedLanguage };
 }
