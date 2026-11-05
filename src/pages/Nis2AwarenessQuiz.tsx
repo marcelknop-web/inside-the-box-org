@@ -7,6 +7,8 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { StaggerReveal } from '@/components/StaggerReveal';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useMillionaireSound } from '@/hooks/useMillionaireSound';
+import { useRiskQuizSound } from '@/hooks/useRiskQuizSound';
+import { RiskQuizAudioControls } from '@/components/RiskQuizAudioControls';
 import { supabase } from '@/integrations/supabase/client';
 
 interface AiQuestion {
@@ -72,7 +74,21 @@ export default function Nis2AwarenessQuiz({ embedded = false, variant }: { embed
     return obj[lang] || obj.en;
   };
   const isMobile = useIsMobile();
-  const { unlock, playQuestionReveal, playCorrect, playWrong, playSelect, playConfirm, playVictory, playDefeat, playTick, playTickUrgent, playMilestone } = useMillionaireSound();
+  const originalSound = useMillionaireSound();
+  const riskSound = useRiskQuizSound();
+  const { unlock, playQuestionReveal, playCorrect, playSelect, playConfirm, playVictory, playDefeat, playTick, playTickUrgent, playMilestone } = variant ? riskSound : originalSound;
+  const scheduled = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const clearScheduled = useCallback(() => {
+    scheduled.current.forEach(clearTimeout);
+    scheduled.current = [];
+  }, []);
+  const later = (action: () => void, delay: number) => {
+    scheduled.current.push(setTimeout(action, delay));
+  };
+  useEffect(() => clearScheduled, [clearScheduled]);
+  const audioControls = variant ? <RiskQuizAudioControls muted={riskSound.muted} volume={riskSound.volume}
+    onMute={() => { riskSound.unlock(); riskSound.setMuted(value => !value); }}
+    onVolume={value => { riskSound.unlock(); riskSound.setVolume(value); }} /> : null;
 
   // Unlock audio on the first user interaction (covers embedded mode where the
   // reveal sound would otherwise be blocked by the browser autoplay policy).
@@ -169,6 +185,13 @@ export default function Nis2AwarenessQuiz({ embedded = false, variant }: { embed
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [currentQ, started, gameOver, won, confirmed, loadingQuestion, question]);
 
+  useEffect(() => {
+    if (!variant) return;
+    if (started && question && !confirmed && !gameOver && !won && !riskSound.muted) riskSound.startThinking();
+    else riskSound.stopThinking();
+    return riskSound.stopThinking;
+  }, [variant, started, question, confirmed, gameOver, won, riskSound.muted, riskSound.startThinking, riskSound.stopThinking]);
+
   // Time out
   useEffect(() => {
     if (timeLeft === 0 && started && !gameOver && !won && !confirmed && question) {
@@ -176,7 +199,7 @@ export default function Nis2AwarenessQuiz({ embedded = false, variant }: { embed
       const newBest = Math.max(bestScore, score);
       setBestScore(newBest);
       try { localStorage.setItem(STORAGE_KEY, String(newBest)); } catch {}
-      setTimeout(() => playDefeat(), 300);
+      later(() => playDefeat(), 300);
     }
   }, [timeLeft, started, gameOver, won, confirmed, question]);
 
@@ -196,6 +219,7 @@ export default function Nis2AwarenessQuiz({ embedded = false, variant }: { embed
 
   const handleConfirm = () => {
     if (selected === null || confirmed || !question) return;
+    if (variant) { clearScheduled(); riskSound.stopAll(); }
     playConfirm();
     setConfirmed(true);
     const isCorrect = parseInt(selected) === question.correct;
@@ -206,12 +230,12 @@ export default function Nis2AwarenessQuiz({ embedded = false, variant }: { embed
       if (timeLeft >= BONUS_TIME_THRESHOLD) {
         setSpeedBonuses(s => s + 1);
         setShowSpeedBonus(true);
-        setTimeout(() => setShowSpeedBonus(false), 1500);
+        later(() => setShowSpeedBonus(false), 1500);
       }
       if (SAFETY_NETS.includes(currentQ)) {
         setShowMilestone(true);
-        setTimeout(() => playMilestone(), 500);
-        setTimeout(() => setShowMilestone(false), 2500);
+        later(() => playMilestone(), variant ? 1200 : 500);
+        later(() => setShowMilestone(false), 2500);
       }
       if (currentQ === QUIZ_SIZE - 1) {
         setWon(true);
@@ -219,9 +243,9 @@ export default function Nis2AwarenessQuiz({ embedded = false, variant }: { embed
         setBestScore(newBest);
         try { localStorage.setItem(STORAGE_KEY, String(newBest)); } catch {}
         saveNisBoard(QUIZ_SIZE, '64.000');
-        setTimeout(() => playVictory(), 300);
+        later(() => playVictory(), 300);
       } else {
-        setTimeout(() => playCorrect(), 400);
+        later(() => playCorrect(), 400);
       }
     } else {
       setStreak(0);
@@ -232,11 +256,14 @@ export default function Nis2AwarenessQuiz({ embedded = false, variant }: { embed
       const secLevel = SAFETY_NETS.filter(idx => idx < currentQ).reverse()[0];
       const secAmount = secLevel !== undefined ? MONEY_LEVELS[secLevel] : '0';
       saveNisBoard(score, secAmount);
-      setTimeout(() => playDefeat(), 300);
+      later(() => playDefeat(), 300);
     }
   };
 
   const handleNext = () => {
+    clearScheduled();
+    if (variant) riskSound.stopAll();
+    setShowMilestone(false);
     const nextQ = currentQ + 1;
     setCurrentQ(nextQ);
     setSelected(null);
@@ -250,6 +277,7 @@ export default function Nis2AwarenessQuiz({ embedded = false, variant }: { embed
 
   const useFiftyFifty = useCallback(() => {
     if (fiftyFiftyUsed || confirmed || !question) return;
+    if (variant) riskSound.playJoker();
     setFiftyFiftyUsed(true);
     const wrongIndices = [0, 1, 2, 3].filter(i => i !== question.correct);
     // Shuffle and pick 2
@@ -266,6 +294,7 @@ export default function Nis2AwarenessQuiz({ embedded = false, variant }: { embed
 
   const useAudience = useCallback(() => {
     if (audienceUsed || confirmed || !question) return;
+    if (variant) riskSound.playJoker();
     setAudienceUsed(true);
     const correctPct = 45 + Math.floor(Math.random() * 30);
     const remaining = 100 - correctPct;
@@ -287,6 +316,10 @@ export default function Nis2AwarenessQuiz({ embedded = false, variant }: { embed
   }, [audienceUsed, confirmed, question, hiddenOptions]);
 
   const restart = () => {
+    clearScheduled();
+    if (variant) riskSound.stopAll();
+    setShowMilestone(false);
+    setShowSpeedBonus(false);
     setStarted(embedded);
     setCurrentQ(0);
     setSelected(null);
@@ -327,6 +360,7 @@ export default function Nis2AwarenessQuiz({ embedded = false, variant }: { embed
       <div className="min-h-screen flex items-center justify-center p-4">
         <PageMeta title={variant ? variant.title : "NIS-2 Awareness Quiz"} description={variant ? variant.intro : "NIS-2 Awareness Quiz"} />
         <div className="text-center space-y-8 max-w-md relative">
+          {audioControls}
           <div className="absolute inset-0 -top-20 bg-[radial-gradient(ellipse_at_center,hsl(45_100%_48%/0.08)_0%,transparent_70%)] pointer-events-none" />
           <div className="relative mx-auto w-28 h-28">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-primary/10 to-transparent rounded-full animate-pulse" />
@@ -372,6 +406,7 @@ export default function Nis2AwarenessQuiz({ embedded = false, variant }: { embed
 
     return (
       <div className={wrapperClass}>
+        {audioControls}
         <PageMeta title={variant ? variant.title : "NIS-2 Awareness Quiz"} description={variant ? variant.intro : "NIS-2 Awareness Quiz"} />
         <div className="text-center mb-6">
           <h1 className={`${embedded ? 'text-lg' : 'text-2xl md:text-3xl'} font-bold text-primary font-mono tracking-widest uppercase`}>
@@ -456,6 +491,7 @@ export default function Nis2AwarenessQuiz({ embedded = false, variant }: { embed
   if (loadingQuestion || !question) {
     return (
       <div className={wrapperClass}>
+        {audioControls}
         <PageMeta title={variant ? variant.title : "NIS-2 Awareness Quiz"} description={variant ? variant.intro : "NIS-2 Awareness Quiz"} />
         <div className="flex flex-col items-center justify-center gap-6 py-20">
           <div className="relative">
@@ -493,6 +529,7 @@ export default function Nis2AwarenessQuiz({ embedded = false, variant }: { embed
 
   return (
     <div className={wrapperClass}>
+      {audioControls}
       <PageMeta title={variant ? variant.title : "NIS-2 Awareness Quiz"} description={variant ? variant.intro : "NIS-2 Awareness Quiz"} />
 
       {/* Top HUD */}
