@@ -45,7 +45,7 @@ const MarSec = lazy(() => import("./pages/MarSec"));
 const MoonCrash = lazy(() => import("./pages/MoonCrash"));
 const RzfSocLife = lazy(() => import("./pages/RzfSocLife"));
 const AssistantZero = lazy(() => import("./pages/AssistantZero"));
-const RiskLife = lazy(() => import("./pages/RiskLife"));
+const RiskLife = lazy(() => import("./pages/RiskQuiz"));
 
 const queryClient = new QueryClient();
 

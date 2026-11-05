@@ -22,7 +22,6 @@ const BONUS_TIME_THRESHOLD = 30;
 const SAFETY_NETS = [2, 5, 8]; // indices where money is secured
 const MONEY_LEVELS = ['50', '100', '200', '500', '1.000', '2.000', '4.000', '8.000', '16.000', '64.000'];
 const OPTION_LETTERS = ['A', 'B', 'C', 'D'];
-const STORAGE_KEY = 'nis2_quiz_best';
 
 const I18N: Record<string, Record<string, string>> = {
   title: { de: 'NIS-2 Awareness Quiz', en: 'NIS-2 Awareness Quiz', fr: 'Quiz NIS-2' },
@@ -46,21 +45,32 @@ const I18N: Record<string, Record<string, string>> = {
 
 // Leaderboard
 interface BoardEntry { score: number; amount: string; date: string; }
-const BOARD_KEY = 'nis2_quiz_board';
-function getNisBoard(): BoardEntry[] {
-  try { return JSON.parse(localStorage.getItem(BOARD_KEY) || '[]').slice(0, 5); } catch { return []; }
-}
-function saveNisBoard(score: number, amount: string) {
-  const board = getNisBoard();
-  board.push({ score, amount, date: new Date().toLocaleDateString() });
-  board.sort((a, b) => b.score - a.score || b.amount.localeCompare(a.amount));
-  try { localStorage.setItem(BOARD_KEY, JSON.stringify(board.slice(0, 5))); } catch {}
+export interface QuizVariant {
+  brand: string;
+  title: string;
+  intro: string;
+  storagePrefix: string;
+  getQuestion: (difficulty: number) => AiQuestion;
 }
 
-export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boolean }) {
+export default function Nis2AwarenessQuiz({ embedded = false, variant }: { embedded?: boolean; variant?: QuizVariant }) {
+  const STORAGE_KEY = variant ? `${variant.storagePrefix}_best` : 'nis2_quiz_best';
+  const BOARD_KEY = variant ? `${variant.storagePrefix}_board` : 'nis2_quiz_board';
+  const getNisBoard = (): BoardEntry[] => { try { return JSON.parse(localStorage.getItem(BOARD_KEY) || '[]').slice(0, 5); } catch { return []; } };
+  const saveNisBoard = (score: number, amount: string) => {
+    const board = getNisBoard();
+    board.push({ score, amount, date: new Date().toLocaleDateString() });
+    board.sort((a, b) => b.score - a.score || b.amount.localeCompare(a.amount));
+    try { localStorage.setItem(BOARD_KEY, JSON.stringify(board.slice(0, 5))); } catch {}
+  };
   const { language } = useLanguage();
   const lang = language as 'de' | 'en' | 'fr';
-  const t = (obj: Record<string, string>) => obj[lang] || obj.en;
+  const t = (obj: Record<string, string>) => {
+    if (variant && obj === I18N.title) return variant.title;
+    if (variant && obj === I18N.intro) return variant.intro;
+    if (variant && obj === I18N.disclaimer) return 'Grundlage: Risikomanagement-Prozess der Demo (Skalen, Klassen, Zuständigkeiten).';
+    return obj[lang] || obj.en;
+  };
   const isMobile = useIsMobile();
   const { unlock, playQuestionReveal, playCorrect, playWrong, playSelect, playConfirm, playVictory, playDefeat, playTick, playTickUrgent, playMilestone } = useMillionaireSound();
 
@@ -110,6 +120,12 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
     setQuestion(null);
     try {
       const difficulty = questionIndex + 1; // 1-10
+      if (variant) {
+        setQuestion(variant.getQuestion(difficulty));
+        setLoadingQuestion(false);
+        playQuestionReveal();
+        return;
+      }
       const { data, error } = await supabase.functions.invoke('nis2-question', {
         body: { language: lang, difficulty },
       });
@@ -123,7 +139,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
       setLoadError(true);
       setLoadingQuestion(false);
     }
-  }, [lang, playQuestionReveal]);
+  }, [lang, playQuestionReveal, variant]);
 
   // Fetch first question when game starts
   useEffect(() => {
@@ -309,7 +325,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
   if (!started) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
-        <PageMeta title="NIS-2 Awareness Quiz" description="NIS-2 Awareness Quiz" />
+        <PageMeta title={variant ? variant.title : "NIS-2 Awareness Quiz"} description={variant ? variant.intro : "NIS-2 Awareness Quiz"} />
         <div className="text-center space-y-8 max-w-md relative">
           <div className="absolute inset-0 -top-20 bg-[radial-gradient(ellipse_at_center,hsl(45_100%_48%/0.08)_0%,transparent_70%)] pointer-events-none" />
           <div className="relative mx-auto w-28 h-28">
@@ -319,7 +335,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
             </div>
           </div>
           <div className="space-y-3">
-            <h1 className="text-3xl md:text-4xl font-bold text-primary font-mono tracking-widest uppercase">NIS-2</h1>
+            <h1 className="text-3xl md:text-4xl font-bold text-primary font-mono tracking-widest uppercase">{variant ? variant.brand : "NIS-2"}</h1>
             <p className="text-lg text-foreground/70 font-mono tracking-wide">Awareness Quiz</p>
             <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto" />
           </div>
@@ -356,7 +372,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
 
     return (
       <div className={wrapperClass}>
-        <PageMeta title="NIS-2 Awareness Quiz" description="NIS-2 Awareness Quiz" />
+        <PageMeta title={variant ? variant.title : "NIS-2 Awareness Quiz"} description={variant ? variant.intro : "NIS-2 Awareness Quiz"} />
         <div className="text-center mb-6">
           <h1 className={`${embedded ? 'text-lg' : 'text-2xl md:text-3xl'} font-bold text-primary font-mono tracking-widest uppercase`}>
             <Typewriter text={t(I18N.title)} charDelay={8} />
@@ -440,7 +456,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
   if (loadingQuestion || !question) {
     return (
       <div className={wrapperClass}>
-        <PageMeta title="NIS-2 Awareness Quiz" description="NIS-2 Awareness Quiz" />
+        <PageMeta title={variant ? variant.title : "NIS-2 Awareness Quiz"} description={variant ? variant.intro : "NIS-2 Awareness Quiz"} />
         <div className="flex flex-col items-center justify-center gap-6 py-20">
           <div className="relative">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(45_100%_48%/0.1)_0%,transparent_70%)]" />
@@ -477,7 +493,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
 
   return (
     <div className={wrapperClass}>
-      <PageMeta title="NIS-2 Awareness Quiz" description="NIS-2 Awareness Quiz" />
+      <PageMeta title={variant ? variant.title : "NIS-2 Awareness Quiz"} description={variant ? variant.intro : "NIS-2 Awareness Quiz"} />
 
       {/* Top HUD */}
       <div className="mb-5 space-y-3">
