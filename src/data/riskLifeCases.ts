@@ -24,7 +24,7 @@ export type CaseStep = { title: string; chapter: number; room: RoomId; actor: st
 const pick = (correct: string, wrong: string[], explanation: string): CaseOption[] => [correct,...wrong.filter(x=>x!==correct)].map(label=>({label,correct:label===correct,explanation:label===correct?explanation:`Nicht passend. ${explanation}`}));
 export function caseSteps(c: RiskCase): CaseStep[] {
   const initial=classify(c.damage,c.likelihood), residual=classify(c.residualS,c.residualW);
-  return [
+  const steps: CaseStep[] = [
     {title:'Meldung aufnehmen',chapter:0,room:'soc_floor',actor:'Risiko-Eigentümer',message:`${c.intro} Welches Objekt gehört in die Risikoakte?`,options:pick(c.object,OBJ.map(o=>o[0]),`Betroffen: ${c.object}. Ereignis: ${c.event}. Ursache: ${c.cause}. ${c.cause==='Unbekannt'?'Eine ungeklärte Ursache darf nicht erfunden werden.':''}`),knowledge:[...OBJ.map(o=>`${o[0]}: ${o[1]}`),`Ereignisse: ${EV.map(e=>e[0]).join(' · ')}`,`Ursachen (optional): ${CAUSE.join(' · ')}`]},
     {title:'Schaden einordnen',chapter:0,room:'forensics',actor:'Risiko-Eigentümer',message:`${c.evidence} Welcher Schaden ist zu erfassen?`,options:pick(`Stufe ${c.damage} · ${S[c.damage-1]?.name}`,S.map(s=>`Stufe ${s.n} · ${s.name}`),`Schaden ${c.damage}: ${S[c.damage-1]?.desc}`),knowledge:S.map(s=>`${s.n} · ${s.name}: ${s.desc} Beispiel: ${s.ex}`)},
     {title:'Eintritt einordnen',chapter:0,room:'forensics',actor:'Risiko-Eigentümer',message:`${c.evidence} Welche Eintrittswahrscheinlichkeit passt?`,options:pick(`Stufe ${c.likelihood} · ${W[c.likelihood-1]?.name}`,W.map(w=>`Stufe ${w.n} · ${w.name}`),`Eintritt ${c.likelihood}: ${W[c.likelihood-1]?.desc}`),knowledge:W.map(w=>`${w.n} · ${w.name}: ${w.desc} Beispiel: ${w.ex}`)},
@@ -37,6 +37,10 @@ export function caseSteps(c: RiskCase): CaseStep[] {
     {title:'Überwachung aktivieren',chapter:5,room:'siem',actor:'CISO',message:`Der Vorgang wurde befristet akzeptiert. Wann ist die reguläre Neubewertung des ${residual.name}en Restrisikos fällig?`,options:pick(`Nach ${residual.months} Monaten.`,[3,6,12].map(n=>`Nach ${n} Monaten.`),`Für ${residual.name}: ${residual.months} Monate. Die Akzeptanzfrist läuft unabhängig davon; auslaufende Akzeptanzen werden bereits 30 Tage vorher verfolgt.`),knowledge:['CISO verfolgt ungeprüfte Risiken, überfällige Maßnahmen, überfällige Neubewertungen und in 30 Tagen auslaufende Akzeptanzen.','Akzeptanzfrist und Neubewertung sind zwei verschiedene Termine.']},
     {title:'Der Fall meldet sich zurück',chapter:5,room:'kitchen',actor:'CISO + Risiko-Eigentümer',message:c.monitoring,options:pick(c.monitorAction,['Akzeptanz automatisch verlängern, ohne die Annahmen zu prüfen.','Den abgeschlossenen Vorgang aus dem Register löschen.'],c.closure),knowledge:['Änderungen an Objekten, Maßnahmen oder Annahmen lösen eine neue Prüfung aus.','Ein Fall ist bearbeitet, aber ein akzeptiertes Risiko bleibt im Register und in der Überwachung.']},
   ];
+  return steps.map((step,i)=>{
+    const offset=(i+c.id.length)%step.options.length;
+    return {...step,options:[...step.options.slice(offset),...step.options.slice(0,offset)]};
+  });
 }
 export type CaseAnswer = { step: number; choice: number; correct: boolean };
 export type CompletedCase = { id: string; answers: CaseAnswer[] };
