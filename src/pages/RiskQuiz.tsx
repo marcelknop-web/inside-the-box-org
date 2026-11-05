@@ -16,7 +16,14 @@ const variant = {
 
 export default function RiskQuiz() {
   return <div className="risk-quiz-theme">
-    <div className="risk-studio" aria-hidden="true"><img src={studio} alt="" width={1920} height={1088} /></div>
+    <div className="risk-studio" aria-hidden="true">
+      <img src={studio} alt="" width={1920} height={1088} />
+      <div className="risk-audience-lights">
+        <span className="risk-spotlight risk-spotlight-left" />
+        <span className="risk-spotlight risk-spotlight-right" />
+        <span className="risk-spotlight risk-spotlight-back" />
+      </div>
+    </div>
     <header className="risk-show-header">
       <div className="max-w-6xl mx-auto flex items-center gap-3">
         <img src={logo.url} alt="" className="risk-brand-mark" />
