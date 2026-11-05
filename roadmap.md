@@ -15,6 +15,7 @@
 - [x] Fit desktop fullscreen gameplay to the viewport and verify visible chat and decision controls.
 
 # Risk Life
+- [ ] Turn the risk quiz into a dramatic studio show and verify answer flow on mobile and desktop.
 - [x] Apply OTTO FUCHS styling to the quiz without changing questions or game rules; verify mobile and desktop.
 - [x] Make the quiz sound more cinematic and Millionaire-inspired; verify cue playback and retained mute/cleanup.
 - [x] Refine the risk quiz sound, add mute/volume controls and verify sound events and cleanup in the browser.
