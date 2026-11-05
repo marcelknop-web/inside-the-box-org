@@ -4,9 +4,9 @@ import { EV, MEAS, REASONS } from './riskLifeReference';
 export interface QuizQuestion { question: string; options: string[]; correct: number; explanation: string }
 
 const pick = <T,>(a: readonly T[]) => a[Math.floor(Math.random() * a.length)];
-function shuffle(correct: string, wrong: string[]): QuizQuestion['options'] extends string[] ? { options: string[]; correct: number } : never {
+function shuffle(correct: string, wrong: string[]): { options: string[]; correct: number } {
   const opts = [correct, ...wrong.slice(0, 3)].sort(() => Math.random() - 0.5);
-  return { options: opts, correct: opts.indexOf(correct) } as never;
+  return { options: opts, correct: opts.indexOf(correct) };
 }
 const q = (question: string, correct: string, wrong: string[], explanation: string): QuizQuestion => ({ question, explanation, ...shuffle(correct, wrong) });
 const DECIDERS = ['Risiko-Eigentümer', 'IT-Leitung', 'Geschäftsführung', 'CISO'];
