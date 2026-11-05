@@ -15,6 +15,6 @@
 - [x] Fit desktop fullscreen gameplay to the viewport and verify visible chat and decision controls.
 
 # Risk Life
-- [ ] Consolidate guidance, register and feedback in a fixed communication pane; verify the complete mission and mobile layout.
+- [x] Consolidate guidance, register and feedback in a fixed communication pane; verify the complete mission and mobile layout.
 - [x] Transform the uploaded risk process into a guided SOC-Life-style mission, preserving scales, roles, measures and example register.
 - [x] Test process rules and complete the mission on desktop and mobile.
