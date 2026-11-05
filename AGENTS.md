@@ -7,3 +7,4 @@
 - AssistantZero scores cyber insurance prospects deterministically in src/data/cyberInsurance.ts against generic market segments; no AI and no premium figures, so results stay traceable.
 - SOC Life variants (IT, OT, RZF) share one engine via variantContext; each variant swaps only incidents, text root, storage namespace and room decor, so fixes reach all variants.
 - Risk Life reuses the SOC Life dollhouse with a separate untimed, locally persisted mission; uploaded reference data and deterministic process rules stay separate so substantive content remains traceable without affecting the incident engine.
+- Risk Life keeps mission, register and reset confirmation inside one stable communication pane; room transitions follow the active step so navigation does not interrupt decisions.
