@@ -1,7 +1,7 @@
 .risk-quiz-theme {
   --background: 0 0% 100%;
   --foreground: 214 28% 20%;
-  --primary: 215 100% 33%;
+  --primary: 211.36 100% 25.88%;
   --primary-foreground: 0 0% 100%;
   --secondary: 213 33% 96%;
   --secondary-foreground: 215 100% 33%;
@@ -9,7 +9,7 @@
   --card-foreground: 214 28% 20%;
   --muted: 213 20% 91%;
   --muted-foreground: 214 14% 40%;
-  --accent: 215 100% 33%;
+  --accent: 211.36 100% 25.88%;
   --accent-foreground: 0 0% 100%;
   --highlight: 145 46% 35%;
   --highlight-foreground: 0 0% 100%;
@@ -19,11 +19,12 @@
   --destructive-foreground: 0 0% 100%;
   --border: 214 24% 85%;
   --input: 214 24% 85%;
-  --ring: 215 100% 33%;
+  --ring: 211.36 100% 25.88%;
   --radius: 0.125rem;
   background: hsl(var(--background));
   color: hsl(var(--foreground));
   min-height: 100dvh;
+  --font-ui: 'Gudea', sans-serif;
   font-family: var(--font-ui);
   font-size: 16px;
   letter-spacing: 0;
