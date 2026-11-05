@@ -3,6 +3,7 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { en } from "@/i18n/en";
 import { de } from "@/i18n/de";
 import { RZF_I18N } from "@/data/rzfSocLifeI18n";
+import { RISK_ROOM_TEXT } from "@/data/riskLife";
 
 /**
  * SOC Life ships in two flavours that share the same engine, components,
@@ -23,7 +24,7 @@ import { RZF_I18N } from "@/data/rzfSocLifeI18n";
  * authoritative English wording — we deliberately bypass the active
  * language and resolve directly against the EN dictionary.
  */
-export type SocLifeVariant = "it" | "ot" | "rzf";
+export type SocLifeVariant = "it" | "ot" | "rzf" | "risk";
 
 interface VariantInfo {
   variant: SocLifeVariant;
@@ -46,7 +47,7 @@ export function SocLifeVariantProvider({
   variant: SocLifeVariant;
   children: ReactNode;
 }) {
-  const i18nRoot = variant === "ot" ? "otSocLife" : variant === "rzf" ? "rzfSocLife" : "socLife";
+  const i18nRoot = variant === "risk" ? "riskLife" : variant === "ot" ? "otSocLife" : variant === "rzf" ? "rzfSocLife" : "socLife";
   const storageNs = i18nRoot;
   return (
     <VariantContext.Provider value={{ variant, i18nRoot, storageNs }}>
@@ -112,6 +113,7 @@ export function useVariantT(): {
   const t = useCallback(
     (key: string): string => {
       if (i18nRoot === "socLife") return rawT(`socLife.${key}`);
+      if (i18nRoot === "riskLife") { const value = getNestedRaw(de, `socLife.${key}`); return RISK_ROOM_TEXT[key] ?? (typeof value === 'string' ? value : key); }
       if (i18nRoot === "rzfSocLife") return resolveRzfString(key);
       // OT variant — English only.
       const variantKey = `otSocLife.${key}`;
@@ -125,6 +127,7 @@ export function useVariantT(): {
   const tArray = useCallback(
     (key: string): string[] => {
       if (i18nRoot === "socLife") return rawTArray(`socLife.${key}`);
+      if (i18nRoot === "riskLife") { const value = getNestedRaw(de, `socLife.${key}`); return Array.isArray(value) ? value : []; }
       if (i18nRoot === "rzfSocLife") return resolveRzfArray(key);
       // OT variant — English only.
       const arr = resolveEnArray(`otSocLife.${key}`);
@@ -137,7 +140,7 @@ export function useVariantT(): {
   // Report EN to consumers so any locale-dependent rendering inside the
   // OT shell (e.g. reason resolver) also stays English.
   const reportedLanguage =
-    i18nRoot === "otSocLife" ? "en" : i18nRoot === "rzfSocLife" ? "de" : (language as "de" | "en" | "fr");
+    i18nRoot === "otSocLife" ? "en" : i18nRoot === "rzfSocLife" || i18nRoot === "riskLife" ? "de" : (language as "de" | "en" | "fr");
 
   return { t, tArray, language: reportedLanguage };
 }

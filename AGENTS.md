@@ -6,3 +6,4 @@
 - Moon Crash presents a shared mission briefing before equipment selection; participant and group decisions use the same ordered-item input while NASA reference data remains server-side.
 - AssistantZero scores cyber insurance prospects deterministically in src/data/cyberInsurance.ts against generic market segments; no AI and no premium figures, so results stay traceable.
 - SOC Life variants (IT, OT, RZF) share one engine via variantContext; each variant swaps only incidents, text root, storage namespace and room decor, so fixes reach all variants.
+- Risk Life reuses the SOC Life dollhouse with a separate untimed, locally persisted mission; uploaded reference data and deterministic process rules stay separate so substantive content remains traceable without affecting the incident engine.
