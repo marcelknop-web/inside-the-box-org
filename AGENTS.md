@@ -8,3 +8,4 @@
 - SOC Life variants (IT, OT, RZF) share one engine via variantContext; each variant swaps only incidents, text root, storage namespace and room decor, so fixes reach all variants.
 
 - /risk-life serves a risk-management quiz reusing the NIS-2 millionaire quiz via a variant prop; questions are generated from riskLife.ts rules, not AI, so answers stay traceable.
+- Risk quiz audio uses an isolated Web Audio palette with a shared limited output, persistent mute/volume and lifecycle cleanup; existing NIS-2 sound remains unchanged.
