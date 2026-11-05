@@ -15,6 +15,8 @@
 - [x] Fit desktop fullscreen gameplay to the viewport and verify visible chat and decision controls.
 
 # Risk Life
+- [x] Add initial role selection and incoming cases with decisions throughout the full lifecycle, retaining process knowledge and completed case files.
+- [x] Verify case progression, role persistence, final results and desktop/mobile presentation.
 - [x] Consolidate guidance, register and feedback in a fixed communication pane; verify the complete mission and mobile layout.
 - [x] Transform the uploaded risk process into a guided SOC-Life-style mission, preserving scales, roles, measures and example register.
 - [x] Test process rules and complete the mission on desktop and mobile.
