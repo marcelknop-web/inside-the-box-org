@@ -15,6 +15,7 @@
 - [x] Fit desktop fullscreen gameplay to the viewport and verify visible chat and decision controls.
 
 # Risk Life
+- [ ] Make the quiz sound more cinematic and Millionaire-inspired; verify cue playback and retained mute/cleanup.
 - [x] Refine the risk quiz sound, add mute/volume controls and verify sound events and cleanup in the browser.
 - [x] Add initial role selection and incoming cases with decisions throughout the full lifecycle, retaining process knowledge and completed case files.
 - [x] Verify case progression, role persistence, final results and desktop/mobile presentation.

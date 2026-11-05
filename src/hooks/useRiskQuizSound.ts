@@ -2,9 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { createReverb } from './createReverb';
 
 type Studio = { ctx: AudioContext; output: GainNode; dry: GainNode; reverb: ConvolverNode };
-type Note = { frequency: number; at: number; duration: number; gain?: number; type?: OscillatorType };
+type Note = { frequency: number; at: number; duration: number; gain?: number; type?: OscillatorType; cutoff?: number; endFrequency?: number };
 
-/** Original quiz-show palette: soft pulses, felt-key chimes and restrained cinematic cadences. */
+/** Original cinematic quiz-show score; no broadcast recordings or theme melody. */
 export function useRiskQuizSound() {
   const [muted, setMuted] = useState(() => {
     try { return localStorage.getItem('risk_quiz_muted') === 'true'; } catch { return false; }
@@ -39,9 +39,9 @@ export function useRiskQuizSound() {
     const dry = ctx.createGain();
     dry.gain.value = 0.65;
     dry.connect(output);
-    const reverb = createReverb(ctx, 1.2, 3);
+    const reverb = createReverb(ctx, 2.2, 2.8);
     const wet = ctx.createGain();
-    wet.gain.value = 0.14;
+    wet.gain.value = 0.22;
     reverb.connect(wet);
     wet.connect(output);
     studio.current = { ctx, output, dry, reverb };
@@ -60,13 +60,16 @@ export function useRiskQuizSound() {
     try {
       const { ctx, dry, reverb } = getStudio();
       const now = ctx.currentTime;
-      notes.forEach(({ frequency, at, duration, gain = 0.12, type = 'triangle' }) => {
+      notes.forEach(({ frequency, at, duration, gain = 0.12, type = 'triangle', cutoff = 1800, endFrequency }) => {
         const oscillator = ctx.createOscillator();
         oscillator.type = type;
         oscillator.frequency.value = frequency;
+        if (endFrequency !== undefined) oscillator.frequency.exponentialRampToValueAtTime(endFrequency, now + at + duration);
         const filter = ctx.createBiquadFilter();
         filter.type = 'lowpass';
-        filter.frequency.value = 1800;
+        filter.frequency.setValueAtTime(cutoff * 0.45, now + at);
+        filter.frequency.linearRampToValueAtTime(cutoff, now + at + 0.025);
+        filter.frequency.exponentialRampToValueAtTime(Math.max(180, cutoff * 0.3), now + at + duration);
         const envelope = ctx.createGain();
         envelope.gain.setValueAtTime(0, now + at);
         envelope.gain.linearRampToValueAtTime(gain, now + at + 0.015);
@@ -103,25 +106,33 @@ export function useRiskQuizSound() {
     stopThinking();
     if (settings.current.muted || document.hidden) return;
     try {
-      const { ctx, dry } = getStudio();
+      const { ctx, dry, reverb } = getStudio();
       const bus = ctx.createGain();
       bus.gain.setValueAtTime(0, ctx.currentTime);
-      bus.gain.linearRampToValueAtTime(0.018, ctx.currentTime + 1.5);
+      bus.gain.linearRampToValueAtTime(0.034, ctx.currentTime + 1.5);
       bus.connect(dry);
+      bus.connect(reverb);
       bed.current = bus;
       const nodes: AudioNode[] = [bus];
-      const voices = [110, 164.81, 220].map(frequency => {
+      // D pedal, fifth and suspended minor-second colour: slow beating, not a melody.
+      const voices = [73.416, 146.832, 220.0, 311.127, 440.6].map((frequency, index) => {
         const oscillator = ctx.createOscillator();
-        oscillator.type = 'sine';
+        oscillator.type = index < 2 ? 'sine' : 'triangle';
         oscillator.frequency.value = frequency;
-        oscillator.connect(bus);
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 700;
+        const voiceGain = ctx.createGain();
+        voiceGain.gain.value = index < 2 ? 0.65 : 0.22;
+        oscillator.connect(filter); filter.connect(voiceGain); voiceGain.connect(bus);
+        nodes.push(filter, voiceGain);
         oscillator.start();
         return oscillator;
       });
       const pulse = ctx.createOscillator();
       const depth = ctx.createGain();
-      pulse.frequency.value = 0.8;
-      depth.gain.value = 0.007;
+      pulse.frequency.value = 1.1;
+      depth.gain.value = 0.024;
       pulse.connect(depth); depth.connect(bus.gain); pulse.start();
       nodes.push(depth);
       bedSources.current = [...voices, pulse];
@@ -170,13 +181,32 @@ export function useRiskQuizSound() {
 
   const melody = useCallback((frequencies: number[], spacing: number, duration: number, gain = 0.12) =>
     play(frequencies.map((frequency, i) => ({ frequency, at: i * spacing, duration, gain }))), [play]);
-  const playQuestionReveal = useCallback(() => melody([110, 220, 329.63, 440], 0.11, 0.6), [melody]);
+  const orchestra = useCallback((frequencies: number[], spacing: number, duration: number, gain = 0.07) => {
+    play(frequencies.flatMap((frequency, i) => [
+      { frequency, at: i * spacing, duration, gain, type: 'sawtooth' as OscillatorType, cutoff: 1600 },
+      { frequency: frequency * 1.002, at: i * spacing, duration, gain: gain * 0.4, type: 'triangle' as OscillatorType, cutoff: 1000 },
+      { frequency: frequency / 2, at: i * spacing, duration: duration * 0.85, gain: gain * 0.65, type: 'sine' as OscillatorType },
+    ]));
+  }, [play]);
+  const playQuestionReveal = useCallback(() => {
+    play([{ frequency: 100, endFrequency: 46, at: 0, duration: 0.45, gain: 0.22, type: 'sine' }]);
+    orchestra([146.83, 220, 311.13, 440], 0.15, 0.85, 0.055);
+  }, [play, orchestra]);
   const playSelect = useCallback(() => play([{ frequency: 660, at: 0, duration: 0.12, gain: 0.09, type: 'sine' }]), [play]);
-  const playConfirm = useCallback(() => melody([220, 440], 0.12, 0.22), [melody]);
-  const playCorrect = useCallback(() => melody([261.63, 329.63, 392, 523.25], 0.1, 0.55), [melody]);
-  const playWrong = useCallback(() => melody([293.66, 261.63, 220, 146.83], 0.16, 0.65, 0.1), [melody]);
-  const playVictory = useCallback(() => melody([261.63, 329.63, 392, 523.25, 659.25, 783.99, 1046.5], 0.16, 1.1), [melody]);
-  const playMilestone = useCallback(() => melody([523.25, 659.25, 783.99], 0.12, 0.65, 0.09), [melody]);
+  const playConfirm = useCallback(() => {
+    play([
+      { frequency: 82, endFrequency: 41, at: 0, duration: 0.35, gain: 0.22, type: 'sine' },
+      { frequency: 293.66, at: 0, duration: 0.28, gain: 0.09 },
+      { frequency: 311.13, at: 0.12, duration: 0.23, gain: 0.07 },
+    ]);
+  }, [play]);
+  const playCorrect = useCallback(() => orchestra([146.83, 220, 293.66, 369.99, 440], 0.085, 0.85), [orchestra]);
+  const playWrong = useCallback(() => {
+    orchestra([155.56, 146.83, 110, 73.42], 0.12, 1.1, 0.06);
+    play([{ frequency: 65, endFrequency: 35, at: 0.1, duration: 0.8, gain: 0.18, type: 'sine' }]);
+  }, [orchestra, play]);
+  const playVictory = useCallback(() => orchestra([146.83, 220, 293.66, 369.99, 440, 587.33], 0.18, 1.6, 0.065), [orchestra]);
+  const playMilestone = useCallback(() => orchestra([293.66, 369.99, 440, 587.33], 0.11, 0.75, 0.045), [orchestra]);
   const playJoker = useCallback(() => melody([440, 659.25, 880], 0.055, 0.25, 0.08), [melody]);
   const playTick = useCallback(() => play([{ frequency: 880, at: 0, duration: 0.05, gain: 0.035, type: 'sine' }]), [play]);
   const playTickUrgent = useCallback(() => play([
