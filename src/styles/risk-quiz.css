@@ -34,6 +34,13 @@
 .risk-quiz-theme .risk-answer { min-height: 60px; height: auto; white-space: normal; justify-content: flex-start; text-align: left; padding: 14px 18px; border-radius: 2px; }
 .risk-quiz-theme .risk-answer:disabled { opacity: 1; }
 .risk-quiz-theme .risk-question { border-left: 4px solid hsl(var(--primary)); }
+.risk-quiz-theme [class*="bg-gradient"] { background-image: none; }
+.risk-quiz-theme [class*="shadow-"] { box-shadow: none; filter: none; }
+.risk-quiz-theme [class*="rounded-2xl"], .risk-quiz-theme [class*="rounded-xl"] { border-radius: 2px; }
+.risk-quiz-theme [class*="text-foreground/"] { color: hsl(var(--muted-foreground)); }
+.risk-quiz-theme h1 { text-transform: none; font-size: 26px; line-height: 1.2; }
+.risk-quiz-theme button { letter-spacing: 0; }
+.risk-quiz-theme button[class*="rounded-full"] { border-radius: 2px; min-height: 44px; }
 @media (max-width: 640px) {
   .risk-quiz-theme :is(p,span) { font-size: inherit; line-height: inherit; }
   .risk-quiz-theme .font-mono { font-size: inherit; letter-spacing: 0; }
