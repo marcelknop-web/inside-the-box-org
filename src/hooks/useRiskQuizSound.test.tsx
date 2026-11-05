@@ -37,7 +37,7 @@ describe('risk quiz audio', () => {
     const { result, unmount } = renderHook(() => useRiskQuizSound());
     act(() => { result.current.unlock(); result.current.playQuestionReveal(); result.current.playJoker(); });
     expect(contexts).toHaveLength(1);
-    expect(contexts[0].oscillators).toHaveLength(7);
+    expect(contexts[0].oscillators).toHaveLength(16);
     unmount();
     expect(contexts[0].close).toHaveBeenCalledOnce();
     expect(contexts[0].oscillators.every(osc => osc.stop.mock.calls.length >= 2)).toBe(true);
@@ -60,7 +60,7 @@ describe('risk quiz audio', () => {
     const { result, unmount } = renderHook(() => useRiskQuizSound());
     expect(result.current.volume).toBe(35);
     act(() => { result.current.unlock(); result.current.startThinking(); });
-    expect(contexts[0].oscillators).toHaveLength(4);
+    expect(contexts[0].oscillators).toHaveLength(6);
     act(() => result.current.stopThinking());
     expect(contexts[0].oscillators.every(osc => osc.stop.mock.calls.length === 1)).toBe(true);
     unmount();
