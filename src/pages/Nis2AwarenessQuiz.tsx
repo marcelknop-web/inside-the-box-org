@@ -71,7 +71,7 @@ export default function Nis2AwarenessQuiz({ embedded = false, variant }: { embed
     if (variant && obj === I18N.title) return variant.title;
     if (variant && obj === I18N.intro) return variant.intro;
     if (variant && obj === I18N.disclaimer) return 'Grundlage: Risikomanagement-Prozess der Demo (Skalen, Klassen, Zuständigkeiten).';
-    return obj[lang] || obj.en;
+    return (variant ? obj.de : obj[lang]) || obj.en;
   };
   const isMobile = useIsMobile();
   const originalSound = useMillionaireSound();
@@ -351,26 +351,28 @@ export default function Nis2AwarenessQuiz({ embedded = false, variant }: { embed
   const timerUrgent = timeLeft <= 10;
   const timerCritical = timeLeft <= 5;
 
+  const branded = Boolean(variant);
   const wrapperClass = embedded ? 'space-y-3' : 'min-h-screen p-4 max-w-4xl mx-auto bg-transparent';
   const diamondClip = 'polygon(4% 50%, 7% 0%, 93% 0%, 96% 50%, 93% 100%, 7% 100%)';
 
   // ── Entry screen ──
   if (!started) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="min-h-[calc(100dvh-73px)] flex items-center justify-center p-5">
         <PageMeta title={variant ? variant.title : "NIS-2 Awareness Quiz"} description={variant ? variant.intro : "NIS-2 Awareness Quiz"} />
         <div className="text-center space-y-8 max-w-md relative">
           {audioControls}
-          <div className="absolute inset-0 -top-20 bg-[radial-gradient(ellipse_at_center,hsl(45_100%_48%/0.08)_0%,transparent_70%)] pointer-events-none" />
+          {!branded && <><div className="absolute inset-0 -top-20 bg-[radial-gradient(ellipse_at_center,hsl(45_100%_48%/0.08)_0%,transparent_70%)] pointer-events-none" />
           <div className="relative mx-auto w-28 h-28">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-primary/10 to-transparent rounded-full animate-pulse" />
             <div className="absolute inset-3 rotate-45 border-2 border-primary/60 bg-gradient-to-br from-primary/20 to-card flex items-center justify-center shadow-[0_0_40px_hsl(45_100%_48%/0.3)]">
               <span className="text-3xl -rotate-45">💎</span>
             </div>
           </div>
+          </>}
           <div className="space-y-3">
             <h1 className="text-3xl md:text-4xl font-bold text-primary font-mono tracking-widest uppercase">{variant ? variant.brand : "NIS-2"}</h1>
-            <p className="text-lg text-foreground/70 font-mono tracking-wide">Awareness Quiz</p>
+            <p className="text-lg text-foreground/70 font-mono tracking-wide">{branded ? "Risikomanagement-Quiz" : "Awareness Quiz"}</p>
             <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto" />
           </div>
           <p className="text-foreground/60 text-sm leading-relaxed max-w-sm mx-auto">{t(I18N.intro)}</p>
@@ -381,11 +383,11 @@ export default function Nis2AwarenessQuiz({ embedded = false, variant }: { embed
               <span className="text-foreground/50">{t({ de: 'Persönlicher Rekord', en: 'Personal Best', fr: 'Record personnel' })}</span>
             </div>
           )}
-          <button onClick={() => { setStarted(true); fetchQuestion(0); }} className="relative group px-10 py-4 mx-auto" style={{ clipPath: diamondClip }}>
+          {branded ? <Button size="lg" onClick={() => { setStarted(true); fetchQuestion(0); }} className="px-10">Start <ArrowRight className="w-4 h-4" /></Button> : <button onClick={() => { setStarted(true); fetchQuestion(0); }} className="relative group px-10 py-4 mx-auto" style={{ clipPath: diamondClip }}>
             <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-primary/30 to-primary/20 group-hover:from-primary/30 group-hover:via-primary/50 group-hover:to-primary/30 transition-all duration-500" />
             <div className="absolute inset-[1px] bg-gradient-to-b from-card via-secondary to-card" style={{ clipPath: diamondClip }} />
             <span className="relative text-primary font-mono font-bold text-lg tracking-wider uppercase group-hover:text-foreground transition-colors">{t(I18N.start)}</span>
-          </button>
+          </button>}
           <div className="flex items-center justify-center gap-6 text-muted-foreground text-xs">
             <span className="flex items-center gap-1.5"><Clock size={12} className="text-primary/60" /> <span className="font-mono">{QUESTION_TIME}s</span></span>
             <span className="flex items-center gap-1.5"><Flame size={12} className="text-primary/60" /> Streak</span>
@@ -415,7 +417,7 @@ export default function Nis2AwarenessQuiz({ embedded = false, variant }: { embed
         </div>
         <StaggerReveal stagger={400}>
           <div className={`relative rounded-2xl p-8 text-center overflow-hidden border ${won ? 'border-primary/40' : 'border-destructive/40'}`}>
-            <div className={`absolute inset-0 ${won ? 'bg-[radial-gradient(ellipse_at_center,hsl(45_100%_48%/0.1)_0%,transparent_70%)]' : 'bg-[radial-gradient(ellipse_at_center,hsl(0_84%_60%/0.08)_0%,transparent_70%)]'}`} />
+            <div hidden={branded} className={`absolute inset-0 ${won ? 'bg-[radial-gradient(ellipse_at_center,hsl(45_100%_48%/0.1)_0%,transparent_70%)]' : 'bg-[radial-gradient(ellipse_at_center,hsl(0_84%_60%/0.08)_0%,transparent_70%)]'}`} />
             {won && (
               <div className="absolute inset-0 pointer-events-none">
                 {[...Array(20)].map((_, i) => (
@@ -424,7 +426,7 @@ export default function Nis2AwarenessQuiz({ embedded = false, variant }: { embed
               </div>
             )}
             <div className="relative z-10">
-              <div className="text-5xl mb-4">{won ? '🏆' : (timeRanOut ? '⏰' : '💔')}</div>
+              <div className="text-5xl mb-4">{branded ? (won ? <Trophy className="w-12 h-12 text-primary mx-auto"/> : <XCircle className="w-12 h-12 text-destructive mx-auto"/>) : (won ? '🏆' : (timeRanOut ? '⏰' : '💔'))}</div>
               <h2 className={`text-2xl md:text-3xl font-bold font-mono tracking-wider ${won ? 'text-primary' : 'text-destructive'}`}>
                 {won ? t(I18N.won) : (timeRanOut ? t({ de: 'Zeit abgelaufen!', en: 'Time\'s up!', fr: 'Temps écoulé !' }) : t(I18N.gameOver))}
               </h2>
@@ -589,25 +591,25 @@ export default function Nis2AwarenessQuiz({ embedded = false, variant }: { embed
         <div className="flex-1 min-w-0 space-y-4">
           <StaggerReveal key={`question-${currentQ}`} stagger={isMobile ? 600 : 350}>
             {/* Jokers */}
-            <div className="flex items-center gap-2">
-              <button onClick={useFiftyFifty} disabled={fiftyFiftyUsed || confirmed}
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button variant="outline" onClick={useFiftyFifty} disabled={fiftyFiftyUsed || confirmed}
                 className={`flex items-center gap-1.5 px-4 py-2 rounded-full border font-mono text-xs transition-all duration-300 ${fiftyFiftyUsed ? 'border-muted/20 text-muted-foreground/30 cursor-not-allowed line-through opacity-40' : 'border-primary/40 text-primary hover:bg-primary/10 hover:border-primary/60 hover:shadow-[0_0_12px_hsl(45_100%_48%/0.15)]'}`}>
                 <Percent size={14} /> 50:50
-              </button>
-              <button onClick={useAudience} disabled={audienceUsed || confirmed}
+              </Button>
+              <Button variant="outline" onClick={useAudience} disabled={audienceUsed || confirmed}
                 className={`flex items-center gap-1.5 px-4 py-2 rounded-full border font-mono text-xs transition-all duration-300 ${audienceUsed ? 'border-muted/20 text-muted-foreground/30 cursor-not-allowed line-through opacity-40' : 'border-primary/40 text-primary hover:bg-primary/10 hover:border-primary/60 hover:shadow-[0_0_12px_hsl(45_100%_48%/0.15)]'}`}>
                 <Users size={14} /> {t(I18N.audience)}
-              </button>
+              </Button>
               <span className="ml-auto text-muted-foreground/40 font-mono text-[10px]">⚡ {currentQ + 1}/10</span>
               {!showLadder && <span className="text-primary font-mono text-sm font-bold drop-shadow-[0_0_8px_hsl(45_100%_48%/0.3)]">€ {MONEY_LEVELS[currentQ]}</span>}
             </div>
 
             {/* Question panel */}
-            <div className="relative">
-              <div className="absolute -inset-[1px] bg-gradient-to-r from-transparent via-primary/40 to-transparent rounded-2xl" />
+            <div className={branded ? "risk-question bg-secondary p-5 sm:p-7" : "relative"}>
+              {branded ? <p className="text-primary text-lg sm:text-xl leading-relaxed font-bold">{question.question}</p> : <><div className="absolute -inset-[1px] bg-gradient-to-r from-transparent via-primary/40 to-transparent rounded-2xl" />
               <div className="relative bg-gradient-to-b from-secondary via-card to-secondary rounded-2xl p-5 md:p-6 border border-primary/20">
                 <p className="text-foreground text-sm md:text-base leading-relaxed text-center font-medium">{question.question}</p>
-              </div>
+              </div></>}
             </div>
 
             {/* Answer options */}
@@ -617,6 +619,15 @@ export default function Nis2AwarenessQuiz({ embedded = false, variant }: { embed
                 const isThis = selected === String(i);
                 const isAnswer = i === question.correct;
 
+                if (branded) {
+                  const stateClass = confirmed && isAnswer ? 'border-success bg-success/10 text-success' : confirmed && isThis ? 'border-destructive bg-destructive/10 text-destructive' : isThis ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-background text-foreground hover:border-primary hover:bg-secondary';
+                  return <Button key={i} variant="outline" onClick={() => handleSelect(i)} disabled={confirmed || isHidden}
+                    className={`risk-answer w-full ${stateClass} ${isHidden ? 'opacity-30 line-through' : ''}`}>
+                    <span className="font-bold text-primary mr-3 shrink-0">{OPTION_LETTERS[i]}:</span>
+                    <span className="min-w-0 break-words">{opt}</span>
+                    {confirmed && isAnswer && <CheckCircle2 className="w-4 h-4 shrink-0 ml-auto"/>}
+                  </Button>;
+                }
                 if (isHidden) {
                   return (
                     <div key={i} className="relative px-8 py-3 text-sm opacity-15" style={{ clipPath: diamondClip }}>
@@ -698,11 +709,11 @@ export default function Nis2AwarenessQuiz({ embedded = false, variant }: { embed
           {/* Confirm */}
           {selected !== null && !confirmed && (
             <div className="flex items-center justify-center animate-fade-in">
-              <button onClick={handleConfirm} className="relative group px-8 py-3" style={{ clipPath: diamondClip }}>
+              {branded ? <Button onClick={handleConfirm} className="min-h-12 px-7">{t(I18N.confirm)} <CheckCircle2 className="w-4 h-4"/></Button> : <button onClick={handleConfirm} className="relative group px-8 py-3" style={{ clipPath: diamondClip }}>
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/40 via-primary/70 to-primary/40 animate-pulse group-hover:animate-none group-hover:from-primary/60 group-hover:via-primary group-hover:to-primary/60 transition-all" style={{ clipPath: diamondClip }} />
                 <div className="absolute inset-[1px] bg-gradient-to-b from-card via-secondary to-card" style={{ clipPath: diamondClip }} />
                 <span className="relative text-primary font-mono font-bold tracking-wider uppercase text-sm group-hover:text-foreground transition-colors">{t(I18N.confirm)}</span>
-              </button>
+              </button>}
             </div>
           )}
 
@@ -721,13 +732,13 @@ export default function Nis2AwarenessQuiz({ embedded = false, variant }: { embed
               </div>
               {isCorrect && !won && (
                 <div className="flex justify-end">
-                  <button onClick={handleNext} className="relative group px-6 py-2.5" style={{ clipPath: diamondClip }}>
+                  {branded ? <Button onClick={handleNext} className="min-h-12 px-7">{t(I18N.next)} <ArrowRight className="w-4 h-4"/></Button> : <button onClick={handleNext} className="relative group px-6 py-2.5" style={{ clipPath: diamondClip }}>
                     <div className="absolute inset-0 bg-gradient-to-r from-highlight/30 via-highlight/50 to-highlight/30 group-hover:from-highlight/50 group-hover:via-highlight/70 group-hover:to-highlight/50 transition-all" style={{ clipPath: diamondClip }} />
                     <div className="absolute inset-[1px] bg-gradient-to-b from-card via-secondary to-card" style={{ clipPath: diamondClip }} />
                     <span className="relative flex items-center gap-2 text-highlight font-mono font-bold text-sm group-hover:text-foreground transition-colors">
                       {t(I18N.next)} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </span>
-                  </button>
+                  </button>}
                 </div>
               )}
             </StaggerReveal>
