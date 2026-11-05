@@ -35,6 +35,9 @@
 .risk-quiz-theme .risk-answer:disabled { opacity: 1; }
 .risk-quiz-theme .risk-question { border-left: 4px solid hsl(var(--primary)); }
 .risk-quiz-theme [class*="bg-gradient"] { background-image: none; }
+.risk-quiz-theme [class*="from-primary/"] { background-color: hsl(var(--primary) / 0.65); }
+.risk-quiz-theme [class*="from-card"] { background-color: hsl(var(--card)); }
+.risk-quiz-theme [class*="bg-card/"] > p { margin-bottom: 16px; }
 .risk-quiz-theme [class*="shadow-"] { box-shadow: none; filter: none; }
 .risk-quiz-theme [class*="rounded-2xl"], .risk-quiz-theme [class*="rounded-xl"] { border-radius: 2px; }
 .risk-quiz-theme [class*="text-foreground/"] { color: hsl(var(--muted-foreground)); }
