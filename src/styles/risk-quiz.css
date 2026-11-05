@@ -1,0 +1,39 @@
+.risk-quiz-theme {
+  --background: 0 0% 100%;
+  --foreground: 214 28% 20%;
+  --primary: 215 100% 33%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 213 33% 96%;
+  --secondary-foreground: 215 100% 33%;
+  --card: 0 0% 100%;
+  --card-foreground: 214 28% 20%;
+  --muted: 213 20% 91%;
+  --muted-foreground: 214 14% 40%;
+  --accent: 215 100% 33%;
+  --accent-foreground: 0 0% 100%;
+  --highlight: 145 46% 35%;
+  --highlight-foreground: 0 0% 100%;
+  --success: 145 46% 32%;
+  --success-foreground: 0 0% 100%;
+  --destructive: 0 67% 43%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 214 24% 85%;
+  --input: 214 24% 85%;
+  --ring: 215 100% 33%;
+  --radius: 0.125rem;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  min-height: 100dvh;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  letter-spacing: 0;
+}
+.risk-quiz-theme :is(h1,h2,h3,p,span,button) { letter-spacing: 0; }
+.risk-quiz-theme .font-mono { font-family: var(--font-ui); letter-spacing: 0; font-variant-numeric: tabular-nums; }
+.risk-quiz-theme .risk-answer { min-height: 60px; height: auto; white-space: normal; justify-content: flex-start; text-align: left; padding: 14px 18px; border-radius: 2px; }
+.risk-quiz-theme .risk-answer:disabled { opacity: 1; }
+.risk-quiz-theme .risk-question { border-left: 4px solid hsl(var(--primary)); }
+@media (max-width: 640px) {
+  .risk-quiz-theme :is(p,span) { font-size: inherit; line-height: inherit; }
+  .risk-quiz-theme .font-mono { font-size: inherit; letter-spacing: 0; }
+}
