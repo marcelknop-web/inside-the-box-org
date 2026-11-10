@@ -17,11 +17,12 @@ export default function AssistantZero() {
   const lang = language === 'de' ? 'de' : 'en';
   const L = (de: string, en: string) => (lang === 'de' ? de : en);
   const [step, setStep] = useState(0);
-  const [intake, setIntake] = useState<Intake>(() => {
-    try { return { ...emptyIntake(), ...JSON.parse(localStorage.getItem(STORE) || '{}') }; } catch { return emptyIntake(); }
-  });
+  const [intake, setIntake] = useState<Intake>(emptyIntake);
   const [busy, setBusy] = useState(false);
-  useEffect(() => { localStorage.setItem(STORE, JSON.stringify(intake)); }, [intake]);
+  useEffect(() => {
+    // Remove assessments retained by earlier versions; new inputs stay in memory only.
+    try { localStorage.removeItem(STORE); } catch { /* Storage may be unavailable. */ }
+  }, []);
   useEffect(() => { window.scrollTo({ top: 0 }); }, [step]);
 
   const set = <K extends keyof Intake>(k: K, v: Intake[K]) => setIntake((p) => ({ ...p, [k]: v }));
