@@ -9,7 +9,7 @@
 - [x] Verify equipment selection, corrections and submission in the live exercise.- [x] Moon Crash: Symbole, vereinfachen, ein Thema pro Screen
 
 # AssistantZero
-- [ ] Remove persistent intake storage, verify fresh entry after reload, and revise the PowerPoint privacy section.
+- [x] Remove persistent intake storage, verify fresh entry after reload, and revise the PowerPoint privacy section.
 - [x] Guided cyber insurance prospect assessment at /assistantzero (profile, controls, needs, weights, segment comparison, PDF).
 - [x] Create a presentation onepager for brokers and customers, preserving the assessment and verifying mobile/desktop navigation.
 
