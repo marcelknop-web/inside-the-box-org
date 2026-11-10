@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import AssistantZero from './AssistantZero';
@@ -7,7 +7,8 @@ vi.mock('@/i18n/LanguageContext', () => ({ useLanguage: () => ({ language: 'de' 
 vi.mock('@/components/PageMeta', () => ({ PageMeta: () => null }));
 
 const open = () => render(<MemoryRouter><AssistantZero /></MemoryRouter>);
-afterEach(() => { cleanup(); localStorage.clear(); sessionStorage.clear(); });
+beforeEach(() => { vi.spyOn(window, 'scrollTo').mockImplementation(() => {}); });
+afterEach(() => { cleanup(); localStorage.clear(); sessionStorage.clear(); vi.restoreAllMocks(); });
 
 describe('AssistantZero confidential intake', () => {
   it('deletes legacy stored inputs instead of restoring them', () => {
