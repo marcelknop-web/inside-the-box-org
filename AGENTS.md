@@ -5,6 +5,7 @@
 - Moon Crash keeps ranking entry and result charts in focused components; per-person capabilities survive role switching, while trainer group-save/reveal uses a session-row-locked private RPC to freeze all rankings consistently.
 - Moon Crash presents a shared mission briefing before equipment selection; participant and group decisions use the same ordered-item input while NASA reference data remains server-side.
 - AssistantZero scores cyber insurance prospects deterministically in src/data/cyberInsurance.ts against generic market segments; no AI and no premium figures, so results stay traceable.
+- AssistantZero's presentation lives at /assistantzero-info and links to the unchanged assessment at /assistantzero, keeping marketing and intake separate.
 - SOC Life variants (IT, OT, RZF) share one engine via variantContext; each variant swaps only incidents, text root, storage namespace and room decor, so fixes reach all variants.
 
 - /risk-life serves a risk-management quiz reusing the NIS-2 millionaire quiz via a variant prop; questions are generated from riskLife.ts rules, not AI, so answers stay traceable.
