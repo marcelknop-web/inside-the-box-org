@@ -10,6 +10,7 @@
 
 # AssistantZero
 - [x] Guided cyber insurance prospect assessment at /assistantzero (profile, controls, needs, weights, segment comparison, PDF).
+- [ ] Create a presentation onepager for brokers and customers, preserving the assessment and verifying mobile/desktop navigation.
 
 # Blind Spot
 - [x] Fit desktop fullscreen gameplay to the viewport and verify visible chat and decision controls.
