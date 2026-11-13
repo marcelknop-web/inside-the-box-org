@@ -60,7 +60,6 @@ export function NavigatorApps() {
         <ShieldCheck size={18} className="mt-0.5 shrink-0 text-highlight" aria-hidden="true" />
         <p className="leading-relaxed">{t('aiWorkflows.appsPrivacy')}</p>
       </div>
-      <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{t('aiWorkflows.appsDisclaimer')}</p>
     </section>
   );
 }
