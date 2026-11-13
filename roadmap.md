@@ -26,3 +26,7 @@
 - [x] Consolidate guidance, register and feedback in a fixed communication pane; verify the complete mission and mobile layout.
 - [x] Transform the uploaded risk process into a guided SOC-Life-style mission, preserving scales, roles, measures and example register.
 - [x] Test process rules and complete the mission on desktop and mobile.
+
+# Training dates
+- [ ] Check linked providers for current dates and grey out each expired date independently.
+- [ ] Test date boundaries and verify training dates on mobile.
