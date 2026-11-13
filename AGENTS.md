@@ -11,4 +11,4 @@
 
 - /risk-life serves a risk-management quiz reusing the NIS-2 millionaire quiz via a variant prop; questions are generated from riskLife.ts rules, not AI, so answers stay traceable.
 - Risk quiz studio imagery, show tokens and presentation are scoped to its wrapper and variant branches; other quiz routes and shared scoring/audio behavior stay unchanged.
-- Risk quiz audio uses an isolated Web Audio palette with a shared limited output, persistent mute/volume and lifecycle cleanup; existing NIS-2 sound remains unchanged.
+- Risk quiz audio uses an isolated Web Audio palette with a shared limited output, persistent mute/volume and lifecycle cleanup; existing NIS-2 sound remains unchanged.- AI edge functions route client text through supabase/functions/_shared/promptSafety.ts: role check, client data fenced as untrusted user content (never system/assistant turns), only plain model text returned; blocks prompt injection.
