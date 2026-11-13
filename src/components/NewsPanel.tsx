@@ -34,17 +34,17 @@ const NEWS: NewsItem[] = [
   },
   {
     date: '2026-11-13',
-    route: '/dora-nis2-ttx',
+    route: '/events-workshops',
     badge: { de: 'Termin', en: 'Date', fr: 'Date' },
     title: {
-      de: 'TTX-Termin: 15.–19.03. · 18.–22.10.2027 (ISACA Germany Chapter)',
-      en: 'TTX session: 15–19 Mar · 18–22 Oct 2027 (ISACA Germany Chapter)',
-      fr: 'Session TTX : 15–19 mars · 18–22 oct. 2027 (ISACA Germany Chapter)',
+      de: 'ISACA Cyber Security Expert (CSE): 15.–19.03. · 18.–22.10.2027',
+      en: 'ISACA Cyber Security Expert (CSE): 15–19 Mar · 18–22 Oct 2027',
+      fr: 'ISACA Cyber Security Expert (CSE) : 15–19 mars · 18–22 oct. 2027',
     },
     desc: {
-      de: 'Cyber Security Expert Schulung — neue Termine im März und Oktober 2027.',
-      en: 'Cyber Security Expert training — new dates in March and October 2027.',
-      fr: 'Formation Cyber Security Expert — nouvelles dates en mars et octobre 2027.',
+      de: 'Hauptkurs in Kooperation mit ISACA Germany — neue Online-Termine im März und Oktober 2027.',
+      en: 'Main course with ISACA Germany — new online dates in March and October 2027.',
+      fr: 'Cours principal avec ISACA Germany — nouvelles dates en ligne en mars et octobre 2027.',
     },
   },
 ];
