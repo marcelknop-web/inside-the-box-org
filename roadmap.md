@@ -30,3 +30,7 @@
 # Training dates
 - [x] Check linked providers for current dates and grey out each expired date independently.
 - [x] Test date boundaries and verify training dates on mobile.
+
+# Navigator apps
+- [ ] Verify the eight compliance app listings and add a trilingual App Store showcase to /ai-workflows.
+- [ ] Verify links and presentation on desktop and mobile.
