@@ -482,7 +482,7 @@ const Overview = () => {
 
       {!entered ? (
         /* Opener Hero — claim-dominant hierarchy */
-        <section className="flex-1 flex items-center justify-center px-5 sm:px-6 py-8 sm:py-14 max-w-5xl mx-auto w-full">
+        <section className="flex-1 flex items-center justify-center px-5 sm:px-6 py-5 sm:py-14 max-w-5xl mx-auto w-full">
           <div className="w-full max-w-3xl text-center sm:-translate-y-[3vh]">
 
             {/* Category label */}
@@ -495,7 +495,7 @@ const Overview = () => {
 
             {/* Wordmark */}
             <h1
-              className="font-mono font-semibold text-xl sm:text-3xl md:text-4xl leading-[1.05] tracking-[-0.02em] text-foreground/90 mb-6 sm:mb-8 opacity-0 animate-fade-in"
+              className="font-mono font-semibold text-xl sm:text-3xl md:text-4xl leading-[1.05] tracking-[-0.02em] text-foreground/90 mb-4 sm:mb-8 opacity-0 animate-fade-in"
               style={{ animationDelay: '180ms', animationFillMode: 'forwards' }}
             >
               {t('welcome.title')}
@@ -511,7 +511,7 @@ const Overview = () => {
 
             {/* Byline */}
             <p
-              className="font-mono text-[13px] sm:text-[15px] tracking-[0.2em] sm:tracking-[0.24em] text-foreground/85 mb-8 sm:mb-10 opacity-0 animate-fade-in"
+              className="font-mono text-[13px] sm:text-[15px] tracking-[0.2em] sm:tracking-[0.24em] text-foreground/85 mb-5 sm:mb-10 opacity-0 animate-fade-in"
               style={{ animationDelay: '780ms', animationFillMode: 'forwards' }}
             >
               {t('welcome.heroByline')}
@@ -519,7 +519,7 @@ const Overview = () => {
 
             {/* Phases preview — non-interactive hint */}
             <div
-              className="mb-8 sm:mb-10 opacity-0 animate-fade-in"
+              className="mb-5 sm:mb-10 opacity-0 animate-fade-in"
               style={{ animationDelay: '950ms', animationFillMode: 'forwards' }}
               aria-hidden
             >
@@ -685,7 +685,7 @@ const Overview = () => {
               <li key={phase.id} className="relative pl-11 pb-4 last:pb-0">
                 <button
                   onClick={() => setActiveId(isActive ? '' : phase.id)}
-                  className="absolute left-0 top-0 flex items-center justify-center w-8 h-8 group/node"
+                  className="absolute left-0 top-0 flex items-center justify-center w-8 h-8 group/node before:absolute before:-inset-1.5 before:content-['']"
                   aria-expanded={isActive}
                 >
                   {/* Mask — solid bg blocks the vertical connector under the diamond */}
@@ -738,7 +738,7 @@ const Overview = () => {
                 </button>
 
                 {isActive && (
-                  <div className="mt-3 animate-fade-in">
+                  <div className="mt-3 animate-fade-in bg-background/40 border border-primary/15 p-3.5">
                     <p className="font-sans text-[15px] text-foreground/75 leading-snug mb-3">
                       {phase.description[lang]}
                     </p>
@@ -747,7 +747,7 @@ const Overview = () => {
                         <li key={svc.id}>
                           <button
                             onClick={() => handleClick(svc.id, phase.id)}
-                            className="w-full text-left flex items-center justify-between gap-3 font-mono text-[15px] text-foreground hover:text-primary transition-colors py-2.5 border-b border-primary/15"
+                            className="w-full text-left flex items-center justify-between gap-3 font-mono text-[15px] text-foreground hover:text-primary transition-colors py-3 border-b border-primary/15 last:border-b-0"
                           >
                             <span className="flex items-center gap-2.5 min-w-0">
                               <span
@@ -829,7 +829,7 @@ const Overview = () => {
           Der Trigger-Header darüber öffnet das Modal; geschlossen wird via X, Esc oder Overlay-Klick.
           Struktur: Layer 1 (Proof of Impact) → Layer 2 (Selected Mandates) → Layer 3 (Client list) → Conversion. */}
       <Dialog open={referencesOpen} onOpenChange={setReferencesOpen}>
-        <DialogContent className="max-w-5xl w-[calc(100vw-2rem)] sm:w-full max-h-[90vh] overflow-y-auto bg-background/95 backdrop-blur-md border border-primary/20 p-6 sm:p-10 [&>button.absolute]:top-6 [&>button.absolute]:right-6 sm:[&>button.absolute]:top-8 sm:[&>button.absolute]:right-8">
+        <DialogContent className="max-w-5xl w-[calc(100vw-2rem)] sm:w-full max-h-[90vh] overflow-y-auto bg-background/95 backdrop-blur-md border border-primary/20 p-4 sm:p-10 [&>button.absolute]:top-6 [&>button.absolute]:right-6 sm:[&>button.absolute]:top-8 sm:[&>button.absolute]:right-8">
           {/* ─── LAYER 1 — PROOF OF IMPACT ─────────────────────────────── */}
           <DialogTitle
             className="font-mono text-[15px] sm:text-[17px] tracking-[0.3em] text-primary mb-4 opacity-0 animate-fade-in"
@@ -921,7 +921,7 @@ const Overview = () => {
             ].map((c, idx) => (
               <div
                 key={c.client}
-                className="bg-background/40 border border-primary/20 transition-all duration-300 p-5 sm:p-6 opacity-0 animate-fade-in"
+                className="bg-background/40 border border-primary/20 transition-all duration-300 p-4 sm:p-6 opacity-0 animate-fade-in"
                 style={{ animationDelay: `${320 + idx * 90}ms`, animationFillMode: 'forwards' }}
               >
                 <div className="font-mono text-[11px] tracking-[0.22em] text-primary mb-2">
