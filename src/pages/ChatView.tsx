@@ -48,6 +48,9 @@ import { RelatedServices } from '@/components/RelatedServices';
 import { NewDateBadge } from '@/components/NewDateBadge';
 import { SiteChrome } from '@/components/SiteChrome';
 import { PasswordGate } from '@/components/PasswordGate';
+
+const isPastDate = (iso: string) => new Date(`${iso}T23:59:59`) < new Date();
+const pastCls = (iso: string) => (isPastDate(iso) ? ' opacity-40 grayscale' : '');
 import { VisitCounter } from '@/components/VisitCounter';
 
 // AI Lab tool publication dates (ISO YYYY-MM-DD).
@@ -691,7 +694,7 @@ const useServiceContent = () => {
         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
           <SubTitle>{t('events.upcomingTitle')}</SubTitle>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
-            <a href="https://www.isaca.de/seminare/seminare/seminare-f%C3%BCr-manager1/cyber-security-expert-26-10-2026.html" target="_blank" rel="noopener noreferrer" className="bg-primary/5 rounded-lg p-4 flex items-start gap-3 hover:bg-primary/10 transition-colors group">
+            <a href="https://www.isaca.de/seminare/seminare/seminare-f%C3%BCr-manager1/cyber-security-expert-26-10-2026.html" target="_blank" rel="noopener noreferrer" className={`bg-primary/5 rounded-lg p-4 flex items-start gap-3 hover:bg-primary/10 transition-colors group${pastCls('2026-10-30')}`}>
               <ShieldCheck size={20} className="text-primary mt-0.5 flex-shrink-0" />
               <div className="space-y-1 min-w-0">
                 <p className="font-semibold text-sm md:text-base font-sans text-primary group-hover:underline">{t('events.upcomingIsacaCse')}</p>
@@ -700,7 +703,7 @@ const useServiceContent = () => {
                 <p className="text-primary text-xs font-mono mt-1">{t('events.upcomingIsacaCseLink')}</p>
               </div>
             </a>
-            <a href="https://www.flane.de/course/innovator-mcsoc?hl=soc" target="_blank" rel="noopener noreferrer" className="bg-primary/5 rounded-lg p-4 flex items-start gap-3 hover:bg-primary/10 transition-colors group">
+            <a href="https://www.flane.de/course/innovator-mcsoc?hl=soc" target="_blank" rel="noopener noreferrer" className={`bg-primary/5 rounded-lg p-4 flex items-start gap-3 hover:bg-primary/10 transition-colors group${pastCls('2026-11-16')}`}>
               <Server size={20} className="text-primary mt-0.5 flex-shrink-0" />
               <div className="space-y-1 min-w-0">
                 <p className="font-semibold text-sm md:text-base font-sans text-primary group-hover:underline">{t('events.upcomingFastLaneSoc')}</p>
@@ -712,7 +715,7 @@ const useServiceContent = () => {
             <button
               type="button"
               onClick={() => setActive('dora-nis2-ttx')}
-              className="bg-primary/5 rounded-lg p-4 flex items-start gap-3 hover:bg-primary/10 transition-colors group text-left border-none cursor-pointer"
+              className={`bg-primary/5 rounded-lg p-4 flex items-start gap-3 hover:bg-primary/10 transition-colors group text-left border-none cursor-pointer${pastCls('2026-12-04')}`}
             >
               <ClipboardList size={20} className="text-primary mt-0.5 flex-shrink-0" />
               <div className="space-y-1 min-w-0">
@@ -1168,7 +1171,7 @@ const useServiceContent = () => {
         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
           <SubTitle>{t('index.upcomingTitle')}</SubTitle>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
-            <a href="https://www.isaca.de/seminare/seminare/seminare-f%C3%BCr-manager1/cyber-security-expert-26-10-2026.html" target="_blank" rel="noopener noreferrer" className="bg-primary/5 rounded-lg p-4 flex items-start gap-3 hover:bg-primary/10 transition-colors group">
+            <a href="https://www.isaca.de/seminare/seminare/seminare-f%C3%BCr-manager1/cyber-security-expert-26-10-2026.html" target="_blank" rel="noopener noreferrer" className={`bg-primary/5 rounded-lg p-4 flex items-start gap-3 hover:bg-primary/10 transition-colors group${pastCls('2026-10-30')}`}>
               <ShieldCheck size={20} className="text-primary mt-0.5 flex-shrink-0" />
               <div className="space-y-1 min-w-0">
                 <p className="font-semibold text-sm md:text-base font-sans text-primary group-hover:underline">{t('index.upcomingIsacaTitle')}</p>

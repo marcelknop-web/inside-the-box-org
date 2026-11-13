@@ -27,7 +27,6 @@ const TtxReadinessPage = lazy(() => import("./pages/TtxReadinessPage"));
 // Imprint route removed — the imprint is now exclusively shown via the
 // SiteChrome drawer (footer "Impressum" link opens the overlay).
 const Enigma = lazy(() => import("./pages/Enigma"));
-const BaerbockBot = lazy(() => import("./pages/BaerbockBot"));
 const SksNavigationQuiz = lazy(() => import("./pages/SksNavigationQuiz"));
 const Nordstern = lazy(() => import("./pages/Nordstern"));
 const Sitemap = lazy(() => import("./pages/Sitemap"));
@@ -70,7 +69,6 @@ const App = () => (
               <Route path="/itsm-dev" element={<Suspense fallback={<RouteSkeleton />}><ItsmDevTool /></Suspense>} />
               <Route path="/ttx-readiness" element={<Suspense fallback={<RouteSkeleton />}><TtxReadinessPage /></Suspense>} />
               <Route path="/enigma" element={<Suspense fallback={<RouteSkeleton />}><Enigma /></Suspense>} />
-              <Route path="/bockbaer-bot" element={<Suspense fallback={<RouteSkeleton />}><BaerbockBot /></Suspense>} />
               <Route path="/sks-quiz" element={<Suspense fallback={<RouteSkeleton />}><SksNavigationQuiz /></Suspense>} />
               <Route path="/nordstern" element={<Suspense fallback={<RouteSkeleton />}><Nordstern /></Suspense>} />
               <Route path="/sitemap" element={<Suspense fallback={<RouteSkeleton />}><Sitemap /></Suspense>} />
