@@ -503,7 +503,7 @@ const Overview = () => {
 
             {/* Claim — dominant, with the "stress" word flickering */}
             <p
-              className="font-sans font-light text-[20px] sm:text-3xl md:text-5xl text-foreground leading-[1.2] tracking-[-0.01em] mb-5 opacity-0 animate-fade-in max-w-3xl mx-auto"
+              className="font-sans font-light text-[20px] sm:text-3xl md:text-5xl text-foreground leading-[1.2] tracking-[-0.01em] mb-5 opacity-0 animate-fade-in max-w-3xl mx-auto text-balance"
               style={{ animationDelay: '420ms', animationFillMode: 'forwards' }}
             >
               {renderWithStressFlicker(t('welcome.heroSubtitle'), ['Stress', 'stress', 'pression'])}
