@@ -366,7 +366,7 @@ export const de = {
   aiWorkflows: {
     appsEyebrow: 'NATIVE APPS · MARCEL KNOP',
     appsTitle: 'Acht Navigatoren. DIY zum Umsetzen von Standards',
-    appsIntro: 'Was muss in welcher Form fertig sein? Und wann muss welche Aktualisierung erfolgen?',
+    appsIntro: 'Was muss bis wann in welcher Form vorliegen – und wann ist eine Aktualisierung nötig?',
     appsOpen: 'Im App Store öffnen',
     appssuiteDesc: 'Risiken und Sicherheitsmaßnahmen für ISO 27001, Prozesse und Verbesserungen für ISO 9001 organisieren.',
     appsaiDesc: 'Ein KI-Managementsystem Schritt für Schritt aufbauen – mit Aufgaben, Prüfpunkten und Zeitplan.',
