@@ -2,8 +2,6 @@ User-agent: *
 Allow: /
 
 # Block dev/internal tools from being indexed
-Disallow: /itsm-dev
-Disallow: /itsm-dev-tool.html
 Disallow: /ttx-admin
 
 Sitemap: https://www.inside-the-box.org/sitemap.xml
