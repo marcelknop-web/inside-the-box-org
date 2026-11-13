@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { UNTRUSTED_GUARD, clean, label, fence, historyAsData, modelText } from "../_shared/promptSafety.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -111,7 +112,7 @@ serve(async (req) => {
     const lang = langLabels[language] || langLabels.de;
 
     const answersText = Object.entries(answers)
-      .map(([key, val]: [string, any]) => `${key}: ${val.label} (${val.value})`)
+      .map(([key, val]: [string, any]) => `${label(key, 60)}: ${label(val.label, 500)} (${label(val.value, 100)})`)
       .join("\n");
 
     const response = await fetch(
@@ -127,11 +128,11 @@ serve(async (req) => {
           messages: [
             {
               role: "system",
-              content: `Du bist ein PCI-DSS-Experte. Basierend auf den Antworten eines SAQ-Einstufungs-Checks und dem regelbasierten Ergebnis "${verdict}", ${lang.instruction}, warum dieser SAQ-Typ empfohlen wird. Beziehe dich auf konkrete PCI DSS v4.0 SAQ-Kriterien und die Kartenmarken-Regularien. Antworte nur mit dem Begründungstext, keine Überschrift.`,
+              content: `Du bist ein PCI-DSS-Experte. Basierend auf den Antworten eines SAQ-Einstufungs-Checks und dem regelbasierten Ergebnis (im Nutzer-Payload), ${lang.instruction}, warum dieser SAQ-Typ empfohlen wird. Beziehe dich auf konkrete PCI DSS v4.0 SAQ-Kriterien und die Kartenmarken-Regularien. Antworte nur mit dem Begründungstext, keine Überschrift.` + UNTRUSTED_GUARD,
             },
             {
               role: "user",
-              content: `Ergebnis: ${verdict}\n\nAntworten:\n${answersText}`,
+              content: `Ergebnis:\n${fence("verdict", verdict, 200)}\n\nAntworten:\n${fence("answers", answersText, 30000)}`,
             },
           ],
           max_tokens: 1200,
@@ -161,7 +162,7 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const reasoning = data.choices?.[0]?.message?.content || "";
+    const reasoning = modelText(data);
 
     return new Response(JSON.stringify({ reasoning }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { UNTRUSTED_GUARD, clean, label, fence, historyAsData, modelText } from "../_shared/promptSafety.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -79,10 +80,17 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "messages must be array" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
-    const trimmed = messages.slice(-30).map((m: any) => ({
-      role: m.role === "assistant" ? "assistant" : "user",
-      content: String(m.content ?? "").slice(0, 4000),
-    }));
+    // Role check: only user/assistant turns; the last turn must come from the user.
+    const valid = messages.filter((m: any) => m && (m.role === "user" || m.role === "assistant"));
+    const last = valid[valid.length - 1];
+    if (!last || last.role !== "user") {
+      return new Response(JSON.stringify({ error: "last message must be from user" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    const userPayload = [
+      historyAsData(valid.slice(0, -1), 29),
+      fence("latest_user_message", last.content),
+    ].filter(Boolean).join("\n\n");
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -95,7 +103,7 @@ serve(async (req) => {
       headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
-        messages: [{ role: "system", content: SYSTEM_PROMPT }, ...trimmed],
+        messages: [{ role: "system", content: SYSTEM_PROMPT + UNTRUSTED_GUARD }, { role: "user", content: userPayload }],
         stream: true,
         temperature: 1.1,
       }),
@@ -112,7 +120,30 @@ serve(async (req) => {
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    return new Response(upstream.body, {
+    // Isolate output: forward only text deltas, never raw upstream payloads.
+    const enc = new TextEncoder();
+    const dec = new TextDecoder();
+    let buf = "";
+    const isolated = upstream.body!.pipeThrough(new TransformStream<Uint8Array, Uint8Array>({
+      transform(chunk, ctrl) {
+        buf += dec.decode(chunk, { stream: true });
+        const parts = buf.split("\n");
+        buf = parts.pop() ?? "";
+        for (const line of parts) {
+          const t = line.trim();
+          if (!t.startsWith("data:")) continue;
+          const d = t.slice(5).trim();
+          if (d === "[DONE]") { ctrl.enqueue(enc.encode("data: [DONE]\n\n")); continue; }
+          try {
+            const c = JSON.parse(d)?.choices?.[0]?.delta?.content;
+            if (typeof c === "string" && c) {
+              ctrl.enqueue(enc.encode(`data: ${JSON.stringify({ choices: [{ delta: { content: c } }] })}\n\n`));
+            }
+          } catch { /* drop malformed */ }
+        }
+      },
+    }));
+    return new Response(isolated, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
   } catch (e) {

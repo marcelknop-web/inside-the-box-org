@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { SYSTEM_PROMPTS } from "./prompts.ts";
+import { UNTRUSTED_GUARD, clean, label, fence, historyAsData, modelText } from "../_shared/promptSafety.ts";
 
 const VALID_LANGS = ["de", "en", "fr"] as const;
 
@@ -63,6 +64,7 @@ function validateRequest(body: unknown): { valid: boolean; error?: string } {
     if (typeof msg.content !== "string" || msg.content.length === 0) return { valid: false, error: "Empty message content" };
     if (msg.content.length > MAX_CONTENT_LENGTH) return { valid: false, error: `Message too long (max ${MAX_CONTENT_LENGTH} chars)` };
   }
+  if ((messages[messages.length - 1] as any).role !== "user") return { valid: false, error: "Last message must be from user" };
   return { valid: true };
 }
 
@@ -129,8 +131,14 @@ serve(async (req) => {
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: system },
-          ...messages,
+          { role: "system", content: system + UNTRUSTED_GUARD },
+          {
+            role: "user",
+            content: [
+              historyAsData(messages.slice(0, -1), MAX_MESSAGES_PER_REQUEST, MAX_CONTENT_LENGTH),
+              fence("latest_user_message", messages[messages.length - 1].content, MAX_CONTENT_LENGTH),
+            ].filter(Boolean).join("\n\n"),
+          },
         ],
         max_tokens: 1200,
       }),
@@ -158,7 +166,7 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content ?? "";
+    const content = modelText(data);
     return new Response(
       JSON.stringify({ content }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
