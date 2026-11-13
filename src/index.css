@@ -89,10 +89,10 @@
     --background: 216 33% 5%;       /* #080b10 */
     --foreground: 220 67% 96%;      /* #f0f4fc */
 
-    --card: 216 26% 7%;             /* #0e1218 */
+    --card: 216 28% 8%;             /* card: klarer vom Canvas abgesetzt */
     --card-foreground: 220 67% 96%;
 
-    --popover: 216 26% 7%;
+    --popover: 216 28% 8%;
     --popover-foreground: 220 67% 96%;
 
     /* Primary: Gold accent */
@@ -105,7 +105,7 @@
 
     /* Muted: bg-3 / hover */
     --muted: 216 34% 16%;           /* #1a2535 */
-    --muted-foreground: 214 22% 50%;  /* dezenter, damit Primär-Inhalte stärker führen */
+    --muted-foreground: 214 22% 63%;  /* besser lesbar, v. a. mobil */
 
     /* Accent: Gold (same as primary) */
     --accent: 45 100% 48%;
@@ -132,17 +132,17 @@
     --warning-foreground: 216 33% 5%;
 
     /* Borders & inputs */
-    --border: 214 32% 17%;          /* #1e2a3a */
+    --border: 214 30% 20%;          /* feinere, sichtbare Kanten */
     --input: 216 33% 12%;           /* #141c28 */
     --ring: 45 100% 48%;
 
     /* Dim / glow tokens */
-    --accent-dim: 45 100% 48% / 0.10;
+    --accent-dim: 45 100% 48% / 0.13;
     --accent-glow: 45 100% 48% / 0.22;
-    --accent2-dim: 187 100% 42% / 0.10;
+    --accent2-dim: 187 100% 42% / 0.13;
 
     /* Disabled text */
-    --text-disabled: 216 25% 35%;   /* #435570 */
+    --text-disabled: 216 22% 42%;   /* #435570 */
 
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(45 100% 48%), hsl(45 90% 54%));
@@ -157,13 +157,13 @@
     --radius: 0.25rem;
 
     /* Sidebar */
-    --sidebar-background: 216 26% 7%;
+    --sidebar-background: 216 28% 8%;
     --sidebar-foreground: 220 67% 96%;
     --sidebar-primary: 45 100% 48%;
     --sidebar-primary-foreground: 216 33% 5%;
     --sidebar-accent: 216 34% 16%;
     --sidebar-accent-foreground: 220 67% 96%;
-    --sidebar-border: 214 32% 17%;
+    --sidebar-border: 214 30% 20%;
     --sidebar-ring: 45 100% 48%;
 
     /* Typography */
