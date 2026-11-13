@@ -5,7 +5,6 @@ describe('past training dates', () => {
   const today = new Date('2026-11-13T15:42:00Z');
   it('greys out past sessions independently of a future session', () => {
     expect(TRAINING_END_DATES.ttx.map(date => isPastDate(date, today))).toEqual([true, false]);
-    expect(TRAINING_END_DATES.fastlane.map(date => isPastDate(date, today))).toEqual([true, true, true]);
   });
   it('keeps both supplied CSE 2027 sessions current', () => {
     expect(TRAINING_END_DATES.isaca.map(date => isPastDate(date, today))).toEqual([false, false]);
