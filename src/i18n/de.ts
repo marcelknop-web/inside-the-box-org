@@ -365,7 +365,7 @@ export const de = {
   },
   aiWorkflows: {
     appsEyebrow: 'NATIVE APPS · MARCEL KNOP',
-    appsTitle: 'Acht Navigatoren. Klare nächste Schritte.',
+    appsTitle: 'Acht Navigatoren. DIY zum Umsetzen von Standards',
     appsIntro: 'Anforderungen umsetzen, Aufgaben nachhalten und Nachweise vorbereiten.',
     appsOpen: 'Im App Store öffnen',
     appssuiteDesc: 'Risiken und Sicherheitsmaßnahmen für ISO 27001, Prozesse und Verbesserungen für ISO 9001 organisieren.',
