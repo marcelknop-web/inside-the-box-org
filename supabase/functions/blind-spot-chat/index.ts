@@ -77,6 +77,7 @@ You are an experienced operator. Treat ${userRoleName} as a peer, not a student.
 Never invent facts that are not in the scenario or chat so far. Never use template phrases like "as IT-Ops I would…". Speak like a real engineer on a 23:47 bridge call — terse, professional, willing to disagree.
 
 Write exactly one Microsoft Teams chat message — 1 to 2 short sentences, natural tone, no bullets, no headers, no role label, no timestamp, no greetings.`;
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
