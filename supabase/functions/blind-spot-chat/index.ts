@@ -1,5 +1,6 @@
 // Blind Spot OT Crisis Simulator - AI role responses via Lovable AI Gateway
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { UNTRUSTED_GUARD, clean, label, fence, historyAsData, modelText } from "../_shared/promptSafety.ts";
 
 interface ChatMessage {
   role: "system" | "user" | "assistant";
@@ -81,7 +82,29 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const body = (await req.json()) as RequestBody;
+    const raw = (await req.json()) as RequestBody;
+    const MODES = ["role", "ic-decision", "debrief", "comms", "classify-stance"] as const;
+    if (!raw || !MODES.includes(raw.mode)) {
+      return new Response(JSON.stringify({ error: "Invalid mode" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    if (raw.aiRole !== undefined && !(raw.aiRole in ROLE_FOCUS)) {
+      return new Response(JSON.stringify({ error: "Invalid aiRole" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    // Labels interpolated into prompts are reduced to short single-line strings.
+    const body: RequestBody = {
+      ...raw,
+      userRole: label(raw.userRole, 60) || undefined,
+      userRoleName: label(raw.userRoleName, 60) || undefined,
+      phaseName: label(raw.phaseName, 80),
+      phaseTimestamp: label(raw.phaseTimestamp, 40),
+      history: undefined,
+    };
+    const historyMsg = historyAsData(raw.history, 30, 2000);
+    const hist: ChatMessage[] = historyMsg ? [{ role: "user", content: historyMsg }] : [];
+    const situation = fence("situation", raw.situation, 4000);
+    const userInput = raw.userInput ? fence("participant_input", raw.userInput, 4000) : "";
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
@@ -90,13 +113,13 @@ Deno.serve(async (req) => {
     if (body.mode === "role") {
       messages = [
         { role: "system", content: buildSystemPrompt(body) },
-        ...(body.history ?? []),
+        ...hist,
         {
           role: "user",
           content:
-            `SITUATION UPDATE — ${body.phaseName} (${body.phaseTimestamp}):\n${body.situation}\n\n` +
+            `SITUATION UPDATE — ${body.phaseName} (${body.phaseTimestamp}):\n${situation}\n\n` +
             (body.userInput
-              ? `${body.userRole} just said: "${body.userInput}"\n\nGive your in-character reaction.`
+              ? `${body.userRole} just said:\n${userInput}\n\nGive your in-character reaction.`
               : `Give your in-character first reaction.`),
         },
       ];
@@ -104,12 +127,12 @@ Deno.serve(async (req) => {
       const sys = buildCommsSystemPrompt(body);
       messages = [
         { role: "system", content: sys },
-        ...(body.history ?? []),
+        ...hist,
         {
           role: "user",
           content:
-            (body.situation ? `Situation: ${body.situation}\n\n` : "") +
-            (body.userInput ?? `Write your next message now.`),
+            (raw.situation ? `Situation:\n${situation}\n\n` : "") +
+            (userInput || `Write your next message now.`),
         },
       ];
     } else if (body.mode === "ic-decision") {
@@ -117,13 +140,13 @@ Deno.serve(async (req) => {
       // AI IC responds with a decision referencing user input
       messages = [
         { role: "system", content: buildSystemPrompt({ ...body, aiRole: "Incident Commander" }) },
-        ...(body.history ?? []),
+        ...hist,
         {
           role: "user",
           content:
             `DECISION POINT — ${body.phaseName} (${body.phaseTimestamp}).\n` +
-            `Situation: ${body.situation}\n\n` +
-            `Question to decide: ${body.userInput}\n\n` +
+            `Situation:\n${situation}\n\n` +
+            `Question to decide:\n${userInput}\n\n` +
             `Issue your decision now in 3-5 sentences. Format: start with "DECISION: YES" or "DECISION: NO" or "DECISION: CONDITIONAL — <one-line condition>". Then a short rationale referencing the team input. End with a clear next-step order.`,
         },
       ];
@@ -137,17 +160,17 @@ Deno.serve(async (req) => {
         {
           role: "user",
           content:
-            `Decision question:\n${body.decisionQuestion ?? ""}\n\nParticipant said (verbatim):\n"${body.userInput ?? ""}"\n\nReply with one token only: YES | NO | CONDITIONAL | UNCLEAR.`,
+            `Decision question:\n${fence("decision_question", raw.decisionQuestion, 1000)}\n\nParticipant said (verbatim):\n${fence("participant_input", raw.userInput, 4000)}\n\nReply with one token only: YES | NO | CONDITIONAL | UNCLEAR.`,
         },
       ];
     } else {
       // debrief
-      const log = (body.decisions ?? [])
+      const log = fence("decision_log", (Array.isArray(raw.decisions) ? raw.decisions.slice(0, 10) : [])
         .map(
           (d, i) =>
             `Phase ${i + 1} — ${d.phase}\nQ: ${d.question}\nChoice: ${d.choice}\nReasoning: ${d.reasoning}\nDecided by: ${d.icBy === "user" ? "user (IC)" : "AI IC"}`,
         )
-        .join("\n\n");
+        .join("\n\n"), 12000);
       const role = body.userRole ?? "the participant";
       messages = [
         {
@@ -182,7 +205,7 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
-        messages,
+        messages: messages.map((m) => m.role === "system" ? { ...m, content: m.content + UNTRUSTED_GUARD } : m),
       }),
     });
 
@@ -208,7 +231,7 @@ Deno.serve(async (req) => {
     }
 
     const data = await resp.json();
-    const text: string = data.choices?.[0]?.message?.content ?? "";
+    const text: string = modelText(data);
 
     return new Response(JSON.stringify({ text }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

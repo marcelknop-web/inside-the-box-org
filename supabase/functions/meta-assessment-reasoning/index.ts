@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { UNTRUSTED_GUARD, clean, label, fence, historyAsData, modelText } from "../_shared/promptSafety.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -126,13 +127,13 @@ serve(async (req) => {
       .map((r: any) => `${r.id} [${r.article ?? ""}] ${r.name}${r.criteria ? ` — Criteria: ${r.criteria}` : ""}`)
       .join("\n");
 
-    const userContent = `STANDARD: ${standardName} (${regulation})
+    const userContent = `STANDARD: ${label(standardName, 80)} (${label(regulation, 160)})
 
 REQUIREMENTS TO ASSESS (use these exact ids):
-${reqList}
+${fence("requirements", reqList, 40000)}
 
 ENTITY INTAKE DATA:
-${intakeText}
+${fence("intake", intakeText, 20000)}
 
 Assess every requirement id above. Return the JSON object now.`;
 
@@ -145,7 +146,7 @@ Assess every requirement id above. Return the JSON object now.`;
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
         messages: [
-          { role: "system", content: buildSystemPrompt(standardName, regulation, LANG_NAME[lang]) },
+          { role: "system", content: buildSystemPrompt(label(standardName, 80), label(regulation, 160), LANG_NAME[lang]) + UNTRUSTED_GUARD },
           { role: "user", content: userContent },
         ],
         response_format: { type: "json_object" },
@@ -163,7 +164,7 @@ Assess every requirement id above. Return the JSON object now.`;
     }
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content ?? "";
+    const content = modelText(data);
 
     let parsed: any;
     try {
