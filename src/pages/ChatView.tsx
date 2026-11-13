@@ -49,6 +49,7 @@ import { NewDateBadge } from '@/components/NewDateBadge';
 import { SiteChrome } from '@/components/SiteChrome';
 import { PasswordGate } from '@/components/PasswordGate';
 import { TrainingDates } from '@/components/TrainingDates';
+import { NavigatorApps } from '@/components/NavigatorApps';
 import { isPastDate, TRAINING_END_DATES } from '@/lib/trainingDates';
 
 const pastCls = (iso: string) => (isPastDate(iso) ? ' opacity-40 grayscale' : '');
@@ -1102,6 +1103,7 @@ const useServiceContent = () => {
     ),
     'ai-workflows': () => (
       <TypedSection title={t('aiWorkflows.title')} mode="typewriter" intro={<p>{t('aiWorkflows.intro')}</p>}>
+        <NavigatorApps />
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('aiWorkflows.introDetail')}</p>
         </Block>

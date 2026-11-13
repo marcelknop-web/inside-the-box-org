@@ -1,4 +1,5 @@
 # Architecture rules
+- The native app showcase is isolated in NavigatorApps with imported asset pointers and shared translation keys, so catalogue presentation does not change workflow behavior.
 - Training dates use shared Berlin calendar-day expiry and per-session end dates, so future sessions never keep expired ones highlighted.
 - Blind Spot sizes the desktop live exercise with a viewport-height flex shell and zero-minimum grid tracks, keeping chat input visible while history scrolls only inside panels.
 - Moon Crash uses private Cloud tables behind an edge function; hashed capability tokens authorize trainer and participant actions server-side without account signup.
