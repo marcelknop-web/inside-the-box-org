@@ -37,9 +37,9 @@ const NEWS: NewsItem[] = [
     route: '/dora-nis2-ttx',
     badge: { de: 'Termin', en: 'Date', fr: 'Date' },
     title: {
-      de: 'TTX-Termin: 26.–30.10.2026 (ISACA Germany Chapter)',
-      en: 'TTX session: 26–30 Oct 2026 (ISACA Germany Chapter)',
-      fr: 'Session TTX : 26–30 oct. 2026 (ISACA Germany Chapter)',
+      de: 'TTX-Termin: 15.–19.03. · 18.–22.10.2027 (ISACA Germany Chapter)',
+      en: 'TTX session: 15–19 Mar · 18–22 Oct 2027 (ISACA Germany Chapter)',
+      fr: 'Session TTX : 15–19 mars · 18–22 oct. 2027 (ISACA Germany Chapter)',
     },
     desc: {
       de: 'Cyber Security Expert Schulung — neuer Termin im Herbst 2026.',
