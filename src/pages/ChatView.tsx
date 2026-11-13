@@ -1104,9 +1104,6 @@ const useServiceContent = () => {
     'ai-workflows': () => (
       <TypedSection title={t('aiWorkflows.title')} mode="typewriter" intro={<p>{t('aiWorkflows.intro')}</p>}>
         <NavigatorApps />
-        <Block className="bg-card/40 rounded-xl">
-          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('aiWorkflows.introDetail')}</p>
-        </Block>
 
         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
           <SubTitle>{t('aiWorkflows.areasTitle')}</SubTitle>

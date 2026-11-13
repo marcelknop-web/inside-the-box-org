@@ -78,9 +78,9 @@ export const SERVICE_SEO: Record<string, ServiceSeo> = {
       'SOC design and operations: use cases, detection engineering, alert triage, KPIs and realistic staffing and tooling decisions.',
   },
   'ai-workflows': {
-    title: 'AI Workflows for Security',
+    title: 'Security & Compliance Apps',
     description:
-      'AI-assisted security workflows: automation of assessments, documentation and reporting with clear data protection guardrails.',
+      'Eight navigator apps for security, compliance and management on iPhone, iPad and Mac: ISO 27001, ISO 42001, CRA, DORA, TISAX, NIS-2 and more.',
   },
   'dora-nis2-ttx': {
     title: 'DORA & NIS-2 Tabletop Exercises',
