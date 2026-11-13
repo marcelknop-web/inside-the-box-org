@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { RouteSkeleton } from "@/components/RouteSkeleton";
@@ -22,7 +22,6 @@ import { lazy, Suspense } from "react";
 const TtxAdmin = lazy(() => import("./pages/TtxAdmin"));
 const AiUsage = lazy(() => import("./pages/AiUsage"));
 const ItsmTool = lazy(() => import("./pages/ItsmTool"));
-const ItsmDevTool = lazy(() => import("./pages/ItsmDevTool"));
 const TtxReadinessPage = lazy(() => import("./pages/TtxReadinessPage"));
 // Imprint route removed — the imprint is now exclusively shown via the
 // SiteChrome drawer (footer "Impressum" link opens the overlay).
@@ -30,14 +29,12 @@ const Enigma = lazy(() => import("./pages/Enigma"));
 const SksNavigationQuiz = lazy(() => import("./pages/SksNavigationQuiz"));
 const Nordstern = lazy(() => import("./pages/Nordstern"));
 const Sitemap = lazy(() => import("./pages/Sitemap"));
-const PrivacyDataflow = lazy(() => import("./pages/PrivacyDataflow"));
 const Iec62443Ur26ComplianceTool = lazy(() => import("./pages/Iec62443Ur26ComplianceTool"));
 const Iec62443ComplianceTool = lazy(() => import("./pages/Iec62443ComplianceTool"));
 const BlindSpotSimulator = lazy(() => import("./pages/BlindSpotSimulator"));
 const AssessmentTools = lazy(() => import("./pages/AssessmentTools"));
 const MetaAssessmentTool = lazy(() => import("./pages/MetaAssessmentTool"));
 const Syndicate = lazy(() => import("./pages/Syndicate"));
-const Starfighter = lazy(() => import("./pages/Starfighter"));
 const Ernstfall = lazy(() => import("./pages/Ernstfall"));
 const Notnagel = lazy(() => import("./pages/Notnagel"));
 const MarSec = lazy(() => import("./pages/MarSec"));
@@ -45,7 +42,7 @@ const MoonCrash = lazy(() => import("./pages/MoonCrash"));
 const RzfSocLife = lazy(() => import("./pages/RzfSocLife"));
 const AssistantZero = lazy(() => import("./pages/AssistantZero"));
 const AssistantZeroOnepager = lazy(() => import("./pages/AssistantZeroOnepager"));
-const RiskLife = lazy(() => import("./pages/RiskQuiz"));
+const RiskQuiz = lazy(() => import("./pages/RiskQuiz"));
 
 const queryClient = new QueryClient();
 
@@ -66,32 +63,25 @@ const App = () => (
               <Route path="/ttx-admin" element={<Suspense fallback={<RouteSkeleton />}><TtxAdmin /></Suspense>} />
               <Route path="/ai-usage" element={<Suspense fallback={<RouteSkeleton />}><AiUsage /></Suspense>} />
               <Route path="/itsm" element={<Suspense fallback={<RouteSkeleton />}><ItsmTool /></Suspense>} />
-              <Route path="/itsm-dev" element={<Suspense fallback={<RouteSkeleton />}><ItsmDevTool /></Suspense>} />
               <Route path="/ttx-readiness" element={<Suspense fallback={<RouteSkeleton />}><TtxReadinessPage /></Suspense>} />
               <Route path="/enigma" element={<Suspense fallback={<RouteSkeleton />}><Enigma /></Suspense>} />
               <Route path="/sks-quiz" element={<Suspense fallback={<RouteSkeleton />}><SksNavigationQuiz /></Suspense>} />
               <Route path="/nordstern" element={<Suspense fallback={<RouteSkeleton />}><Nordstern /></Suspense>} />
               <Route path="/sitemap" element={<Suspense fallback={<RouteSkeleton />}><Sitemap /></Suspense>} />
-              <Route path="/datenschutz-tools" element={<Suspense fallback={<RouteSkeleton />}><PrivacyDataflow /></Suspense>} />
               <Route path="/iacs-ur26" element={<Suspense fallback={<RouteSkeleton />}><PasswordGate storageKey="iec62443-ur26" label="IACS UR E26 Compliance Tool"><Iec62443Ur26ComplianceTool /></PasswordGate></Suspense>} />
               <Route path="/iacs-ur27" element={<Suspense fallback={<RouteSkeleton />}><PasswordGate storageKey="iec62443" label="IACS UR E27 Compliance Tool"><Iec62443ComplianceTool /></PasswordGate></Suspense>} />
               <Route path="/blind-spot" element={<Suspense fallback={<RouteSkeleton />}><BlindSpotSimulator /></Suspense>} />
               <Route path="/assessment-tools" element={<Suspense fallback={<RouteSkeleton />}><AssessmentTools /></Suspense>} />
-              <Route path="/tools" element={<Suspense fallback={<RouteSkeleton />}><AssessmentTools /></Suspense>} />
               <Route path="/gapzero" element={<Suspense fallback={<RouteSkeleton />}><MetaAssessmentTool /></Suspense>} />
               {/* Legacy aliases — keep old links working */}
-              <Route path="/gapzeo" element={<Suspense fallback={<RouteSkeleton />}><MetaAssessmentTool /></Suspense>} />
-              <Route path="/meta-assessment" element={<Suspense fallback={<RouteSkeleton />}><MetaAssessmentTool /></Suspense>} />
               <Route path="/syndicate" element={<Suspense fallback={<RouteSkeleton />}><Syndicate /></Suspense>} />
-              <Route path="/starfighter" element={<Suspense fallback={<RouteSkeleton />}><Starfighter /></Suspense>} />
               <Route path="/ernstlfall" element={<Suspense fallback={<RouteSkeleton />}><PasswordGate storageKey="ernstlfall" label="ERNSTLFALL"><Ernstfall /></PasswordGate></Suspense>} />
-              <Route path="/ernstfall" element={<Navigate to="/ernstlfall" replace />} />
               <Route path="/notnagel" element={<Suspense fallback={<RouteSkeleton />}><Notnagel /></Suspense>} />
               <Route path="/marsec" element={<Suspense fallback={<RouteSkeleton />}><PasswordGate storageKey="ernstlfall" label="MarSec Studio"><MarSec /></PasswordGate></Suspense>} />
               <Route path="/assistantzero" element={<Suspense fallback={<RouteSkeleton />}><AssistantZero /></Suspense>} />
               <Route path="/assistantzero-info" element={<Suspense fallback={<RouteSkeleton />}><AssistantZeroOnepager /></Suspense>} />
               <Route path="/rzf-soc-life" element={<Suspense fallback={<RouteSkeleton />}><RzfSocLife /></Suspense>} />
-              <Route path="/risk-life" element={<Suspense fallback={<RouteSkeleton />}><RiskLife /></Suspense>} />
+              <Route path="/risk-life" element={<Suspense fallback={<RouteSkeleton />}><RiskQuiz /></Suspense>} />
               <Route path="/moon-crash" element={<Suspense fallback={<RouteSkeleton />}><MoonCrash /></Suspense>} />
 
               {/* Catch-all: every Journey service id (nis2-dora, virtual-ciso, …) renders ChatView */}
