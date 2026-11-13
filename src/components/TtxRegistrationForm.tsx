@@ -3,10 +3,11 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { CalendarCheck, Loader2 } from 'lucide-react';
+import { isPastDate } from '@/lib/trainingDates';
 
 const EVENT_DATES = [
-  { value: '2026-09-17', labelKey: 'date2', locationKey: 'location' },
-  { value: '2026-12-03', labelKey: 'date3', locationKey: 'locationBerlin' },
+  { value: '2026-09-17', endDate: '2026-09-18', labelKey: 'date2', locationKey: 'location' },
+  { value: '2026-12-03', endDate: '2026-12-04', labelKey: 'date3', locationKey: 'locationBerlin' },
 ] as const;
 
 const TtxRegistrationForm = () => {
@@ -64,7 +65,7 @@ const TtxRegistrationForm = () => {
               key={d.value}
               type="button"
               onClick={() => setSelectedDate(d.value)}
-              className={`flex items-center gap-2 rounded-lg border p-3 text-sm font-sans transition-all cursor-pointer ${
+              className={`flex items-center gap-2 rounded-lg border p-3 text-sm font-sans transition-all cursor-pointer ${isPastDate(d.endDate) ? 'opacity-40 grayscale' : ''} ${
                 selectedDate === d.value
                   ? 'border-primary bg-primary/10 text-primary font-semibold'
                   : 'border-primary/20 bg-card/40 text-foreground/80 hover:border-primary/40'

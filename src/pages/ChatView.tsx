@@ -48,8 +48,9 @@ import { RelatedServices } from '@/components/RelatedServices';
 import { NewDateBadge } from '@/components/NewDateBadge';
 import { SiteChrome } from '@/components/SiteChrome';
 import { PasswordGate } from '@/components/PasswordGate';
+import { TrainingDates } from '@/components/TrainingDates';
+import { isPastDate, TRAINING_END_DATES } from '@/lib/trainingDates';
 
-const isPastDate = (iso: string) => new Date(`${iso}T23:59:59`) < new Date();
 const pastCls = (iso: string) => (isPastDate(iso) ? ' opacity-40 grayscale' : '');
 import { VisitCounter } from '@/components/VisitCounter';
 
@@ -698,7 +699,7 @@ const useServiceContent = () => {
               <ShieldCheck size={20} className="text-primary mt-0.5 flex-shrink-0" />
               <div className="space-y-1 min-w-0">
                 <p className="font-semibold text-sm md:text-base font-sans text-primary group-hover:underline">{t('events.upcomingIsacaCse')}</p>
-                <p className="text-highlight text-sm font-mono font-semibold">{t('events.upcomingIsacaCseDate')}</p>
+                <TrainingDates text={t('events.upcomingIsacaCseDate')} endDates={TRAINING_END_DATES.isaca} />
                 <p className="text-foreground/70 text-xs font-mono">{t('events.upcomingIsacaCseLocation')}</p>
                 <p className="text-primary text-xs font-mono mt-1">{t('events.upcomingIsacaCseLink')}</p>
               </div>
@@ -712,11 +713,12 @@ const useServiceContent = () => {
                 <p className="text-primary text-xs font-mono mt-1">{t('events.upcomingBechtleSocLink')}</p>
               </div>
             </a>
-            <a href="https://www.flane.de/course/innovator-mcsoc?hl=soc" target="_blank" rel="noopener noreferrer" className={`bg-primary/5 rounded-lg p-4 flex items-start gap-3 hover:bg-primary/10 transition-colors group${pastCls('2026-11-16')}`}>
+            <a href="https://www.flane.de/course/innovator-mcsoc?hl=soc" target="_blank" rel="noopener noreferrer" className="bg-primary/5 rounded-lg p-4 flex items-start gap-3 hover:bg-primary/10 transition-colors group">
               <Server size={20} className="text-primary mt-0.5 flex-shrink-0" />
               <div className="space-y-1 min-w-0">
                 <p className="font-semibold text-sm md:text-base font-sans text-primary group-hover:underline">{t('events.upcomingFastLaneSoc')}</p>
-                <p className="text-highlight text-sm font-mono font-semibold">{t('events.upcomingFastLaneSocDate')}</p>
+                <p className="text-highlight text-sm font-mono font-semibold">{t('events.upcomingFastLaneSocStatus')}</p>
+                <TrainingDates text={t('events.upcomingFastLaneSocDate')} endDates={TRAINING_END_DATES.fastlane} />
                 <p className="text-foreground/70 text-xs font-mono">{t('events.upcomingFastLaneSocLocation')}</p>
                 <p className="text-primary text-xs font-mono mt-1">{t('events.upcomingFastLaneSocLink')}</p>
               </div>
@@ -729,7 +731,7 @@ const useServiceContent = () => {
               <ClipboardList size={20} className="text-primary mt-0.5 flex-shrink-0" />
               <div className="space-y-1 min-w-0">
                 <p className="font-semibold text-sm md:text-base font-sans text-primary group-hover:underline">{t('events.upcomingTtx')}</p>
-                <p className="text-highlight text-sm font-mono font-semibold">{t('events.upcomingTtxDate')}</p>
+                <TrainingDates text={t('events.upcomingTtxDate')} endDates={TRAINING_END_DATES.ttx} />
                 <p className="text-foreground/70 text-xs font-mono">{t('events.upcomingTtxLocation')}</p>
                 <p className="text-primary text-xs font-mono mt-1">{t('events.upcomingTtxLink')}</p>
               </div>
@@ -1175,7 +1177,7 @@ const useServiceContent = () => {
               <ShieldCheck size={20} className="text-primary mt-0.5 flex-shrink-0" />
               <div className="space-y-1 min-w-0">
                 <p className="font-semibold text-sm md:text-base font-sans text-primary group-hover:underline">{t('index.upcomingIsacaTitle')}</p>
-                <p className="text-highlight text-sm font-mono font-semibold">{t('index.upcomingIsacaDate')}</p>
+                <TrainingDates text={t('index.upcomingIsacaDate')} endDates={TRAINING_END_DATES.isaca} />
                 <p className="text-primary text-xs font-mono mt-1">{t('index.upcomingIsacaLink')}</p>
               </div>
             </a>
