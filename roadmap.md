@@ -28,5 +28,5 @@
 - [x] Test process rules and complete the mission on desktop and mobile.
 
 # Training dates
-- [ ] Check linked providers for current dates and grey out each expired date independently.
-- [ ] Test date boundaries and verify training dates on mobile.
+- [x] Check linked providers for current dates and grey out each expired date independently.
+- [x] Test date boundaries and verify training dates on mobile.
