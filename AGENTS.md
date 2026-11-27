@@ -1,6 +1,7 @@
 # Architecture rules
 - Sea-Shield uses query-linked workspace views and phase submenus inside a viewport-height scoped shell, with versioned browser-only state and a non-commercial proposal baseline; sign-off requires every deliverable and authority, preserving traceability without Cloud transfer.
 - Sea-Shield mounts its workspace only after the shared server-verified PasswordGate authorizes the sea-shield scope; project data stays browser-only while access validation uses Cloud.
+- The document connection policy must allow the configured Cloud origin explicitly; a regression test checks this so backend-origin changes cannot silently block access verification.
 - The native app showcase is isolated in NavigatorApps with imported asset pointers and shared translation keys, so catalogue presentation does not change workflow behavior.
 - Training dates use shared Berlin calendar-day expiry and per-session end dates, so future sessions never keep expired ones highlighted.
 - Blind Spot sizes the desktop live exercise with a viewport-height flex shell and zero-minimum grid tracks, keeping chat input visible while history scrolls only inside panels.

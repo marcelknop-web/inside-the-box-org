@@ -36,6 +36,7 @@
 - [x] Verify links and presentation on desktop and mobile.
 
 # Sea-Shield project tracker
+- [x] Fix blocked Cloud password-verification connections and verify the actual configured-origin login flow.
 - [x] Add server-verified password access and verify locked/direct-link/reload behavior.
 - [x] Request publication of the updated website.
 - [x] Rework into a compact proposal-styled project-lead workspace with linked menus and submenus; remove all commercial data.
