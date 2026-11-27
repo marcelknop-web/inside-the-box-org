@@ -37,7 +37,7 @@
 
 # Sea-Shield project tracker
 - [x] Add server-verified password access and verify locked/direct-link/reload behavior.
-- [ ] Publish the updated website.
+- [x] Request publication of the updated website.
 - [x] Rework into a compact proposal-styled project-lead workspace with linked menus and submenus; remove all commercial data.
 - [x] Verify single-screen dashboard, navigation, editing and price-free exports.
 - [x] Build a single-user demo with proposal-based Gantt, phases and linked deliverables.
