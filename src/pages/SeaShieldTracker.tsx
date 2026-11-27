@@ -13,9 +13,14 @@ import { Navigation } from '@/components/seaShield/Navigation';
 import { Gantt } from '@/components/seaShield/Gantt';
 import { PhaseDetail } from '@/components/seaShield/PhaseDetail';
 import { Status } from '@/components/seaShield/Status';
+import { PasswordGate } from '@/components/PasswordGate';
 import '@/styles/sea-shield.css';
 
 export default function SeaShieldTracker() {
+ return <div className="sea-shield"><PasswordGate storageKey="sea-shield" label="Sea-Shield"><SeaShieldWorkspace /></PasswordGate></div>;
+}
+
+function SeaShieldWorkspace() {
  const {language,setLanguage}=useLanguage(), text=trackerText[language], t=workspaceText[language];
  const [params,setParams]=useSearchParams();
  const rawView=params.get('view');
