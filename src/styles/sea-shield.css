@@ -1,13 +1,43 @@
-.sea-shield { background: hsl(var(--background)); }
-.sea-shield .phase-bar { border-left: 3px solid hsl(var(--highlight)); background: hsl(var(--highlight) / .16); color: hsl(var(--foreground)); }
-.sea-shield .phase-bar[data-group="1"] { border-color: hsl(var(--primary)); background: hsl(var(--primary) / .14); }
-.sea-shield .phase-bar[data-group="2"] { border-color: hsl(var(--success)); background: hsl(var(--success) / .13); }
-.sea-shield .phase-bar[data-status="blocked"] { border-color: hsl(var(--destructive)); background: hsl(var(--destructive) / .16); }
-.sea-shield .phase-bar[data-status="signed"] { border-color: hsl(var(--success)); background: hsl(var(--success) / .23); }
-.sea-shield .phase-bar[aria-pressed="true"] { outline: 1px solid hsl(var(--foreground) / .7); outline-offset: 2px; }
-.sea-shield .gantt-grid { background-image: linear-gradient(to right, hsl(var(--border) / .6) 1px, transparent 1px); background-size: calc(100% / 27) 100%; }
-.sea-shield .baseline-bar { height: 3px; background: hsl(var(--muted-foreground) / .5); }
-.sea-shield .progress-fill { background: hsl(var(--highlight)); }
-.sea-shield .phase-row:hover { background: hsl(var(--secondary) / .65); }
-.sea-shield input[type="date"] { color-scheme: dark; }
-.light .sea-shield input[type="date"] { color-scheme: light; }
+.sea-shield {
+ --background: 0 0% 100%; --foreground: 217 32% 18%;
+ --card: 220 33% 98%; --card-foreground: 217 32% 18%;
+ --popover: 0 0% 100%; --popover-foreground: 217 32% 18%;
+ --primary: 220 100% 30%; --primary-foreground: 0 0% 100%;
+ --secondary: 220 36% 95%; --secondary-foreground: 220 100% 30%;
+ --muted: 220 24% 95%; --muted-foreground: 215 12% 40%;
+ --highlight: 28 90% 48%; --highlight-foreground: 0 0% 100%;
+ --accent: 220 36% 94%; --accent-foreground: 220 100% 30%;
+ --border: 216 22% 86%; --input: 216 22% 86%; --ring: 220 100% 30%;
+ --success: 155 58% 30%; --destructive: 0 68% 43%;
+ --font-ui: Arial, Helvetica, sans-serif; --font-mono: Arial, Helvetica, sans-serif;
+ font-family: var(--font-ui); background: hsl(var(--background)); color: hsl(var(--foreground));
+ height: 100dvh; display: flex; flex-direction: column; overflow: hidden;
+}
+.sea-shield .font-mono { font-family: var(--font-ui); }
+.sea-shield .phase-bar { border-left: 3px solid hsl(var(--primary)); background: hsl(var(--primary) / .14); color: hsl(var(--foreground)); }
+.sea-shield .phase-bar[data-group="1"] { border-color: hsl(var(--highlight)); background: hsl(var(--highlight) / .15); }
+.sea-shield .phase-bar[data-group="2"] { border-color: hsl(var(--success)); background: hsl(var(--success) / .14); }
+.sea-shield .phase-bar[data-status="blocked"] { border-color: hsl(var(--destructive)); background: hsl(var(--destructive) / .14); }
+.sea-shield .phase-bar[aria-pressed="true"] { outline: 1px solid hsl(var(--primary)); outline-offset: 1px; }
+.sea-shield .gantt-grid { background-image: linear-gradient(to right, hsl(var(--border) / .7) 1px, transparent 1px); background-size: calc(100% / 27) 100%; }
+.sea-shield .baseline-bar { height: 2px; background: hsl(var(--muted-foreground) / .4); }
+.sea-shield .progress-fill { background: hsl(var(--primary)); }
+.sea-shield .phase-row:hover { background: hsl(var(--secondary)); }
+.sea-shield input[type="date"] { color-scheme: light; }
+.sea-shield .gantt-label { width: 180px; }
+.sea-shield .gantt-row { height: 40px; }
+.sea-shield .gantt-header { height: 50px; }
+.sea-shield .compact-gantt .gantt-row { height: 30px; }
+.sea-shield .compact-gantt .gantt-label { width: 155px; }
+.sea-shield .compact-gantt .phase-bar { top: 7px; height: 19px; font-size: 10px; }
+.sea-shield .compact-gantt .gantt-header { height: 42px; }
+.sea-shield .compact-gantt .gantt-month { padding-top: 5px; padding-bottom: 5px; }
+.sea-shield .compact-gantt .gantt-week { padding-top: 2px; padding-bottom: 2px; }
+.sea-shield .compact-gantt .baseline-bar { bottom: 2px; }
+@media (max-width: 639px) {
+ .sea-shield .compact-gantt .gantt-label { width: 125px; }
+ .sea-shield .compact-gantt .gantt-label .phase-title { font-size: 10px; }
+ .sea-shield .compact-gantt .gantt-week { font-size: 9px !important; }
+ .sea-shield .compact-gantt .phase-bar, .sea-shield .compact-gantt .phase-bar span { font-size: 10px !important; }
+ .sea-shield footer, .sea-shield footer span { font-size: 10px !important; }
+}

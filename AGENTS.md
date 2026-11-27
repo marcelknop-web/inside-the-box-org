@@ -1,5 +1,5 @@
 # Architecture rules
-- Sea-Shield is a direct-link, noindex single-user demo with a proposal-based baseline, scoped Gantt components and versioned browser-only state; sign-off requires every deliverable and listed authority, preventing invented progress and Cloud transfer.
+- Sea-Shield uses query-linked workspace views and phase submenus inside a viewport-height scoped shell, with versioned browser-only state and a non-commercial proposal baseline; sign-off requires every deliverable and authority, preserving traceability without Cloud transfer.
 - The native app showcase is isolated in NavigatorApps with imported asset pointers and shared translation keys, so catalogue presentation does not change workflow behavior.
 - Training dates use shared Berlin calendar-day expiry and per-session end dates, so future sessions never keep expired ones highlighted.
 - Blind Spot sizes the desktop live exercise with a viewport-height flex shell and zero-minimum grid tracks, keeping chat input visible while history scrolls only inside panels.

@@ -36,5 +36,7 @@
 - [x] Verify links and presentation on desktop and mobile.
 
 # Sea-Shield project tracker
+- [x] Rework into a compact proposal-styled project-lead workspace with linked menus and submenus; remove all commercial data.
+- [x] Verify single-screen dashboard, navigation, editing and price-free exports.
 - [x] Build a single-user demo with proposal-based Gantt, phases and linked deliverables.
 - [x] Test project totals and sign-off rules; verify editing, persistence and mobile/desktop layout.

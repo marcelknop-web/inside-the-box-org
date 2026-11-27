@@ -7,7 +7,10 @@ describe('Sea-Shield proposal baseline', () => {
   expect(phases[6].start).toBe('2027-05-10'); expect(phases[7].start).toBe('2027-05-03');
  });
  it('matches 288 person-days in the commercial table', () => expect(phases.reduce((n,p) => n+p.days,0)).toBe(288));
- it('matches the 408440 EUR fixed price in the original offer', () => expect(phases.reduce((n,p) => n+p.price,0)).toBe(408440));
+ it('contains no commercial data in the project-management baseline or export', () => {
+  expect(phases.some(p => 'price' in p)).toBe(false);
+  expect(JSON.stringify({project:PROJECT,baseline:phases,phases:initialState()})).not.toMatch(/price|invoice|408440|73420/);
+ });
  it('preserves all 41 deliverables from slides 8–16', () => expect(phases.reduce((n,p) => n+p.deliverables.length,0)).toBe(41));
  it('starts without invented progress or sign-offs', () => {
   const state = initialState(); expect(phases.every(p => progress(p,state[p.id]) === 0 && state[p.id].status === 'planned')).toBe(true);

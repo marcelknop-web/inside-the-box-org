@@ -1,6 +1,6 @@
 export type PhaseStatus = 'planned' | 'active' | 'review' | 'blocked' | 'signed';
 export interface Phase {
-  id: number; start: string; end: string; days: number; price: number;
+  id: number; start: string; end: string; days: number;
   title: Record<'de' | 'en' | 'fr', string>; group: number; approvers: string[];
   deliverables: { name: string; format: string }[];
 }
@@ -8,31 +8,31 @@ const sponsor = 'CISO Platform Security Lead Maritime';
 const results = (items: [string, string][]) => items.map(([name, format]) => ({ name, format }));
 export const PROJECT = { name: 'Sea-Shield', start: '2027-02-01', end: '2027-08-06', weeks: 27, source: 'DRYNET Proposal · November 2026 · v0.142' };
 export const phases: Phase[] = [
-  { id: 1, start: '2027-02-01', end: '2027-03-12', days: 40, price: 73420, group: 0,
+  { id: 1, start: '2027-02-01', end: '2027-03-12', days: 40, group: 0,
     title: { de: 'Systeme entdecken', en: 'Vessel discovery', fr: 'Découverte des systèmes' }, approvers: ['Fleet IT', 'Fleet Management', sponsor],
     deliverables: results([['Comprehensive IT/OT/IoT network discovery report', 'Word · PDF'], ['Discovery logs (passive and approved active methods)', 'Raw data · Excel'], ['Standalone and air-gapped systems inventory', 'Excel'], ['Network pathway mapping', 'Visio · PDF'], ['Communication protocol mapping', 'Excel'], ['Preliminary observations and gap summary', 'Word · PDF']]) },
-  { id: 2, start: '2027-03-01', end: '2027-03-26', days: 25, price: 30270, group: 0,
+  { id: 2, start: '2027-03-01', end: '2027-03-26', days: 25, group: 0,
     title: { de: 'As-Is-Architektur', en: 'As-Is architecture', fr: 'Architecture As-Is' }, approvers: [sponsor],
     deliverables: results([['As-Is integrated vessel network diagram', 'Visio · PDF'], ['Data-flow diagrams', 'Visio · PDF'], ['Connectivity and access-path maps', 'Visio · PDF'], ['System dependency matrix', 'Excel']]) },
-  { id: 3, start: '2027-03-08', end: '2027-04-09', days: 25, price: 28670, group: 0,
+  { id: 3, start: '2027-03-08', end: '2027-04-09', days: 25, group: 0,
     title: { de: 'Asset-Register', en: 'Asset register', fr: 'Registre des actifs' }, approvers: ['Fleet IT', 'Fleet Management', 'Vessel Representative'],
     deliverables: results([['Unified Vessel Asset Register (100% coverage)', 'Excel · version-controlled'], ['Asset coverage validation report', 'Word · PDF'], ['Stakeholder sign-off sheet', 'Word · PDF']]) },
-  { id: 4, start: '2027-03-29', end: '2027-05-07', days: 34, price: 47970, group: 1,
+  { id: 4, start: '2027-03-29', end: '2027-05-07', days: 34, group: 1,
     title: { de: 'Risiken bewerten', en: 'Risk registers', fr: 'Évaluation des risques' }, approvers: [sponsor, 'Fleet IT', 'Fleet Management'],
     deliverables: results([['Asset-based risk register', 'Excel'], ['Network risk register', 'Excel'], ['Maritime threat landscape analysis', 'Word · PDF'], ['Standards-aligned risk categorisation', 'Excel'], ['Top 3 high-severity risks for IT, OT and IoT', 'Word · PDF']]) },
-  { id: 5, start: '2027-04-26', end: '2027-05-28', days: 35, price: 47470, group: 1,
+  { id: 5, start: '2027-04-26', end: '2027-05-28', days: 35, group: 1,
     title: { de: 'To-Be-Architektur', en: 'To-Be architecture', fr: 'Architecture To-Be' }, approvers: [sponsor],
     deliverables: results([['To-Be network architecture diagram', 'Visio · PDF'], ['Architecture decision log', 'Excel'], ['Workshop materials', 'PowerPoint · PDF'], ['Final To-Be architecture report', 'Word · PDF']]) },
-  { id: 6, start: '2027-05-24', end: '2027-07-02', days: 33, price: 44620, group: 1,
+  { id: 6, start: '2027-05-24', end: '2027-07-02', days: 33, group: 1,
     title: { de: 'Maßnahmen planen', en: 'Mitigation plan', fr: 'Plan de traitement' }, approvers: [sponsor, 'Fleet IT (Network Team)'],
     deliverables: results([['Comprehensive technical mitigation plan', 'Word · Excel'], ['Updated To-Be architecture diagram', 'Visio · PDF'], ['Configuration-level recommendations', 'Excel · Word'], ['Workshop facilitation materials', 'PowerPoint · Excel']]) },
-  { id: 7, start: '2027-05-10', end: '2027-07-09', days: 43, price: 68030, group: 2,
+  { id: 7, start: '2027-05-10', end: '2027-07-09', days: 43, group: 2,
     title: { de: 'Angriffe simulieren', en: 'Cyber simulation', fr: 'Simulation cyber' }, approvers: [sponsor, 'Fleet IT', 'Fleet Management'],
     deliverables: results([['Vendor-hosted isolated cyber simulation environment', 'DRYNET range'], ['Live exploitation demonstration scenarios', 'Live · recorded'], ['Zero-impact safety certification', 'PDF · signed'], ['Workshop delivery for up to 15 participants', 'On site Hamburg'], ['Attack path and impact explanation report', 'Word · PDF']]) },
-  { id: 8, start: '2027-05-03', end: '2027-07-16', days: 36, price: 48120, group: 2,
+  { id: 8, start: '2027-05-03', end: '2027-07-16', days: 36, group: 2,
     title: { de: 'Forensik & Incident Response', en: 'Forensics & IR', fr: 'Forensique & réponse' }, approvers: [sponsor, 'CISO Security Operations'],
     deliverables: results([['Asset-category-based remote forensics workflow', 'Word · PDF'], ['Maritime evidence handling and chain-of-custody guide', 'Word · PDF'], ['Satellite-adjusted IR procedures', 'Word · PDF'], ['Cyber incident response SOPs', 'Word · PDF'], ['Recovery and restoration procedures', 'Word · PDF'], ['IR training material and tactical battle cards', 'PDF · PowerPoint']]) },
-  { id: 9, start: '2027-07-19', end: '2027-08-06', days: 17, price: 19870, group: 2,
+  { id: 9, start: '2027-07-19', end: '2027-08-06', days: 17, group: 2,
     title: { de: 'Governance & Abschluss', en: 'Governance & closure', fr: 'Gouvernance & clôture' }, approvers: [sponsor],
     deliverables: results([['Consolidated documentation set', 'All formats'], ['Governance approval package', 'Word · PowerPoint · PDF'], ['IP assignment confirmation', 'PDF · signed'], ['Project closure report and lessons learned', 'Word · PDF']]) },
 ];
