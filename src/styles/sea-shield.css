@@ -1,0 +1,13 @@
+.sea-shield { background: hsl(var(--background)); }
+.sea-shield .phase-bar { border-left: 3px solid hsl(var(--highlight)); background: hsl(var(--highlight) / .16); color: hsl(var(--foreground)); }
+.sea-shield .phase-bar[data-group="1"] { border-color: hsl(var(--primary)); background: hsl(var(--primary) / .14); }
+.sea-shield .phase-bar[data-group="2"] { border-color: hsl(var(--success)); background: hsl(var(--success) / .13); }
+.sea-shield .phase-bar[data-status="blocked"] { border-color: hsl(var(--destructive)); background: hsl(var(--destructive) / .16); }
+.sea-shield .phase-bar[data-status="signed"] { border-color: hsl(var(--success)); background: hsl(var(--success) / .23); }
+.sea-shield .phase-bar[aria-pressed="true"] { outline: 1px solid hsl(var(--foreground) / .7); outline-offset: 2px; }
+.sea-shield .gantt-grid { background-image: linear-gradient(to right, hsl(var(--border) / .6) 1px, transparent 1px); background-size: calc(100% / 27) 100%; }
+.sea-shield .baseline-bar { height: 3px; background: hsl(var(--muted-foreground) / .5); }
+.sea-shield .progress-fill { background: hsl(var(--highlight)); }
+.sea-shield .phase-row:hover { background: hsl(var(--secondary) / .65); }
+.sea-shield input[type="date"] { color-scheme: dark; }
+.light .sea-shield input[type="date"] { color-scheme: light; }

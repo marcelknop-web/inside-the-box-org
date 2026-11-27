@@ -34,3 +34,7 @@
 # Navigator apps
 - [x] Verify the eight compliance app listings and add a trilingual App Store showcase to /ai-workflows.
 - [x] Verify links and presentation on desktop and mobile.
+
+# Sea-Shield project tracker
+- [x] Build a single-user demo with proposal-based Gantt, phases and linked deliverables.
+- [x] Test project totals and sign-off rules; verify editing, persistence and mobile/desktop layout.

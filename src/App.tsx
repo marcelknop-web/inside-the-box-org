@@ -43,6 +43,7 @@ const RzfSocLife = lazy(() => import("./pages/RzfSocLife"));
 const AssistantZero = lazy(() => import("./pages/AssistantZero"));
 const AssistantZeroOnepager = lazy(() => import("./pages/AssistantZeroOnepager"));
 const RiskQuiz = lazy(() => import("./pages/RiskQuiz"));
+const SeaShieldTracker = lazy(() => import("./pages/SeaShieldTracker"));
 
 const queryClient = new QueryClient();
 
@@ -83,6 +84,7 @@ const App = () => (
               <Route path="/rzf-soc-life" element={<Suspense fallback={<RouteSkeleton />}><RzfSocLife /></Suspense>} />
               <Route path="/risk-life" element={<Suspense fallback={<RouteSkeleton />}><RiskQuiz /></Suspense>} />
               <Route path="/moon-crash" element={<Suspense fallback={<RouteSkeleton />}><MoonCrash /></Suspense>} />
+              <Route path="/sea-shield" element={<Suspense fallback={<RouteSkeleton />}><SeaShieldTracker /></Suspense>} />
 
               {/* Catch-all: every Journey service id (nis2-dora, virtual-ciso, …) renders ChatView */}
               <Route path="/:serviceId" element={<ChatView />} />
